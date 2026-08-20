@@ -133,8 +133,8 @@ paths:
       - in: query
         name: catalogus
         schema:
-          type: integer
-        description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
+          type: string
+          format: uri
       - in: query
         name: datumGeldigheid
         schema:
@@ -1863,9 +1863,8 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: integer
-        description: URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze
-          EIGENSCHAP van belang is.
+          type: string
+          format: uri
       - in: query
         name: zaaktypeIdentificatie
         schema:
@@ -2831,9 +2830,8 @@ paths:
       - in: query
         name: catalogus
         schema:
-          type: integer
-        description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
-          behoort.
+          type: string
+          format: uri
       - in: query
         name: datumGeldigheid
         schema:
@@ -4030,9 +4028,8 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: integer
-        description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten
-          van dit RESULTAATTYPE bereikt kunnen worden.
+          type: string
+          format: uri
       - in: query
         name: zaaktypeIdentificatie
         schema:
@@ -5053,9 +5050,8 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: integer
-        description: URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken
-          kunnen zijn.
+          type: string
+          format: uri
       - in: query
         name: zaaktypeIdentificatie
         schema:
@@ -6050,9 +6046,8 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: integer
-        description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin STATUSsen
-          van dit STATUSTYPE bereikt kunnen worden.
+          type: string
+          format: uri
       - in: query
         name: zaaktypeIdentificatie
         schema:
@@ -7024,8 +7019,8 @@ paths:
       - in: query
         name: catalogus
         schema:
-          type: integer
-        description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+          type: string
+          format: uri
       - in: query
         name: datumBeginGeldigheid
         schema:
@@ -7087,8 +7082,8 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: integer
-        description: URL-referentie naar de ZAAKTYPE waartoe dit ZAAKOBJECTTYPE behoort.
+          type: string
+          format: uri
       - in: query
         name: zaaktypeIdentificatie
         schema:
@@ -8050,8 +8045,8 @@ paths:
       - in: query
         name: informatieobjecttype
         schema:
-          type: integer
-        description: URL-referentie naar het INFORMATIEOBJECTTYPE.
+          type: string
+          format: uri
       - name: page
         required: false
         in: query
@@ -8088,8 +8083,8 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: integer
-        description: URL-referentie naar het ZAAKTYPE.
+          type: string
+          format: uri
       tags:
       - zaaktype-informatieobjecttypen
       security:
@@ -9061,8 +9056,8 @@ paths:
       - in: query
         name: catalogus
         schema:
-          type: integer
-        description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+          type: string
+          format: uri
       - in: query
         name: datumGeldigheid
         schema:

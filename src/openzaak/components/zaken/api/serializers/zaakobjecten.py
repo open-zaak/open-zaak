@@ -9,7 +9,6 @@ from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
 from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.validators import IsImmutableValidator, URLValidator
 
-from openzaak.components.catalogi.models import ZaakObjectType
 from openzaak.components.zaken.validators import CorrectZaaktypeValidator
 from openzaak.utils.auth import get_auth
 from openzaak.utils.serializers import SubSerializerMixin
@@ -180,9 +179,11 @@ class ZaakObjectSerializer(PolymorphicSerializer):
             },
             "zaakobjecttype": {
                 "lookup_field": "uuid",
-                "queryset": ZaakObjectType.objects.all(),
-                "validators": [IsImmutableValidator()],
                 "view_name": "catalogi:zaakobjecttype-detail",
+                "max_length": 1000,
+                "min_length": 1,
+                "allow_null": False,
+                "validators": [IsImmutableValidator()],
             },
         }
         validators = [

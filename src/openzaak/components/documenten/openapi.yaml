@@ -2782,8 +2782,8 @@ paths:
       - in: query
         name: informatieobject
         schema:
-          type: integer
-        description: URL-referentie naar het INFORMATIEOBJECT.
+          type: string
+          format: uri
       - in: query
         name: startdatum__gt
         schema:
@@ -4524,8 +4524,8 @@ paths:
       - in: query
         name: informatieobject
         schema:
-          type: integer
-        description: URL-referentie naar het INFORMATIEOBJECT.
+          type: string
+          format: uri
       - in: query
         name: object
         schema:
@@ -5202,9 +5202,8 @@ paths:
       - in: query
         name: informatieobject
         schema:
-          type: integer
-        description: URL-referentie naar het informatieobject dat is ontvangen of
-          verzonden.
+          type: string
+          format: uri
       - name: page
         required: false
         in: query

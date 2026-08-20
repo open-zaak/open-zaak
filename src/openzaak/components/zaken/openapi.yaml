@@ -1608,8 +1608,8 @@ paths:
       - in: query
         name: besluit
         schema:
-          type: integer
-        description: URL-referentie naar het BESLUIT.
+          type: string
+          format: uri
       - in: query
         name: informatieobject
         schema:
@@ -2293,8 +2293,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
-        description: URL-referentie naar de ZAAK.
+          type: string
+          format: uri
       tags:
       - klantcontacten
       security:
@@ -2931,13 +2931,13 @@ paths:
       - in: query
         name: resultaattype
         schema:
-          type: integer
-        description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
+          type: string
+          format: uri
       - in: query
         name: zaak
         schema:
-          type: integer
-        description: URL-referentie naar de ZAAK.
+          type: string
+          format: uri
       tags:
       - resultaten
       security:
@@ -4100,13 +4100,13 @@ paths:
       - in: query
         name: roltype
         schema:
-          type: integer
-        description: URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.
+          type: string
+          format: uri
       - in: query
         name: zaak
         schema:
-          type: integer
-        description: URL-referentie naar de ZAAK.
+          type: string
+          format: uri
       tags:
       - rollen
       security:
@@ -4949,13 +4949,13 @@ paths:
       - in: query
         name: statustype
         schema:
-          type: integer
-        description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
+          type: string
+          format: uri
       - in: query
         name: zaak
         schema:
-          type: integer
-        description: URL-referentie naar de ZAAK.
+          type: string
+          format: uri
       tags:
       - statussen
       security:
@@ -6409,8 +6409,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
-        description: URL-referentie naar de ZAAK.
+          type: string
+          format: uri
       tags:
       - zaakcontactmomenten
       security:
@@ -6999,8 +6999,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
-        description: URL-referentie naar de ZAAK.
+          type: string
+          format: uri
       tags:
       - zaakinformatieobjecten
       security:
@@ -9270,8 +9270,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
-        description: URL-referentie naar de ZAAK.
+          type: string
+          format: uri
       tags:
       - zaakobjecten
       security:
@@ -10195,8 +10195,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
-        description: URL-referentie naar de ZAAK.
+          type: string
+          format: uri
       tags:
       - zaakverzoeken
       security:
@@ -11280,8 +11280,8 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: integer
-        description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
+          type: string
+          format: uri
       - in: query
         name: zaaktype__omschrijving
         schema:
@@ -14627,8 +14627,8 @@ paths:
                     type: string
                   description: Meerdere waarden kunnen gescheiden worden door komma's.
                 zaaktype:
-                  type: integer
-                  description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
+                  type: string
+                  format: uri
                 archiefnominatie:
                   type: string
                   nullable: true
@@ -15930,8 +15930,9 @@ components:
           maxLength: 1000
         zaakobjecttype:
           type: string
-          description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).
+          minLength: 1
           maxLength: 1000
         objectType:
           allOf:
@@ -16016,8 +16017,9 @@ components:
           maxLength: 1000
         zaakobjecttype:
           type: string
-          description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).
+          minLength: 1
           maxLength: 1000
         objectType:
           allOf:
@@ -16114,8 +16116,9 @@ components:
           maxLength: 1000
         zaakobjecttype:
           type: string
-          description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).
+          minLength: 1
           maxLength: 1000
         objectType:
           allOf:
@@ -16194,8 +16197,9 @@ components:
           maxLength: 1000
         zaakobjecttype:
           type: string
-          description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).
+          minLength: 1
           maxLength: 1000
         objectType:
           allOf:
@@ -19077,11 +19081,12 @@ components:
         zaak:
           type: string
           format: uri
+          minLength: 1
+          maxLength: 1000
         eigenschap:
           type: string
-          minLength: 1
-          description: URL-referentie naar de EIGENSCHAP (in de Catalogi API).
           format: uri
+          minLength: 1
           maxLength: 1000
         waarde:
           type: string
@@ -21422,9 +21427,10 @@ components:
         zaak:
           type: string
           format: uri
+          minLength: 1
+          maxLength: 1000
         eigenschap:
           type: string
-          description: URL-referentie naar de EIGENSCHAP (in de Catalogi API).
           format: uri
           minLength: 1
           maxLength: 1000
@@ -21455,11 +21461,12 @@ components:
         zaak:
           type: string
           format: uri
+          minLength: 1
+          maxLength: 1000
         eigenschap:
           type: string
-          minLength: 1
-          description: URL-referentie naar de EIGENSCHAP (in de Catalogi API).
           format: uri
+          minLength: 1
           maxLength: 1000
         waarde:
           type: string

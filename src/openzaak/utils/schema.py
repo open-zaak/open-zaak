@@ -215,7 +215,9 @@ class AutoSchema(_AutoSchema):
         # add query params to request body schema
         for filter_param in filter_params:
             property = filter_param["schema"]
-            property["description"] = filter_param.get("description")
+            description = filter_param.get("description")
+            if description is not None:
+                property["description"] = description
             schema["properties"][filter_param["name"]] = property
 
         return {"application/json": schema}
