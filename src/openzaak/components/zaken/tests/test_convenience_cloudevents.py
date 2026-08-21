@@ -17,7 +17,6 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
     ZaakobjectTypes,
 )
-from vng_api_common.tests import JWTAuthMixin as _JWTAuthMixin
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -736,19 +735,13 @@ class ZaakConvenienceCloudEventTest(
 @override_settings(
     NOTIFICATIONS_SOURCE="oz-test", ENABLE_CLOUD_EVENTS=True, SITE_DOMAIN="testserver"
 )
-class CloudEventTransactionTests(_JWTAuthMixin, APITransactionTestCase):
+class CloudEventTransactionTests(JWTAuthMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
 
     # TODO
     def setUp(self):
         super().setUp()
-
-        self._create_credentials(
-            self.client_id,
-            self.secret,
-            self.heeft_alle_autorisaties,
-            self.max_vertrouwelijkheidaanduiding,
-        )
+        super().setUpTestData()
 
     def test_transaction_failure_does_not_send_zaak_gemuteerd_cloud_event(
         self, mock_send_cloudevent

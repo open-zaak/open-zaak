@@ -336,7 +336,7 @@ SETUP_CONFIGURATION_STEPS = [
     "zgw_consumers.contrib.setup_configuration.steps.ServiceConfigurationStep",
     "openzaak.config.setup_configuration.steps.SelectielijstAPIConfigurationStep",
     "vng_api_common.contrib.setup_configuration.steps.JWTSecretsConfigurationStep",
-    "vng_api_common.contrib.setup_configuration.steps.ApplicatieConfigurationStep",
+    "openzaak.config.setup_configuration.steps.ApplicatieConfigurationStep",
     "notifications_api_common.contrib.setup_configuration.steps.NotificationConfigurationStep",
 ]
 
@@ -378,6 +378,10 @@ CELERY_BEAT_SCHEDULE = {
     "daily-remove-imports": {
         "task": "openzaak.import_data.tasks.remove_imports",
         "schedule": crontab(hour="9"),
+    },
+    "daily-remove-empty-applications": {
+        "task": "openzaak.components.autorisaties.tasks.remove_empty_applications",
+        "schedule": crontab(hour="2"),
     },
 }
 CELERY_RESULT_EXPIRES = config(
@@ -508,6 +512,8 @@ ZAAK_IDENTIFICATIE_GENERATOR = config(
         )
     ),
 )
+
+DEFAULT_NOTIFICATIONS_HANDLER = "openzaak.utils.handlers.default"
 
 STORE_FAILED_NOTIFS = True
 # silence using upper case in enums

@@ -8,7 +8,6 @@ from freezegun import freeze_time
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import (
     ComponentTypes,
     RelatieAarden,
@@ -19,6 +18,7 @@ from vng_api_common.constants import (
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import get_validation_errors, reverse_lazy
 
+from openzaak.components.autorisaties.models import Applicatie, Autorisatie
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import (
     InformatieObjectTypeFactory,
@@ -92,7 +92,7 @@ class ZaakRegistrerenAuthTests(JWTAuthMixin, APITestCase):
 
         cls.end_statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
 
-    def _add_zaken_auth(self, zaaktype=None, scopes=None):
+    def _add_zaken_auth(self, zaaktype=None, scopes=None, use_default=True):
         if scopes is None:
             scopes = []
 
@@ -100,9 +100,7 @@ class ZaakRegistrerenAuthTests(JWTAuthMixin, APITestCase):
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
             scopes=[SCOPE_ZAKEN_CREATE] + scopes,
-            zaaktype=self.zaaktype_url if zaaktype is None else zaaktype,
-            informatieobjecttype="",
-            besluittype="",
+            zaaktype=zaaktype if zaaktype else self.zaaktype if use_default else None,
             max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
         )
 
@@ -186,7 +184,7 @@ class ZaakRegistrerenAuthTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def test_registreer_zaak_no_zaaktype_in_auth(self):
-        self._add_zaken_auth(zaaktype="", scopes=[SCOPE_ZAKEN_BIJWERKEN])
+        self._add_zaken_auth(scopes=[SCOPE_ZAKEN_BIJWERKEN], use_default=False)
 
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)

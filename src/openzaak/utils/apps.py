@@ -25,8 +25,13 @@ class UtilsConfig(AppConfig):
         from .signals import update_admin_index
 
         from azure.core.exceptions import AzureError
+        from vng_api_common.client import ClientError, NoServiceConfigured
         from vng_api_common.exception_handling import register_exception_handler
-        from openzaak.utils.views import azure_error_handler
+        from openzaak.utils.views import (
+            azure_error_handler,
+            client_error_handler,
+            no_service_configured_error_handler,
+        )
 
         utils.default_user_agent = default_user_agent
 
@@ -43,6 +48,10 @@ class UtilsConfig(AppConfig):
         HANDLERS[models.OneToOneField] = FKHandler
 
         register_exception_handler(AzureError, azure_error_handler)
+        register_exception_handler(ClientError, client_error_handler)
+        register_exception_handler(
+            NoServiceConfigured, no_service_configured_error_handler
+        )
 
 
 def default_user_agent(name=settings.USER_AGENT):

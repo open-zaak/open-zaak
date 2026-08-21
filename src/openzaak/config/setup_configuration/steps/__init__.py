@@ -2,3 +2,4 @@
 # Copyright (C) 2024 Dimpact
 
 from .selectielijst import SelectielijstAPIConfigurationStep  # noqa
+from .applicatie import ApplicatieConfigurationStep  # noqa

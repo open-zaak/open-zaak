@@ -10,13 +10,13 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.zaken.models import ZaakInformatieObject
-from openzaak.utils.query import BlockChangeMixin, LooseFkAuthorizationsFilterMixin
+from openzaak.utils.query import AuthorizationsFilterMixin, BlockChangeMixin
 
 from ..constants import ObjectInformatieObjectTypes
 from ..typing import IORelation
 
 
-class InformatieobjectAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin):
+class InformatieobjectAuthorizationsFilterMixin(AuthorizationsFilterMixin):
     """
     Filter objects whitelisted by the authorizations.
 
@@ -43,13 +43,13 @@ class InformatieobjectAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin
     """
 
     vertrouwelijkheidaanduiding_use = True
-    loose_fk_field = "informatieobjecttype"
+    fk_field = "informatieobjecttype"
 
     @property
     def prefix(self):
         return ""
 
-    def build_queryset(self, local_filters, external_filters) -> models.QuerySet:
+    def build_queryset(self, filters) -> models.QuerySet:
         order_case = VertrouwelijkheidsAanduiding.get_order_expression(
             "vertrouwelijkheidaanduiding"
         )
@@ -64,15 +64,13 @@ class InformatieobjectAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin
 
             filtered = (
                 model.objects.annotate(**annotations)
-                .filter(local_filters | external_filters)
+                .filter(filters)
                 .values("canonical")
             )
             queryset = self.filter(informatieobject__in=filtered)
             # bring it all together now to build the resulting queryset
         else:
-            queryset = self.annotate(**annotations).filter(
-                local_filters | external_filters
-            )
+            queryset = self.annotate(**annotations).filter(filters)
 
         return queryset
 

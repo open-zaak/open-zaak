@@ -524,44 +524,44 @@ class PerformanceTests(
            5-8:   Check feature flag config (PublishValidator) (savepoint, select, insert
                   and savepoint release)
              9:   Lookup zaaktype for permission checks
-         10-13:   Application/CatalogusAutorisatie/Autorisatie lookup for permission checks
-            14:   Begin transaction (savepoint) (from NotificationsCreateMixin)
-            15:   Savepoint for zaakidentificatie generation
-            16:   advisory lock for zaakidentificatie generation
-            17:   Query highest zaakidentificatie number at the moment
-            18:   insert new zaakidentificatie
-            19:   release savepoint
-            20:   release savepoint (commit zaakidentificatie transaction)
-            21:   savepoint for zaak creation
-         22-23:   Lookup zaaktype for validation and cache it in serializer context
-            24:   Select feature flag config (PublishValidator)
-            25:   Lookup zaaktype (again), done by loose_fk.drf.FKOrURLField.run_validation
-            26:   update zaakidentificatie record (from serializer context and earlier
+         10-14:   Application/CatalogusAutorisatie/Autorisatie lookup for permission checks
+            15:   Begin transaction (savepoint) (from NotificationsCreateMixin)
+            16:   Savepoint for zaakidentificatie generation
+            17:   advisory lock for zaakidentificatie generation
+            18:   Query highest zaakidentificatie number at the moment
+            19:   insert new zaakidentificatie
+            20:   release savepoint
+            21:   release savepoint (commit zaakidentificatie transaction)
+            22:   savepoint for zaak creation
+         23-24:   Lookup zaaktype for validation and cache it in serializer context
+            25:   Select feature flag config (PublishValidator)
+            26:   Lookup zaaktype (again), done by loose_fk.drf.FKOrURLField.run_validation
+            27:   update zaakidentificatie record (from serializer context and earlier
                   generation)
-            27:   insert zaken_zaak record
-         28-33:   query related objects for etag update that may be affected (should be
+            28:   insert zaken_zaak record
+         29-34:   query related objects for etag update that may be affected (should be
                   skipped, it's create of root resource!) vng_api_common.caching.signals
-            34:   select zaak relevantezaakrelatie (nested inline create, can't avoid this)
-            35:   select zaak zaakrelatie (nested inline create, can't avoid this)
-            36:   select zaak rollen
-            37:   select zaak status
-            38:   select zaak zaakinformatieobjecten
-            39:   select zaak zaakobjecten
-            40:   select zaak kenmerken (nested inline create, can't avoid this)
-            41:   insert audit trail
-         42-43:   notifications, select created zaak (?), notifs config
-            44:   release savepoint (from NotificationsCreateMixin)
-            45:   savepoint create transaction.on_commit ETag handler (start new transaction)
-            46:   update ETag column of zaak
-            47:   release savepoint (commit transaction)
-            48:   select previous einddatum when saving Zaak (archiving recalculation logic)
+            35:   select zaak relevantezaakrelatie (nested inline create, can't avoid this)
+            36:   select zaak zaakrelatie (nested inline create, can't avoid this)
+            37:   select zaak rollen
+            38:   select zaak status
+            39:   select zaak zaakinformatieobjecten
+            40:   select zaak zaakobjecten
+            41:   select zaak kenmerken (nested inline create, can't avoid this)
+            42:   insert audit trail
+         43-44:   notifications, select created zaak (?), notifs config
+            45:   release savepoint (from NotificationsCreateMixin)
+            46:   savepoint create transaction.on_commit ETag handler (start new transaction)
+            47:   update ETag column of zaak
+            48:   release savepoint (commit transaction)
+            49:   select previous einddatum when saving Zaak (archiving recalculation logic)
 
         """
         # create a random zaak to get some other initial setup queries out of the way
         # (most notable figuring out the PG/postgres version)
         ZaakFactory.create()
 
-        EXPECTED_NUM_QUERIES = 48
+        EXPECTED_NUM_QUERIES = 49
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")
@@ -599,7 +599,7 @@ class PerformanceTests(
 
         # Two additional queries when there are any number of related zaken specified
         # and 9 per specified related zaak
-        EXPECTED_NUM_QUERIES = 48 + 2 + (9 * num_gerelateerde_zaken)
+        EXPECTED_NUM_QUERIES = 49 + 2 + (9 * num_gerelateerde_zaken)
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")

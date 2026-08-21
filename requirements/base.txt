@@ -85,7 +85,7 @@ click-repl==0.2.0
     # via celery
 cloudevents==1.12.0
     # via -r requirements/base.in
-commonground-api-common==2.13.0
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@766a060cf306f4924772e2ab840a8f00e61367ad
     # via
     #   -r requirements/base.in
     #   open-api-framework
@@ -602,6 +602,7 @@ sqlparse==0.5.5
     # via django
 structlog==25.4.0
     # via
+    #   commonground-api-common
     #   django-structlog
     #   notifications-api-common
     #   open-api-framework

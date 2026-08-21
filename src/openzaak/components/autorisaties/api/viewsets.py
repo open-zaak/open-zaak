@@ -8,9 +8,9 @@ from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
-from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.components.autorisaties.models import Applicatie
 from openzaak.components.catalogi.models import (
     BesluitType,
     InformatieObjectType,
