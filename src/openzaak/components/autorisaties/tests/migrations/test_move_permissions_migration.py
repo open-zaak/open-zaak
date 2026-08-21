@@ -9,7 +9,6 @@ class TestMoveApplicationsMigrations(TestMigrations):
     migrate_from = "0017_remove_old_application_fk_on_catalogiautorisatie"
     migrate_to = "0018_move_auth_admin_permissions_to_new_models"
     app = "autorisaties"
-    # execute_in_setup = False
 
     def setUpBeforeMigration(self, apps):
         self.ApplicatieOld = apps.get_model("authorizations", "Applicatie")
