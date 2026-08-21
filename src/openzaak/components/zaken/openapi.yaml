@@ -15948,6 +15948,7 @@ components:
         zaakobjecttype:
           type: string
           format: uri
+          nullable: true
           description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).
           maxLength: 1000
         objectType:
@@ -16034,6 +16035,7 @@ components:
         zaakobjecttype:
           type: string
           format: uri
+          nullable: true
           description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).
           maxLength: 1000
         objectType:
@@ -16132,6 +16134,7 @@ components:
         zaakobjecttype:
           type: string
           format: uri
+          nullable: true
           description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).
           maxLength: 1000
         objectType:
@@ -16212,6 +16215,7 @@ components:
         zaakobjecttype:
           type: string
           format: uri
+          nullable: true
           description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).
           maxLength: 1000
         objectType:
