@@ -30,7 +30,7 @@ drf-extra-fields
 drf-writable-nested
 humanize
 
-commonground-api-common[setup-configuration,testutils,oas] @ git+https://github.com/maykinmedia/commonground-api-common.git@feature/oz-2461-allow-multiple-nested-routers
+commonground-api-common[setup-configuration,testutils,oas] @ git+https://github.com/maykinmedia/commonground-api-common.git@issue/open-zaak-2460-url-model-choice-filter-schema
 maykin-common[axes,mfa,otel,cli,health-checks]
 psycopg[pool, binary]
 zgw-consumers[oauth2]
