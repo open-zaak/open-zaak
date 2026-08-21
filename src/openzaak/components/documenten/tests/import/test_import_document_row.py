@@ -14,9 +14,8 @@ from privates.storages import private_media_storage
 from privates.test import temp_private_root
 from vng_api_common.fields import VertrouwelijkheidsAanduiding
 from vng_api_common.utils import generate_unique_identification
-from zgw_consumers.constants import APITypes
-from zgw_consumers.test.factories import ServiceFactory
 
+from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.constants import (
     ChecksumAlgoritmes,
     OndertekeningSoorten,
@@ -28,14 +27,12 @@ from openzaak.components.documenten.tests.factories import (
     DocumentRowFactory,
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.documenten.tests.utils import (
-    get_catalogus_response,
-    get_informatieobjecttype_response,
-)
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.import_data.tests.utils import ImportTestMixin
 from openzaak.tests.utils.mocks import MockSchemasMixin
+from openzaak.utils import build_absolute_url
 from openzaak.utils.fields import get_default_path
+from openzaak.utils.urls import reverse
 
 
 @temp_private_root()
@@ -50,38 +47,20 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        cls.catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        cls.informatieobjecttype = (
-            "https://externe.catalogus.nl/api/v1/informatieobjecttypen/"
-            "b71f72ef-198d-44d8-af64-ae1932df830a"
-        )
+        cls.request_factory = RequestFactory()
+        cls.request = cls.request_factory.get("/")
 
-        ServiceFactory.create(
-            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        cls.informatieobjecttype_obj = InformatieObjectTypeFactory.create(concept=False)
+        cls.informatieobjecttype = build_absolute_url(
+            reverse(cls.informatieobjecttype_obj), request=cls.request
         )
 
         now = timezone.now()
         cls.creatiedatum = now.date()
 
-        cls.request_factory = RequestFactory()
-
-        cls.request = cls.request_factory.get("/")
-
     def setUp(self):
         self.requests_mock = requests_mock.Mocker()
         self.requests_mock.start()
-
-        self.requests_mock.get(
-            self.informatieobjecttype,
-            json=get_informatieobjecttype_response(
-                self.catalogus, self.informatieobjecttype
-            ),
-        )
-        self.requests_mock.get(
-            self.catalogus,
-            json=get_catalogus_response(self.catalogus, self.informatieobjecttype),
-        )
-
         self.addCleanup(self.requests_mock.stop)
 
         super().setUp()
@@ -126,7 +105,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertEqual(eio.titel, "Document XYZ")
         self.assertEqual(eio.auteur, "Auteur Y")
         self.assertEqual(eio.taal, "nld")
-        self.assertEqual(eio._informatieobjecttype_url, self.informatieobjecttype)
+        self.assertEqual(eio.informatieobjecttype, self.informatieobjecttype_obj)
         self.assertEqual(eio.vertrouwelijkheidaanduiding, "")
 
         with private_media_storage.open(imported_path, "r") as file:
@@ -226,7 +205,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
                 "waarde": "foo",
             },
         )
-        self.assertEqual(eio._informatieobjecttype_url, self.informatieobjecttype)
+        self.assertEqual(eio.informatieobjecttype, self.informatieobjecttype_obj)
         self.assertEqual(eio.trefwoorden, ["foo", "bar"])
 
         with private_media_storage.open(imported_path, "r") as file:
@@ -276,7 +255,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertEqual(eio.titel, "Document XYZ")
         self.assertEqual(eio.auteur, "Auteur Y")
         self.assertEqual(eio.taal, "nld")
-        self.assertEqual(eio._informatieobjecttype_url, self.informatieobjecttype)
+        self.assertEqual(eio.informatieobjecttype, self.informatieobjecttype_obj)
         self.assertEqual(eio.vertrouwelijkheidaanduiding, "")
 
         with private_media_storage.open(imported_path, "r") as file:
@@ -389,7 +368,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
 
     def test_existing_uuid(self):
         existing_eio = EnkelvoudigInformatieObjectFactory(
-            informatieobjecttype=self.informatieobjecttype
+            informatieobjecttype=self.informatieobjecttype_obj
         )
 
         import_file_path = Path("import-test-files/foo.txt")
@@ -586,46 +565,6 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertFalse(document_row.succeeded)
 
         self.assertIn("Unable to copy file for row", document_row.comment)
-
-        self.assertFalse(imported_path.exists())
-
-    def test_invalid_host_header(self):
-        import_file_path = Path("import-test-files/foo.txt")
-        import_file_content = "minimum fields"
-
-        default_imported_file_path = get_default_path(
-            EnkelvoudigInformatieObject.inhoud.field
-        )
-
-        imported_path = Path(default_imported_file_path) / import_file_path.name
-
-        row = DocumentRowFactory(
-            bronorganisatie="706284513",
-            creatiedatum="2024-01-01",
-            titel="Document XYZ",
-            auteur="Auteur Y",
-            taal="nld",
-            bestandspad=str(import_file_path),
-            import_file_content=import_file_content,
-            informatieobjecttype=self.informatieobjecttype,
-        )
-
-        identifier = generate_unique_identification(
-            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
-        )
-
-        request = self.request_factory.get("/", headers={"Host": "foobar.com"})
-
-        document_row = _import_document_row(row, 0, identifier, [], {}, request)
-
-        eio = document_row.instance
-
-        self.assertIsNone(eio)
-
-        self.assertTrue(document_row.processed)
-        self.assertFalse(document_row.succeeded)
-
-        self.assertIn("Unable to import line", document_row.comment)
 
         self.assertFalse(imported_path.exists())
 

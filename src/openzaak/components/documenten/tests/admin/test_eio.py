@@ -59,7 +59,7 @@ class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, WebTest):
         form["canonical"] = canonical.pk
         form["bronorganisatie"] = "000000000"
         form["creatiedatum"] = "2010-01-01"
-        form["_informatieobjecttype"] = informatieobjecttype.pk
+        form["informatieobjecttype"] = informatieobjecttype.pk
         form["titel"] = "test"
         form["auteur"] = "test"
         form["taal"] = "nld"
@@ -87,7 +87,7 @@ class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, WebTest):
         form["canonical"] = canonical.pk
         form["bronorganisatie"] = "000000000"
         form["creatiedatum"] = "2010-01-01"
-        form["_informatieobjecttype"] = informatieobjecttype.pk
+        form["informatieobjecttype"] = informatieobjecttype.pk
         form["titel"] = "test"
         form["auteur"] = "test"
         form["taal"] = "nld"
@@ -122,7 +122,7 @@ class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, WebTest):
         response = form.submit(name="_save")
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Je moet een informatieobjecttype opgeven", response.text)
+        self.assertIn(_("This field is required."), response.text)
 
     def test_delete_without_references(self):
         canonical = EnkelvoudigInformatieObjectCanonicalFactory.create()
@@ -239,14 +239,8 @@ class EnkelvoudigInformatieObjectCanonicalAdminTests(AdminTestMixin, WebTest):
         )
         self.assertEqual(version_form.errors["inhoud"], [_("This field is required.")])
         self.assertEqual(
-            version_form.errors["__all__"],
-            [
-                _("Constraint “%(name)s” is violated.")
-                % {
-                    "name": "documenten_enkelvoudiginformatieobject__informatieobjecttype_or"
-                    "__informatieobjecttype_base_url_filled"
-                }
-            ],
+            version_form.errors["informatieobjecttype"],
+            [_("This field is required.")],
         )
         # should still be zero
         self.assertEqual(EnkelvoudigInformatieObjectCanonical.objects.count(), 0)

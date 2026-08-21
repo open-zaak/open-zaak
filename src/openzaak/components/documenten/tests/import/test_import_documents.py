@@ -10,19 +10,14 @@ from django.test import TestCase, override_settings
 import requests_mock
 from privates.storages import private_media_storage
 from privates.test import temp_private_root
-from zgw_consumers.constants import APITypes
-from zgw_consumers.test.factories import ServiceFactory
 
+from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.exceptions import DocumentBackendNotImplementedError
 from openzaak.components.documenten.import_utils import DocumentRow
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.components.documenten.tasks import import_documents
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
-)
-from openzaak.components.documenten.tests.utils import (
-    get_catalogus_response,
-    get_informatieobjecttype_response,
 )
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.import_data.models import (
@@ -58,14 +53,10 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        cls.catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        cls.informatieobjecttype = (
-            "https://externe.catalogus.nl/api/v1/informatieobjecttypen/"
-            "b71f72ef-198d-44d8-af64-ae1932df830a"
-        )
-
-        ServiceFactory.create(
-            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        # matches the informatieobjecttype UUID hardcoded in the import CSV
+        # fixtures in ./files/
+        cls.informatieobjecttype = InformatieObjectTypeFactory.create(
+            uuid="b71f72ef-198d-44d8-af64-ae1932df830a", concept=False
         )
 
         cls.request_headers = {"SERVER_NAME": "testserver", "SERVER_PORT": 80}
@@ -73,18 +64,6 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
     def setUp(self):
         self.requests_mock = requests_mock.Mocker()
         self.requests_mock.start()
-
-        self.requests_mock.get(
-            self.informatieobjecttype,
-            json=get_informatieobjecttype_response(
-                self.catalogus, self.informatieobjecttype
-            ),
-        )
-        self.requests_mock.get(
-            self.catalogus,
-            json=get_catalogus_response(self.catalogus, self.informatieobjecttype),
-        )
-
         self.addCleanup(self.requests_mock.stop)
 
         super().setUp()

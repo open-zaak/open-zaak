@@ -34,7 +34,7 @@ class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, TestCase):
         add_url = reverse("admin:documenten_enkelvoudiginformatieobject_add")
         data = {
             "uuid": uuid.uuid4(),
-            "_informatieobjecttype": informatieobjecttype.id,
+            "informatieobjecttype": informatieobjecttype.id,
             "canonical": canonical.id,
             "bronorganisatie": "517439943",
             "creatiedatum": "15-11-2019",
@@ -96,7 +96,7 @@ class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, TestCase):
         )
         data = {
             "uuid": informatieobject.uuid,
-            "_informatieobjecttype": informatieobject.informatieobjecttype.id,
+            "informatieobjecttype": informatieobject.informatieobjecttype.id,
             "canonical": informatieobject.canonical.id,
             "bronorganisatie": informatieobject.bronorganisatie,
             "creatiedatum": informatieobject.creatiedatum,

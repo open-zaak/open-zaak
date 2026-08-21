@@ -137,7 +137,7 @@ class BesluitViewSet(
 ):
     """Opvragen en bewerken van BESLUITen."""
 
-    queryset = Besluit.objects.select_related("_besluittype").order_by("-pk")
+    queryset = Besluit.objects.select_related("besluittype").order_by("-pk")
     serializer_class = BesluitSerializer
     filterset_class = BesluitFilter
     lookup_field = "uuid"

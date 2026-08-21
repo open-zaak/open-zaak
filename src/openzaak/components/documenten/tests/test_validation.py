@@ -7,14 +7,11 @@ from copy import deepcopy
 from django.test import override_settings, tag
 from django.utils.translation import gettext_lazy as _
 
-import requests_mock
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse_lazy
-from zgw_consumers.constants import APITypes
-from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
@@ -58,7 +55,10 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(error["code"], code)
 
     def test_validate_informatieobjecttype_invalid(self):
-        ServiceFactory.create(api_root="https://example.com/", api_type=APITypes.ztc)
+        """
+        An informatieobjecttype value that doesn't match any known URL
+        pattern should be a regular validation error, not a server error.
+        """
         url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         response = self.client.post(
@@ -68,24 +68,29 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "informatieobjecttype")
-        self.assertEqual(error["code"], "bad-url")
+        self.assertEqual(error["code"], "no_match")
 
-    @requests_mock.Mocker()
-    def test_validate_informatieobjecttype_invalid_resource(self, m):
-        ServiceFactory.create(api_root="https://example.com/", api_type=APITypes.ztc)
-        m.get("https://example.com/", text="<html><head></head><body></body></html>")
+    def test_validate_informatieobjecttype_invalid_resource(self):
+        """
+        A local informatieobjecttype URL that doesn't resolve to an existing
+        informatieobjecttype should be a regular validation error, not a
+        server error.
+        """
         url = reverse("documenten:enkelvoudiginformatieobject-list")
 
-        with requests_mock.Mocker() as m:
-            m.get("https://example.com/", status_code=200, text="<html></html>")
-
-            response = self.client.post(
-                url, {"informatieobjecttype": "https://example.com/"}
-            )
+        response = self.client.post(
+            url,
+            {
+                "informatieobjecttype": (
+                    f"http://testserver/catalogi/api/v1/informatieobjecttypen/"
+                    f"{uuid.uuid4()}"
+                )
+            },
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "informatieobjecttype")
-        self.assertEqual(error["code"], "invalid-resource")
+        self.assertEqual(error["code"], "does_not_exist")
 
     def test_validate_informatieobjecttype_unpublished(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()

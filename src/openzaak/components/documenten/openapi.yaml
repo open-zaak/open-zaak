@@ -660,8 +660,9 @@ paths:
         name: informatieobjecttype
         schema:
           type: string
-        description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde informatieobjecttype
-          (in deze of een andere API).'
+          format: uri
+        description: URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi
+          API).
       - in: query
         name: locked
         schema:
@@ -6753,11 +6754,11 @@ components:
             van digitaal bestand.
         informatieobjecttype:
           type: string
+          format: uri
           description: URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi
             API).
-          format: uri
-          minLength: 1
           maxLength: 200
+          minLength: 1
         locked:
           type: boolean
           readOnly: true
@@ -6931,11 +6932,11 @@ components:
             van digitaal bestand.
         informatieobjecttype:
           type: string
-          minLength: 1
+          format: uri
           description: URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi
             API).
-          format: uri
           maxLength: 200
+          minLength: 1
         trefwoorden:
           type: array
           items:
@@ -7108,11 +7109,11 @@ components:
             van digitaal bestand.
         informatieobjecttype:
           type: string
+          format: uri
           description: URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi
             API).
-          format: uri
-          minLength: 1
           maxLength: 200
+          minLength: 1
         locked:
           type: boolean
           readOnly: true
@@ -7290,11 +7291,11 @@ components:
             van digitaal bestand.
         informatieobjecttype:
           type: string
-          minLength: 1
+          format: uri
           description: URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi
             API).
-          format: uri
           maxLength: 200
+          minLength: 1
         trefwoorden:
           type: array
           items:
@@ -7453,11 +7454,11 @@ components:
             van digitaal bestand.
         informatieobjecttype:
           type: string
-          minLength: 1
+          format: uri
           description: URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi
             API).
-          format: uri
           maxLength: 200
+          minLength: 1
         trefwoorden:
           type: array
           items:
@@ -8128,11 +8129,11 @@ components:
             van digitaal bestand.
         informatieobjecttype:
           type: string
-          minLength: 1
+          format: uri
           description: URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi
             API).
-          format: uri
           maxLength: 200
+          minLength: 1
         trefwoorden:
           type: array
           items:

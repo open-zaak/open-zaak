@@ -2,13 +2,17 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from urllib.parse import urlparse
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.base import ModelBase
 
-from django_loose_fk.virtual_models import ProxyMixin, get_model_instance
+from django_loose_fk.virtual_models import ProxyMixin
 from vng_api_common.utils import get_resource_for_path
 
 from openzaak.components.catalogi.models import InformatieObjectType
-from openzaak.loaders import AuthorizedRequestsLoader
+from openzaak.loaders import (
+    AuthorizedRequestsLoader,
+    get_model_instance_with_gegevensgroeps,
+)
 
 
 class EIOLoader(AuthorizedRequestsLoader):
@@ -32,14 +36,16 @@ class EIOLoader(AuthorizedRequestsLoader):
             return self.load_local_object(url, model)
 
         data = self.fetch_object(url)
-        model_instance = get_model_instance(model, data, loader=self)
+        model_instance = get_model_instance_with_gegevensgroeps(
+            model, data, loader=self
+        )
         self.add_missing_props(model, model_instance, data)
         return model_instance
 
     def resolve_io_type(self, url: str):
         try:
             return get_resource_for_path(urlparse(url).path)
-        except InformatieObjectType.DoesNotExist:
+        except ObjectDoesNotExist:
             return super().load(url, model=InformatieObjectType)
 
     def add_missing_props(
