@@ -224,7 +224,6 @@ class ClosedZaakRelatedDataNotAllowedTests(JWTAuthMixin, CRUDAssertions, APITest
         zaakobject = ZaakObjectFactory.create(
             zaak=self.zaak,
             object="https://example.com",
-            zaakobjecttype="https://externe.catalogus.nl/api/v1/",
             relatieomschrijving="old",
         )
         zaakobject_url = reverse(zaakobject)
@@ -418,7 +417,6 @@ class ClosedZaakRelatedDataAllowedTests(JWTAuthMixin, CRUDAssertions, APITestCas
         zaakobject = ZaakObjectFactory.create(
             zaak=self.zaak,
             object="https://example.com",
-            zaakobjecttype="https://externe.catalogus.nl/api/v1/",
             relatieomschrijving="old",
         )
         zaakobject_url = reverse(zaakobject)

@@ -2782,7 +2782,8 @@ paths:
       - in: query
         name: informatieobject
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar het INFORMATIEOBJECT.
       - in: query
         name: startdatum__gt
@@ -4524,7 +4525,8 @@ paths:
       - in: query
         name: informatieobject
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar het INFORMATIEOBJECT.
       - in: query
         name: object
@@ -5202,7 +5204,8 @@ paths:
       - in: query
         name: informatieobject
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar het informatieobject dat is ontvangen of
           verzonden.
       - name: page
@@ -8659,8 +8662,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         aardRelatieWeergave:
           allOf:
           - $ref: '#/components/schemas/AardRelatieWeergaveEnum'
@@ -8694,8 +8697,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - aardRelatieWeergave
       - informatieobject
@@ -8710,8 +8713,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         titel:
           type: string
           description: De naam waaronder het INFORMATIEOBJECT binnen het OBJECT bekend
@@ -8734,8 +8737,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - zaak
   securitySchemes:

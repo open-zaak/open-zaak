@@ -47,12 +47,14 @@ from vng_api_common.serializers import (
     CachedHyperlinkedRelatedField,
     CachedNestedHyperlinkedRelatedField,
     GegevensGroepSerializer,
+    LengthHyperlinkedRelatedField,
     NestedGegevensGroepMixin,
     add_choice_values_help_text,
 )
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, UntilNowValidator
 
+from openzaak.components.catalogi.models import Eigenschap
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 from openzaak.components.zaken.archiving import calculate_archiving_data
 from openzaak.components.zaken.validators import CorrectZaaktypeValidator
@@ -824,8 +826,6 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             "datum_status_gezet": {"validators": [DateNotInFutureValidator()]},
             "statustype": {
                 "lookup_field": "uuid",
-                "max_length": 1000,
-                "min_length": 1,
                 "view_name": "catalogi:statustype-detail",
             },
             "indicatie_laatst_gezette_status": {
@@ -1252,9 +1252,15 @@ class ZaakInformatieObjectSubZaakSerializer(
 
 class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {"zaak_uuid": "zaak__uuid"}
-    zaak = CachedHyperlinkedRelatedField(
+    zaak = LengthHyperlinkedRelatedField(
         queryset=Zaak.objects.all(),
         view_name="zaken:zaak-detail",
+        lookup_field="uuid",
+        validators=[IsImmutableValidator()],
+    )
+    eigenschap = LengthHyperlinkedRelatedField(
+        queryset=Eigenschap.objects.all(),
+        view_name="catalogi:eigenschap-detail",
         lookup_field="uuid",
         validators=[IsImmutableValidator()],
     )
@@ -1266,16 +1272,6 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid", "view_name": "zaken:zaakeigenschap-detail"},
             "uuid": {"read_only": True},
             "naam": {"source": "_naam", "read_only": True},
-            "eigenschap": {
-                "lookup_field": "uuid",
-                "max_length": 1000,
-                "min_length": 1,
-                "validators": [
-                    LooseFkResourceValidator("Eigenschap", settings.ZTC_API_STANDARD),
-                    LooseFkIsImmutableValidator(),
-                ],
-                "view_name": "catalogi:eigenschap-detail",
-            },
         }
         validators = [
             CorrectZaaktypeValidator("eigenschap"),

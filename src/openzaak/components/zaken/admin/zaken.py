@@ -128,7 +128,7 @@ class ZaakObjectAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
         "zaak__uuid",
     )
     ordering = ("object_type", "object")
-    raw_id_fields = ("zaak", "_zaakobjecttype_base_url", "_zaakobjecttype")
+    raw_id_fields = ("zaak", "zaakobjecttype")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakObjectViewSet"
     inlines = [
         AdresInline,
@@ -189,16 +189,7 @@ class ZaakEigenschapForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get("_eigenschap") and not cleaned_data.get(
-            "_eigenschap_base_url"
-        ):
-            raise forms.ValidationError(
-                "Je moet een eigenschap opgeven: "
-                "selecteer een eigenschap uit de catalogus of vul een externe URL in."
-            )
-
-        # for now check waarde only for local eigenschap
-        eigenschap = cleaned_data.get("_eigenschap")
+        eigenschap = cleaned_data.get("eigenschap")
         waarde = cleaned_data.get("waarde")
 
         if not eigenschap or not waarde:
@@ -220,12 +211,10 @@ class ZaakEigenschapForm(forms.ModelForm):
 class ZaakEigenschapAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = (
         "zaak",
-        "_eigenschap",
-        "_eigenschap_base_url",
-        "_eigenschap_relative_url",
+        "eigenschap",
         "waarde",
     )
-    list_select_related = ("zaak", "_eigenschap", "_eigenschap_base_url")
+    list_select_related = ("zaak", "eigenschap")
     list_filter = ("_naam",)
     search_fields = (
         "uuid",
@@ -236,11 +225,9 @@ class ZaakEigenschapAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
     form = ZaakEigenschapForm
     ordering = (
         "zaak",
-        "_eigenschap",
-        "_eigenschap_base_url",
-        "_eigenschap_relative_url",
+        "eigenschap",
     )
-    raw_id_fields = ("zaak", "_eigenschap", "_eigenschap_base_url")
+    raw_id_fields = ("zaak", "eigenschap")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakEigenschapViewSet"
 
 

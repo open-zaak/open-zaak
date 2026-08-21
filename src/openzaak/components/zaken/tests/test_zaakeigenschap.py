@@ -7,16 +7,13 @@ ontvangen, zodat ik voldoende details weet om de melding op te volgen.
 ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/52
 """
 
-from django.test import override_settings, tag
+from django.test import override_settings
 
-import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors
-from zgw_consumers.constants import APITypes
-from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.constants import FormaatChoices
 from openzaak.components.catalogi.tests.factories import (
@@ -280,62 +277,6 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
 
         self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
         self.assertEqual(0, ZaakEigenschap.objects.all().count())
-
-
-@tag("external-urls")
-@override_settings(ALLOWED_HOSTS=["testserver"])
-class ZaakEigenschapCreateExternalURLsTests(JWTAuthMixin, APITestCase):
-    heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        ServiceFactory.create(
-            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
-        )
-
-    def test_create_external_eigenschap_fail_bad_url(self):
-        zaak = ZaakFactory()
-        zaak_url = reverse(zaak)
-        url = reverse(ZaakEigenschap, kwargs={"zaak_uuid": zaak.uuid})
-
-        response = self.client.post(
-            url,
-            {
-                "zaak": zaak_url,
-                "eigenschap": "abcd",
-                "waarde": "overlast_water",
-            },
-        )
-
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
-
-        error = get_validation_errors(response, "eigenschap")
-        self.assertEqual(error["code"], "bad-url")
-
-    def test_create_external_eigenschap_fail_not_json_url(self):
-        ServiceFactory.create(api_root="http://example.com/", api_type=APITypes.ztc)
-        zaak = ZaakFactory()
-        zaak_url = reverse(zaak)
-        url = reverse(ZaakEigenschap, kwargs={"zaak_uuid": zaak.uuid})
-
-        with requests_mock.Mocker() as m:
-            m.get("http://example.com/", status_code=200, text="<html></html>")
-
-            response = self.client.post(
-                url,
-                {
-                    "zaak": zaak_url,
-                    "eigenschap": "http://example.com/",
-                    "waarde": "overlast_water",
-                },
-            )
-
-        error = get_validation_errors(response, "eigenschap")
-        self.assertEqual(error["code"], "invalid-resource")
 
 
 class ZaakEigenschapJWTExpiryTests(JWTAuthMixin, APITestCase):

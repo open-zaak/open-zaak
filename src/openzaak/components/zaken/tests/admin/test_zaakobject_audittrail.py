@@ -35,7 +35,7 @@ class ZaakObjectAdminTests(AdminTestMixin, WebTest):
         form["zaak"] = zaak.id
         form["object"] = "http://example.com/adres/1"
         form["object_type"] = "adres"
-        form["_zaakobjecttype"] = zaak_objecttype.id
+        form["zaakobjecttype"] = zaak_objecttype.id
 
         form.submit()
 
