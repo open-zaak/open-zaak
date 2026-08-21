@@ -2931,7 +2931,7 @@ paths:
       - in: query
         name: resultaattype
         schema:
-          type: string
+          type: integer
         description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
       - in: query
         name: zaak
@@ -4100,7 +4100,7 @@ paths:
       - in: query
         name: roltype
         schema:
-          type: string
+          type: integer
         description: URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.
       - in: query
         name: zaak
@@ -15307,9 +15307,9 @@ components:
           maxLength: 625
         roltype:
           type: string
+          format: uri
           description: URL-referentie naar een roltype binnen het ZAAKTYPE van de
             ZAAK.
-          format: uri
           minLength: 1
           maxLength: 1000
         omschrijving:
@@ -15430,10 +15430,10 @@ components:
           maxLength: 625
         roltype:
           type: string
-          minLength: 1
+          format: uri
           description: URL-referentie naar een roltype binnen het ZAAKTYPE van de
             ZAAK.
-          format: uri
+          minLength: 1
           maxLength: 1000
         roltoelichting:
           type: string
@@ -15525,9 +15525,9 @@ components:
           maxLength: 625
         roltype:
           type: string
+          format: uri
           description: URL-referentie naar een roltype binnen het ZAAKTYPE van de
             ZAAK.
-          format: uri
           minLength: 1
           maxLength: 1000
         omschrijving:
@@ -15642,10 +15642,10 @@ components:
           maxLength: 625
         roltype:
           type: string
-          minLength: 1
+          format: uri
           description: URL-referentie naar een roltype binnen het ZAAKTYPE van de
             ZAAK.
-          format: uri
+          minLength: 1
           maxLength: 1000
         roltoelichting:
           type: string
@@ -15735,9 +15735,9 @@ components:
           maxLength: 625
         roltype:
           type: string
+          format: uri
           description: URL-referentie naar een roltype binnen het ZAAKTYPE van de
             ZAAK.
-          format: uri
           minLength: 1
           maxLength: 1000
         omschrijving:
@@ -15855,10 +15855,10 @@ components:
           maxLength: 625
         roltype:
           type: string
-          minLength: 1
+          format: uri
           description: URL-referentie naar een roltype binnen het ZAAKTYPE van de
             ZAAK.
-          format: uri
+          minLength: 1
           maxLength: 1000
         roltoelichting:
           type: string
@@ -19055,9 +19055,9 @@ components:
           maxLength: 1000
         resultaattype:
           type: string
-          minLength: 1
-          description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
+          minLength: 1
           maxLength: 1000
         toelichting:
           type: string
@@ -19918,8 +19918,8 @@ components:
           maxLength: 1000
         resultaattype:
           type: string
-          description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
           minLength: 1
           maxLength: 1000
         toelichting:
@@ -19942,9 +19942,9 @@ components:
           maxLength: 1000
         resultaattype:
           type: string
-          minLength: 1
-          description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
+          minLength: 1
           maxLength: 1000
         toelichting:
           type: string
@@ -19978,8 +19978,8 @@ components:
           maxLength: 1000
         resultaattype:
           type: string
-          description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
           minLength: 1
           maxLength: 1000
         toelichting:
@@ -19996,9 +19996,9 @@ components:
       properties:
         resultaattype:
           type: string
-          minLength: 1
-          description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
+          minLength: 1
           maxLength: 1000
         toelichting:
           type: string

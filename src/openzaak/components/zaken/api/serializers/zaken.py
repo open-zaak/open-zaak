@@ -1028,12 +1028,12 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
 
         resultaattype_archiefactietermijn = resultaat_qs.annotate(
             archief_termijn_duration=Cast(
-                "_resultaattype__archiefactietermijn", DurationField()
+                "resultaattype__archiefactietermijn", DurationField()
             )
         ).values("archief_termijn_duration")[:1]
 
         resultaattype_archiefnominatie = resultaat_qs.values(
-            "_resultaattype__archiefnominatie"
+            "resultaattype__archiefnominatie"
         )[:1]
 
         qs = qs.annotate(
@@ -1050,7 +1050,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         )
 
         qs.filter(
-            resultaat___resultaattype__brondatum_archiefprocedure_afleidingswijze=Afleidingswijze.hoofdzaak
+            resultaat__resultaattype__brondatum_archiefprocedure_afleidingswijze=Afleidingswijze.hoofdzaak
         ).update(
             # If the hoofdzaak is closed with `blijvend_bewaren`, the brondatum will be
             # empty, but the `archiefnominatie` still has to be set for deelzaken
@@ -1381,10 +1381,7 @@ class RolSerializer(PolymorphicSerializer):
                 "lookup_field": "uuid",
                 "max_length": 1000,
                 "min_length": 1,
-                "validators": [
-                    LooseFkResourceValidator("RolType", settings.ZTC_API_STANDARD),
-                    LooseFkIsImmutableValidator(),
-                ],
+                "validators": [IsImmutableValidator()],
                 "help_text": get_help_text("zaken.Rol", "roltype"),
                 "view_name": "catalogi:roltype-detail",
             },
@@ -1529,12 +1526,7 @@ class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
                 "lookup_field": "uuid",
                 "max_length": 1000,
                 "min_length": 1,
-                "validators": [
-                    LooseFkResourceValidator(
-                        "ResultaatType", settings.ZTC_API_STANDARD
-                    ),
-                    LooseFkIsImmutableValidator(),
-                ],
+                "validators": [IsImmutableValidator()],
                 "view_name": "catalogi:resultaattype-detail",
             },
         }

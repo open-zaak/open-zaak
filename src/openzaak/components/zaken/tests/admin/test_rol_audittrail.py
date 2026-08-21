@@ -29,7 +29,7 @@ class RolAdminTests(AdminTestMixin, WebTest):
         form = get_response.forms["rol_form"]
 
         form["zaak"] = zaak.id
-        form["_roltype"] = roltype.id
+        form["roltype"] = roltype.id
         form["betrokkene_type"] = "natuurlijk_persoon"
         form["betrokkene"] = "http://example.com/betrokkene/1"
         form["roltoelichting"] = "desc"
