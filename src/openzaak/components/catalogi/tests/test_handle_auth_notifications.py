@@ -5,8 +5,8 @@ import uuid as _uuid
 import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import AuthorizationsConfig
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.autorisaties.models import Applicatie
 from openzaak.tests.utils import JWTAuthMixin
@@ -18,14 +18,17 @@ from .factories import ZaakTypeFactory
 class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        cls.service = ServiceFactory.create()
+
     @requests_mock.Mocker()
     def test_handle_create_auth(self, m):
         zaaktype = ZaakTypeFactory.create()
-        config = AuthorizationsConfig.get_solo()
+
         uuid = _uuid.uuid4()
-        applicatie_url = (
-            f"{config.authorizations_api_service.api_root}applicaties/{uuid}"
-        )
+        applicatie_url = f"{self.service.api_root}/applicaties/{uuid}"
         webhook_url = reverse("catalogi:notificaties-webhook")
         m.get(
             applicatie_url,
@@ -73,10 +76,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
             client_ids=["id1"], label="before", heeft_alle_autorisaties=True
         )
         uuid = applicatie.uuid
-        config = AuthorizationsConfig.get_solo()
-        applicatie_url = (
-            f"{config.authorizations_api_service.api_root}/applicaties/{uuid}"
-        )
+        applicatie_url = f"{self.service.api_root}/applicaties/{uuid}"
 
         self.assertEqual(applicatie.autorisaties.count(), 0)
 
@@ -129,10 +129,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
             client_ids=["id1"], label="for delete", heeft_alle_autorisaties=True
         )
         uuid = applicatie.uuid
-        config = AuthorizationsConfig.get_solo()
-        applicatie_url = (
-            f"{config.authorizations_api_service.api_root}/applicaties/{uuid}"
-        )
+        applicatie_url = f"{self.service.api_root}/applicaties/{uuid}"
         webhook_url = reverse("catalogi:notificaties-webhook")
         data = {
             "kanaal": "autorisaties",
@@ -157,10 +154,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
             client_ids=["id1"], label="for delete", heeft_alle_autorisaties=True
         )
         uuid = applicatie.uuid
-        config = AuthorizationsConfig.get_solo()
-        applicatie_url = (
-            f"{config.authorizations_api_service.api_root}/applicaties/{uuid}"
-        )
+        applicatie_url = f"{self.service.api_root}/applicaties/{uuid}"
         webhook_url = reverse("catalogi:notificaties-webhook")
         data = {
             "kanaal": "autorisaties",
