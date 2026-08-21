@@ -532,8 +532,7 @@ class ZaakSerializer(
                 "max_length": 1000,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("ZaakType", settings.ZTC_API_STANDARD),
-                    LooseFkIsImmutableValidator(),
+                    IsImmutableValidator(),
                     PublishValidator(),
                 ],
             },
@@ -827,9 +826,6 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
                 "lookup_field": "uuid",
                 "max_length": 1000,
                 "min_length": 1,
-                "validators": [
-                    LooseFkResourceValidator("StatusType", settings.ZTC_API_STANDARD),
-                ],
                 "view_name": "catalogi:statustype-detail",
             },
             "indicatie_laatst_gezette_status": {
@@ -1025,20 +1021,9 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
 
         Archiefnominatie is based on the resulttype and is set when the deelzaak itself is closed.
         """
-        self._update_deelzaken_with_internal_catalogi(
-            hoofdzaak_closed,
-            qs.filter(_zaaktype__isnull=False),
-            brondatum,
-        )
-        self._update_deelzaken_with_external_catalogi(
-            hoofdzaak_closed,
-            qs.filter(_zaaktype_relative_url__isnull=False),
-            brondatum,
-        )
+        self._update_deelzaken(hoofdzaak_closed, qs, brondatum)
 
-    def _update_deelzaken_with_internal_catalogi(
-        self, hoofdzaak_closed: bool, qs, brondatum: date | None
-    ):
+    def _update_deelzaken(self, hoofdzaak_closed: bool, qs, brondatum: date | None):
         resultaat_qs = Resultaat.objects.filter(zaak_id=OuterRef("pk"))
 
         resultaattype_archiefactietermijn = resultaat_qs.annotate(
@@ -1075,35 +1060,6 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             archiefactiedatum=F("computed_archiefactiedatum") if brondatum else None,
             startdatum_bewaartermijn=brondatum,
         )
-
-    def _update_deelzaken_with_external_catalogi(
-        self, hoofdzaak_closed: bool, qs, brondatum: date | None
-    ):
-        for deelzaak in qs.iterator():
-            resultaattype = deelzaak.resultaat.resultaattype
-
-            if (
-                resultaattype.brondatum_archiefprocedure_afleidingswijze
-                == Afleidingswijze.hoofdzaak
-            ):
-                deelzaak.archiefactiedatum = (
-                    brondatum + resultaattype.archiefactietermijn
-                    if brondatum
-                    else brondatum
-                )
-                deelzaak.startdatum_bewaartermijn = brondatum
-                # If the hoofdzaak is closed with `blijvend_bewaren`, the brondatum will be
-                # empty, but the `archiefnominatie` still has to be set for deelzaken
-                deelzaak.archiefnominatie = (
-                    resultaattype.archiefnominatie if hoofdzaak_closed else None
-                )
-                deelzaak.save(
-                    update_fields=[
-                        "archiefnominatie",
-                        "archiefactiedatum",
-                        "startdatum_bewaartermijn",
-                    ]
-                )
 
 
 class StatusSubSerializer(SubSerializerMixin, StatusSerializer):

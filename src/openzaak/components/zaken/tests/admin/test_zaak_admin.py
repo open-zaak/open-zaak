@@ -13,7 +13,6 @@ from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.constants import (
     RolOmschrijving,
     RolTypes,
-    VertrouwelijkheidsAanduiding,
 )
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
@@ -157,109 +156,47 @@ class ZaakAdminTests(AdminTestMixin, WebTest):
         self.assertContains(response, zaaktype.identificatie)
         self.assertContains(response, statustype.statustype_omschrijving)
 
-    def test_changelist_values_remote(self):
-        """
-        Tests that the ZAAK's result, status and zaaktype are shown on the changelist
-        view. These should only be shown when the values are stored locally in the db.
-        """
-        zaaktype_uuid = "eae1791c-2f23-48c7-bae5-1a83574b67fe"
-        zaaktype = f"{self.service.api_root}zaken/{zaaktype_uuid}"
-        resultaattype = (
-            f"{self.service.api_root}/resultaten/67161be9-f386-4b20-a3e4-47ff6fdfd57e"
-        )
-        statustype = (
-            f"{self.service.api_root}/statustypen/e5754fe2-83ac-431f-8e72-fe6dc063b92b"
-        )
-
-        ZaakFactory.create(identificatie="some", zaaktype=zaaktype)
-
-        ResultaatFactory(resultaattype=resultaattype)
-        StatusFactory(statustype=statustype)
-
-        zaak_list_url = reverse("admin:zaken_zaak_changelist")
-
-        with requests_mock.Mocker() as request_mocker:
-            response = self.app.get(zaak_list_url)
-
-        self.assertFalse(request_mocker.called)
-
-        self.assertEqual(response.status_code, 200)
-
-    def test_create_with_external_zaaktype(self):
-        """
-        Add a zaak with an external zaaktype
-        """
-        zaak_add_url = reverse("admin:zaken_zaak_add")
-
-        response = self.app.get(zaak_add_url)
-
-        form = response.forms["zaak_form"]
-        form["_zaaktype_base_url"] = self.service.pk
-        form["_zaaktype_relative_url"] = "zaken/c10edbb4-d038-4333-a9ba-bbccfc8fa8bd"
-        form["vertrouwelijkheidaanduiding"] = VertrouwelijkheidsAanduiding.openbaar
-        form["bronorganisatie"] = "517439943"
-        form["identificatie"] = "ZAAK1"
-        form["verantwoordelijke_organisatie"] = "517439943"
-        form["startdatum"] = "2023-01-01"
-        form["registratiedatum"] = "2023-01-01"
-
-        submit_response = form.submit()
-
-        self.assertEqual(submit_response.status_code, 302)
-
     def test_zaaktype_omschrijving_search(self):
         """
         Search for zaken with the given zaaktype__zaaktype_omschrijving
         """
-        external_zaaktype = (
-            "https://external.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        )
-        # zaak with external zaaktype
-        ZaakFactory(zaaktype=external_zaaktype, identificatie="zaak-external")
+        matching = ZaakTypeFactory(zaaktype_omschrijving="foobar")
+        other = ZaakTypeFactory(zaaktype_omschrijving="something else")
 
-        zaaktype = ZaakTypeFactory(zaaktype_omschrijving="foobar")
-        # zaak with internal zaaktype
-        ZaakFactory.create(zaaktype=zaaktype, identificatie="zaak-XYZ")
+        ZaakFactory(zaaktype=matching, identificatie="zaak-XYZ")
+        ZaakFactory(zaaktype=other, identificatie="zaak-other")
 
-        with requests_mock.Mocker() as requests_mocker:
-            response = self.app.get(reverse("admin:zaken_zaak_changelist"))
+        response = self.app.get(reverse("admin:zaken_zaak_changelist"))
 
-            form = response.forms["changelist-search"]
-            form["q"] = "foobar"
+        form = response.forms["changelist-search"]
+        form["q"] = "foobar"
 
-            submit_response = form.submit()
+        submit_response = form.submit()
 
-        self.assertEqual(requests_mocker.request_history, [])
         self.assertEqual(submit_response.status_code, 200)
         self.assertContains(submit_response, "zaak-XYZ")
-        self.assertNotContains(submit_response, "zaak-external")
+        self.assertNotContains(submit_response, "zaak-other")
 
     def test_zaaktype_identificatie_search(self):
         """
-        Search for zaken with the given zaaktype__identificatie
+        Search for zaken with the given zaaktype__identificatie.
         """
-        external_zaaktype = (
-            "https://external.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        )
-        # zaak with external zaaktype
-        ZaakFactory(zaaktype=external_zaaktype, identificatie="zaak-external")
+        matching_zaaktype = ZaakTypeFactory(identificatie="internal-zaaktype")
+        other_zaaktype = ZaakTypeFactory(identificatie="other-zaaktype")
 
-        zaaktype = ZaakTypeFactory(identificatie="internal-zaaktype")
-        # zaak with internal zaaktype
-        ZaakFactory.create(zaaktype=zaaktype, identificatie="zaak-XYZ")
+        ZaakFactory(zaaktype=matching_zaaktype, identificatie="zaak-XYZ")
+        ZaakFactory(zaaktype=other_zaaktype, identificatie="zaak-other")
 
-        with requests_mock.Mocker() as requests_mocker:
-            response = self.app.get(reverse("admin:zaken_zaak_changelist"))
+        response = self.app.get(reverse("admin:zaken_zaak_changelist"))
 
-            form = response.forms["changelist-search"]
-            form["q"] = "internal-zaaktype"
+        form = response.forms["changelist-search"]
+        form["q"] = "internal-zaaktype"
 
-            submit_response = form.submit()
+        submit_response = form.submit()
 
-        self.assertEqual(requests_mocker.request_history, [])
         self.assertEqual(submit_response.status_code, 200)
         self.assertContains(submit_response, "zaak-XYZ")
-        self.assertNotContains(submit_response, "zaak-external")
+        self.assertNotContains(submit_response, "zaak-other")
 
     def test_filter_on_betrokkene_bsn(self):
         rol = RolFactory.create(

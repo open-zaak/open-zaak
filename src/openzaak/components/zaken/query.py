@@ -38,6 +38,7 @@ class ZaakAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin):
 
     vertrouwelijkheidaanduiding_use = True
     loose_fk_field = "zaaktype"
+    supports_external_field = False
 
 
 class ZaakQuerySet(ZaakAuthorizationsFilterMixin, models.QuerySet):

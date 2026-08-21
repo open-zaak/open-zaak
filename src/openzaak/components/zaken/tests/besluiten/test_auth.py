@@ -8,8 +8,7 @@ from django.test import override_settings, tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Autorisatie
-from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import AuthCheckMixin
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
@@ -30,13 +29,6 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
-
-BESLUITTYPE_EXTERNAL = (
-    "https://externe.catalogus.nl/api/v1/besluiten/b71f72ef-198d-44d8-af64-ae1932df830a"
-)
-BESLUITTYPE_EXTERNAL2 = (
-    "https://externe.catalogus.nl/api/v1/besluiten/77792ada-3a7b-45a4-9239-f2532b61ad35"
-)
 
 
 class BesluitScopeForbiddenTests(AuthCheckMixin, APITestCase):
@@ -466,7 +458,7 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
 
     def test_besluit_list(self):
         BesluitFactory.create(besluittype=self.besluittype)
-        BesluitFactory.create(besluittype=BESLUITTYPE_EXTERNAL)
+        BesluitFactory.create()
         url = reverse("zaken:besluit-list")
 
         response = self.client.get(url)
@@ -480,50 +472,9 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
             results[0]["besluittype"], f"http://testserver{reverse(self.besluittype)}"
         )
 
-    def test_besluit_list_internal_and_external_with_filtering(self):
-        Autorisatie.objects.create(
-            applicatie=self.applicatie,
-            component=self.component,
-            scopes=self.scopes or [],
-            zaaktype="",
-            informatieobjecttype="",
-            besluittype=BESLUITTYPE_EXTERNAL,
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-
-        # Should show up
-        BesluitFactory.create(
-            besluittype=self.besluittype, verantwoordelijke_organisatie="000000000"
-        )
-        BesluitFactory.create(
-            besluittype=BESLUITTYPE_EXTERNAL, verantwoordelijke_organisatie="000000000"
-        )
-
-        # Should not show up due to filtering
-        BesluitFactory.create(
-            besluittype=self.besluittype, verantwoordelijke_organisatie="123456789"
-        )
-        # Should not show up due to lacking permissions
-        BesluitFactory.create(
-            besluittype=BESLUITTYPE_EXTERNAL2, verantwoordelijke_organisatie="000000000"
-        )
-        url = reverse("zaken:besluit-list")
-
-        response = self.client.get(url, {"verantwoordelijkeOrganisatie": "000000000"})
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        results = response.data["results"]
-
-        self.assertEqual(len(results), 2)
-        self.assertEqual(results[0]["besluittype"], BESLUITTYPE_EXTERNAL)
-        self.assertEqual(
-            results[1]["besluittype"], f"http://testserver{reverse(self.besluittype)}"
-        )
-
     def test_besluit_retrieve(self):
         besluit1 = BesluitFactory.create(besluittype=self.besluittype)
-        besluit2 = BesluitFactory.create(besluittype=BESLUITTYPE_EXTERNAL)
+        besluit2 = BesluitFactory.create()
         url1 = reverse(besluit1, namespace="zaken")
         url2 = reverse(besluit2, namespace="zaken")
 
@@ -540,7 +491,7 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
             besluit__besluittype=self.besluittype,
         )
         # must not show up
-        BesluitInformatieObjectFactory.create(besluit__besluittype=BESLUITTYPE_EXTERNAL)
+        BesluitInformatieObjectFactory.create()
 
         response = self.client.get(url)
 
@@ -557,88 +508,7 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
         bio1 = BesluitInformatieObjectFactory.create(
             besluit__besluittype=self.besluittype
         )
-        bio2 = BesluitInformatieObjectFactory.create(
-            besluit__besluittype=BESLUITTYPE_EXTERNAL
-        )
-
-        url1 = reverse(bio1, namespace="zaken")
-        url2 = reverse(bio2, namespace="zaken")
-
-        response1 = self.client.get(url1)
-        response2 = self.client.get(url2)
-
-        self.assertEqual(response1.status_code, status.HTTP_200_OK, response1.data)
-        self.assertEqual(
-            response2.status_code, status.HTTP_403_FORBIDDEN, response2.data
-        )
-
-
-@tag("external-urls")
-@override_settings(ALLOWED_HOSTS=["testserver"])
-class ExternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
-    scopes = [SCOPE_BESLUITEN_ALLES_LEZEN]
-    besluittype = BESLUITTYPE_EXTERNAL
-    component = ComponentTypes.brc
-
-    def test_besluit_list(self):
-        BesluitFactory.create(besluittype=self.besluittype)
-        BesluitFactory.create(
-            besluittype="https://externe.catalogus.nl/api/v1/besluiten/1"
-        )
-        url = reverse("zaken:besluit-list")
-
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        results = response.data["results"]
-
-        self.assertEqual(len(results), 1)
-        self.assertEqual(results[0]["besluittype"], self.besluittype)
-
-    def test_besluit_retrieve(self):
-        besluit1 = BesluitFactory.create(besluittype=self.besluittype)
-        besluit2 = BesluitFactory.create(
-            besluittype="https://externe.catalogus.nl/api/v1/besluiten/1"
-        )
-        url1 = reverse(besluit1, namespace="zaken")
-        url2 = reverse(besluit2, namespace="zaken")
-
-        response1 = self.client.get(url1)
-        response2 = self.client.get(url2)
-
-        self.assertEqual(response1.status_code, status.HTTP_200_OK)
-        self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_bio_list(self):
-        url = reverse(BesluitInformatieObject, namespace="zaken")
-        # must show up
-        bio1 = BesluitInformatieObjectFactory.create(
-            besluit__besluittype=self.besluittype
-        )
-        # must not show up
-        BesluitInformatieObjectFactory.create(
-            besluit__besluittype="https://externe.catalogus.nl/api/v1/besluiten/1"
-        )
-
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        response_data = response.json()
-
-        self.assertEqual(len(response_data), 1)
-
-        besluit_url = reverse(bio1.besluit, namespace="zaken")
-        self.assertEqual(response_data[0]["besluit"], f"http://testserver{besluit_url}")
-
-    def test_bio_retrieve(self):
-        bio1 = BesluitInformatieObjectFactory.create(
-            besluit__besluittype=self.besluittype
-        )
-        bio2 = BesluitInformatieObjectFactory.create(
-            besluit__besluittype="https://externe.catalogus.nl/api/v1/besluiten/1",
-        )
+        bio2 = BesluitInformatieObjectFactory.create()
 
         url1 = reverse(bio1, namespace="zaken")
         url2 = reverse(bio2, namespace="zaken")

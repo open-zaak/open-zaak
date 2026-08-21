@@ -39,7 +39,6 @@ from openzaak.utils.urls import reverse, reverse_lazy
 
 from ..models import Zaak, ZaakInformatieObject
 from .factories import StatusFactory, ZaakFactory, ZaakInformatieObjectFactory
-from .utils import get_zaaktype_response
 
 
 @temp_private_root()
@@ -747,75 +746,6 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             error["code"], "missing-zaaktype-informatieobjecttype-relation"
         )
 
-    def test_zaaktype_external_iotype_external_success(self):
-        catalogus = f"{self.base}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        zaaktype = f"{self.base}zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        zaak = ZaakFactory.create(zaaktype=zaaktype)
-        zaak_url = f"http://openzaak.nl{reverse(zaak)}"
-        informatieobjecttype = f"{self.base}informatieobjecttypen/{uuid.uuid4()}"
-        zaaktype_data = get_zaaktype_response(catalogus, zaaktype)
-        zaaktype_data["informatieobjecttypen"] = [informatieobjecttype]
-
-        with requests_mock.Mocker() as m:
-            m.get(zaaktype, json=zaaktype_data)
-            m.get(
-                informatieobjecttype,
-                json=get_informatieobjecttype_response(catalogus, informatieobjecttype),
-            )
-            m.get(
-                self.document,
-                json=get_eio_response(
-                    self.document, informatieobjecttype=informatieobjecttype
-                ),
-            )
-            m.post(
-                f"{self.base}objectinformatieobjecten",
-                json=get_oio_response(self.document, zaak_url),
-                status_code=201,
-            )
-
-            response = self.client.post(
-                self.list_url,
-                {"zaak": zaak_url, "informatieobject": self.document},
-                headers={"host": "openzaak.nl"},
-            )
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_zaaktype_external_iotype_external_fail(self):
-        catalogus = f"{self.base}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        zaaktype = f"{self.base}zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        zaak = ZaakFactory.create(zaaktype=zaaktype)
-        zaak_url = f"http://openzaak.nl{reverse(zaak)}"
-        informatieobjecttype = f"{self.base}informatieobjecttypen/{uuid.uuid4()}"
-
-        with requests_mock.Mocker() as m:
-            mock_drc_oas_get(m)
-            m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
-            m.get(
-                informatieobjecttype,
-                json=get_informatieobjecttype_response(catalogus, informatieobjecttype),
-            )
-            m.get(
-                self.document,
-                json=get_eio_response(
-                    self.document, informatieobjecttype=informatieobjecttype
-                ),
-            )
-
-            response = self.client.post(
-                self.list_url,
-                {"zaak": zaak_url, "informatieobject": self.document},
-                headers={"host": "openzaak.nl"},
-            )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(
-            error["code"], "missing-zaaktype-informatieobjecttype-relation"
-        )
-
     def test_zaaktype_internal_iotype_external(self):
         zaak = ZaakFactory.create()
         zaak_url = f"http://openzaak.nl{reverse(zaak)}"
@@ -837,35 +767,6 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                     self.document, informatieobjecttype=informatieobjecttype
                 ),
             )
-
-            response = self.client.post(
-                self.list_url,
-                {"zaak": zaak_url, "informatieobject": self.document},
-                headers={"host": "openzaak.nl"},
-            )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(
-            error["code"], "missing-zaaktype-informatieobjecttype-relation"
-        )
-
-    def test_zaaktype_external_iotype_internal(self):
-        catalogus = f"{self.base}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        zaaktype = f"{self.base}zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        zaak = ZaakFactory.create(zaaktype=zaaktype)
-        zaak_url = f"http://openzaak.nl{reverse(zaak)}"
-        informatieobjecttype = InformatieObjectTypeFactory.create()
-        eio_response = get_eio_response(
-            self.document,
-            informatieobjecttype=f"http://openzaak.nl{reverse(informatieobjecttype)}",
-        )
-
-        with requests_mock.Mocker() as m:
-            mock_drc_oas_get(m)
-            m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
-            m.get(self.document, json=eio_response)
 
             response = self.client.post(
                 self.list_url,

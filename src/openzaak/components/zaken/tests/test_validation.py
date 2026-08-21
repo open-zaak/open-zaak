@@ -199,53 +199,6 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-    @override_settings(ALLOWED_HOSTS=["testserver"])
-    def test_statustype_bad_url(self):
-        ServiceFactory.create(
-            api_root="https://ander.statustype.nl/", api_type=APITypes.ztc
-        )
-        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
-        zaak_url = reverse(zaak)
-        list_url = reverse("zaken:status-list")
-
-        response = self.client.post(
-            list_url,
-            {
-                "zaak": zaak_url,
-                "statustype": "https://ander.statustype.nl/foo/bar",
-                "datumStatusGezet": isodatetime(2018, 10, 1, 10, 00, 00),
-            },
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "statustype")
-        self.assertEqual(error["code"], "bad-url")
-
-    @override_settings(ALLOWED_HOSTS=["testserver"])
-    def test_statustype_invalid_resource(self):
-        ServiceFactory.create(api_root="https://example.com/", api_type=APITypes.ztc)
-        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
-        zaak_url = reverse(zaak)
-        list_url = reverse("zaken:status-list")
-
-        with requests_mock.Mocker() as m:
-            m.get("https://example.com/", status_code=200, text="<html></html>")
-
-            response = self.client.post(
-                list_url,
-                {
-                    "zaak": zaak_url,
-                    "statustype": "https://example.com/",
-                    "datumStatusGezet": isodatetime(2018, 10, 1, 10, 00, 00),
-                },
-            )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "statustype")
-        self.assertEqual(error["code"], "invalid-resource")
-
     def test_statustype_zaaktype_mismatch(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
