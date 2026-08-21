@@ -111,6 +111,7 @@ class ZaakObjectSerializer(PolymorphicSerializer):
             ZaakobjectTypes.natuurlijk_persoon: NatuurlijkPersoonIdentificatieSerializer(),
             ZaakobjectTypes.niet_natuurlijk_persoon: NietNatuurlijkPersoonIdentificatieSerializer(),
             ZaakobjectTypes.openbare_ruimte: ObjectOpenbareRuimteSerializer(),
+            ZaakobjectTypes.product: None,
             ZaakobjectTypes.organisatorische_eenheid: OrganisatorischeEenheidIdentificatieSerializer(),
             ZaakobjectTypes.pand: ObjectPandSerializer(),
             ZaakobjectTypes.spoorbaandeel: ObjectSpoorbaandeelSerializer(),

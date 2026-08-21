@@ -1419,3 +1419,43 @@ class ZaakObjectBagPandTests(JWTAuthMixin, APITestCase):
             "http://outway.nlx:8443/kadaster/bag/panden/0344100000011708?geldigOp=2020-03-04",
         )
         self.assertNotIn("X-Api-Key", m.last_request.headers)
+
+
+class ZaakObjectProductTests(JWTAuthMixin, APITestCase):
+    """
+    tests for a zaakobject with experimental type "product"
+    """
+
+    heeft_alle_autorisaties = True
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    def test_create_zaakobject(self):
+        url = get_operation_url("zaakobject_create")
+        zaak = ZaakFactory.create()
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "object": OBJECT,
+            "objectType": ZaakobjectTypes.product,
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(ZaakObject.objects.count(), 1)
+
+        zaakobject = ZaakObject.objects.get()
+
+        self.assertEqual(zaakobject.object, OBJECT)
+
+    def test_delete_zaakobject(self):
+        zaak = ZaakFactory.create()
+        zaakobject = ZaakObjectFactory.create(
+            zaak=zaak, object=OBJECT, object_type=ZaakobjectTypes.product
+        )
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(ZaakObject.objects.count(), 0)

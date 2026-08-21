@@ -10618,6 +10618,7 @@ components:
             * `medewerker` - Medewerker
             * `natuurlijk_persoon` - Natuurlijk persoon
             * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `product` - **EXPERIMENTEEL**: Product
             * `openbare_ruimte` - Openbare ruimte
             * `organisatorische_eenheid` - Organisatorische eenheid
             * `pand` - Pand
@@ -10723,6 +10724,7 @@ components:
             * `medewerker` - Medewerker
             * `natuurlijk_persoon` - Natuurlijk persoon
             * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `product` - **EXPERIMENTEEL**: Product
             * `openbare_ruimte` - Openbare ruimte
             * `organisatorische_eenheid` - Organisatorische eenheid
             * `pand` - Pand
@@ -11413,6 +11415,7 @@ components:
       - medewerker
       - natuurlijk_persoon
       - niet_natuurlijk_persoon
+      - product
       - openbare_ruimte
       - organisatorische_eenheid
       - pand
