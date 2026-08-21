@@ -181,8 +181,8 @@ class ZaakObjectSerializer(PolymorphicSerializer):
                 "lookup_field": "uuid",
                 "view_name": "catalogi:zaakobjecttype-detail",
                 "max_length": 1000,
-                "min_length": 1,
-                "allow_null": False,
+                "min_length": 0,
+                "allow_null": True,
                 "validators": [IsImmutableValidator()],
             },
         }
