@@ -48,7 +48,7 @@ class AuthHandler(_AuthHandler):
             applicatie_serializer = ApplicatieUuidSerializer(
                 applicatie, data=applicatie_data
             )
-        applicatie_serializer.is_valid()
+        applicatie_serializer.is_valid(raise_exception=True)
         applicatie_serializer.save()
 
 
