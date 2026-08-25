@@ -44,6 +44,7 @@ class InformatieobjectAuthorizationsFilterMixin(AuthorizationsFilterMixin):
 
     vertrouwelijkheidaanduiding_use = True
     fk_field = "informatieobjecttype"
+    allow_external = True
 
     @property
     def prefix(self):

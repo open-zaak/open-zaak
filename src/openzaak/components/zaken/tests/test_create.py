@@ -523,12 +523,12 @@ class PerformanceTests(
            4-6:   Initialize feature flag config (savepoint, insert, release)
              7:   Look up secret for auth client ID
           8-11:   Application/CatalogusAutorisatie/Autorisatie lookup for permission checks
-         12-18:   Generate zaakidentificatie (savepoints, advisory lock, lookup max, insert)
-             19:   Savepoint for zaak creation
-         20-21:   Lookup zaaktype and feature flag config for validation
-         22-24:   Lookup previous value, update zaakidentificatie, insert zaak
-         25-38:   Query related objects (rollen, status, informatieobjecten,
-                  resultaten, relaties, kenmerken, besluiten, etc.) for serialization/audit
+         12-19:   Generate zaakidentificatie (savepoints, advisory lock, lookup max, insert)
+             20:   Savepoint for zaak creation
+         21-22:   Lookup zaaktype and feature flag config for validation
+         23-25:   Lookup previous value, update zaakidentificatie, insert zaak
+         26-38:   Query related objects (rollen, status, informatieobjecten,
+                  resultaten, relaties, kenmerken, besluiten etc.) for serialization/audit
              39:   Insert audit trail
          40-41:   Notifications config and select created zaak
              42:   Release savepoint (NotificationsCreateMixin)
