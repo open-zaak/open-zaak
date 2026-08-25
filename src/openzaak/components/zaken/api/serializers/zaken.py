@@ -47,12 +47,14 @@ from vng_api_common.serializers import (
     CachedHyperlinkedRelatedField,
     CachedNestedHyperlinkedRelatedField,
     GegevensGroepSerializer,
+    LengthHyperlinkedRelatedField,
     NestedGegevensGroepMixin,
     add_choice_values_help_text,
 )
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, UntilNowValidator
 
+from openzaak.components.catalogi.models import Eigenschap
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 from openzaak.components.zaken.archiving import calculate_archiving_data
 from openzaak.components.zaken.validators import CorrectZaaktypeValidator
@@ -532,8 +534,7 @@ class ZaakSerializer(
                 "max_length": 1000,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("ZaakType", settings.ZTC_API_STANDARD),
-                    LooseFkIsImmutableValidator(),
+                    IsImmutableValidator(),
                     PublishValidator(),
                 ],
             },
@@ -825,11 +826,6 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             "datum_status_gezet": {"validators": [DateNotInFutureValidator()]},
             "statustype": {
                 "lookup_field": "uuid",
-                "max_length": 1000,
-                "min_length": 1,
-                "validators": [
-                    LooseFkResourceValidator("StatusType", settings.ZTC_API_STANDARD),
-                ],
                 "view_name": "catalogi:statustype-detail",
             },
             "indicatie_laatst_gezette_status": {
@@ -1025,30 +1021,19 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
 
         Archiefnominatie is based on the resulttype and is set when the deelzaak itself is closed.
         """
-        self._update_deelzaken_with_internal_catalogi(
-            hoofdzaak_closed,
-            qs.filter(_zaaktype__isnull=False),
-            brondatum,
-        )
-        self._update_deelzaken_with_external_catalogi(
-            hoofdzaak_closed,
-            qs.filter(_zaaktype_relative_url__isnull=False),
-            brondatum,
-        )
+        self._update_deelzaken(hoofdzaak_closed, qs, brondatum)
 
-    def _update_deelzaken_with_internal_catalogi(
-        self, hoofdzaak_closed: bool, qs, brondatum: date | None
-    ):
+    def _update_deelzaken(self, hoofdzaak_closed: bool, qs, brondatum: date | None):
         resultaat_qs = Resultaat.objects.filter(zaak_id=OuterRef("pk"))
 
         resultaattype_archiefactietermijn = resultaat_qs.annotate(
             archief_termijn_duration=Cast(
-                "_resultaattype__archiefactietermijn", DurationField()
+                "resultaattype__archiefactietermijn", DurationField()
             )
         ).values("archief_termijn_duration")[:1]
 
         resultaattype_archiefnominatie = resultaat_qs.values(
-            "_resultaattype__archiefnominatie"
+            "resultaattype__archiefnominatie"
         )[:1]
 
         qs = qs.annotate(
@@ -1065,7 +1050,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         )
 
         qs.filter(
-            resultaat___resultaattype__brondatum_archiefprocedure_afleidingswijze=Afleidingswijze.hoofdzaak
+            resultaat__resultaattype__brondatum_archiefprocedure_afleidingswijze=Afleidingswijze.hoofdzaak
         ).update(
             # If the hoofdzaak is closed with `blijvend_bewaren`, the brondatum will be
             # empty, but the `archiefnominatie` still has to be set for deelzaken
@@ -1075,35 +1060,6 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             archiefactiedatum=F("computed_archiefactiedatum") if brondatum else None,
             startdatum_bewaartermijn=brondatum,
         )
-
-    def _update_deelzaken_with_external_catalogi(
-        self, hoofdzaak_closed: bool, qs, brondatum: date | None
-    ):
-        for deelzaak in qs.iterator():
-            resultaattype = deelzaak.resultaat.resultaattype
-
-            if (
-                resultaattype.brondatum_archiefprocedure_afleidingswijze
-                == Afleidingswijze.hoofdzaak
-            ):
-                deelzaak.archiefactiedatum = (
-                    brondatum + resultaattype.archiefactietermijn
-                    if brondatum
-                    else brondatum
-                )
-                deelzaak.startdatum_bewaartermijn = brondatum
-                # If the hoofdzaak is closed with `blijvend_bewaren`, the brondatum will be
-                # empty, but the `archiefnominatie` still has to be set for deelzaken
-                deelzaak.archiefnominatie = (
-                    resultaattype.archiefnominatie if hoofdzaak_closed else None
-                )
-                deelzaak.save(
-                    update_fields=[
-                        "archiefnominatie",
-                        "archiefactiedatum",
-                        "startdatum_bewaartermijn",
-                    ]
-                )
 
 
 class StatusSubSerializer(SubSerializerMixin, StatusSerializer):
@@ -1296,9 +1252,15 @@ class ZaakInformatieObjectSubZaakSerializer(
 
 class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {"zaak_uuid": "zaak__uuid"}
-    zaak = CachedHyperlinkedRelatedField(
+    zaak = LengthHyperlinkedRelatedField(
         queryset=Zaak.objects.all(),
         view_name="zaken:zaak-detail",
+        lookup_field="uuid",
+        validators=[IsImmutableValidator()],
+    )
+    eigenschap = LengthHyperlinkedRelatedField(
+        queryset=Eigenschap.objects.all(),
+        view_name="catalogi:eigenschap-detail",
         lookup_field="uuid",
         validators=[IsImmutableValidator()],
     )
@@ -1310,16 +1272,6 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid", "view_name": "zaken:zaakeigenschap-detail"},
             "uuid": {"read_only": True},
             "naam": {"source": "_naam", "read_only": True},
-            "eigenschap": {
-                "lookup_field": "uuid",
-                "max_length": 1000,
-                "min_length": 1,
-                "validators": [
-                    LooseFkResourceValidator("Eigenschap", settings.ZTC_API_STANDARD),
-                    LooseFkIsImmutableValidator(),
-                ],
-                "view_name": "catalogi:eigenschap-detail",
-            },
         }
         validators = [
             CorrectZaaktypeValidator("eigenschap"),
@@ -1425,10 +1377,7 @@ class RolSerializer(PolymorphicSerializer):
                 "lookup_field": "uuid",
                 "max_length": 1000,
                 "min_length": 1,
-                "validators": [
-                    LooseFkResourceValidator("RolType", settings.ZTC_API_STANDARD),
-                    LooseFkIsImmutableValidator(),
-                ],
+                "validators": [IsImmutableValidator()],
                 "help_text": get_help_text("zaken.Rol", "roltype"),
                 "view_name": "catalogi:roltype-detail",
             },
@@ -1573,12 +1522,7 @@ class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
                 "lookup_field": "uuid",
                 "max_length": 1000,
                 "min_length": 1,
-                "validators": [
-                    LooseFkResourceValidator(
-                        "ResultaatType", settings.ZTC_API_STANDARD
-                    ),
-                    LooseFkIsImmutableValidator(),
-                ],
+                "validators": [IsImmutableValidator()],
                 "view_name": "catalogi:resultaattype-detail",
             },
         }

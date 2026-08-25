@@ -74,19 +74,6 @@ class StatusForm(forms.ModelForm):
         model = Status
         fields = "__all__"
 
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if not cleaned_data.get("_statustype") and not cleaned_data.get(
-            "_statustype_base_url"
-        ):
-            raise forms.ValidationError(
-                "Je moet een statustype opgeven: "
-                "selecteer een statustype uit de catalogus of vul een externe URL in."
-            )
-
-        return cleaned_data
-
 
 class SubStatusForStatusInline(EditInlineAdminMixin, admin.TabularInline):
     model = SubStatus
@@ -98,7 +85,7 @@ class SubStatusForStatusInline(EditInlineAdminMixin, admin.TabularInline):
 @admin.register(Status)
 class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("zaak", "datum_status_gezet")
-    list_select_related = ("zaak", "_statustype", "_statustype_base_url")
+    list_select_related = ("zaak", "statustype")
     list_filter = ("datum_status_gezet",)
     search_fields = (
         "uuid",
@@ -109,7 +96,7 @@ class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     form = StatusForm
     ordering = ("datum_status_gezet",)
     date_hierarchy = "datum_status_gezet"
-    raw_id_fields = ("zaak", "_statustype", "_statustype_base_url", "gezetdoor")
+    raw_id_fields = ("zaak", "statustype", "gezetdoor")
     viewset = "openzaak.components.zaken.api.viewsets.StatusViewSet"
     inlines = [SubStatusForStatusInline]
 
@@ -141,7 +128,7 @@ class ZaakObjectAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
         "zaak__uuid",
     )
     ordering = ("object_type", "object")
-    raw_id_fields = ("zaak", "_zaakobjecttype_base_url", "_zaakobjecttype")
+    raw_id_fields = ("zaak", "zaakobjecttype")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakObjectViewSet"
     inlines = [
         AdresInline,
@@ -202,16 +189,7 @@ class ZaakEigenschapForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get("_eigenschap") and not cleaned_data.get(
-            "_eigenschap_base_url"
-        ):
-            raise forms.ValidationError(
-                "Je moet een eigenschap opgeven: "
-                "selecteer een eigenschap uit de catalogus of vul een externe URL in."
-            )
-
-        # for now check waarde only for local eigenschap
-        eigenschap = cleaned_data.get("_eigenschap")
+        eigenschap = cleaned_data.get("eigenschap")
         waarde = cleaned_data.get("waarde")
 
         if not eigenschap or not waarde:
@@ -233,12 +211,10 @@ class ZaakEigenschapForm(forms.ModelForm):
 class ZaakEigenschapAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = (
         "zaak",
-        "_eigenschap",
-        "_eigenschap_base_url",
-        "_eigenschap_relative_url",
+        "eigenschap",
         "waarde",
     )
-    list_select_related = ("zaak", "_eigenschap", "_eigenschap_base_url")
+    list_select_related = ("zaak", "eigenschap")
     list_filter = ("_naam",)
     search_fields = (
         "uuid",
@@ -249,11 +225,9 @@ class ZaakEigenschapAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
     form = ZaakEigenschapForm
     ordering = (
         "zaak",
-        "_eigenschap",
-        "_eigenschap_base_url",
-        "_eigenschap_relative_url",
+        "eigenschap",
     )
-    raw_id_fields = ("zaak", "_eigenschap", "_eigenschap_base_url")
+    raw_id_fields = ("zaak", "eigenschap")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakEigenschapViewSet"
 
 
@@ -352,49 +326,22 @@ class ResultaatForm(forms.ModelForm):
         model = Resultaat
         fields = "__all__"
 
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if not cleaned_data.get("_resultaattype") and not cleaned_data.get(
-            "_resultaattype_base_url"
-        ):
-            raise forms.ValidationError(
-                "Je moet een resultaattype opgeven: "
-                "selecteer een resultaattype uit de catalogus of vul een externe URL in."
-            )
-
-        return cleaned_data
-
 
 @admin.register(Resultaat)
 class ResultaatAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("zaak", "toelichting")
-    list_select_related = ("zaak", "_resultaattype", "_resultaattype_base_url")
+    list_select_related = ("zaak", "resultaattype")
     search_fields = (
         "uuid",
         "toelichting",
-        "_resultaattype__uuid",
-        "resultaattype_url",
+        "resultaattype__uuid",
         "zaak__identificatie",
         "zaak__uuid",
     )
     form = ResultaatForm
     ordering = ("zaak",)
-    raw_id_fields = ("zaak", "_resultaattype", "_resultaattype_base_url")
+    raw_id_fields = ("zaak", "resultaattype")
     viewset = "openzaak.components.zaken.api.viewsets.ResultaatViewSet"
-
-    def get_queryset(self, request):
-        """
-        annotate queryset with composite url field for search purposes
-        """
-        queryset = super().get_queryset(request)
-        return queryset.annotate(
-            resultaattype_url=Concat(
-                F("_resultaattype_base_url__api_root"),
-                F("_resultaattype_relative_url"),
-                output_field=CharField(),
-            )
-        )
 
 
 class RolForm(forms.ModelForm):
@@ -402,24 +349,11 @@ class RolForm(forms.ModelForm):
         model = Rol
         fields = "__all__"
 
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if not cleaned_data.get("_roltype") and not cleaned_data.get(
-            "_roltype_base_url"
-        ):
-            raise forms.ValidationError(
-                "Je moet een roltype opgeven: "
-                "selecteer een roltype uit de catalogus of vul een externe URL in."
-            )
-
-        return cleaned_data
-
 
 @admin.register(Rol)
 class RolAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("zaak", "betrokkene", "betrokkene_type")
-    list_select_related = ("zaak", "_roltype", "_roltype_base_url")
+    list_select_related = ("zaak", "roltype")
     list_filter = ("betrokkene_type", "indicatie_machtiging", "registratiedatum")
     search_fields = (
         "uuid",
@@ -432,7 +366,7 @@ class RolAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     form = RolForm
     date_hierarchy = "registratiedatum"
     ordering = ("registratiedatum", "betrokkene")
-    raw_id_fields = ("zaak", "_roltype", "_roltype_base_url")
+    raw_id_fields = ("zaak", "roltype")
     viewset = "openzaak.components.zaken.api.viewsets.RolViewSet"
     inlines = [
         NatuurlijkPersoonInline,
@@ -776,19 +710,6 @@ class ZaakForm(forms.ModelForm):
         fields = "__all__"
         exclude = ("_id", "_bronorganisatie", "_identificatie")  # legacy fields
 
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if not cleaned_data.get("_zaaktype") and not cleaned_data.get(
-            "_zaaktype_base_url"
-        ):
-            raise forms.ValidationError(
-                "Je moet een zaaktype opgeven: "
-                "selecteer een zaaktype of vul een externe URL in."
-            )
-
-        return cleaned_data
-
 
 @admin.register(Zaak)
 class ZaakAdmin(
@@ -805,13 +726,12 @@ class ZaakAdmin(
         "get_resultaat",
         "archiefstatus",
     )
-    list_select_related = ("_zaaktype", "_zaaktype_base_url")
+    list_select_related = ("zaaktype",)
     search_fields = (
         "identificatie",
         "uuid",
-        "zaaktype_url",
-        "_zaaktype__identificatie",
-        "_zaaktype__zaaktype_omschrijving",
+        "zaaktype__identificatie",
+        "zaaktype__zaaktype_omschrijving",
         "rol__natuurlijkpersoon__inp_bsn",
         "rol__nietnatuurlijkpersoon__inn_nnp_id",
     )
@@ -842,21 +762,21 @@ class ZaakAdmin(
         KlantContactInline,
         ZaakNotitieInline,
     ]
-    raw_id_fields = ("_zaaktype", "hoofdzaak", "_zaaktype_base_url")
+    raw_id_fields = ("zaaktype", "hoofdzaak")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakViewSet"
 
     @admin.display(description="Zaaktype")
     def get_zaaktype(self, obj) -> str:
-        if not obj._zaaktype:
+        if not obj.zaaktype:
             return ""
 
-        return obj._zaaktype.identificatie
+        return obj.zaaktype.identificatie
 
     @admin.display(description="Resultaat")
     def get_resultaat(self, obj) -> str:
         try:
             resultaat = obj.resultaat
-            resultaattype = resultaat._resultaattype
+            resultaattype = resultaat.resultaattype
             return resultaattype.omschrijving if resultaattype else ""
         except Resultaat.DoesNotExist:
             return ""
@@ -865,10 +785,10 @@ class ZaakAdmin(
     def get_status(self, obj) -> str:
         status = obj.current_status
 
-        if not status or not status._statustype:
+        if not status or not status.statustype:
             return ""
 
-        statustype = status._statustype
+        statustype = status.statustype
         return statustype.statustype_omschrijving
 
     def get_object_actions(self, obj):
@@ -895,29 +815,17 @@ class ZaakAdmin(
         status_prefetch = Prefetch(
             "status_set",
             queryset=(
-                Status.objects.select_related("_statustype")
-                .filter(_statustype__isnull=False)
+                Status.objects.select_related("statustype")
+                .filter(statustype__isnull=False)
                 .order_by("-datum_status_gezet")
             ),
         )
 
         resultaat_prefetch = Prefetch(
             "resultaat",
-            queryset=(
-                Resultaat.objects.select_related("_resultaattype").filter(
-                    _resultaattype__isnull=False
-                )
-            ),
+            queryset=Resultaat.objects.select_related("resultaattype"),
         )
 
-        return (
-            queryset.select_related("_zaaktype")
-            .prefetch_related(resultaat_prefetch, status_prefetch)
-            .annotate(
-                zaaktype_url=Concat(
-                    F("_zaaktype_base_url__api_root"),
-                    F("_zaaktype_relative_url"),
-                    output_field=CharField(),
-                )
-            )
+        return queryset.select_related("zaaktype").prefetch_related(
+            resultaat_prefetch, status_prefetch
         )

@@ -519,49 +519,26 @@ class PerformanceTests(
         Breakdown of expected queries:
 
              1:   Consult own internal service config (SELECT FROM config_internalservice)
-             2:   Look up secret for auth client ID (SELECT FROM vng_api_common_jwtsecret)
-           3-4:   Lookup zaaktype, done by AuthRequired check of authorization fields
-           5-8:   Check feature flag config (PublishValidator) (savepoint, select, insert
-                  and savepoint release)
-             9:   Lookup zaaktype for permission checks
-         10-13:   Application/CatalogusAutorisatie/Autorisatie lookup for permission checks
-            14:   Begin transaction (savepoint) (from NotificationsCreateMixin)
-            15:   Savepoint for zaakidentificatie generation
-            16:   advisory lock for zaakidentificatie generation
-            17:   Query highest zaakidentificatie number at the moment
-            18:   insert new zaakidentificatie
-            19:   release savepoint
-            20:   release savepoint (commit zaakidentificatie transaction)
-            21:   savepoint for zaak creation
-         22-23:   Lookup zaaktype for validation and cache it in serializer context
-            24:   Select feature flag config (PublishValidator)
-            25:   Lookup zaaktype (again), done by loose_fk.drf.FKOrURLField.run_validation
-            26:   update zaakidentificatie record (from serializer context and earlier
-                  generation)
-            27:   insert zaken_zaak record
-         28-33:   query related objects for etag update that may be affected (should be
-                  skipped, it's create of root resource!) vng_api_common.caching.signals
-            34:   select zaak relevantezaakrelatie (nested inline create, can't avoid this)
-            35:   select zaak zaakrelatie (nested inline create, can't avoid this)
-            36:   select zaak rollen
-            37:   select zaak status
-            38:   select zaak zaakinformatieobjecten
-            39:   select zaak zaakobjecten
-            40:   select zaak kenmerken (nested inline create, can't avoid this)
-            41:   insert audit trail
-         42-43:   notifications, select created zaak (?), notifs config
-            44:   release savepoint (from NotificationsCreateMixin)
-            45:   savepoint create transaction.on_commit ETag handler (start new transaction)
-            46:   update ETag column of zaak
-            47:   release savepoint (commit transaction)
-            48:   select previous einddatum when saving Zaak (archiving recalculation logic)
-
+           2-3:   Lookup zaaktype and feature flag config
+           4-6:   Initialize feature flag config (savepoint, insert, release)
+             7:   Look up secret for auth client ID
+          8-11:   Application/CatalogusAutorisatie/Autorisatie lookup for permission checks
+         12-18:   Generate zaakidentificatie (savepoints, advisory lock, lookup max, insert)
+             19:   Savepoint for zaak creation
+         20-21:   Lookup zaaktype and feature flag config for validation
+         22-24:   Lookup previous value, update zaakidentificatie, insert zaak
+         25-37:   Query related objects (rollen, status, informatieobjecten,
+                  resultaten, relaties, kenmerken, etc.) for serialization/audit
+             38:   Insert audit trail
+         39-40:   Notifications config and select created zaak
+             41:   Release savepoint (NotificationsCreateMixin)
+         42-44:   ETag update (savepoint, update, release)
         """
         # create a random zaak to get some other initial setup queries out of the way
         # (most notable figuring out the PG/postgres version)
         ZaakFactory.create()
 
-        EXPECTED_NUM_QUERIES = 48
+        EXPECTED_NUM_QUERIES = 44
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")
@@ -599,7 +576,7 @@ class PerformanceTests(
 
         # Two additional queries when there are any number of related zaken specified
         # and 9 per specified related zaak
-        EXPECTED_NUM_QUERIES = 48 + 2 + (9 * num_gerelateerde_zaken)
+        EXPECTED_NUM_QUERIES = 44 + 2 + (9 * num_gerelateerde_zaken)
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")

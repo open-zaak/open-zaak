@@ -7,7 +7,6 @@ from django.conf import settings
 from django.test import override_settings, tag
 from django.utils import timezone
 
-import requests_mock
 from freezegun.api import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
@@ -18,8 +17,6 @@ from vng_api_common.constants import (
     ZaakobjectTypes,
 )
 from vng_api_common.tests import JWTAuthMixin as _JWTAuthMixin
-from zgw_consumers.constants import APITypes
-from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import (
     InformatieObjectTypeFactory,
@@ -33,10 +30,9 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
-from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
+from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
-from ...documenten.tests.utils import get_informatieobjecttype_response
 from ..api.cloudevents import (
     ZAAK_AFGESLOTEN,
     ZAAK_BIJGEWERKT,
@@ -49,11 +45,7 @@ from ..models import Zaak
 from .factories import ZaakFactory
 from .test_rol import BETROKKENE
 from .utils import (
-    get_catalogus_response,
     get_operation_url,
-    get_roltype_response,
-    get_statustype_response,
-    get_zaaktype_response,
 )
 
 
@@ -215,159 +207,6 @@ class ZaakConvenienceCloudEventTest(
                             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
-                        },
-                    },
-                    None,
-                ),
-            ],
-            any_order=True,
-        )
-        self.assertEqual(
-            self.zaak.laatst_gemuteerd,
-            timezone.make_aware(datetime(2026, 1, 2, 12, 0, 0)),
-        )
-
-    @tag("external-urls")
-    @override_settings(ALLOWED_HOSTS=["testserver"])
-    def test_zaak_registreren_cloudevents_external_urls(self, mock_send_cloudevent):
-        url = get_operation_url("registreerzaak_create")
-
-        ServiceFactory.create(
-            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
-        )
-
-        zaaktype_url = "https://externe.catalogus.nl/api/v1/zaaktypen/1"
-        catalogus_url = "https://externe.catalogus.nl/api/v1/catalogi/1"
-        roltype_url = "https://externe.catalogus.nl/api/v1/roltypen/1"
-        statustype_url = "https://externe.catalogus.nl/api/v1/statustypen/1"
-        informatieobjecttype_url = (
-            "https://externe.catalogus.nl/api/v1/informatieobjecttypen/1"
-        )
-
-        informatieobject = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=informatieobjecttype_url
-        )
-        informatieobject_url = self.check_for_instance(informatieobject)
-
-        data = {
-            "zaak": {
-                "zaaktype": zaaktype_url,
-                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
-                "bronorganisatie": "111222333",
-                "verantwoordelijkeOrganisatie": "517439943",
-                "registratiedatum": "2011-06-11",
-                "startdatum": "2018-06-11",
-                "toelichting": "toelichting",
-            },
-            "rollen": [
-                {
-                    "betrokkene": BETROKKENE,
-                    "betrokkene_type": RolTypes.natuurlijk_persoon,
-                    "roltype": roltype_url,
-                    "roltoelichting": "awerw",
-                }
-            ],
-            "zaakinformatieobjecten": [
-                {
-                    "informatieobject": informatieobject_url,
-                    "titel": "string",
-                    "beschrijving": "string",
-                    "vernietigingsdatum": "2011-08-24T14:15:22Z",
-                }
-            ],
-            "zaakobjecten": [
-                {
-                    "objectType": ZaakobjectTypes.overige,
-                    "objectTypeOverige": "test",
-                    "relatieomschrijving": "test",
-                    "objectIdentificatie": {"overigeData": {"someField": "some value"}},
-                },
-                {
-                    "objectType": ZaakobjectTypes.overige,
-                    "objectTypeOverige": "test",
-                    "relatieomschrijving": "test",
-                    "objectIdentificatie": {"overigeData": {"someField": "test"}},
-                },
-            ],
-            "status": {
-                "statustype": statustype_url,
-                "datumStatusGezet": "2011-01-01T00:00:00",
-            },
-        }
-
-        with requests_mock.Mocker() as m:
-            with self.captureOnCommitCallbacks(execute=True):
-                mock_ztc_oas_get(m)
-                m.get(
-                    zaaktype_url,
-                    json=get_zaaktype_response(
-                        catalogus_url,
-                        zaaktype_url,
-                        informatieobjecttypen=[informatieobjecttype_url],
-                    ),
-                )
-                m.get(
-                    catalogus_url,
-                    json=get_catalogus_response(catalogus_url, zaaktype_url),
-                )
-                m.get(roltype_url, json=get_roltype_response(roltype_url, zaaktype_url))
-                m.get(
-                    statustype_url,
-                    json=get_statustype_response(statustype_url, zaaktype_url),
-                )
-                m.get(
-                    informatieobjecttype_url,
-                    json=get_informatieobjecttype_response(
-                        catalogus_url, informatieobjecttype_url
-                    ),
-                )
-
-                response = self.client.post(url, data)
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        self.assertEqual(mock_send_cloudevent.call_count, 2)
-
-        zaak = Zaak.objects.get(bronorganisatie="111222333")
-        zaak_url = reverse(zaak)
-
-        mock_send_cloudevent.assert_has_calls(
-            [
-                call(
-                    {
-                        "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
-                        "source": settings.NOTIFICATIONS_SOURCE,
-                        "specversion": settings.CLOUDEVENT_SPECVERSION,
-                        "type": ZAAK_GEMUTEERD,
-                        "subject": str(zaak.uuid),
-                        "time": "2025-10-10T00:00:00Z",
-                        "dataref": zaak_url,
-                        "datacontenttype": "application/json",
-                        "data": {
-                            "bronorganisatie": "111222333",
-                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
-                            "zaaktype": zaaktype_url,
-                            "zaaktype.catalogus": catalogus_url,
-                        },
-                    },
-                    None,
-                ),
-                call(
-                    {
-                        "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
-                        "source": settings.NOTIFICATIONS_SOURCE,
-                        "specversion": settings.CLOUDEVENT_SPECVERSION,
-                        "type": ZAAK_GEREGISTREERD,
-                        "subject": str(zaak.uuid),
-                        "time": "2025-10-10T00:00:00Z",
-                        "dataref": zaak_url,
-                        "datacontenttype": "application/json",
-                        "data": {
-                            "bronorganisatie": "111222333",
-                            "verantwoordelijkeOrganisatie": "517439943",
-                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
-                            "zaaktype": zaaktype_url,
-                            "zaaktype.catalogus": catalogus_url,
                         },
                     },
                     None,

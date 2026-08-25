@@ -29,7 +29,7 @@ class ZaakEigenschapAdminTests(AdminTestMixin, TestCase):
         data = {
             "uuid": uuid.uuid4(),
             "zaak": zaak.id,
-            "_eigenschap": eigenschap.id,
+            "eigenschap": eigenschap.id,
             "_naam": "some name",
             "waarde": "test",
         }
@@ -81,7 +81,7 @@ class ZaakEigenschapAdminTests(AdminTestMixin, TestCase):
         data = {
             "uuid": zaakeigenschap.uuid,
             "zaak": zaakeigenschap.zaak.id,
-            "_eigenschap": zaakeigenschap.eigenschap.id,
+            "eigenschap": zaakeigenschap.eigenschap.id,
             "_naam": "new",
             "waarde": "test",
         }

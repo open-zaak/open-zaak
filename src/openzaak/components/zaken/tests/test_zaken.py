@@ -8,7 +8,6 @@ from django.contrib.gis.geos import Point
 from django.test import override_settings, tag
 from django.utils import timezone
 
-import requests_mock
 from dateutil.relativedelta import relativedelta
 from freezegun import freeze_time
 from rest_framework import status
@@ -23,8 +22,6 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
 )
 from vng_api_common.tests import get_validation_errors, reverse_lazy
-from zgw_consumers.constants import APITypes
-from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import (
@@ -32,7 +29,7 @@ from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
     ZaakTypeFactory,
 )
-from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
+from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
 from ..api.scopes import (
@@ -63,9 +60,7 @@ from .factories import (
 from .utils import (
     ZAAK_READ_KWARGS,
     ZAAK_WRITE_KWARGS,
-    get_catalogus_response,
     get_operation_url,
-    get_zaaktype_response,
     isodatetime,
     utcdatetime,
 )
@@ -1440,173 +1435,6 @@ class ZaakArchivingTests(JWTAuthMixin, APITestCase):
             zaak.archiefactiedatum,
             date(2030, 5, 3),  # 2020-05-03 + 10 years
         )
-
-
-@tag("external-urls")
-@override_settings(ALLOWED_HOSTS=["testserver"])
-class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
-    heeft_alle_autorisaties = True
-    list_url = get_operation_url("zaak_create")
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        ServiceFactory.create(
-            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
-        )
-
-    def test_create_external_zaaktype(self):
-        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-
-        with requests_mock.Mocker() as m:
-            mock_ztc_oas_get(m)
-            m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
-            m.get(catalogus, json=get_catalogus_response(catalogus, zaaktype))
-
-            response = self.client.post(
-                self.list_url,
-                {
-                    "zaaktype": zaaktype,
-                    "bronorganisatie": "517439943",
-                    "verantwoordelijkeOrganisatie": "517439943",
-                    "registratiedatum": "2018-12-24",
-                    "startdatum": "2018-12-24",
-                },
-                **ZAAK_WRITE_KWARGS,
-            )
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-    def test_create_external_zaaktype_fail_bad_url(self):
-        response = self.client.post(
-            self.list_url,
-            {
-                "zaaktype": "abcd",
-                "bronorganisatie": "517439943",
-                "verantwoordelijkeOrganisatie": "517439943",
-                "registratiedatum": "2018-12-24",
-                "startdatum": "2018-12-24",
-            },
-            **ZAAK_WRITE_KWARGS,
-        )
-
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
-
-        error = get_validation_errors(response, "zaaktype")
-        self.assertEqual(error["code"], "bad-url")
-
-    def test_create_external_zaaktype_fail_not_json_url(self):
-        ServiceFactory.create(api_root="http://example.com/", api_type=APITypes.ztc)
-        with requests_mock.Mocker() as m:
-            m.get("http://example.com/", status_code=200, text="<html></html>")
-            response = self.client.post(
-                self.list_url,
-                {
-                    "zaaktype": "http://example.com/",
-                    "bronorganisatie": "517439943",
-                    "verantwoordelijkeOrganisatie": "517439943",
-                    "registratiedatum": "2018-12-24",
-                    "startdatum": "2018-12-24",
-                },
-                **ZAAK_WRITE_KWARGS,
-            )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "zaaktype")
-        self.assertEqual(error["code"], "invalid-resource")
-
-    def test_create_external_zaaktype_fail_invalid_schema(self):
-        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-
-        with requests_mock.Mocker() as m:
-            mock_ztc_oas_get(m)
-            m.get(
-                zaaktype,
-                json={
-                    "url": zaaktype,
-                    "catalogus": catalogus,
-                    "identificatie": "12345",
-                    "omschrijving": "Main zaaktype",
-                    "vertrouwelijkheidaanduiding": "openbaar",
-                    "concept": False,
-                },
-            )
-            m.get(
-                catalogus,
-                json=get_catalogus_response(catalogus, zaaktype),
-            )
-
-            response = self.client.post(
-                self.list_url,
-                {
-                    "zaaktype": zaaktype,
-                    "bronorganisatie": "517439943",
-                    "verantwoordelijkeOrganisatie": "517439943",
-                    "registratiedatum": "2018-12-24",
-                    "startdatum": "2018-12-24",
-                },
-                **ZAAK_WRITE_KWARGS,
-            )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "zaaktype")
-        self.assertEqual(error["code"], "invalid-resource")
-
-    def test_create_external_zaaktype_fail_not_published(self):
-        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-
-        zaaktype_data = get_zaaktype_response(catalogus, zaaktype)
-        zaaktype_data["concept"] = True
-
-        with requests_mock.Mocker() as m:
-            mock_ztc_oas_get(m)
-            m.get(zaaktype, json=zaaktype_data)
-            m.get(catalogus, json=get_catalogus_response(catalogus, zaaktype))
-
-            response = self.client.post(
-                self.list_url,
-                {
-                    "zaaktype": zaaktype,
-                    "bronorganisatie": "517439943",
-                    "verantwoordelijkeOrganisatie": "517439943",
-                    "registratiedatum": "2018-12-24",
-                    "startdatum": "2018-12-24",
-                },
-                **ZAAK_WRITE_KWARGS,
-            )
-
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
-
-        error = get_validation_errors(response, "zaaktype")
-        self.assertEqual(error["code"], "not-published")
-
-    def test_create_external_zaaktype_fail_unknown_service(self):
-        response = self.client.post(
-            self.list_url,
-            {
-                "zaaktype": "https://other-externe.catalogus.nl/api/v1/zaaktypen/1",
-                "bronorganisatie": "517439943",
-                "verantwoordelijkeOrganisatie": "517439943",
-                "registratiedatum": "2018-12-24",
-                "startdatum": "2018-12-24",
-            },
-            **ZAAK_WRITE_KWARGS,
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "zaaktype")
-        self.assertEqual(error["code"], "unknown-service")
 
 
 class ZakenWerkVoorraadTests(JWTAuthMixin, APITestCase):

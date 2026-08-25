@@ -300,7 +300,7 @@ class ZaakViewSet(
         Zaak.objects.prefetch_related(
             # Prefetch _zaaktype instead of using `.select_related`, because using the latter
             # causes the main Zaak query to contain a lot of duplicate data, increasing overhead
-            "_zaaktype",
+            "zaaktype",
             "deelzaken",
             models.Prefetch(
                 "relevante_andere_zaken",
@@ -364,7 +364,7 @@ class ZaakViewSet(
             # Catalogus is only relevant for notifications (to include the `zaaktype.catalogus`)
             # kenmerk. The read operations are slightly slower if we include this `select_related`
             # on the base queryset, because it adds an extra join
-            qs = qs.select_related("_zaaktype__catalogus")
+            qs = qs.select_related("zaaktype__catalogus")
 
         return qs
 
@@ -405,6 +405,8 @@ class ZaakViewSet(
         for name, value in search_input.items():
             if name == "zaakgeometrie":
                 queryset = queryset.filter(zaakgeometrie__within=value["within"])
+            elif name == "zaaktype__not_in":
+                queryset = queryset.exclude(zaaktype__in=value)
             else:
                 queryset = queryset.filter(**{name: value})
 
@@ -596,7 +598,7 @@ class StatusViewSet(
     """
 
     queryset = (
-        Status.objects.select_related("_statustype", "zaak", "gezetdoor")
+        Status.objects.select_related("statustype", "zaak", "gezetdoor")
         .prefetch_related("zaakinformatieobjecten")
         .annotate_with_max_datum_status_gezet()
         .order_by("-datum_status_gezet", "-pk")
@@ -806,7 +808,7 @@ class ZaakObjectViewSet(
     Opvragen en bewerken van ZAAKOBJECTen.
     """
 
-    queryset = ZaakObject.objects.select_related("zaak", "_zaakobjecttype").order_by(
+    queryset = ZaakObject.objects.select_related("zaak", "zaakobjecttype").order_by(
         "-pk"
     )
     serializer_class = ZaakObjectSerializer
@@ -1093,7 +1095,7 @@ class ZaakEigenschapViewSet(
     Opvragen en bewerken van ZAAKEIGENSCHAPpen
     """
 
-    queryset = ZaakEigenschap.objects.select_related("zaak", "_eigenschap").order_by(
+    queryset = ZaakEigenschap.objects.select_related("zaak", "eigenschap").order_by(
         "-pk"
     )
     serializer_class = ZaakEigenschapSerializer
@@ -1288,7 +1290,7 @@ class RolViewSet(
     """
 
     queryset = (
-        Rol.objects.select_related("_roltype", "zaak")
+        Rol.objects.select_related("roltype", "zaak")
         .prefetch_related(
             "natuurlijkpersoon",
             "nietnatuurlijkpersoon",
@@ -1407,9 +1409,7 @@ class ResultaatViewSet(
     Opvragen en beheren van resultaten.
     """
 
-    queryset = Resultaat.objects.select_related("_resultaattype", "zaak").order_by(
-        "-pk"
-    )
+    queryset = Resultaat.objects.select_related("resultaattype", "zaak").order_by("-pk")
     serializer_class = ResultaatSerializer
     filterset_class = ResultaatFilter
     lookup_field = "uuid"

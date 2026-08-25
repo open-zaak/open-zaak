@@ -4,13 +4,14 @@ from collections import defaultdict
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 from django.http.request import validate_host
 
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.scopes import Scope
-from vng_api_common.utils import get_resources_for_paths
+from vng_api_common.utils import get_resource_for_path, get_resources_for_paths
 
 
 class QueryBlocked(Exception):
@@ -77,10 +78,15 @@ class LooseFkAuthorizationsFilterMixin:
         use_va=True,
     ) -> Q:
         prefix = self.prefix
-        loose_fk_field = (
-            f"_{self.loose_fk_field}" if local else f"_{self.loose_fk_field}_url"
-        )
-
+        # TODO (Open Zaak 2.0): Remove this once all external type support has been
+        # removed. At that point every loose FK field will be a regular FK.
+        supports_external_field = getattr(self, "supports_external_field", True)
+        if supports_external_field:
+            loose_fk_field = (
+                f"_{self.loose_fk_field}" if local else f"_{self.loose_fk_field}_url"
+            )
+        else:
+            loose_fk_field = self.loose_fk_field
         # resource URLs to either use as-is or resolve to database records
         resource_urls = [
             getattr(authorization, self.loose_fk_field)
@@ -98,9 +104,24 @@ class LooseFkAuthorizationsFilterMixin:
         else:
             # prepare to get the loose_fk_objects in bulk from the DB
             loose_fk_object_paths = [urlparse(url).path for url in resource_urls]
-            loose_fk_objects = get_resources_for_paths(loose_fk_object_paths)
+            try:
+                loose_fk_objects = get_resources_for_paths(loose_fk_object_paths)
+            except RuntimeError:
+                # An authorization points to a resource (e.g. a zaaktype) that
+                # no longer exists locally. Resolve what we can instead of
+                # blowing up the entire request with a 500 - the broken
+                # authorization simply grants access to nothing.
+                loose_fk_objects = []
+                resolvable_urls = []
+                for path, url in zip(loose_fk_object_paths, resource_urls):
+                    try:
+                        loose_fk_objects.append(get_resource_for_path(path))
+                        resolvable_urls.append(url)
+                    except ObjectDoesNotExist:
+                        continue
+                resource_urls = resolvable_urls
             # nothing to resolve
-            if loose_fk_objects is None:
+            if not loose_fk_objects:
                 loose_fk_object_map = {}
             else:
                 # keep the sorting so we can zip them correctly
@@ -111,7 +132,9 @@ class LooseFkAuthorizationsFilterMixin:
 
         for authorization in authorizations:
             resource_url = getattr(authorization, self.loose_fk_field)
-            loose_fk_object = loose_fk_object_map[resource_url]
+            loose_fk_object = loose_fk_object_map.get(resource_url)
+            if loose_fk_object is None:
+                continue
             loose_fk_objecten.append(loose_fk_object)
 
             # extract the order and map it to the database value
@@ -156,10 +179,17 @@ class LooseFkAuthorizationsFilterMixin:
         authorizations_local = []
         authorizations_external = []
         allowed_hosts = settings.ALLOWED_HOSTS
+        # TODO (Open Zaak 2.0): Remove this once all external type support has been
+        # removed. At that point every loose FK field will be a regular FK.
+        supports_external_field = getattr(self, "supports_external_field", True)
 
         for auth in authorizations:
             # test if this authorization has the scope that's needed
             if not scope.is_contained_in(auth.scopes):
+                continue
+
+            if not supports_external_field:
+                authorizations_local.append(auth)
                 continue
 
             loose_fk_host = urlparse(getattr(auth, self.loose_fk_field)).hostname
