@@ -19,6 +19,7 @@ from .utils import get_besluittype_response
 
 class BesluitReadTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "besluiten"
 
     def test_besluit_zaak_null_regression(self):
         """
@@ -30,7 +31,7 @@ class BesluitReadTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         """
         besluit = BesluitFactory.create(zaak=None)
 
-        response = self.client.get(reverse(besluit, namespace="besluiten"))
+        response = self.client.get(reverse(besluit, namespace=self.NAMESPACE))
 
         self.assertResponseTypes(
             response.data,
@@ -90,7 +91,7 @@ class BesluitReadTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             ingangsdatum="2022-01-01",
         )
 
-        response = self.client.get(reverse(besluit, namespace="besluiten"))
+        response = self.client.get(reverse(besluit, namespace=self.NAMESPACE))
 
         self.assertResponseTypes(
             response.data,
@@ -139,7 +140,7 @@ class BesluitReadTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             zaak=zaak,
         )
 
-        response = self.client.get(reverse(besluit, namespace="besluiten"))
+        response = self.client.get(reverse(besluit, namespace=self.NAMESPACE))
 
         self.assertResponseTypes(
             response.data,

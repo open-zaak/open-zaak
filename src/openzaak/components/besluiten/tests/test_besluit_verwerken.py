@@ -35,15 +35,19 @@ from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_GEFORCEERD_BIJWERKE
 from openzaak.components.zaken.archiving import try_calculate_archiving
 from openzaak.components.zaken.tests.factories import ResultaatFactory, ZaakFactory
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.utils.urls import reverse, reverse_lazy
+from openzaak.utils.urls import reverse
 
 
 @tag("convenience-endpoints")
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class BesluitVerwerkenAuthTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("besluiten:verwerkbesluit-list")
+    NAMESPACE = "besluiten"
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
+
+    @property
+    def url(self):
+        return reverse(f"{self.NAMESPACE}:verwerkbesluit-list")
 
     @classmethod
     def setUpClass(cls):
@@ -209,8 +213,12 @@ class BesluitVerwerkenAuthTests(JWTAuthMixin, APITestCase):
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class BesluitVerwerkenValidationTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("besluiten:verwerkbesluit-list")
+    NAMESPACE = "besluiten"
     heeft_alle_autorisaties = True
+
+    @property
+    def url(self):
+        return reverse(f"{self.NAMESPACE}:verwerkbesluit-list")
 
     def setUp(self):
         super().setUp()
@@ -275,9 +283,9 @@ class BesluitVerwerkenValidationTests(JWTAuthMixin, APITestCase):
             besluitinformatieobject.informatieobject, self.informatieobject.canonical
         )
 
-        expected_besluit_url = reverse(besluit, namespace="besluiten")
+        expected_besluit_url = reverse(besluit, namespace=self.NAMESPACE)
         expected_besluitinformatieobject_url = reverse(
-            besluitinformatieobject, namespace="besluiten"
+            besluitinformatieobject, namespace=self.NAMESPACE
         )
 
         expected_response = {

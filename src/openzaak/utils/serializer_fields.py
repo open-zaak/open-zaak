@@ -176,16 +176,10 @@ class DeprecatedNamespaceHyperlinkIdentityField(
 class DeprecatedNamespaceLengthHyperlinkedRelatedField(
     DeprecatedNamespaceMixin, _LengthHyperlinkedRelatedField
 ):
-    _DEPRECATED_NAMESPACES = ["besluiten"]
-
     def fail(self, key, **kwargs):
         """
         Checks if incorrect_match happend with deprecated namespace which is allowed.
         """
-        if (
-            key == "incorrect_match"
-            and self.context["request"].resolver_match.namespace
-            in self._DEPRECATED_NAMESPACES
-        ):
+        if key == "incorrect_match" and self.source in self._MOVED_MODELS:
             return
         super().fail(key, kwargs)

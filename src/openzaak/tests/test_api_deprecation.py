@@ -6,12 +6,15 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail
 
-from openzaak.components.besluiten.models import Besluit
+from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
 )
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
+from openzaak.components.documenten.tests.factories import (
+    EnkelvoudigInformatieObjectFactory,
+)
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
@@ -124,6 +127,39 @@ class BesluitenApiDeprecationTests(JWTAuthMixin, APITestCase):
             reverse("zaken:audittrail-list", kwargs={"zaak_uuid": 1}),
             "/zaken/api/v1/zaken/1/audittrail",
         )
+
+    def test_create_bio_in_besluiten_with_zaken_url(self):
+        url = reverse(BesluitInformatieObject, namespace="besluiten")
+
+        besluit = BesluitFactory.create()
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio.informatieobjecttype.besluittypen.add(besluit.besluittype)
+
+        response = self.client.post(
+            url,
+            {
+                "besluit": f"http://testserver{reverse(besluit, namespace='zaken')}",
+                "informatieobject": f"http://testserver{reverse(eio)}",
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_bio_in_zaken_with_besluiten_url(self):
+        url = reverse(BesluitInformatieObject, namespace="zaken")
+
+        besluit = BesluitFactory.create()
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio.informatieobjecttype.besluittypen.add(besluit.besluittype)
+
+        response = self.client.post(
+            url,
+            {
+                "besluit": f"http://testserver{reverse(besluit, namespace='besluiten')}"
+                "",
+                "informatieobject": f"http://testserver{reverse(eio)}",
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 class BesluitAudittrailTests(JWTAuthMixin, APITestCase):

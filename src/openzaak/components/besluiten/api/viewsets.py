@@ -11,11 +11,6 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
-from notifications_api_common.viewsets import (
-    NotificationCreateMixin,
-    NotificationDestroyMixin,
-    NotificationViewSetMixin,
-)
 from rest_framework import mixins, status, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -30,9 +25,15 @@ from vng_api_common.caching import conditional_retrieve
 from vng_api_common.constants import CommonResourceAction
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.components.zaken.api.kanalen import KANAAL_ZAKEN
 from openzaak.components.zaken.api.mixins import ClosedZaakMixin
 from openzaak.components.zaken.api.utils import delete_remote_zaakbesluit
-from openzaak.notifications.viewsets import MultipleNotificationMixin
+from openzaak.notifications.viewsets import (
+    MultipleChannelNotificationCreateMixin,
+    MultipleChannelNotificationDestroyMixin,
+    MultipleChannelNotificationViewSetMixin,
+    MultipleObjectsMultipleChannelNotificationMixin,
+)
 from openzaak.utils.api import delete_remote_oio
 from openzaak.utils.cloudevents import get_url, process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
@@ -129,7 +130,7 @@ logger = structlog.stdlib.get_logger(__name__)
 @conditional_retrieve()
 class BesluitViewSet(
     CheckQueryParamsMixin,
-    NotificationViewSetMixin,
+    MultipleChannelNotificationViewSetMixin,
     AuditTrailViewsetMixin,
     ListFilterByAuthorizationsMixin,
     ClosedZaakMixin,
@@ -151,7 +152,10 @@ class BesluitViewSet(
         "update": SCOPE_BESLUITEN_BIJWERKEN,
         "partial_update": SCOPE_BESLUITEN_BIJWERKEN,
     }
-    notifications_kanaal = KANAAL_BESLUITEN
+    notifications_kanalen = [
+        {"kanaal": KANAAL_BESLUITEN, "deprecated": True},
+        {"kanaal": KANAAL_ZAKEN},
+    ]
     audit = AUDIT_BRC
 
     def perform_create(self, serializer):
@@ -243,8 +247,8 @@ class BesluitViewSet(
 @conditional_retrieve()
 class BesluitInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
-    NotificationCreateMixin,
-    NotificationDestroyMixin,
+    MultipleChannelNotificationCreateMixin,
+    MultipleChannelNotificationDestroyMixin,
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
     CheckQueryParamsMixin,
@@ -271,8 +275,12 @@ class BesluitInformatieObjectViewSet(
         "create": SCOPE_BESLUITEN_AANMAKEN,
         "destroy": SCOPE_BESLUITEN_ALLES_VERWIJDEREN,
     }
-    notifications_kanaal = KANAAL_BESLUITEN
-    notifications_main_resource_key = "besluit"
+    notifications_kanalen = [
+        {"kanaal": KANAAL_BESLUITEN, "deprecated": True},
+        {"kanaal": KANAAL_ZAKEN},
+    ]
+    notifications_main_resource_keys = {"zaken": "besluit.zaak"}
+    notifications_replace_urls_for = ["besluit"]
     audit = AUDIT_BRC
 
     @property
@@ -376,7 +384,7 @@ class BesluitAuditTrailViewSet(AuditTrailViewSet):
 )
 class BesluitVerwerkenViewSet(
     viewsets.ViewSet,
-    MultipleNotificationMixin,
+    MultipleObjectsMultipleChannelNotificationMixin,
     ClosedZaakMixin,
     AuditTrailMixin,
 ):
@@ -391,12 +399,20 @@ class BesluitVerwerkenViewSet(
 
     notification_fields = {
         "besluit": {
-            "notifications_kanaal": KANAAL_BESLUITEN,
+            "notifications_kanalen": [
+                {"kanaal": KANAAL_BESLUITEN, "deprecated": True},
+                {"kanaal": KANAAL_ZAKEN},
+            ],
             "model": Besluit,
         },
         "besluitinformatieobjecten": {
-            "notifications_kanaal": KANAAL_BESLUITEN,
+            "notifications_kanalen": [
+                {"kanaal": KANAAL_BESLUITEN, "deprecated": True},
+                {"kanaal": KANAAL_ZAKEN},
+            ],
             "model": BesluitInformatieObject,
+            "notifications_replace_urls_for": ["besluit"],
+            "notifications_main_resource_keys": {"zaken": "besluit.zaak"},
         },
     }
 
