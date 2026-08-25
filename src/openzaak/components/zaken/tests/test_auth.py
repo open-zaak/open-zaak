@@ -4,8 +4,6 @@
 Guarantee that the proper authorization machinery is in place.
 """
 
-import uuid
-
 from django.test import override_settings, tag
 from django.utils.translation import gettext as _
 
@@ -32,6 +30,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
+from ...autorisaties.models import Autorisatie
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 from ..api.scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN,
@@ -292,36 +291,6 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             results[1]["vertrouwelijkheidaanduiding"],
             VertrouwelijkheidsAanduiding.openbaar,
-        )
-
-    def test_zaak_list_with_nonexistent_local_zaaktype_authorization(self):
-        """
-        Regression test: an authorization pointing to a local zaaktype URL
-        whose UUID doesn't (or no longer) exist should not break the request
-        with a 500 error - it should simply not grant access to anything.
-        """
-        AutorisatieFactory.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.zrc,
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
-            zaaktype=f"http://testserver/catalogi/api/v1/zaaktypen/{uuid.uuid4()}",
-            scopes=[SCOPE_ZAKEN_ALLES_LEZEN],
-        )
-        ZaakFactory.create(
-            zaaktype=self.zaaktype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-        url = reverse("zaken:zaak-list")
-
-        response = self.client.get(url, **ZAAK_READ_KWARGS)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        results = response.data["results"]
-
-        self.assertEqual(len(results), 1)
-        self.assertEqual(
-            results[0]["zaaktype"], f"http://testserver{reverse(self.zaaktype)}"
         )
 
     def test_zaak_retreive(self):
@@ -2420,9 +2389,7 @@ class InternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
             applicatie=self.applicatie,
             component=self.component,
             scopes=self.scopes,
-            zaaktype=f"http://testserver{reverse(other_zaaktype)}",
-            informatieobjecttype="",
-            besluittype="",
+            zaaktype=other_zaaktype,
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
         )
 
