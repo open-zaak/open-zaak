@@ -29,7 +29,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
-from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
+from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
 from ..api.cloudevents import (

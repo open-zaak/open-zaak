@@ -2784,7 +2784,6 @@ paths:
         schema:
           type: string
           format: uri
-        description: URL-referentie naar het INFORMATIEOBJECT.
       - in: query
         name: startdatum__gt
         schema:
@@ -4527,7 +4526,6 @@ paths:
         schema:
           type: string
           format: uri
-        description: URL-referentie naar het INFORMATIEOBJECT.
       - in: query
         name: object
         schema:
@@ -5206,8 +5204,6 @@ paths:
         schema:
           type: string
           format: uri
-        description: URL-referentie naar het informatieobject dat is ontvangen of
-          verzonden.
       - name: page
         required: false
         in: query
@@ -8662,8 +8658,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         aardRelatieWeergave:
           allOf:
           - $ref: '#/components/schemas/AardRelatieWeergaveEnum'
@@ -8697,8 +8693,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
       required:
       - aardRelatieWeergave
       - informatieobject
@@ -8713,8 +8709,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         titel:
           type: string
           description: De naam waaronder het INFORMATIEOBJECT binnen het OBJECT bekend
@@ -8737,8 +8733,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
       required:
       - zaak
   securitySchemes:

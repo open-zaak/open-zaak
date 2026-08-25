@@ -70,7 +70,11 @@ class AuthorizationsFilterMixin:
         use_va=True,
     ) -> Q:
         prefix = self.prefix
-        fk_field = f"_{self.fk_field}"
+        fk_field = (
+            f"_{self.fk_field}"
+            if getattr(self, "allow_external", False)
+            else self.fk_field
+        ) # TODO needed for iot now
 
         fk_objecten = []
         # build the case/when to map the max_vertrouwelijkheidaanduiding based
