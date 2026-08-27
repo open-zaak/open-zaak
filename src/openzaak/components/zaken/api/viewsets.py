@@ -50,6 +50,17 @@ from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 
 from openzaak.client import get_client
+from openzaak.components.besluiten.api.scopes import (
+    SCOPE_BESLUITEN_ALLES_LEZEN,
+)
+from openzaak.components.besluiten.models import Besluit
+from openzaak.components.catalogi.api.scopes import SCOPE_CATALOGI_READ
+from openzaak.components.catalogi.models import (
+    BesluitType,
+    Eigenschap,
+    ZaakType,
+    ZaakTypeInformatieObjectType,
+)
 from openzaak.components.zaken.metrics import (
     zaken_create_counter,
     zaken_delete_counter,
@@ -148,6 +159,7 @@ from .serializers import (
     ZaakContactMomentSerializer,
     ZaakEigenschapSerializer,
     ZaakInformatieObjectSerializer,
+    ZaakInzageSerializer,
     ZaakNotitieSerializer,
     ZaakObjectSerializer,
     ZaakOpschortenSerializer,
@@ -2565,3 +2577,117 @@ class ZaakAfsluitenViewSet(ZaakUpdateActionViewSet):
             basename="resultaat",
             main_object=serializer.data["zaak"]["url"],
         )
+
+
+@extend_schema_view(
+    retrieve=extend_schema(
+        "zaakinzage",
+        summary="Geef inzage in een zaak",
+        description=mark_experimental(
+            "Geef de zaak, het zaaktype en alle bijbehorende resources genest terug."
+        ),
+    )
+)
+class ZaakInzageViewSet(
+    CacheQuerysetMixin,
+    viewsets.ReadOnlyModelViewSet,
+):
+    serializer_class = ZaakInzageSerializer
+    lookup_field = "uuid"
+    permission_classes = (ZaakAuthRequired,)
+    required_scopes = {
+        "retrieve": SCOPE_ZAKEN_ALLES_LEZEN
+        & SCOPE_CATALOGI_READ
+        & SCOPE_BESLUITEN_ALLES_LEZEN
+    }
+    permission_main_object = "zaak"
+    queryset = Zaak.objects.select_related("resultaat__resultaattype").prefetch_related(
+        models.Prefetch(
+            "zaaktype",
+            queryset=ZaakType.objects.select_related("catalogus").with_dates(
+                "identificatie"
+            ),
+        ),
+        models.Prefetch("hoofdzaak", queryset=ZaakViewSet.queryset),
+        models.Prefetch("deelzaken", queryset=ZaakViewSet.queryset),
+        models.Prefetch(
+            "zaakeigenschap_set",
+            queryset=ZaakEigenschap.objects.select_related("eigenschap"),
+        ),
+        models.Prefetch(
+            "besluit_set",
+            queryset=Besluit.objects.select_related("besluittype"),
+        ),
+        models.Prefetch(
+            "rol_set",
+            queryset=Rol.objects.select_related(
+                "roltype",
+                "natuurlijkpersoon",
+                "nietnatuurlijkpersoon",
+                "vestiging",
+                "organisatorischeeenheid",
+                "medewerker",
+            ).prefetch_related("statussen"),
+        ),
+        models.Prefetch(
+            "status_set",
+            queryset=Status.objects.select_related("statustype", "gezetdoor")
+            .prefetch_related(
+                models.Prefetch(
+                    "substatus_set",
+                    queryset=SubStatus.objects.select_related("zaak"),
+                ),
+                "zaakinformatieobjecten",
+            )
+            .annotate_with_max_datum_status_gezet()
+            .order_by("-datum_status_gezet"),
+            to_attr="prefetched_statuses",
+        ),
+        "zaakcontactmoment_set",
+        models.Prefetch(
+            "zaakinformatieobject_set",
+            queryset=ZaakInformatieObject.objects.select_related(
+                "_informatieobject__latest_version", "status"
+            ),
+        ),
+        "zaakobject_set",
+        "zaakverzoek_set",
+        "zaaknotitie_set",
+        models.Prefetch(
+            "relevante_andere_zaken",
+            queryset=RelevanteZaakRelatie.objects.select_related("_relevant_zaak"),
+        ),
+        models.Prefetch(
+            "gerelateerde_zaken",
+            queryset=ZaakRelatie.objects.select_related("_gerelateerde_zaak"),
+        ),
+        "zaakkenmerk_set",
+        # Zaaktype
+        models.Prefetch(
+            "zaaktype__besluittypen",
+            queryset=BesluitType.objects.select_related("catalogus")
+            .with_dates()
+            .prefetch_related(
+                "informatieobjecttypen", "zaaktypen", "resultaattype_set"
+            ),
+        ),
+        models.Prefetch(
+            "zaaktype__eigenschap_set",
+            queryset=Eigenschap.objects.select_related("specificatie_van_eigenschap"),
+        ),
+        "zaaktype__resultaattypen__besluittypen",
+        "zaaktype__resultaattypen__informatieobjecttypen",
+        "zaaktype__roltype_set",
+        "zaaktype__statustypen__checklistitem_set",
+        "zaaktype__statustypen__eigenschappen",
+        "zaaktype__statustypen__zaakobjecttypen",
+        "zaaktype__zaakobjecttype_set__resultaattypen",
+        models.Prefetch(
+            "zaaktype__zaaktypeinformatieobjecttype_set",
+            queryset=ZaakTypeInformatieObjectType.objects.select_related(
+                "informatieobjecttype"
+            ),
+        ),
+        "zaaktype__deelzaaktypen",
+        "zaaktype__zaaktypenrelaties",
+    )

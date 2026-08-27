@@ -54,6 +54,23 @@ from vng_api_common.serializers import (
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, UntilNowValidator
 
+from openzaak.components.besluiten.api.serializers import BesluitSerializer
+from openzaak.components.catalogi.api.serializers.besluittype import (
+    BesluitTypeSerializer,
+)
+from openzaak.components.catalogi.api.serializers.eigenschap import EigenschapSerializer
+from openzaak.components.catalogi.api.serializers.relatieklassen import (
+    ZaakTypeInformatieObjectTypeSerializer,
+)
+from openzaak.components.catalogi.api.serializers.resultaattype import (
+    ResultaatTypeSerializer,
+)
+from openzaak.components.catalogi.api.serializers.roltype import RolTypeSerializer
+from openzaak.components.catalogi.api.serializers.statustype import StatusTypeSerializer
+from openzaak.components.catalogi.api.serializers.zaakobjecttype import (
+    ZaakObjectTypeSerializer,
+)
+from openzaak.components.catalogi.api.serializers.zaaktype import ZaakTypeSerializer
 from openzaak.components.catalogi.models import Eigenschap
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 from openzaak.components.zaken.archiving import calculate_archiving_data
@@ -2014,3 +2031,154 @@ class ZaakVerlengenSerializer(ConvenienceSerializer):
             "zaak": zaak,
             "status": status,
         }
+
+
+class ZaakInzageZaakTypeSerializer(ZaakTypeSerializer):
+    eigenschappen = EigenschapSerializer(
+        source="eigenschap_set",
+        many=True,
+        read_only=True,
+        help_text=_("EIGENSCHAPPEN die mogelijk zijn binnen dit ZAAKTYPE."),
+    )
+    resultaattypen = ResultaatTypeSerializer(
+        many=True,
+        read_only=True,
+        help_text=_("RESULTAATTYPEN die mogelijk zijn binnen dit ZAAKTYPE."),
+    )
+    roltypen = RolTypeSerializer(
+        source="roltype_set",
+        many=True,
+        read_only=True,
+        help_text=_("ROLTYPEN die mogelijk zijn binnen dit ZAAKTYPE."),
+    )
+    statustypen = StatusTypeSerializer(
+        many=True,
+        read_only=True,
+        help_text=_("STATUSTYPEN die mogelijk zijn binnen dit ZAAKTYPE."),
+    )
+    zaakobjecttypen = ZaakObjectTypeSerializer(
+        source="zaakobjecttype_set",
+        many=True,
+        read_only=True,
+        help_text=_("ZAAKOBJECTTYPEN die mogelijk zijn binnen dit ZAAKTYPE."),
+    )
+    informatieobjecttypen = ZaakTypeInformatieObjectTypeSerializer(
+        source="zaaktypeinformatieobjecttype_set",
+        many=True,
+        read_only=True,
+        help_text=_("INFORMATIEOBJECTTYPEN die mogelijk zijn binnen dit ZAAKTYPE."),
+    )
+    besluittypen = BesluitTypeSerializer(
+        many=True,
+        read_only=True,
+        help_text=_("BESLUITTYPEN die mogelijk zijn binnen dit ZAAKTYPE."),
+    )
+
+
+class ZaakInzageStatusSerializer(StatusSerializer):
+    substatussen = SubStatusSerializer(
+        source="substatus_set",
+        many=True,
+        read_only=True,
+        help_text=_("De SUBSTATUSSEN die horen bij deze STATUS."),
+    )
+
+    class Meta(StatusSerializer.Meta):
+        fields = StatusSerializer.Meta.fields + ("substatussen",)
+
+
+class ZaakInzageSerializer(ZaakSerializer):
+    zaaktype = ZaakInzageZaakTypeSerializer(
+        read_only=True, help_text=_("Het ZAAKTYPE waartoe deze ZAAK behoort.")
+    )
+    hoofdzaak = ZaakSerializer(
+        read_only=True,
+        allow_null=True,
+        help_text=_(
+            "De ZAAK, waarom verzocht is door de initiator daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de onderhavige ZAAK er één is."
+        ),
+    )
+    deelzaken = ZaakSerializer(
+        many=True, read_only=True, help_text=_("Deelzaken die horen bij deze ZAAK.")
+    )
+    status = ZaakInzageStatusSerializer(
+        source="current_status",
+        read_only=True,
+        allow_null=True,
+        help_text=_(
+            "De huidige STATUS van de zaak, indien er geen status bekend is, dan is de waarde `null`."
+        ),
+    )
+
+    eigenschappen = ZaakEigenschapSerializer(
+        source="zaakeigenschap_set",
+        many=True,
+        read_only=True,
+        help_text=_("De ZAAKEIGENSCHAPPEN die horen bij deze ZAAK."),
+    )
+    besluiten = BesluitSerializer(
+        source="besluit_set",
+        many=True,
+        read_only=True,
+        help_text=_("De BESLUITen die betrekking hebben op deze ZAAK."),
+    )
+    resultaat = ResultaatSerializer(
+        read_only=True,
+        allow_null=True,
+        help_text=_(
+            "Het RESULTAAT van deze ZAAK, indien er geen resultaat bekend is, dan is de waarde `null`."
+        ),
+    )
+    rollen = RolSerializer(
+        source="rol_set",
+        many=True,
+        read_only=True,
+        help_text=_("De ROLlen die horen bij deze ZAAK."),
+    )
+    statussen = ZaakInzageStatusSerializer(
+        source="prefetched_statuses",
+        many=True,
+        read_only=True,
+        help_text=_(
+            "Alle STATUSsen die horen bij deze ZAAK (huidige STATUS en vorige STATUSsen)."
+        ),
+    )
+    zaakcontactmomenten = ZaakContactMomentSerializer(
+        source="zaakcontactmoment_set",
+        many=True,
+        read_only=True,
+        help_text=_("De ZAAKCONTACTMOMENTen die horen bij deze ZAAK."),
+    )
+    zaakinformatieobjecten = ZaakInformatieObjectSerializer(
+        source="zaakinformatieobject_set",
+        many=True,
+        read_only=True,
+        help_text=_("De ZAAKINFORMATIEOBJECTen die horen bij deze ZAAK."),
+    )
+    zaakobjecten = ZaakObjectSerializer(
+        source="zaakobject_set",
+        many=True,
+        read_only=True,
+        help_text=_("De ZAAKOBJECTen die horen bij deze ZAAK."),
+    )
+    zaakverzoeken = ZaakVerzoekSerializer(
+        source="zaakverzoek_set",
+        many=True,
+        read_only=True,
+        help_text=_("De VERZOEKen die horen bij deze ZAAK."),
+    )
+    zaaknotities = ZaakNotitieSerializer(
+        source="zaaknotitie_set",
+        many=True,
+        read_only=True,
+        help_text=_("De NOTITIES die betrekking hebben op deze ZAAK."),
+    )
+
+    class Meta(ZaakSerializer.Meta):
+        fields = ZaakSerializer.Meta.fields + (
+            "besluiten",
+            "statussen",
+            "zaakcontactmomenten",
+            "zaakverzoeken",
+            "zaaknotities",
+        )
