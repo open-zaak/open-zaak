@@ -50,6 +50,10 @@ from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 
 from openzaak.client import get_client
+from openzaak.components.besluiten.api.scopes import (
+    SCOPE_BESLUITEN_ALLES_LEZEN,
+)
+from openzaak.components.catalogi.api.scopes import SCOPE_CATALOGI_READ
 from openzaak.components.zaken.metrics import (
     zaken_create_counter,
     zaken_delete_counter,
@@ -148,6 +152,7 @@ from .serializers import (
     ZaakContactMomentSerializer,
     ZaakEigenschapSerializer,
     ZaakInformatieObjectSerializer,
+    ZaakInzageSerializer,
     ZaakNotitieSerializer,
     ZaakObjectSerializer,
     ZaakOpschortenSerializer,
@@ -2565,3 +2570,54 @@ class ZaakAfsluitenViewSet(ZaakUpdateActionViewSet):
             basename="resultaat",
             main_object=serializer.data["zaak"]["url"],
         )
+
+
+@extend_schema_view(
+    retrieve=extend_schema(
+        "zaakinzage",
+        summary="Geef inzage in een zaak",
+        description=mark_experimental(
+            "Geef de zaak, het zaaktype en alle bijbehorend resources genest terug."
+        ),
+    )
+)
+class ZaakInzageViewSet(
+    CacheQuerysetMixin,
+    viewsets.ReadOnlyModelViewSet,
+):
+    serializer_class = ZaakInzageSerializer
+    lookup_field = "uuid"
+    permission_classes = (ZaakAuthRequired,)
+    required_scopes = {
+        "retrieve": SCOPE_ZAKEN_ALLES_LEZEN
+        & SCOPE_CATALOGI_READ
+        & SCOPE_BESLUITEN_ALLES_LEZEN
+    }
+    permission_main_object = "zaak"
+    queryset = Zaak.objects.select_related(
+        "zaaktype", "resultaat", "hoofdzaak"
+    ).prefetch_related(
+        "deelzaken",
+        "zaakeigenschap_set",
+        "besluit_set",
+        "rol_set",
+        models.Prefetch(
+            "status_set",
+            queryset=Status.objects.prefetch_related("substatus_set").order_by(
+                "-datum_status_gezet"
+            ),
+            to_attr="prefetched_statuses",
+        ),
+        "zaakcontactmoment_set",
+        "zaakinformatieobject_set",
+        "zaakobject_set",
+        "zaakverzoek_set",
+        "zaaknotitie_set",
+        "zaaktype__eigenschap_set",
+        "zaaktype__resultaattypen",
+        "zaaktype__roltype_set",
+        "zaaktype__statustypen",
+        "zaaktype__zaakobjecttype_set",
+        "zaaktype__informatieobjecttypen",
+        "zaaktype__zaaktypeinformatieobjecttype_set",
+    )

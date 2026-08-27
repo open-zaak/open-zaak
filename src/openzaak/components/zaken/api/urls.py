@@ -34,6 +34,7 @@ from .viewsets import (
     ZaakContactMomentViewSet,
     ZaakEigenschapViewSet,
     ZaakInformatieObjectViewSet,
+    ZaakInzageViewSet,
     ZaakNotitieViewSet,
     ZaakObjectViewSet,
     ZaakOpschortenViewset,
@@ -89,6 +90,7 @@ zaakopschorten_view = ZaakOpschortenViewset.as_view({"post": "post"})
 zaakafsluiten_view = ZaakAfsluitenViewSet.as_view({"post": "post"})
 zaakbijwerken_view = ZaakBijwerkenViewset.as_view({"post": "post"})
 zaakverlengen_view = ZaakVerlengenViewset.as_view({"post": "post"})
+zaakinzage_view = ZaakInzageViewSet.as_view({"get": "retrieve"})
 
 app_name = "zaken"
 
@@ -155,6 +157,11 @@ urlpatterns = [
                     "zaak_verlengen/<uuid:uuid>",
                     zaakverlengen_view,
                     name="zaakverlengen",
+                ),
+                path(
+                    "zaak_inzage/<uuid:uuid>",
+                    zaakinzage_view,
+                    name="zaakinzage",
                 ),
                 path("", include("vng_api_common.notifications.api.urls")),
             ]
