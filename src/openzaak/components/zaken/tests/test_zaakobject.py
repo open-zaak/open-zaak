@@ -1428,6 +1428,35 @@ class ZaakObjectProductTests(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
+    def test_read_zaakobject(self):
+        zaak = ZaakFactory.create()
+        zaakobject = ZaakObjectFactory.create(
+            zaak=zaak, object=OBJECT, object_type=ZaakobjectTypes.product
+        )
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(
+            data,
+            {
+                "url": f"http://testserver{url}",
+                "uuid": str(zaakobject.uuid),
+                "zaak": f"http://testserver{zaak_url}",
+                "object": OBJECT,
+                "objectType": ZaakobjectTypes.product,
+                "objectTypeOverige": "",
+                "relatieomschrijving": "",
+                "objectTypeOverigeDefinitie": None,
+                "zaakobjecttype": None,
+            },
+        )
+
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     def test_create_zaakobject(self):
         url = get_operation_url("zaakobject_create")
