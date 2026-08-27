@@ -54,6 +54,20 @@ from vng_api_common.serializers import (
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, UntilNowValidator
 
+from openzaak.components.besluiten.api.serializers import BesluitSerializer
+from openzaak.components.catalogi.api.serializers.eigenschap import EigenschapSerializer
+from openzaak.components.catalogi.api.serializers.relatieklassen import (
+    ZaakTypeInformatieObjectTypeSerializer,
+)
+from openzaak.components.catalogi.api.serializers.resultaattype import (
+    ResultaatTypeSerializer,
+)
+from openzaak.components.catalogi.api.serializers.roltype import RolTypeSerializer
+from openzaak.components.catalogi.api.serializers.statustype import StatusTypeSerializer
+from openzaak.components.catalogi.api.serializers.zaakobjecttype import (
+    ZaakObjectTypeSerializer,
+)
+from openzaak.components.catalogi.api.serializers.zaaktype import ZaakTypeSerializer
 from openzaak.components.catalogi.models import Eigenschap
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 from openzaak.components.zaken.archiving import calculate_archiving_data
@@ -2014,3 +2028,87 @@ class ZaakVerlengenSerializer(ConvenienceSerializer):
             "zaak": zaak,
             "status": status,
         }
+
+
+class ZaakInzageZaakTypeSerializer(ZaakTypeSerializer):
+    eigenschappen = EigenschapSerializer(
+        source="eigenschap_set", many=True, read_only=True
+    )
+    resultaattypen = ResultaatTypeSerializer(many=True, read_only=True)
+    roltypen = RolTypeSerializer(source="roltype_set", many=True, read_only=True)
+    statustypen = StatusTypeSerializer(many=True, read_only=True)
+    zaakobjecttypen = ZaakObjectTypeSerializer(
+        source="zaakobjecttype_set", many=True, read_only=True
+    )
+    informatieobjecttypen = ZaakTypeInformatieObjectTypeSerializer(
+        source="zaaktypeinformatieobjecttype_set", many=True, read_only=True
+    )
+
+    class Meta(ZaakTypeSerializer.Meta):
+        fields = ZaakTypeSerializer.Meta.fields
+
+
+class ZaakInzageStatusSerializer(StatusSerializer):
+    substatussen = SubStatusSerializer(
+        source="substatus_set", many=True, read_only=True
+    )
+
+    class Meta(StatusSerializer.Meta):
+        fields = StatusSerializer.Meta.fields + ("substatussen",)
+
+
+class ZaakInzageSerializer(ZaakSerializer):
+    zaaktype = ZaakInzageZaakTypeSerializer(read_only=True)
+    hoofdzaak = ZaakSerializer(read_only=True, allow_null=True)
+    deelzaken = ZaakSerializer(many=True, read_only=True)
+    status = ZaakInzageStatusSerializer(
+        source="current_status",
+        read_only=True,
+        allow_null=True,
+    )
+
+    eigenschappen = ZaakEigenschapSerializer(
+        source="zaakeigenschap_set", many=True, read_only=True
+    )
+    besluiten = BesluitSerializer(
+        source="besluit_set",
+        many=True,
+        read_only=True,
+    )
+    resultaat = ResultaatSerializer(read_only=True, allow_null=True)
+    rollen = RolSerializer(source="rol_set", many=True, read_only=True)
+    statussen = ZaakInzageStatusSerializer(
+        source="prefetched_statuses",
+        many=True,
+        read_only=True,
+    )
+    zaakcontactmomenten = ZaakContactMomentSerializer(
+        source="zaakcontactmoment_set",
+        many=True,
+        read_only=True,
+    )
+    zaakinformatieobjecten = ZaakInformatieObjectSerializer(
+        source="zaakinformatieobject_set", many=True, read_only=True
+    )
+    zaakobjecten = ZaakObjectSerializer(
+        source="zaakobject_set", many=True, read_only=True
+    )
+    zaakverzoeken = ZaakVerzoekSerializer(
+        source="zaakverzoek_set",
+        many=True,
+        read_only=True,
+    )
+    zaaknotities = ZaakNotitieSerializer(
+        source="zaaknotitie_set",
+        many=True,
+        read_only=True,
+    )
+
+    class Meta(ZaakSerializer.Meta):
+        fields = ZaakSerializer.Meta.fields + (
+            "besluiten",
+            "statussen",
+            "zaakcontactmomenten",
+            "zaakverzoeken",
+            "zaaknotities",
+        )
