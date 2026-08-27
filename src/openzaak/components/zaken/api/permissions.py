@@ -1,8 +1,12 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
 from rest_framework.request import Request
+from vng_api_common.constants import ComponentTypes
 from vng_api_common.permissions import bypass_permissions, get_required_scopes
 
+from openzaak.components.besluiten.api.scopes import SCOPE_BESLUITEN_ALLES_LEZEN
+from openzaak.components.catalogi.api.scopes import SCOPE_CATALOGI_READ
+from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
 from openzaak.utils.permissions import AuthRequired, MultipleObjectsAuthRequired
 
 
@@ -44,3 +48,14 @@ class ZaakActionAuthRequired(MultipleObjectsAuthRequired):
     main_resources = {
         "zaak": ZaakAuthRequired.main_resource,
     }
+
+
+class ZaakInzageAuthRequired(ZaakNestedAuthRequired):
+    def has_permission(self, request: Request, view) -> bool:
+        return (
+            request.jwt_auth.has_auth(SCOPE_ZAKEN_ALLES_LEZEN, ComponentTypes.zrc)
+            and request.jwt_auth.has_auth(SCOPE_CATALOGI_READ, ComponentTypes.ztc)
+            and request.jwt_auth.has_auth(
+                SCOPE_BESLUITEN_ALLES_LEZEN, ComponentTypes.brc
+            )
+        )
