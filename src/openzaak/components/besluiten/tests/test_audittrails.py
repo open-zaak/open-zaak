@@ -505,9 +505,9 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
                 f"http://testserver{reverse(besluit, namespace='besluiten')}",
             )
             self.assertIn(
-                "besluiten/api/besluitinformatieobjecten", brc_bio_trail.nieuw["url"]
+                "besluiten/api/v1/besluitinformatieobjecten", brc_bio_trail.nieuw["url"]
             )
-            self.assertIn("besluiten/api/besluiten", brc_bio_trail.nieuw["besluit"])
+            self.assertIn("besluiten/api/v1/besluiten", brc_bio_trail.nieuw["besluit"])
 
         for zrc_bio_trail in AuditTrail.objects.filter(
             resource="besluitinformatieobject", bron="ZRC"
@@ -516,12 +516,12 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             self.assertEqual(zrc_bio_trail.oud, None)
             self.assertEqual(
                 zrc_bio_trail.hoofd_object,
-                f"http://testserver{reverse(besluit, namespace='besluiten')}",
+                f"http://testserver{reverse(zaak, namespace='zaken')}",
             )
             self.assertIn(
-                "zaken/api/besluitinformatieobjecten", brc_bio_trail.nieuw["url"]
+                "zaken/api/v1/besluitinformatieobjecten", zrc_bio_trail.nieuw["url"]
             )
-            self.assertIn("zaken/api/besluiten", brc_bio_trail.nieuw["besluit"])
+            self.assertIn("zaken/api/v1/besluiten", zrc_bio_trail.nieuw["besluit"])
 
     def test_delete_besluit_cascade_audittrails(self):
         besluit_data = self._create_besluit()

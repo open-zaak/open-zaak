@@ -441,7 +441,7 @@ class BesluitVerwerkenViewSet(
                 "besluit"
             ].unique_representation(),
             audit=AUDIT_BRC,
-            basename="besluit",
+            basename=Besluit._meta.object_name.lower(),
             main_object=brc_data["url"],
         )
 
@@ -458,7 +458,7 @@ class BesluitVerwerkenViewSet(
                     "besluit"
                 ].unique_representation(),
                 audit=AUDIT_ZRC,
-                basename="besluit",
+                basename=Besluit._meta.object_name.lower(),
                 main_object=zaak,
             )
 
@@ -473,8 +473,8 @@ class BesluitVerwerkenViewSet(
                     i
                 ].unique_representation(),
                 audit=AUDIT_BRC,
-                basename="besluitinformatieobject",
-                main_object=brc_data["url"],
+                basename=BesluitInformatieObject._meta.object_name.lower(),
+                main_object=brc_data["besluit"],
             )
 
             if zaak:
@@ -488,7 +488,7 @@ class BesluitVerwerkenViewSet(
                         "besluitinformatieobjecten"
                     ][i].unique_representation(),
                     audit=AUDIT_ZRC,
-                    basename="besluitinformatieobject",
+                    basename=BesluitInformatieObject._meta.object_name.lower(),
                     main_object=zaak,
                 )
 
