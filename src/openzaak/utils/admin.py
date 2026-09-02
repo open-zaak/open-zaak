@@ -180,14 +180,13 @@ class AuditTrailAdminMixin:
         if not audit:
             audit = viewset.audit
 
-        if main_object:
-            pass
-        elif basename == viewset.audit.main_resource:
-            main_object = data["url"]
-        elif hasattr(viewset, "audittrail_main_resource_key"):
-            main_object = data[viewset.audittrail_main_resource_key]
-        else:
-            main_object = data[viewset.audit.main_resource]
+        if not main_object:
+            if basename == viewset.audit.main_resource:
+                main_object = data["url"]
+            elif hasattr(viewset, "audittrail_main_resource_key"):
+                main_object = data[viewset.audittrail_main_resource_key]
+            else:
+                main_object = data[viewset.audit.main_resource]
 
         action_labels = dict(
             zip(CommonResourceAction.names, CommonResourceAction.labels)
@@ -316,7 +315,7 @@ class MultipleAuditTrailAdminMixin(AuditTrailAdminMixin):
     def save_model(self, request, obj, form, change):
         viewset = self.get_viewset(request)
         if not viewset:
-            ModelAdmin.delete_model(self, request, obj)
+            ModelAdmin.save_model(self, request, obj, form, change)
             return
 
         model = obj.__class__
@@ -376,7 +375,7 @@ class MultipleAuditTrailAdminMixin(AuditTrailAdminMixin):
                 if basename == audit.main_resource:
                     with transaction.atomic():
                         AuditTrail.objects.filter(hoofd_object=data["url"]).delete()
-                        return
+                        continue
 
                 self.trail(
                     obj, viewset, request, action, data, None, audit, main_object

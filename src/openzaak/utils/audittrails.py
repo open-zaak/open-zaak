@@ -22,6 +22,7 @@ from openzaak.utils.namespacing import (
 class MultipleAuditTrailsMixin(AuditTrailMixin):
     audits: list[Audit]
     audittrail_main_resource_keys: dict[str, str]
+    audittrail_replace_urls_for: list[str] | None = None
 
     _AUDIT_NAMESPACE_MAPPING = {"BRC": "besluiten", "ZRC": "zaken"}
 
@@ -52,9 +53,7 @@ class MultipleAuditTrailsMixin(AuditTrailMixin):
         version_after_edit: dict | None = None,
         basename: str | None = None,
     ):
-        fields = getattr(self, "audittrail_replace_urls_for", [])
-        fields.append("url")
-
+        fields = ["url"] + (self.audittrail_replace_urls_for or [])
         if version_before_edit:
             version_before_edit = replace_namespaces(
                 version_before_edit,

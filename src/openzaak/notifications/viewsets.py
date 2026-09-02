@@ -180,9 +180,8 @@ class MultipleChannelNotificationMixin(NotificationMixin):
         main_resource_keys: dict[str, str] | None = None,
         main_object_resource: models.Model | dict | None = None,
     ) -> Generator[tuple[Kanaal, dict], None, None]:
-        if replace_urls_for is None:
-            replace_urls_for = []
-        replace_urls_for.append("url")
+        fields = ["url"] + (replace_urls_for or [])
+
         for kanaal_config in kanaal_configs:
             if (
                 kanaal_config.get("deprecated", False)
@@ -191,7 +190,7 @@ class MultipleChannelNotificationMixin(NotificationMixin):
                 continue
             kanaal = kanaal_config["kanaal"]
             namespace = kanaal_config.get("namespace", kanaal.label)
-            notification_data = replace_namespaces(data, replace_urls_for, namespace)
+            notification_data = replace_namespaces(data, fields, namespace)
             # if model == main_resource the url field is used which is always set
             # if the model is not main_resource it can be port of notification_data or from a related model.
             # No notification should be sent if the main resource is not set (because it's not required on the model).

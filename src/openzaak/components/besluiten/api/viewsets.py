@@ -284,7 +284,7 @@ class BesluitInformatieObjectViewSet(
     notifications_main_resource_keys = {"zaken": "besluit.zaak"}
     notifications_replace_urls_for = ["besluit"]
     audits = [AUDIT_BRC, AUDIT_ZRC]
-    audittrail_main_resource_keys = {"ZRC": "besluit.zaak"}
+    audittrail_main_resource_keys = {AUDIT_ZRC.component_name: "besluit.zaak"}
     audittrail_replace_urls_for = ["besluit"]
 
     @property
