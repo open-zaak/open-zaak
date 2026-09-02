@@ -1324,8 +1324,8 @@ components:
           format: uri
           nullable: true
           description: het besluittype waarop de autorisatie van toepassing is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
     BesluitTypeAutorisatieRequest:
       type: object
       properties:
@@ -1334,8 +1334,8 @@ components:
           format: uri
           nullable: true
           description: het besluittype waarop de autorisatie van toepassing is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
     BlankEnum:
       enum:
       - ''
@@ -1406,8 +1406,8 @@ components:
           nullable: true
           description: het informatieobjecttype waarop de autorisatie van toepassing
             is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         maxVertrouwelijkheidaanduiding:
           description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
           oneOf:
@@ -1422,8 +1422,8 @@ components:
           nullable: true
           description: het informatieobjecttype waarop de autorisatie van toepassing
             is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         maxVertrouwelijkheidaanduiding:
           description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
           oneOf:
@@ -1530,8 +1530,8 @@ components:
           format: uri
           nullable: true
           description: het zaaktype waarop de autorisatie van toepassing is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         maxVertrouwelijkheidaanduiding:
           description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
           oneOf:
@@ -1545,8 +1545,8 @@ components:
           format: uri
           nullable: true
           description: het zaaktype waarop de autorisatie van toepassing is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         maxVertrouwelijkheidaanduiding:
           description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
           oneOf:
