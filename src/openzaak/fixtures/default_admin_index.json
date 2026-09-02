@@ -34,10 +34,10 @@
     "fields": {
         "order": 1,
         "name": "API Autorisaties",
-        "slug": "api-authorizations",
+        "slug": "api-autorisaties",
         "models": [
             [
-                "authorizations",
+                "autorisaties",
                 "applicatie"
             ],
             [

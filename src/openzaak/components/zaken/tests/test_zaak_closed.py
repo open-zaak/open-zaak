@@ -11,13 +11,13 @@ import requests_mock
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import (
     Archiefnominatie,
     ComponentTypes,
     RolOmschrijving,
 )
 
+from openzaak.components.autorisaties.models import Autorisatie
 from openzaak.components.besluiten.api.scopes import (
     SCOPE_BESLUITEN_AANMAKEN,
     SCOPE_BESLUITEN_ALLES_LEZEN,
@@ -327,7 +327,7 @@ class ClosedZaakRelatedDataNotAllowedTests(JWTAuthMixin, CRUDAssertions, APITest
                 SCOPE_BESLUITEN_ALLES_LEZEN,
                 SCOPE_BESLUITEN_ALLES_VERWIJDEREN,
             ],
-            besluittype=besluittype_url,
+            besluittype=besluittype,
         )
 
         self.assertCreateBlocked(
@@ -515,7 +515,7 @@ class ClosedZaakRelatedDataAllowedTests(JWTAuthMixin, CRUDAssertions, APITestCas
                 SCOPE_BESLUITEN_ALLES_LEZEN,
                 SCOPE_BESLUITEN_ALLES_VERWIJDEREN,
             ],
-            besluittype=besluittype_url,
+            besluittype=besluittype,
         )
 
         self.assertCreateAllowed(

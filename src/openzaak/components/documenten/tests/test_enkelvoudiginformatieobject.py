@@ -12,12 +12,12 @@ from freezegun import freeze_time
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
+from openzaak.components.autorisaties.models import Autorisatie
 from openzaak.components.catalogi.api.scopes import SCOPE_CATALOGI_READ
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
@@ -1327,7 +1327,7 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
             applicatie=self.applicatie,
             component=ComponentTypes.drc,
             scopes=[SCOPE_DOCUMENTEN_ALLES_LEZEN],
-            informatieobjecttype=reverse(informatieobjecttype),
+            informatieobjecttype=informatieobjecttype,
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
 

@@ -1,17 +1,12 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from collections import defaultdict
-from urllib.parse import urlparse
 
-from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
-from django.http.request import validate_host
 
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.scopes import Scope
-from vng_api_common.utils import get_resource_for_path, get_resources_for_paths
 
 
 class QueryBlocked(Exception):
@@ -41,9 +36,9 @@ class BlockChangeMixin:
     delete.queryset_only = True
 
 
-class LooseFkAuthorizationsFilterMixin:
+class AuthorizationsFilterMixin:
     auth_fields = []
-    loose_fk_field = None
+    fk_field = None
     vertrouwelijkheidaanduiding_use = True
     authorizations_lookup = None
 
@@ -53,7 +48,7 @@ class LooseFkAuthorizationsFilterMixin:
             "" if not self.authorizations_lookup else f"{self.authorizations_lookup}__"
         )
 
-    def build_queryset(self, local_filters, external_filters) -> models.QuerySet:
+    def build_queryset(self, filters) -> models.QuerySet:
         if self.vertrouwelijkheidaanduiding_use:
             # annotate the queryset so we can map a string value to a logical number
             order_case = VertrouwelijkheidsAanduiding.get_order_expression(
@@ -61,12 +56,10 @@ class LooseFkAuthorizationsFilterMixin:
             )
             annotations = {"_va_order": order_case}
             # bring it all together now to build the resulting queryset
-            queryset = self.annotate(**annotations).filter(
-                local_filters | external_filters
-            )
+            queryset = self.annotate(**annotations).filter(filters)
 
         else:
-            queryset = self.filter(local_filters | external_filters)
+            queryset = self.filter(filters)
         return queryset
 
     def get_filters(
@@ -74,84 +67,39 @@ class LooseFkAuthorizationsFilterMixin:
         scope,
         authorizations,
         catalogus_authorizations=None,
-        local=True,
         use_va=True,
     ) -> Q:
         prefix = self.prefix
-        # TODO (Open Zaak 2.0): Remove this once all external type support has been
-        # removed. At that point every loose FK field will be a regular FK.
-        supports_external_field = getattr(self, "supports_external_field", True)
-        if supports_external_field:
-            loose_fk_field = (
-                f"_{self.loose_fk_field}" if local else f"_{self.loose_fk_field}_url"
-            )
-        else:
-            loose_fk_field = self.loose_fk_field
-        # resource URLs to either use as-is or resolve to database records
-        resource_urls = [
-            getattr(authorization, self.loose_fk_field)
-            for authorization in authorizations
-        ]
+        fk_field = (
+            f"_{self.fk_field}"
+            if getattr(self, "allow_external", False)
+            else self.fk_field
+        )  # TODO needed for iot now
 
-        # keep a list of allowed loose-fk objects
-        loose_fk_objecten = []
+        fk_objecten = []
         # build the case/when to map the max_vertrouwelijkheidaanduiding based
         # on the ``zaaktype``
         va_mapping = defaultdict(list)
 
-        if not local:
-            loose_fk_object_map = dict(zip(resource_urls, resource_urls))
-        else:
-            # prepare to get the loose_fk_objects in bulk from the DB
-            loose_fk_object_paths = [urlparse(url).path for url in resource_urls]
-            try:
-                loose_fk_objects = get_resources_for_paths(loose_fk_object_paths)
-            except RuntimeError:
-                # An authorization points to a resource (e.g. a zaaktype) that
-                # no longer exists locally. Resolve what we can instead of
-                # blowing up the entire request with a 500 - the broken
-                # authorization simply grants access to nothing.
-                loose_fk_objects = []
-                resolvable_urls = []
-                for path, url in zip(loose_fk_object_paths, resource_urls):
-                    try:
-                        loose_fk_objects.append(get_resource_for_path(path))
-                        resolvable_urls.append(url)
-                    except ObjectDoesNotExist:
-                        continue
-                resource_urls = resolvable_urls
-            # nothing to resolve
-            if not loose_fk_objects:
-                loose_fk_object_map = {}
-            else:
-                # keep the sorting so we can zip them correctly
-                sorted_objects = sorted(
-                    loose_fk_objects, key=lambda o: o.get_absolute_api_url()
-                )
-                loose_fk_object_map = dict(zip(sorted(resource_urls), sorted_objects))
-
         for authorization in authorizations:
-            resource_url = getattr(authorization, self.loose_fk_field)
-            loose_fk_object = loose_fk_object_map.get(resource_url)
-            if loose_fk_object is None:
-                continue
-            loose_fk_objecten.append(loose_fk_object)
+            resource = getattr(authorization, self.fk_field)
+            fk_objecten.append(resource)
 
             # extract the order and map it to the database value
             if authorization.max_vertrouwelijkheidaanduiding:
                 choice_item_order = VertrouwelijkheidsAanduiding.get_choice_order(
                     authorization.max_vertrouwelijkheidaanduiding
                 )
-                va_mapping[choice_item_order].append(loose_fk_object)
+                va_mapping[choice_item_order].append(resource)
 
         if catalogus_authorizations:
             for catalogus_authorisation in catalogus_authorizations:
                 resources = getattr(
-                    catalogus_authorisation.catalogus, f"{self.loose_fk_field}_set"
+                    catalogus_authorisation.catalogus, f"{self.fk_field}_set"
                 ).all()
 
                 for instance in resources:
-                    loose_fk_objecten.append(instance)
+                    fk_objecten.append(instance)
 
                     # extract the order and map it to the database value
                     if catalogus_authorisation.max_vertrouwelijkheidaanduiding:
@@ -163,7 +111,7 @@ class LooseFkAuthorizationsFilterMixin:
                         va_mapping[choice_item_order].append(instance)
 
         if not use_va:
-            return Q(**{f"{prefix}{loose_fk_field}__in": loose_fk_objecten})
+            return Q(**{f"{prefix}{fk_field}__in": fk_objecten})
 
         # Combine the filters: group the minimum required confidentiality with
         # the instances (zaaktypen/informatieobjecttypen) for which this constraint
@@ -171,34 +119,21 @@ class LooseFkAuthorizationsFilterMixin:
         filters = Q()
         for max_va, instances in va_mapping.items():
             filters |= Q(_va_order__lte=max_va) & Q(
-                **{f"{prefix}{loose_fk_field}__in": instances}
+                **{f"{prefix}{fk_field}__in": instances}
             )
         return filters
 
     def get_authorizations(self, scope: Scope, authorizations: models.QuerySet):
-        authorizations_local = []
-        authorizations_external = []
-        allowed_hosts = settings.ALLOWED_HOSTS
-        # TODO (Open Zaak 2.0): Remove this once all external type support has been
-        # removed. At that point every loose FK field will be a regular FK.
-        supports_external_field = getattr(self, "supports_external_field", True)
+        scoped_authorizations = []
 
         for auth in authorizations:
             # test if this authorization has the scope that's needed
             if not scope.is_contained_in(auth.scopes):
                 continue
 
-            if not supports_external_field:
-                authorizations_local.append(auth)
-                continue
+            scoped_authorizations.append(auth)
 
-            loose_fk_host = urlparse(getattr(auth, self.loose_fk_field)).hostname
-            if validate_host(loose_fk_host, allowed_hosts):
-                authorizations_local.append(auth)
-            else:
-                authorizations_external.append(auth)
-
-        return authorizations_local, authorizations_external
+        return scoped_authorizations
 
     def get_catalogus_authorizations(
         self, scope: Scope, catalogus_authorizations: models.QuerySet
@@ -211,27 +146,16 @@ class LooseFkAuthorizationsFilterMixin:
         authorizations: models.QuerySet,
         catalogus_authorizations: models.QuerySet,
     ) -> models.QuerySet:
-        # todo implement error if no loose-fk field
-
-        authorizations_local, authorizations_external = self.get_authorizations(
-            scope, authorizations
-        )
+        authorizations = self.get_authorizations(scope, authorizations)
 
         catalogus_authorizations = self.get_catalogus_authorizations(
             scope, catalogus_authorizations
         )
 
-        local_filters = self.get_filters(
+        filters = self.get_filters(
             scope,
-            authorizations_local,
+            authorizations,
             catalogus_authorizations=catalogus_authorizations,
-            local=True,
             use_va=self.vertrouwelijkheidaanduiding_use,
         )
-        external_filters = self.get_filters(
-            scope,
-            authorizations_external,
-            local=False,
-            use_va=self.vertrouwelijkheidaanduiding_use,
-        )
-        return self.build_queryset(local_filters, external_filters)
+        return self.build_queryset(filters)

@@ -10,7 +10,7 @@ class ListFilterByAuthorizationsMixin:
 
     For this to be effective, the underlying model must have a queryset
     method ``filter_for_authorizations``, which is provided by
-    :class:`openzaak.utils.query.LooseFkAuthorizationsFilterMixin`
+    :class:`openzaak.utils.query.AuthorizationsFilterMixin`
     """
 
     def get_queryset(self):

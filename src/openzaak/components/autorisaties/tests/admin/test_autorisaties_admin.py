@@ -11,16 +11,14 @@ from django.test import TestCase, override_settings, tag
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-import requests_mock
 from django_webtest import WebTest
 from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
-from zgw_consumers_oas import generate_oas_component
 
 from openzaak.accounts.tests.factories import UserFactory
 from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_BIJWERKEN
+from openzaak.components.autorisaties.models import Applicatie, Autorisatie
 from openzaak.components.besluiten.api.scopes import (
     SCOPE_BESLUITEN_AANMAKEN,
     SCOPE_BESLUITEN_ALLES_LEZEN,
@@ -44,9 +42,6 @@ from openzaak.components.zaken.api.scopes import (
     SCOPE_ZAKEN_CREATE,
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
-from openzaak.tests.utils import mock_ztc_oas_get
-from openzaak.utils import build_absolute_url
-from openzaak.utils.urls import reverse as _reverse
 
 from ...constants import RelatedTypeSelectionMethods
 from ...models import CatalogusAutorisatie
@@ -80,7 +75,7 @@ class PermissionTests(WebTest):
         # priv user
         cls.privileged_user = UserFactory.create(is_staff=True)
         perm = Permission.objects.get_by_natural_key(
-            "change_applicatie", "authorizations", "applicatie"
+            "change_applicatie", "autorisaties", "applicatie"
         )
         cls.privileged_user.user_permissions.add(perm)
 
@@ -88,7 +83,7 @@ class PermissionTests(WebTest):
 
     def test_non_privileged_user(self):
         url = reverse(
-            "admin:authorizations_applicatie_autorisaties",
+            "admin:autorisaties_applicatie_autorisaties",
             kwargs={"object_id": self.applicatie.pk},
         )
 
@@ -98,49 +93,13 @@ class PermissionTests(WebTest):
 
     def test_privileged_user(self):
         url = reverse(
-            "admin:authorizations_applicatie_autorisaties",
+            "admin:autorisaties_applicatie_autorisaties",
             kwargs={"object_id": self.applicatie.pk},
         )
 
         response = self.app.get(url, user=self.privileged_user)
 
         self.assertEqual(response.status_code, 200)
-
-
-@tag("admin-autorisaties")
-@disable_admin_mfa()
-@override_settings(SITE_DOMAIN="testserver")
-class ApplicatieInlinesAdminTests(WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        # priv user
-        cls.user = UserFactory.create(is_staff=True)
-        _perms = [
-            ("change_applicatie", "authorizations", "applicatie"),
-            ("view_autorisatie", "authorizations", "autorisatie"),
-        ]
-        perms = [Permission.objects.get_by_natural_key(*_perm) for _perm in _perms]
-        cls.user.user_permissions.add(*perms)
-
-        cls.applicatie = ApplicatieFactory.create()
-
-        cls.url = reverse(
-            "admin:authorizations_applicatie_change",
-            kwargs={"object_id": cls.applicatie.id},
-        )
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
-    def _add_autorisatie(self, obj, **kwargs):
-        url = build_absolute_url(obj.get_absolute_api_url())
-        field = obj._meta.model_name
-        Autorisatie.objects.create(
-            applicatie=self.applicatie,
-            **{field: url, **kwargs},
-        )
 
 
 @tag("admin-autorisaties", "notifications")
@@ -155,13 +114,13 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         super().setUpTestData()
         cls.user = user = UserFactory.create(is_staff=True)
         perm = Permission.objects.get_by_natural_key(
-            "change_applicatie", "authorizations", "applicatie"
+            "change_applicatie", "autorisaties", "applicatie"
         )
         user.user_permissions.add(perm)
         cls.applicatie = ApplicatieFactory.create()
 
         cls.url = reverse(
-            "admin:authorizations_applicatie_autorisaties",
+            "admin:autorisaties_applicatie_autorisaties",
             kwargs={"object_id": cls.applicatie.pk},
         )
         cls.applicatie_url = reverse(
@@ -183,7 +142,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             component=ComponentTypes.drc,
             scopes=["documenten.lezen"],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            informatieobjecttype=build_absolute_url(iot.get_absolute_api_url()),
+            informatieobjecttype=iot,
         )
         Autorisatie.objects.create(
             applicatie=self.applicatie,
@@ -207,7 +166,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
             scopes=["zaken.lezen"],
-            zaaktype=f"http://testserver{zt.get_absolute_api_url()}",
+            zaaktype=zt,
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
         CatalogusAutorisatieFactory.create(
@@ -251,7 +210,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
             scopes=["zaken.lezen"],
-            zaaktype=f"http://testserver{zt.get_absolute_api_url()}",
+            zaaktype=zt,
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
         CatalogusAutorisatieFactory.create(
@@ -354,7 +313,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
             scopes=["zaken.lezen"],
-            zaaktype=f"http://testserver{zt.get_absolute_api_url()}",
+            zaaktype=zt,
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
         data = {
@@ -388,158 +347,6 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             None,
         )
 
-    @requests_mock.Mocker()
-    def test_add_autorisatie_external_zaaktypen(self, m):
-        mock_ztc_oas_get(m)
-        zt1 = generate_oas_component("ztc", "schemas/ZaakType", url=ZAAKTYPE1)
-        zt2 = generate_oas_component("ztc", "schemas/ZaakType", url=ZAAKTYPE2)
-        m.get(ZAAKTYPE1, json=zt1)
-        m.get(ZAAKTYPE2, json=zt2)
-
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.zrc,
-            "form-0-scopes": ["zaken.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
-            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-            "form-0-externe_typen": [ZAAKTYPE1, ZAAKTYPE2],
-        }
-
-        response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(Autorisatie.objects.count(), 2)
-
-        autorisatie1, autorisatie2 = Autorisatie.objects.all()
-
-        self.assertEqual(autorisatie1.zaaktype, ZAAKTYPE1)
-        self.assertEqual(autorisatie2.zaaktype, ZAAKTYPE2)
-
-    @requests_mock.Mocker()
-    def test_add_autorisatie_external_iotypen(self, m):
-        mock_ztc_oas_get(m)
-        iot1 = generate_oas_component(
-            "ztc", "schemas/InformatieObjectType", url=IOTYPE1
-        )
-        iot2 = generate_oas_component(
-            "ztc", "schemas/InformatieObjectType", url=IOTYPE2
-        )
-        m.get(IOTYPE1, json=iot1)
-        m.get(IOTYPE2, json=iot2)
-
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.drc,
-            "form-0-scopes": ["documenten.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
-            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-            "form-0-externe_typen": [IOTYPE1, IOTYPE2],
-        }
-
-        response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(Autorisatie.objects.count(), 2)
-
-        autorisatie1, autorisatie2 = Autorisatie.objects.all()
-
-        self.assertEqual(autorisatie1.informatieobjecttype, IOTYPE1)
-        self.assertEqual(autorisatie2.informatieobjecttype, IOTYPE2)
-
-    @requests_mock.Mocker()
-    def test_add_autorisatie_external_besluittypen(self, m):
-        mock_ztc_oas_get(m)
-        bt1 = generate_oas_component("ztc", "schemas/BesluitType", url=BESLUITTYPE1)
-        bt2 = generate_oas_component("ztc", "schemas/BesluitType", url=BESLUITTYPE2)
-        m.get(BESLUITTYPE1, json=bt1)
-        m.get(BESLUITTYPE2, json=bt2)
-
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.brc,
-            "form-0-scopes": ["besluiten.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
-            "form-0-externe_typen": [BESLUITTYPE1, BESLUITTYPE2],
-        }
-
-        response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(Autorisatie.objects.count(), 2)
-
-        autorisatie1, autorisatie2 = Autorisatie.objects.all()
-
-        self.assertEqual(autorisatie1.besluittype, BESLUITTYPE1)
-        self.assertEqual(autorisatie2.besluittype, BESLUITTYPE2)
-
-    def test_add_autorisatie_external_zaaktype_invalid_url(self):
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.zrc,
-            "form-0-scopes": ["zaken.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
-            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-            "form-0-externe_typen": ["badurl"],
-        }
-
-        response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Autorisatie.objects.count(), 0)
-
-    @patch("vng_api_common.oas.fetcher")
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=False)
-    def test_add_autorisatie_external_zaaktype_invalid_resource(self, *mocks):
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.zrc,
-            "form-0-scopes": ["zaken.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
-            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-            "form-0-externe_typen": ["https://external.catalogi.com/api/v1/1234"],
-        }
-
-        with requests_mock.Mocker() as m:
-            m.get(
-                "https://external.catalogi.com/api/v1/1234", json={"invalid": "shape"}
-            )
-            response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Autorisatie.objects.count(), 0)
-
-        expected_errors = {
-            "externe_typen": [
-                {
-                    "msg": _(
-                        "De URL {url} resource lijkt niet op een `ZaakType`. Geef een geldige URL op."
-                    ).format(url="https://external.catalogi.com/api/v1/1234"),
-                    "code": "invalid-resource",
-                }
-            ]
-        }
-        self.assertEqual(response.context["formdata"][0]["errors"], expected_errors)
-
     def test_add_authorizatie_without_types(self):
         data = {
             # management form
@@ -554,6 +361,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 302)
+
         self.assertEqual(self.applicatie.autorisaties.count(), 1)
 
         autorisatie = self.applicatie.autorisaties.get()
@@ -664,13 +472,12 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
 
         # set up reproduction case
         iotype = InformatieObjectTypeFactory.create(concept=True)
-        url = f"http://testserver{iotype.get_absolute_api_url()}"
         AutorisatieFactory.create(
             applicatie=self.applicatie,
             component=ComponentTypes.drc,
             scopes=["documenten.lezen"],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            informatieobjecttype=url,
+            informatieobjecttype=iotype,
         )
 
         # now delete the iotype - which is allowed since it's a draft
@@ -684,25 +491,6 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         self.assertEqual(
             len(initial_data), 2
         )  # 1 empty form, 1 unrelated catalogusautorisatie
-
-    @tag("gh-1584")
-    def test_related_object_does_not_exist(self):
-        """
-        Assert that the autorisaties view does not crash
-        if an autorisatie fails to delete after its related object is deleted.
-        """
-
-        AutorisatieFactory.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.drc,
-            scopes=["documenten.lezen"],
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            informatieobjecttype="http://testserver/url_to_nowhere/00000000-0000-0000-0000-000000000000",
-        )
-
-        # check that the admin page does not crash
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 200)
 
     @tag("gh-1584")
     @override_settings(
@@ -735,75 +523,17 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
 
         autorisatie = Autorisatie.objects.get()
         # domain expected by sync_autorisaties signal
-        self.assertEqual(
-            autorisatie.zaaktype, "http://testserver" + zaaktype.get_absolute_api_url()
-        )
+        self.assertEqual(autorisatie.zaaktype, zaaktype)
 
         zaaktype.delete()
 
         with self.assertRaises(Autorisatie.DoesNotExist):
             autorisatie.refresh_from_db()
         self.assertEqual(Autorisatie.objects.count(), 0)
-        # Because the last Autorisatie was deleted, the Applicatie itself is deleted as well
-        self.assertEqual(Applicatie.objects.count(), 0)
 
-    @override_settings(ALLOWED_HOSTS=["testserver"])
-    def test_load_initial_data_external_types(self):
-        """
-        Test that external types for ZRC/BRC/DRC load properly, even if there are no local
-        types linked to Autorisaties
-        """
-        AutorisatieFactory.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.zrc,
-            zaaktype="http://ztc.com/1234",
-            scopes=[str(SCOPE_ZAKEN_BIJWERKEN)],
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
-        )
-        AutorisatieFactory.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.drc,
-            informatieobjecttype="http://ztc.com/5678",
-            scopes=[str(SCOPE_DOCUMENTEN_ALLES_LEZEN)],
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
-        )
-        AutorisatieFactory.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.brc,
-            besluittype="http://ztc.com/4321",
-            scopes=[str(SCOPE_BESLUITEN_AANMAKEN)],
-        )
-
-        response = self.client.get(self.url)
-
-        # Regular Autorisatie with different scopes should be displayed separately
-        expected_initial = [
-            {
-                "component": ComponentTypes.zrc,
-                "scopes": [str(SCOPE_ZAKEN_BIJWERKEN)],
-                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
-                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
-                "zaaktypen": set(),
-                "externe_typen": ["http://ztc.com/1234"],
-            },
-            {
-                "component": ComponentTypes.drc,
-                "scopes": [str(SCOPE_DOCUMENTEN_ALLES_LEZEN)],
-                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
-                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
-                "informatieobjecttypen": set(),
-                "externe_typen": ["http://ztc.com/5678"],
-            },
-            {
-                "component": ComponentTypes.brc,
-                "scopes": [str(SCOPE_BESLUITEN_AANMAKEN)],
-                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
-                "besluittypen": set(),
-                "externe_typen": ["http://ztc.com/4321"],
-            },
-        ]
-
-        self.assertEqual(response.context["formset"].initial, expected_initial)
+        # 2.0 empty applications are now deleted in a celery task (on a daily schedule)
+        # # Because the last Autorisatie was deleted, the Applicatie itself is deleted as well
+        self.assertEqual(Applicatie.objects.count(), 1)
 
     @tag("gh-1661")
     def test_create_catalogus_autorisatie_for_zaken_api(self):
@@ -967,7 +697,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         AutorisatieFactory.create(
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
-            zaaktype=f"http://testserver/{_reverse(zaaktype)}",
+            zaaktype=zaaktype,
             scopes=[str(SCOPE_ZAKEN_BIJWERKEN)],  # different scopes
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
         )
@@ -989,7 +719,6 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
                 "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
                 "related_type_selection": RelatedTypeSelectionMethods.manual_select,
                 "zaaktypen": {zaaktype.pk},
-                "externe_typen": [],
             },
         ]
         self.assertEqual(response.context["formset"].initial, expected_initial)
@@ -1052,7 +781,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         AutorisatieFactory.create(
             applicatie=self.applicatie,
             component=ComponentTypes.brc,
-            besluittype=f"http://testserver/{_reverse(besluittype)}",
+            besluittype=besluittype,
             scopes=[str(SCOPE_BESLUITEN_ALLES_LEZEN)],  # different scopes
         )
 
@@ -1071,7 +800,6 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
                 "scopes": [str(SCOPE_BESLUITEN_ALLES_LEZEN)],
                 "related_type_selection": RelatedTypeSelectionMethods.manual_select,
                 "besluittypen": {besluittype.pk},
-                "externe_typen": [],
             },
         ]
 
@@ -1170,7 +898,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
 
         # New autorisatie was created
         self.assertEqual(autorisatie.applicatie, self.applicatie)
-        self.assertEqual(autorisatie.zaaktype, f"http://testserver{_reverse(zaaktype)}")
+        self.assertEqual(autorisatie.zaaktype, zaaktype)
         self.assertEqual(autorisatie.component, ComponentTypes.zrc)
         self.assertEqual(autorisatie.scopes, scopes)
         self.assertEqual(
@@ -1205,7 +933,6 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
                 "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                 "related_type_selection": RelatedTypeSelectionMethods.manual_select,
                 "zaaktypen": {zaaktype.pk},
-                "externe_typen": [],
             },
         ]
         self.assertEqual(response.context["formset"].initial, expected_initial)
@@ -1251,7 +978,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
 
         # New autorisatie was created
         self.assertEqual(autorisatie.applicatie, self.applicatie)
-        self.assertEqual(autorisatie.zaaktype, f"http://testserver{_reverse(zaaktype)}")
+        self.assertEqual(autorisatie.zaaktype, zaaktype)
         self.assertEqual(autorisatie.component, ComponentTypes.zrc)
         self.assertEqual(autorisatie.scopes, scopes)
         self.assertEqual(
@@ -1286,7 +1013,6 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
                 "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                 "related_type_selection": RelatedTypeSelectionMethods.manual_select,
                 "zaaktypen": {zaaktype.pk},
-                "externe_typen": [],
             },
         ]
         self.assertEqual(response.context["formset"].initial, expected_initial)
@@ -1303,7 +1029,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         AutorisatieFactory.create(
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
-            zaaktype=f"http://testserver/{_reverse(zaaktype)}",
+            zaaktype=zaaktype,
             scopes=[str(SCOPE_ZAKEN_BIJWERKEN)],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
         )
@@ -1355,7 +1081,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
 
         # autorisatie is the same
         self.assertEqual(autorisatie.applicatie, self.applicatie)
-        self.assertEqual(autorisatie.zaaktype, f"http://testserver{_reverse(zaaktype)}")
+        self.assertEqual(autorisatie.zaaktype, zaaktype)
         self.assertEqual(autorisatie.component, ComponentTypes.zrc)
         self.assertEqual(autorisatie.scopes, [str(SCOPE_ZAKEN_BIJWERKEN)])
         self.assertEqual(
@@ -1521,7 +1247,6 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             "form-0-scopes": [str(SCOPE_DOCUMENTEN_AANMAKEN)],
             "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
             "form-0-informatieobjecttypen": {iot.pk},
-            "form-0-externe_typen": [],
             "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             "form-1-component": ComponentTypes.drc,
             "form-1-scopes": [str(SCOPE_DOCUMENTEN_AANMAKEN)],
@@ -1566,4 +1291,5 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 302)
+
         self.assertEqual(self.applicatie.autorisaties.count(), 2)

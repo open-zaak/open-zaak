@@ -1316,6 +1316,26 @@ components:
       required:
       - component
       - scopes
+    BesluitTypeAutorisatie:
+      type: object
+      properties:
+        besluittype:
+          type: string
+          format: uri
+          nullable: true
+          description: het besluittype waarop de autorisatie van toepassing is.
+          maxLength: 1000
+          minLength: 1
+    BesluitTypeAutorisatieRequest:
+      type: object
+      properties:
+        besluittype:
+          type: string
+          format: uri
+          nullable: true
+          description: het besluittype waarop de autorisatie van toepassing is.
+          maxLength: 1000
+          minLength: 1
     BlankEnum:
       enum:
       - ''
@@ -1377,6 +1397,38 @@ components:
       - instance
       - status
       - title
+    InformatieObjectTypeAutorisatie:
+      type: object
+      properties:
+        informatieobjecttype:
+          type: string
+          format: uri
+          nullable: true
+          description: het informatieobjecttype waarop de autorisatie van toepassing
+            is.
+          maxLength: 1000
+          minLength: 1
+        maxVertrouwelijkheidaanduiding:
+          description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
+          oneOf:
+          - $ref: '#/components/schemas/MaxVertrouwelijkheidaanduidingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+    InformatieObjectTypeAutorisatieRequest:
+      type: object
+      properties:
+        informatieobjecttype:
+          type: string
+          format: uri
+          nullable: true
+          description: het informatieobjecttype waarop de autorisatie van toepassing
+            is.
+          maxLength: 1000
+          minLength: 1
+        maxVertrouwelijkheidaanduiding:
+          description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
+          oneOf:
+          - $ref: '#/components/schemas/MaxVertrouwelijkheidaanduidingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
     MaxVertrouwelijkheidaanduidingEnum:
       enum:
       - openbaar
@@ -1470,116 +1522,72 @@ components:
       - invalidParams
       - status
       - title
+    ZaakTypeAutorisatie:
+      type: object
+      properties:
+        zaaktype:
+          type: string
+          format: uri
+          nullable: true
+          description: het zaaktype waarop de autorisatie van toepassing is.
+          maxLength: 1000
+          minLength: 1
+        maxVertrouwelijkheidaanduiding:
+          description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
+          oneOf:
+          - $ref: '#/components/schemas/MaxVertrouwelijkheidaanduidingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+    ZaakTypeAutorisatieRequest:
+      type: object
+      properties:
+        zaaktype:
+          type: string
+          format: uri
+          nullable: true
+          description: het zaaktype waarop de autorisatie van toepassing is.
+          maxLength: 1000
+          minLength: 1
+        maxVertrouwelijkheidaanduiding:
+          description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
+          oneOf:
+          - $ref: '#/components/schemas/MaxVertrouwelijkheidaanduidingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
     ac_AutorisatieBaseSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_AutorisatieBaseSerializer'
     ac_AutorisatieBaseSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_AutorisatieBaseSerializerRequest'
-    brcAutorisatie:
-      type: object
-      properties:
-        besluittype:
-          type: string
-          format: uri
-          description: URL naar het besluittype waarop de autorisatie van toepassing
-            is.
-          maxLength: 1000
-    brcAutorisatieRequest:
-      type: object
-      properties:
-        besluittype:
-          type: string
-          format: uri
-          description: URL naar het besluittype waarop de autorisatie van toepassing
-            is.
-          maxLength: 1000
     brc_AutorisatieBaseSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_AutorisatieBaseSerializer'
-      - $ref: '#/components/schemas/brcAutorisatie'
+      - $ref: '#/components/schemas/BesluitTypeAutorisatie'
     brc_AutorisatieBaseSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_AutorisatieBaseSerializerRequest'
-      - $ref: '#/components/schemas/brcAutorisatieRequest'
-    drcAutorisatie:
-      type: object
-      properties:
-        informatieobjecttype:
-          type: string
-          format: uri
-          description: URL naar het informatieobjecttype waarop de autorisatie van
-            toepassing is.
-          maxLength: 1000
-        maxVertrouwelijkheidaanduiding:
-          description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
-          oneOf:
-          - $ref: '#/components/schemas/MaxVertrouwelijkheidaanduidingEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-    drcAutorisatieRequest:
-      type: object
-      properties:
-        informatieobjecttype:
-          type: string
-          format: uri
-          description: URL naar het informatieobjecttype waarop de autorisatie van
-            toepassing is.
-          maxLength: 1000
-        maxVertrouwelijkheidaanduiding:
-          description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
-          oneOf:
-          - $ref: '#/components/schemas/MaxVertrouwelijkheidaanduidingEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+      - $ref: '#/components/schemas/BesluitTypeAutorisatieRequest'
     drc_AutorisatieBaseSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_AutorisatieBaseSerializer'
-      - $ref: '#/components/schemas/drcAutorisatie'
+      - $ref: '#/components/schemas/InformatieObjectTypeAutorisatie'
     drc_AutorisatieBaseSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_AutorisatieBaseSerializerRequest'
-      - $ref: '#/components/schemas/drcAutorisatieRequest'
+      - $ref: '#/components/schemas/InformatieObjectTypeAutorisatieRequest'
     nrc_AutorisatieBaseSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_AutorisatieBaseSerializer'
     nrc_AutorisatieBaseSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_AutorisatieBaseSerializerRequest'
-    zrcAutorisatie:
-      type: object
-      properties:
-        zaaktype:
-          type: string
-          format: uri
-          description: URL naar het zaaktype waarop de autorisatie van toepassing
-            is.
-          maxLength: 1000
-        maxVertrouwelijkheidaanduiding:
-          description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
-          oneOf:
-          - $ref: '#/components/schemas/MaxVertrouwelijkheidaanduidingEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-    zrcAutorisatieRequest:
-      type: object
-      properties:
-        zaaktype:
-          type: string
-          format: uri
-          description: URL naar het zaaktype waarop de autorisatie van toepassing
-            is.
-          maxLength: 1000
-        maxVertrouwelijkheidaanduiding:
-          description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
-          oneOf:
-          - $ref: '#/components/schemas/MaxVertrouwelijkheidaanduidingEnum'
-          - $ref: '#/components/schemas/BlankEnum'
     zrc_AutorisatieBaseSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_AutorisatieBaseSerializer'
-      - $ref: '#/components/schemas/zrcAutorisatie'
+      - $ref: '#/components/schemas/ZaakTypeAutorisatie'
     zrc_AutorisatieBaseSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_AutorisatieBaseSerializerRequest'
-      - $ref: '#/components/schemas/zrcAutorisatieRequest'
+      - $ref: '#/components/schemas/ZaakTypeAutorisatieRequest'
     ztc_AutorisatieBaseSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_AutorisatieBaseSerializer'

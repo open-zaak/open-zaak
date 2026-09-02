@@ -5,10 +5,10 @@ from django.test import override_settings, tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse_lazy
 
+from openzaak.components.autorisaties.models import Autorisatie
 from openzaak.components.catalogi.api.scopes import (
     SCOPE_CATALOGI_READ,
     SCOPE_CATALOGI_WRITE,
@@ -229,7 +229,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
             scopes=[SCOPE_ZAKEN_ALLES_LEZEN],
-            zaaktype=self.zaaktype_url,
+            zaaktype=self.zaaktype,
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         # Read zaaktypen is NOT allowed without catalogi scope
