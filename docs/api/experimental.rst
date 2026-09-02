@@ -168,6 +168,9 @@ Attributes
     * ``relevanteAndereZaken`` is marked as deprecated
     * ``gerelateerdeZaken`` is added
 
+* ``ZaakObject``:
+    * ``objectType`` is changed: a new enum value "product" is added
+
 Query parameters
 ----------------
 
