@@ -1615,6 +1615,7 @@ paths:
         schema:
           type: string
           format: uri
+        description: URL-referentie naar het BESLUIT.
       - in: query
         name: informatieobject
         schema:
@@ -2497,8 +2498,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar het BESLUIT.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - besluit
       - informatieobject
@@ -2517,8 +2518,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar het BESLUIT.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - besluit
       - informatieobject
@@ -2544,8 +2545,8 @@ components:
           format: uri
           readOnly: true
           description: URL-referentie naar het BESLUIT.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - besluit
       - informatieobject
