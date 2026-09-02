@@ -76,4 +76,5 @@ class ExternalServiceForm(ModelForm):
             "header_key",
             "header_value",
             "slug",
+            "oauth2_token_url",
         )
