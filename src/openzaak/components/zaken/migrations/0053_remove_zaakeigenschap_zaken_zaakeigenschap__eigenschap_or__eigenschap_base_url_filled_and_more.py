@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
         ("catalogi", "0026_set_P0D_servicenorms_to_none"),
         (
             "zaken",
-            "0051_remove_resultaat_zaken_resultaat__resultaattype_or__resultaattype_base_url_filled_and_more",
+            "0052_remove_resultaat_zaken_resultaat__resultaattype_or__resultaattype_base_url_filled_and_more",
         ),
     ]
 
