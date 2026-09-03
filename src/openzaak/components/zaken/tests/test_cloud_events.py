@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from unittest import TestCase, skip
 from unittest.mock import Mock, patch
 from uuid import UUID, uuid4
@@ -62,6 +62,7 @@ from ..api.cloudevents import (
     ZAAK_GEOPEND,
     ZAAK_ONTKOPPELD,
     ZAAK_VERWIJDEREN,
+    ZAAKOBJECT_EINDDATUM_BIJGEWERKT,
 )
 from ..models import (
     Resultaat,
@@ -1675,3 +1676,162 @@ class IncomingZaakOntkoppeldCloudEventTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
         self.assertEqual(self.zaak.zaakobject_set.count(), 0)
+
+
+@tag("cloudevents")
+class IncomingZaakobjectEinddatumGewijzigdCloudEventTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = False
+
+    component = ComponentTypes.nrc
+    scopes = [SCOPE_CLOUDEVENTS_BEZORGEN]
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        from django.urls import reverse as dj_reverse
+
+        cls.endpoint = dj_reverse("cloudevent-webhook")
+
+    def test_no_event_data(self):
+        zaak = ZaakFactory.create()
+        event = CloudEvent(
+            {
+                "type": ZAAKOBJECT_EINDDATUM_BIJGEWERKT,
+                "source": "https://example.com/event-producer",
+            },
+            None,
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertIsNone(zaak.archiefactiedatum)
+
+    def test_zaak_cannot_be_resolved(self):
+        zaak = ZaakFactory.create()
+
+        event = CloudEvent(
+            {
+                "type": ZAAKOBJECT_EINDDATUM_BIJGEWERKT,
+                "source": "https://example.com/event-producer",
+            },
+            {
+                "zaak": "https://testserver/api/v1/zaken/7a9e164a-f69b-4111-843d-1e466c859368",
+            },
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertIsNone(zaak.archiefactiedatum)
+
+    def test_with_zaak_without_end_date(self):
+        zaak = ZaakFactory.create(startdatum=date(2025, 9, 3), einddatum=None)
+
+        event = CloudEvent(
+            {
+                "type": ZAAKOBJECT_EINDDATUM_BIJGEWERKT,
+                "source": "https://example.com/event-producer",
+            },
+            {
+                "zaak": f"http://testserver{reverse('zaak-detail', kwargs={'uuid': zaak.uuid})}",
+            },
+        )
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertIsNone(zaak.archiefactiedatum)
+
+    def test_with_zaak_without_resultaat(self):
+        zaak = ZaakFactory.create(
+            startdatum=date(2025, 9, 3), einddatum=date(2027, 9, 3)
+        )
+
+        event = CloudEvent(
+            {
+                "type": ZAAKOBJECT_EINDDATUM_BIJGEWERKT,
+                "source": "https://example.com/event-producer",
+            },
+            {
+                "zaak": f"http://testserver{reverse('zaak-detail', kwargs={'uuid': zaak.uuid})}",
+            },
+        )
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertIsNone(zaak.archiefactiedatum)
+
+    # TODO-1071: setup an Open Product docker compose for the archiving date
+    #  calculation tests?
+    def test_with_zaak_with_zaakobject_afleidingswijze(self):
+        zaak = ZaakFactory.create(
+            startdatum=date(2025, 9, 3), einddatum=date(2027, 9, 3)
+        )
+        ZaakObject.objects.create(
+            zaak=zaak,
+            object="https://producten.local.nl/api/v1/producten/54041c7b-5c72-4fe1-856e-f51fbfef2056",
+            object_type=ZaakobjectTypes.product,
+            relatieomschrijving="Product",
+        )
+        ServiceFactory.create(
+            api_root="https://producten.local.nl/api/v1", api_type=APITypes.pc
+        )
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P10Y",
+            archiefnominatie=Archiefnominatie.vernietigen,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.zaakobject,
+            brondatum_archiefprocedure_objecttype=ZaakobjectTypes.product,
+            brondatum_archiefprocedure_datumkenmerk="eind_datum",
+            zaaktype=zaak.zaaktype,
+        )
+        # Prevent the archiefactiedatum already being calculated when creating the resultaat
+        # (see `Resultaat.save`)
+        with requests_mock.Mocker() as m:
+            m.get(
+                "https://producten.local.nl/api/v1/producten/54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                json={
+                    "uuid": "54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                    "eind_datum": None,
+                },
+            )
+            ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
+        self.assertIsNone(zaak.archiefactiedatum)
+
+        event = CloudEvent(
+            {
+                "type": ZAAKOBJECT_EINDDATUM_BIJGEWERKT,
+                "source": "https://example.com/event-producer",
+            },
+            {
+                "zaak": f"http://testserver{reverse('zaak-detail', kwargs={'uuid': zaak.uuid})}",
+            },
+        )
+        with requests_mock.Mocker() as m:
+            m.get(
+                "https://producten.local.nl/api/v1/producten/54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                json={
+                    "uuid": "54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                    "eind_datum": "2028-09-03",
+                },
+            )
+            response = self.client.post(
+                self.endpoint,
+                to_dict(event),
+                headers={"content-type": "application/cloudevents+json"},
+            )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.archiefactiedatum, date(2038, 9, 3))
