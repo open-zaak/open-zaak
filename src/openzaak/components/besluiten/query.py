@@ -28,7 +28,7 @@ class BesluitAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin):
     """
 
     vertrouwelijkheidaanduiding_use = False
-    loose_fk_field = "besluittype"
+    fk_field = "besluittype"
 
 
 class BesluitQuerySet(

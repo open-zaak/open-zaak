@@ -264,6 +264,7 @@ paths:
         name: besluittype
         schema:
           type: string
+          format: uri
         description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
       - in: query
         name: identificatie
@@ -2408,10 +2409,10 @@ components:
           minLength: 9
         besluittype:
           type: string
-          description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
           format: uri
-          minLength: 1
+          description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
           maxLength: 200
+          minLength: 1
         zaak:
           type: string
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
@@ -2580,10 +2581,10 @@ components:
           maxLength: 9
         besluittype:
           type: string
-          minLength: 1
-          description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
           maxLength: 200
+          minLength: 1
         zaak:
           type: string
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
@@ -2669,10 +2670,10 @@ components:
           minLength: 9
         besluittype:
           type: string
-          description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
           format: uri
-          minLength: 1
+          description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
           maxLength: 200
+          minLength: 1
         zaak:
           type: string
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
@@ -2755,10 +2756,10 @@ components:
           maxLength: 9
         besluittype:
           type: string
-          minLength: 1
-          description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
           maxLength: 200
+          minLength: 1
         zaak:
           type: string
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
@@ -2944,10 +2945,10 @@ components:
           maxLength: 9
         besluittype:
           type: string
-          minLength: 1
-          description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
           maxLength: 200
+          minLength: 1
         zaak:
           type: string
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit

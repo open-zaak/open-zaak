@@ -28,16 +28,15 @@ from storages.backends.s3 import S3Storage
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import (
     GegevensGroepSerializer,
+    LengthHyperlinkedRelatedField as VngLengthHyperlinkedRelatedField,
     NestedGegevensGroepMixin,
     add_choice_values_help_text,
 )
 from vng_api_common.utils import get_help_text
 
+from openzaak.components.catalogi.models import InformatieObjectType
 from openzaak.contrib.verzoeken.validators import verzoek_validator
-from openzaak.utils.serializer_fields import (
-    FKOrServiceUrlField,
-    LengthHyperlinkedRelatedField,
-)
+from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 from openzaak.utils.serializers import (
     ConvenienceSerializer,
     SubSerializerMixin,
@@ -312,18 +311,6 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "Uitdrukking van mate van volledigheid en onbeschadigd zijn van digitaal bestand."
         ),
     )
-    informatieobjecttype = FKOrServiceUrlField(
-        lookup_field="uuid",
-        max_length=200,
-        min_length=1,
-        help_text=_(
-            "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API)."
-        ),
-        validators=[
-            LooseFkResourceValidator("InformatieObjectType", settings.ZTC_API_STANDARD),
-            PublishValidator(),
-        ],
-    )
     # TODO: validator!
     ondertekening = OndertekeningSerializer(
         label=_("ondertekening"),
@@ -332,6 +319,16 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         help_text=_(
             "Aanduiding van de rechtskracht van een informatieobject. Mag niet van een waarde "
             "zijn voorzien als de `status` de waarde 'in bewerking' of 'ter vaststelling' heeft."
+        ),
+    )
+    informatieobjecttype = VngLengthHyperlinkedRelatedField(
+        queryset=InformatieObjectType.objects.all(),
+        view_name="catalogi:informatieobjecttype-detail",
+        lookup_field="uuid",
+        max_length=200,
+        validators=[PublishValidator()],
+        help_text=get_help_text(
+            "documenten.EnkelvoudigInformatieObject", "informatieobjecttype"
         ),
     )
     locked = serializers.BooleanField(
@@ -386,18 +383,6 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         )
         extra_kwargs = {
             "taal": {"min_length": 3},
-            "informatieobjecttype": {
-                "lookup_field": "uuid",
-                "max_length": 200,
-                "min_length": 1,
-                "validators": [
-                    LooseFkResourceValidator(
-                        "InformatieObjectType", settings.ZTC_API_STANDARD
-                    ),
-                    PublishValidator(),
-                ],
-                "view_name": "catalogi:informatieobjecttype-detail",
-            },
             # todo mark 'deprecated' in OAS after moving to drf-spectacular
             "verzenddatum": {
                 "help_text": _(

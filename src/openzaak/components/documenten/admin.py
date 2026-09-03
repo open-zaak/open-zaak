@@ -296,7 +296,7 @@ class EnkelvoudigInformatieObjectInline(
     AuditTrailInlineAdminMixin, PrivateMediaMixin, admin.StackedInline
 ):
     model = EnkelvoudigInformatieObject
-    raw_id_fields = ("canonical", "_informatieobjecttype")
+    raw_id_fields = ("canonical", "informatieobjecttype")
     readonly_fields = ("uuid",)
     extra = 0
     verbose_name = _("versie")
@@ -353,19 +353,6 @@ class EnkelvoudigInformatieObjectForm(forms.ModelForm):
         model = EnkelvoudigInformatieObject
         fields = "__all__"
 
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if not cleaned_data.get("_informatieobjecttype") and not cleaned_data.get(
-            "_informatieobjecttype_base_url"
-        ):
-            raise forms.ValidationError(
-                "Je moet een informatieobjecttype opgeven: "
-                "selecteer een informatieobjecttype uit de catalogus of vul een externe URL in."
-            )
-
-        return cleaned_data
-
     def clean_inhoud(self):
         inhoud = self.cleaned_data.get("inhoud")
         if not documenten_storage.connection_check():
@@ -399,8 +386,7 @@ class EnkelvoudigInformatieObjectAdmin(
     date_hierarchy = "creatiedatum"
     raw_id_fields = (
         "canonical",
-        "_informatieobjecttype",
-        "_informatieobjecttype_base_url",
+        "informatieobjecttype",
     )
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
     private_media_fields = ("inhoud",)
@@ -441,13 +427,7 @@ class EnkelvoudigInformatieObjectAdmin(
         ),
         (
             _("Typering"),
-            {
-                "fields": (
-                    "_informatieobjecttype_base_url",
-                    "_informatieobjecttype_relative_url",
-                    "_informatieobjecttype",
-                )
-            },
+            {"fields": ("informatieobjecttype",)},
         ),
         (
             _("Documentgegevens"),
