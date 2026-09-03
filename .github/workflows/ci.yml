@@ -276,3 +276,15 @@ jobs:
     secrets:
       docker-username: ${{ secrets.DOCKER_USERNAME }}
       docker-token: ${{ secrets.DOCKER_TOKEN }}
+
+  update-docker-readme:
+    uses: maykinmedia/open-api-workflows/.github/workflows/dockerhub-description.yml@31eaea25acd18bb681fe0d01b2452c3dd8d299b9 # v7.0.0
+    needs:
+      - open-api-publish
+    with:
+      image-name: openzaak/open-zaak
+      config-file: './docker/ci/config.json'
+      output-file: './docker/ci/README.md'
+    secrets:
+      docker-username: ${{ secrets.DOCKER_USERNAME }}
+      docker-token: ${{ secrets.DOCKER_TOKEN }}
