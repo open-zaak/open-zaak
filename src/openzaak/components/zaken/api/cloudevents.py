@@ -10,12 +10,17 @@ from cloudevents.http import CloudEvent
 from rest_framework.exceptions import ValidationError
 from rest_framework.reverse import reverse
 from structlog.stdlib import get_logger
-from vng_api_common.constants import ZaakobjectTypes
+from vng_api_common.constants import (
+    BrondatumArchiefprocedureAfleidingswijze,
+    ZaakobjectTypes,
+)
 
 from openzaak.components.zaken.api.serializers.zaakobjecten import ZaakObjectSerializer
 from openzaak.components.zaken.models import Zaak, ZaakObject
 from openzaak.notifications.viewsets import CloudEventWebhook
 from openzaak.utils.cloudevents import get_url, process_cloudevent
+
+from ..archiving import try_calculate_archiving
 
 logger = get_logger(__name__)
 
@@ -29,6 +34,7 @@ ZAAK_OPGESCHORT = "nl.overheid.zaken.zaak-opgeschort"
 ZAAK_BIJGEWERKT = "nl.overheid.zaken.zaak-bijgewerkt"
 ZAAK_VERLENGD = "nl.overheid.zaken.zaak-verlengd"
 ZAAK_AFGESLOTEN = "nl.overheid.zaken.zaak-afgesloten"
+ZAAKOBJECT_EINDDATUM_BIJGEWERKT = "nl.overheid.zaken.zaakobject-einddatum-bijgewerkt"
 
 
 def _resolve_zaak_uri(uri: str) -> str | None:
@@ -130,6 +136,31 @@ def handle_zaak_ontkoppeld(event: CloudEvent):
 
     except DatabaseError as e:
         logger.warning("incoming_cloud_event_error", exc_info=e)
+
+
+@CloudEventWebhook.register_handler
+def handle_zaakobject_einddatum_bijgewerkt(event: CloudEvent):
+    if event["type"] != ZAAKOBJECT_EINDDATUM_BIJGEWERKT:
+        return
+
+    if not (event_data := event.get_data()):
+        logger.warning("incoming_cloud_event_error", code="missing-data")
+        return
+
+    if not (zaak := _resolve_zaak(event_data.get("zaak", ""))):
+        logger.warning("incoming_cloud_event_error", code="unknown-zaak")
+        return
+
+    if not zaak.einddatum:
+        return
+
+    if not (resultaat := getattr(zaak, "resultaat", None)):
+        return
+
+    resultaattype = resultaat.resultaattype
+    afleidingswijze = resultaattype.brondatum_archiefprocedure.get("afleidingswijze")
+    if afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.zaakobject:
+        try_calculate_archiving(zaak, force=True)
 
 
 @contextmanager
