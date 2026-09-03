@@ -9251,6 +9251,7 @@ paths:
           - organisatorische_eenheid
           - overige
           - pand
+          - product
           - spoorbaandeel
           - status
           - terrein_gebouwd_object
@@ -15973,6 +15974,7 @@ components:
             * `medewerker` - Medewerker
             * `natuurlijk_persoon` - Natuurlijk persoon
             * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `product` - **EXPERIMENTEEL**: Product
             * `openbare_ruimte` - Openbare ruimte
             * `organisatorische_eenheid` - Organisatorische eenheid
             * `pand` - Pand
@@ -16060,6 +16062,7 @@ components:
             * `medewerker` - Medewerker
             * `natuurlijk_persoon` - Natuurlijk persoon
             * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `product` - **EXPERIMENTEEL**: Product
             * `openbare_ruimte` - Openbare ruimte
             * `organisatorische_eenheid` - Organisatorische eenheid
             * `pand` - Pand
@@ -16159,6 +16162,7 @@ components:
             * `medewerker` - Medewerker
             * `natuurlijk_persoon` - Natuurlijk persoon
             * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `product` - **EXPERIMENTEEL**: Product
             * `openbare_ruimte` - Openbare ruimte
             * `organisatorische_eenheid` - Organisatorische eenheid
             * `pand` - Pand
@@ -16240,6 +16244,7 @@ components:
             * `medewerker` - Medewerker
             * `natuurlijk_persoon` - Natuurlijk persoon
             * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `product` - **EXPERIMENTEEL**: Product
             * `openbare_ruimte` - Openbare ruimte
             * `organisatorische_eenheid` - Organisatorische eenheid
             * `pand` - Pand
@@ -18323,6 +18328,7 @@ components:
       - medewerker
       - natuurlijk_persoon
       - niet_natuurlijk_persoon
+      - product
       - openbare_ruimte
       - organisatorische_eenheid
       - pand
@@ -19192,6 +19198,7 @@ components:
       - $ref: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/openbare_ruimte_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/product_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/pand_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/spoorbaandeel_ZaakObjectSerializerRequest'
@@ -19226,6 +19233,7 @@ components:
           natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializerRequest'
           niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializerRequest'
           openbare_ruimte: '#/components/schemas/openbare_ruimte_ZaakObjectSerializerRequest'
+          product: '#/components/schemas/product_ZaakObjectSerializerRequest'
           organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializerRequest'
           pand: '#/components/schemas/pand_ZaakObjectSerializerRequest'
           spoorbaandeel: '#/components/schemas/spoorbaandeel_ZaakObjectSerializerRequest'
@@ -21840,6 +21848,7 @@ components:
       - $ref: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializer'
       - $ref: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializer'
       - $ref: '#/components/schemas/openbare_ruimte_ZaakObjectSerializer'
+      - $ref: '#/components/schemas/product_ZaakObjectSerializer'
       - $ref: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializer'
       - $ref: '#/components/schemas/pand_ZaakObjectSerializer'
       - $ref: '#/components/schemas/spoorbaandeel_ZaakObjectSerializer'
@@ -21874,6 +21883,7 @@ components:
           natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializer'
           niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializer'
           openbare_ruimte: '#/components/schemas/openbare_ruimte_ZaakObjectSerializer'
+          product: '#/components/schemas/product_ZaakObjectSerializer'
           organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializer'
           pand: '#/components/schemas/pand_ZaakObjectSerializer'
           spoorbaandeel: '#/components/schemas/spoorbaandeel_ZaakObjectSerializer'
@@ -21907,6 +21917,7 @@ components:
       - $ref: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/openbare_ruimte_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/product_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/pand_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/spoorbaandeel_ZaakObjectSerializerRequest'
@@ -21941,6 +21952,7 @@ components:
           natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializerRequest'
           niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializerRequest'
           openbare_ruimte: '#/components/schemas/openbare_ruimte_ZaakObjectSerializerRequest'
+          product: '#/components/schemas/product_ZaakObjectSerializerRequest'
           organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializerRequest'
           pand: '#/components/schemas/pand_ZaakObjectSerializerRequest'
           spoorbaandeel: '#/components/schemas/spoorbaandeel_ZaakObjectSerializerRequest'
@@ -21974,6 +21986,7 @@ components:
       - $ref: '#/components/schemas/natuurlijk_persoon_ZaakObjectSubSerializer'
       - $ref: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSubSerializer'
       - $ref: '#/components/schemas/openbare_ruimte_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/product_ZaakObjectSubSerializer'
       - $ref: '#/components/schemas/organisatorische_eenheid_ZaakObjectSubSerializer'
       - $ref: '#/components/schemas/pand_ZaakObjectSubSerializer'
       - $ref: '#/components/schemas/spoorbaandeel_ZaakObjectSubSerializer'
@@ -22008,6 +22021,7 @@ components:
           natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_ZaakObjectSubSerializer'
           niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSubSerializer'
           openbare_ruimte: '#/components/schemas/openbare_ruimte_ZaakObjectSubSerializer'
+          product: '#/components/schemas/product_ZaakObjectSubSerializer'
           organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_ZaakObjectSubSerializer'
           pand: '#/components/schemas/pand_ZaakObjectSubSerializer'
           spoorbaandeel: '#/components/schemas/spoorbaandeel_ZaakObjectSubSerializer'
@@ -22041,6 +22055,7 @@ components:
       - $ref: '#/components/schemas/natuurlijk_persoon_ZaakObjectSubSerializerRequest'
       - $ref: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSubSerializerRequest'
       - $ref: '#/components/schemas/openbare_ruimte_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/product_ZaakObjectSubSerializerRequest'
       - $ref: '#/components/schemas/organisatorische_eenheid_ZaakObjectSubSerializerRequest'
       - $ref: '#/components/schemas/pand_ZaakObjectSubSerializerRequest'
       - $ref: '#/components/schemas/spoorbaandeel_ZaakObjectSubSerializerRequest'
@@ -22075,6 +22090,7 @@ components:
           natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_ZaakObjectSubSerializerRequest'
           niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSubSerializerRequest'
           openbare_ruimte: '#/components/schemas/openbare_ruimte_ZaakObjectSubSerializerRequest'
+          product: '#/components/schemas/product_ZaakObjectSubSerializerRequest'
           organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_ZaakObjectSubSerializerRequest'
           pand: '#/components/schemas/pand_ZaakObjectSubSerializerRequest'
           spoorbaandeel: '#/components/schemas/spoorbaandeel_ZaakObjectSubSerializerRequest'
@@ -24741,6 +24757,18 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
       - $ref: '#/components/schemas/object_identificatie_ObjectPandRequest'
+    product_ZaakObjectSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
+    product_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+    product_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+    product_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
     spoorbaandeel_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'

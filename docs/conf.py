@@ -134,6 +134,7 @@ extlinks = {
         "https://github.com/open-zaak/open-notificaties/issues/%s",
         "#%s",
     ),
+    "open-object": ("https://github.com/maykinmedia/open-object/issues/%s", "#%s"),
     "open-klant": ("https://github.com/maykinmedia/open-klant/issues/%s", "#%s"),
     "open-api-framework": (
         "https://github.com/maykinmedia/open-api-framework/issues/%s",

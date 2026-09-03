@@ -69,7 +69,7 @@ from openzaak.utils.mixins import (
     CacheQuerysetMixin,
     ExpandMixin,
 )
-from openzaak.utils.pagination import OptimizedPagination
+from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import (
     COMMON_ERROR_RESPONSES,
@@ -332,7 +332,7 @@ class ZaakViewSet(
     search_input_serializer_class = ZaakZoekSerializer
     filter_backends = (Backend,)
     lookup_field = "uuid"
-    pagination_class = OptimizedPagination
+    pagination_class = ExactPagination
 
     permission_classes = (ZaakAuthRequired,)
     required_scopes = {
@@ -606,7 +606,7 @@ class StatusViewSet(
     serializer_class = StatusSerializer
     filterset_class = StatusFilter
     lookup_field = "uuid"
-    pagination_class = OptimizedPagination
+    pagination_class = ExactPagination
 
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
@@ -814,7 +814,7 @@ class ZaakObjectViewSet(
     serializer_class = ZaakObjectSerializer
     filterset_class = ZaakObjectFilter
     lookup_field = "uuid"
-    pagination_class = OptimizedPagination
+    pagination_class = ExactPagination
 
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
@@ -1217,7 +1217,7 @@ class KlantContactViewSet(
     serializer_class = KlantContactSerializer
     filterset_class = KlantContactFilter
     lookup_field = "uuid"
-    pagination_class = OptimizedPagination
+    pagination_class = ExactPagination
 
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
@@ -1304,7 +1304,7 @@ class RolViewSet(
     serializer_class = RolSerializer
     filterset_class = RolFilter
     lookup_field = "uuid"
-    pagination_class = OptimizedPagination
+    pagination_class = ExactPagination
 
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
@@ -1413,7 +1413,7 @@ class ResultaatViewSet(
     serializer_class = ResultaatSerializer
     filterset_class = ResultaatFilter
     lookup_field = "uuid"
-    pagination_class = OptimizedPagination
+    pagination_class = ExactPagination
 
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
@@ -2014,7 +2014,7 @@ class ZaakNotitieViewSet(
 
     serializer_class = ZaakNotitieSerializer
     lookup_field = "uuid"
-    pagination_class = OptimizedPagination
+    pagination_class = ExactPagination
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "gerelateerd_aan"  # zaak
     required_scopes = {

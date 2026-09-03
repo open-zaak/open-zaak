@@ -1,0 +1,23 @@
+{
+    "supportedTags": [
+        {
+            "gitRef": "main",
+            "tag": "latest"
+        },
+        {
+            "gitRef": "stable/1.29.x",
+            "tag": null
+        },
+        {
+            "gitRef": "stable/1.28.x",
+            "tag": null
+        }
+    ],
+    "dockerOrg": "openzaak",
+    "dockerRepo": "open-zaak",
+    "githubOrg": "open-zaak",
+    "githubRepo": "open-zaak",
+    "projectName": "Open Zaak",
+    "projectDocumentation": "https://open-zaak.readthedocs.io/en/latest/",
+    "projectDescription": "Open Zaak is a modern, open-source data- and services-layer to enable zaakgericht werken, a Dutch alternative to case management. Open Zaak offers structured data storage and services that implement the VNG standards for “API’s voor Zaakgericht werken” in line with the Common Ground model."
+}

@@ -16,7 +16,7 @@ from openzaak.components.catalogi.models import (
     InformatieObjectType,
     ZaakType,
 )
-from openzaak.utils.pagination import OptimizedPagination
+from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES
 
 from ..models import CatalogusAutorisatie
@@ -144,7 +144,7 @@ class ApplicatieViewSet(
     )
     serializer_class = ApplicatieSerializer
     _filterset_class = ApplicatieFilter
-    pagination_class = OptimizedPagination
+    pagination_class = ExactPagination
     lookup_field = "uuid"
     permission_classes = (AutorisatiesAuthRequired,)
     required_scopes = {

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-11 11:49+0000\n"
+"POT-Creation-Date: 2026-08-17 08:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -262,22 +262,22 @@ msgid "Je moet minimaal 1 {verbose_name} kiezen"
 msgstr ""
 
 #: openzaak/components/autorisaties/forms.py:519
-#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:585
-#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:1532
+#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:589
+#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:1536
 #, python-brace-format
 msgid "{field} may not have overlapping scopes."
 msgstr "{field} mag geen overlappende scopes hebben."
 
 #: openzaak/components/autorisaties/forms.py:527
-#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:607
-#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:1495
+#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:611
+#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:1499
 #, python-brace-format
 msgid "Scopes in {component} may not be duplicated."
 msgstr "De scopes in {component} mogen niet dubbel voorkomen."
 
 #: openzaak/components/autorisaties/forms.py:546
-#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:1411
-#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:1456
+#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:1415
+#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:1460
 #, python-brace-format
 msgid ""
 "You cannot create multiple Autorisaties/CatalogusAutorisaties with the same "
@@ -337,19 +337,19 @@ msgstr ""
 msgid "Please correct the error(s) below."
 msgstr "Corrigeer de fouten hieronder. "
 
-#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:530
+#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:534
 #, python-brace-format
 msgid ""
 "De URL {url} resource lijkt niet op een `ZaakType`. Geef een geldige URL op."
 msgstr ""
 
-#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:630
+#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:634
 #: openzaak/components/autorisaties/validators.py:11
 msgid "One or more authorizations are missing scopes."
 msgstr ""
 
-#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:634
 #: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:638
+#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:642
 #: openzaak/components/documenten/tests/admin/test_eio.py:229
 #: openzaak/components/documenten/tests/admin/test_eio.py:232
 #: openzaak/components/documenten/tests/admin/test_eio.py:234
@@ -385,9 +385,9 @@ msgstr "Kon externe relatie niet aanmaken"
 #: openzaak/components/besluiten/api/serializers.py:149
 #: openzaak/components/besluiten/api/viewsets.py:208
 #: openzaak/components/besluiten/api/viewsets.py:343
-#: openzaak/components/zaken/api/viewsets.py:1031
-#: openzaak/components/zaken/api/viewsets.py:1766
-#: openzaak/components/zaken/api/viewsets.py:1864
+#: openzaak/components/zaken/api/viewsets.py:1032
+#: openzaak/components/zaken/api/viewsets.py:1767
+#: openzaak/components/zaken/api/viewsets.py:1865
 msgid "Could not delete remote relation"
 msgstr "Kon externe relatie niet verwijderen"
 
@@ -437,12 +437,12 @@ msgid ""
 msgstr ""
 
 #: openzaak/components/besluiten/models.py:316
-#: openzaak/components/zaken/models/zaken.py:1664
+#: openzaak/components/zaken/models/zaken.py:1665
 msgid "informatieobject relative url"
 msgstr "relatieve informatieobject-url"
 
 #: openzaak/components/besluiten/models.py:327
-#: openzaak/components/zaken/models/zaken.py:1676
+#: openzaak/components/zaken/models/zaken.py:1677
 msgid "URL to the informatieobject in an external API"
 msgstr "URL naar het informatieobject in de externe API"
 
@@ -484,13 +484,13 @@ msgid "The resource has been published successfully!"
 msgstr "Het publiceren is gelukt!"
 
 #: openzaak/components/catalogi/admin/admin_views.py:307
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:319
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:321
 #, python-brace-format
 msgid "Auto-published related besluittypen: {besluittypen}"
 msgstr ""
 
 #: openzaak/components/catalogi/admin/admin_views.py:316
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:459
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:461
 #, python-brace-format
 msgid "Auto-published related informatieobjecttypen: {iots}"
 msgstr ""
@@ -542,17 +542,17 @@ msgid "geldigheid"
 msgstr ""
 
 #: openzaak/components/catalogi/admin/filters.py:15
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:456
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:457
 msgid "Now"
 msgstr "Nu"
 
 #: openzaak/components/catalogi/admin/filters.py:16
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:464
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:465
 msgid "Past"
 msgstr "Verleden"
 
 #: openzaak/components/catalogi/admin/filters.py:17
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:472
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:473
 msgid "Future"
 msgstr "Toekomst"
 
@@ -592,14 +592,14 @@ msgstr ""
 msgid "Besluittypen"
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:199
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:554
+#: openzaak/components/catalogi/admin/forms.py:200
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:555
 #, python-brace-format
 msgid "Could not build a client for {url}"
 msgstr "Kon geen client instantie bouwen voor {url}"
 
-#: openzaak/components/catalogi/admin/forms.py:208
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:520
+#: openzaak/components/catalogi/admin/forms.py:209
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:521
 msgid ""
 "You cannot change the procestype because there are resultaatypen attached to "
 "this zaaktype with a selectielijstklasse belonging to the current procestype."
@@ -608,66 +608,66 @@ msgstr ""
 "zaaktype die een selectielijstklasse hebben die hoort bij het huidige "
 "procestype."
 
-#: openzaak/components/catalogi/admin/forms.py:280
+#: openzaak/components/catalogi/admin/forms.py:282
 #: openzaak/components/catalogi/tests/admin/test_resultaattype_admin.py:139
 #, python-brace-format
 msgid "Could not determine the selectielijstklasse service for URL {url}"
 msgstr "Kon de selectielijstklasse-service voor URL {url} niet bepalen"
 
-#: openzaak/components/catalogi/admin/forms.py:291
+#: openzaak/components/catalogi/admin/forms.py:293
 #, python-format
 msgid "URL %s for selectielijstklasse did not resolve"
 msgstr "De URL %s voor de selectielijstklasse kan niet opgehaald worden"
 
-#: openzaak/components/catalogi/admin/forms.py:314
+#: openzaak/components/catalogi/admin/forms.py:316
 msgid "Er is geen Selectielijst-procestype gedefinieerd op het zaaktype!"
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:317
+#: openzaak/components/catalogi/admin/forms.py:319
 msgid "Zaaktype bewerken"
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:323
+#: openzaak/components/catalogi/admin/forms.py:325
 msgid ""
 "De selectielijstklasse hoort niet bij het selectielijst procestype van het "
 "zaaktype"
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:417
-#: openzaak/components/catalogi/admin/forms.py:440
+#: openzaak/components/catalogi/admin/forms.py:419
+#: openzaak/components/catalogi/admin/forms.py:442
 msgid "bestand"
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:419
+#: openzaak/components/catalogi/admin/forms.py:421
 msgid "Het ZIP-bestand met de catalogus."
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:422
-#: openzaak/components/catalogi/admin/forms.py:445
+#: openzaak/components/catalogi/admin/forms.py:424
+#: openzaak/components/catalogi/admin/forms.py:447
 msgid "Genereer nieuwe UUIDs"
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:425
-#: openzaak/components/catalogi/admin/forms.py:448
+#: openzaak/components/catalogi/admin/forms.py:427
+#: openzaak/components/catalogi/admin/forms.py:450
 msgid ""
 "Zorgt ervoor dat er nieuwe UUIDs gegenereerd worden in plaats van dat de "
 "bestaande UUIDs uit het bestand gebruikt worden"
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:434
+#: openzaak/components/catalogi/admin/forms.py:436
 msgid "identificatie prefix"
 msgstr "identificatie prefix"
 
-#: openzaak/components/catalogi/admin/forms.py:436
+#: openzaak/components/catalogi/admin/forms.py:438
 msgid "Zaaktype identification prefix. Leave blank to use imported."
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:442
+#: openzaak/components/catalogi/admin/forms.py:444
 msgid "Het ZIP-bestand met het zaaktype."
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:475
-#: openzaak/components/catalogi/admin/forms.py:485
+#: openzaak/components/catalogi/admin/forms.py:477
+#: openzaak/components/catalogi/admin/forms.py:487
 #: openzaak/components/catalogi/tests/admin/test_import_export_zaaktype.py:895
 #: openzaak/components/catalogi/tests/admin/test_import_export_zaaktype.py:913
 #: openzaak/components/catalogi/tests/admin/test_import_export_zaaktype.py:1185
@@ -677,11 +677,11 @@ msgstr ""
 msgid "Create new"
 msgstr "Nieuw object aanmaken"
 
-#: openzaak/components/catalogi/admin/forms.py:610
+#: openzaak/components/catalogi/admin/forms.py:612
 msgid "Kies óf een intern, óf een extern zaaktype"
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:635
+#: openzaak/components/catalogi/admin/forms.py:637
 msgid ""
 "Het gerelateerde zaaktype: er kan een intern zaaktype uit de lokale "
 "Catalogus gekozen worden met het vergrootglas; of er kan een URL van een "
@@ -714,7 +714,7 @@ msgstr "Publiceer de geselecteerde %(verbose_name_plural)s"
 #: openzaak/components/catalogi/admin/mixins.py:99
 #: openzaak/components/catalogi/tests/admin/test_besluittype_admin.py:266
 #: openzaak/components/catalogi/tests/admin/test_informatieobjecttype_admin.py:224
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:864
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:921
 #, python-format
 msgid "%d object is already published"
 msgid_plural "%d objects are already published"
@@ -723,18 +723,18 @@ msgstr[1] "%d objecten zijn al gepubliceerd"
 
 #: openzaak/components/catalogi/admin/mixins.py:111
 #: openzaak/components/catalogi/admin/mixins.py:122
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:595
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:916
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1074
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:597
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:973
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1131
 #, python-format
 msgid "%(obj)s can't be published: %(error)s"
 msgstr "%(obj)s kan niet gepubliceerd worden: %(error)s"
 
 #: openzaak/components/catalogi/admin/mixins.py:131
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:615
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:617
 #: openzaak/components/catalogi/tests/admin/test_besluittype_admin.py:236
 #: openzaak/components/catalogi/tests/admin/test_informatieobjecttype_admin.py:192
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:834
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:891
 #, python-format
 msgid "%d object has been published successfully"
 msgid_plural "%d objects have been published successfully"
@@ -881,7 +881,7 @@ msgstr ""
 "mogelijk dat er een fout zit in de selectielijstconfiguratie."
 
 #: openzaak/components/catalogi/admin/zaaktypen.py:411
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:402
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:403
 msgid "Selectielijst configuration must be fixed first"
 msgstr "Los eerst de selectielijstconfiguratieproblemen op"
 
@@ -987,7 +987,7 @@ msgstr ""
 #: openzaak/components/catalogi/api/serializers/roltype.py:37
 #: openzaak/components/catalogi/api/serializers/statustype.py:83
 #: openzaak/components/catalogi/api/serializers/zaakobjecttype.py:37
-#: openzaak/components/catalogi/api/serializers/zaaktype.py:176
+#: openzaak/components/catalogi/api/serializers/zaaktype.py:177
 msgid "De datum waarop de eerst versie van het object ontstaan is."
 msgstr ""
 
@@ -998,7 +998,7 @@ msgstr ""
 #: openzaak/components/catalogi/api/serializers/roltype.py:42
 #: openzaak/components/catalogi/api/serializers/statustype.py:88
 #: openzaak/components/catalogi/api/serializers/zaakobjecttype.py:42
-#: openzaak/components/catalogi/api/serializers/zaaktype.py:180
+#: openzaak/components/catalogi/api/serializers/zaaktype.py:181
 msgid "De datum van de aller laatste versie van het object."
 msgstr ""
 
@@ -1096,60 +1096,60 @@ msgstr ""
 msgid "URL-referenties naar de RESULTAATTYPEN."
 msgstr ""
 
-#: openzaak/components/catalogi/api/serializers/zaaktype.py:79
+#: openzaak/components/catalogi/api/serializers/zaaktype.py:80
 msgid "Het Referentieproces dat ten grondslag ligt aan dit ZAAKTYPE."
 msgstr ""
 
-#: openzaak/components/catalogi/api/serializers/zaaktype.py:90
+#: openzaak/components/catalogi/api/serializers/zaaktype.py:91
 msgid "De CATALOGUS waaraan het ZAAKTYPE is ontleend."
 msgstr ""
 
-#: openzaak/components/catalogi/api/serializers/zaaktype.py:97
+#: openzaak/components/catalogi/api/serializers/zaaktype.py:98
 msgid "Het ZAAKTYPE binnen de CATALOGUS waaraan dit ZAAKTYPE is ontleend."
 msgstr ""
 
-#: openzaak/components/catalogi/api/serializers/zaaktype.py:108
+#: openzaak/components/catalogi/api/serializers/zaaktype.py:109
 msgid ""
 "URL-referenties naar de INFORMATIEOBJECTTYPEN die mogelijk zijn binnen dit "
 "ZAAKTYPE."
 msgstr ""
 
-#: openzaak/components/catalogi/api/serializers/zaaktype.py:118
+#: openzaak/components/catalogi/api/serializers/zaaktype.py:119
 msgid ""
 "URL-referenties naar de STATUSTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
 msgstr ""
 
-#: openzaak/components/catalogi/api/serializers/zaaktype.py:128
+#: openzaak/components/catalogi/api/serializers/zaaktype.py:129
 msgid ""
 "URL-referenties naar de RESULTAATTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
 msgstr ""
 
-#: openzaak/components/catalogi/api/serializers/zaaktype.py:139
+#: openzaak/components/catalogi/api/serializers/zaaktype.py:140
 msgid ""
 "URL-referenties naar de EIGENSCHAPPEN die aanwezig moeten zijn in ZAKEN van "
 "dit ZAAKTYPE."
 msgstr ""
 
-#: openzaak/components/catalogi/api/serializers/zaaktype.py:150
+#: openzaak/components/catalogi/api/serializers/zaaktype.py:151
 msgid "URL-referenties naar de ROLTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
 msgstr ""
 
-#: openzaak/components/catalogi/api/serializers/zaaktype.py:156
+#: openzaak/components/catalogi/api/serializers/zaaktype.py:157
 msgid "heeft relevante besluittypen"
 msgstr ""
 
-#: openzaak/components/catalogi/api/serializers/zaaktype.py:161
+#: openzaak/components/catalogi/api/serializers/zaaktype.py:162
 msgid ""
 "URL-referenties naar de BESLUITTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
 msgstr ""
 
-#: openzaak/components/catalogi/api/serializers/zaaktype.py:171
+#: openzaak/components/catalogi/api/serializers/zaaktype.py:172
 msgid ""
 "URL-referenties naar de ZAAKOBJECTTYPEN die mogelijk zijn binnen dit "
 "ZAAKTYPE."
 msgstr ""
 
-#: openzaak/components/catalogi/api/validators.py:33
+#: openzaak/components/catalogi/api/validators.py:34
 #: openzaak/components/catalogi/tests/test_besluittype.py:279
 #: openzaak/components/catalogi/tests/test_informatieobjecttype.py:247
 #: openzaak/components/catalogi/tests/test_zaaktype.py:1636
@@ -1157,85 +1157,89 @@ msgid ""
 "Dit {} komt al voor binnen de catalogus en opgegeven geldigheidsperiode."
 msgstr ""
 
-#: openzaak/components/catalogi/api/validators.py:119
+#: openzaak/components/catalogi/api/validators.py:120
 msgid "The {} has catalogus different from created object"
 msgstr "De/het {} hoort bij een andere catalogus dan het aangemaakte object"
 
-#: openzaak/components/catalogi/api/validators.py:157
+#: openzaak/components/catalogi/api/validators.py:158
 msgid "{} should belong to the same procestype as {}"
 msgstr "{} moet bij hetzelfde procestypen horen als {}"
 
-#: openzaak/components/catalogi/api/validators.py:181
+#: openzaak/components/catalogi/api/validators.py:182
 msgid "This field must be empty for afleidingswijze `{}`"
 msgstr "Dit veld mag geen waarde hebben voor de afleidingswijze `{}`"
 
-#: openzaak/components/catalogi/api/validators.py:183
+#: openzaak/components/catalogi/api/validators.py:184
 msgid "This field is required for afleidingswijze `{}`"
 msgstr "Dit veld is verplicht voor de afleidingswijze `{}`"
 
-#: openzaak/components/catalogi/api/validators.py:201
+#: openzaak/components/catalogi/api/validators.py:202
 #, python-brace-format
 msgid "This field is required if archiefnominatie is {an}"
 msgstr "Dit veld is verplicht als de archiefnominatie {an} is"
 
-#: openzaak/components/catalogi/api/validators.py:235
+#: openzaak/components/catalogi/api/validators.py:236
 msgid "The zaaktype has catalogus different from informatieobjecttype"
 msgstr ""
 "Het zaaktype hoort bij een andere catalogus dan het informatieobjecttype"
 
-#: openzaak/components/catalogi/api/validators.py:251
+#: openzaak/components/catalogi/api/validators.py:252
 msgid "Hoofd- en deelzaaktypen moeten tot dezelfde catalogus behoren"
 msgstr ""
 
-#: openzaak/components/catalogi/api/validators.py:286
+#: openzaak/components/catalogi/api/validators.py:287
 msgid "Het is niet toegestaan om een non-concept object bij te werken"
 msgstr ""
 
-#: openzaak/components/catalogi/api/validators.py:310
+#: openzaak/components/catalogi/api/validators.py:311
 msgid "Verlengingstermijn must be set if verlengingMogelijk is true"
 msgstr ""
 
-#: openzaak/components/catalogi/api/validators.py:325
+#: openzaak/components/catalogi/api/validators.py:326
 msgid ""
 "Updating an object that has a relation to a non-concept zaaktype is forbidden"
 msgstr ""
 "Je mag geen object bijwerken wat gerelateerd is aan een gepubliceerd "
 "zaaktype."
 
-#: openzaak/components/catalogi/api/validators.py:345
+#: openzaak/components/catalogi/api/validators.py:346
 msgid "Creating a relation to non-concept zaaktype is forbidden"
 msgstr "Je mag geen relatie leggen met een gepubliceerd zaaktype"
 
-#: openzaak/components/catalogi/api/validators.py:376
+#: openzaak/components/catalogi/api/validators.py:377
 #, python-brace-format
 msgid "Relations to non-concept {field_name} object can't be created"
 msgstr "Relaties maken met gepubliceerde {field_name}-objecten mag niet"
 
-#: openzaak/components/catalogi/api/validators.py:412
+#: openzaak/components/catalogi/api/validators.py:413
 #, python-brace-format
 msgid "Objects related to non-concept {field_name} can't be updated"
 msgstr ""
 "Objecten die horen bij een gepubliceerd {field_name} mogen niet bijgewerkt "
 "worden"
 
-#: openzaak/components/catalogi/api/validators.py:422
+#: openzaak/components/catalogi/api/validators.py:423
 #, python-brace-format
 msgid "Objects can't be updated with a relation to non-concept {field_name}"
 msgstr ""
 "Objecten mogen niet bijgewerkt worden met een relatie naar een "
 "gepubliceerd(e) {field_name}"
 
-#: openzaak/components/catalogi/api/validators.py:429
+#: openzaak/components/catalogi/api/validators.py:430
 msgid "The {} has zaaktype different from created object"
 msgstr "De/het {} hoort bij een ander zaaktype dan het aangemaakte object"
 
-#: openzaak/components/catalogi/api/validators.py:458
+#: openzaak/components/catalogi/api/validators.py:459
 msgid "Both broncatalogus and bronzaaktype should be provided"
-msgstr ""
+msgstr "Zowel de broncatalogus als het bronzaaktype moeten gespecificeerd zijn"
 
-#: openzaak/components/catalogi/api/validators.py:474
+#: openzaak/components/catalogi/api/validators.py:475
 msgid "{} should be before {}."
-msgstr ""
+msgstr "{} moet vóór {} zijn."
+
+#: openzaak/components/catalogi/api/validators.py:531
+msgid "duration cannot be empty, null may be allowed"
+msgstr "tijdsduur mag niet leeg zijn, null waardes zijn wel toegestaan"
 
 #: openzaak/components/catalogi/api/viewsets/mixins.py:32
 msgid "Alleen concepten kunnen worden verwijderd."
@@ -1420,7 +1424,7 @@ msgstr "Gebruik óf de --import-file, óf de --import-file-content parameter"
 #: openzaak/components/catalogi/models/roltype.py:42
 #: openzaak/components/catalogi/models/statustype.py:45
 #: openzaak/components/catalogi/models/zaaktype.py:63
-#: openzaak/components/zaken/models/zaken.py:1130
+#: openzaak/components/zaken/models/zaken.py:1131
 msgid "omschrijving"
 msgstr ""
 
@@ -1494,7 +1498,7 @@ msgstr ""
 #: openzaak/components/catalogi/models/statustype.py:167
 #: openzaak/components/catalogi/models/zaaktype.py:98
 #: openzaak/components/documenten/models.py:874
-#: openzaak/components/zaken/models/zaken.py:778
+#: openzaak/components/zaken/models/zaken.py:779
 msgid "toelichting"
 msgstr ""
 
@@ -1514,7 +1518,7 @@ msgstr ""
 
 #: openzaak/components/catalogi/models/catalogus.py:39
 #: openzaak/components/catalogi/models/catalogus.py:68
-#: openzaak/components/zaken/models/zaken.py:1193
+#: openzaak/components/zaken/models/zaken.py:1194
 msgid "naam"
 msgstr ""
 
@@ -1550,7 +1554,7 @@ msgstr ""
 
 #: openzaak/components/catalogi/models/catalogus.py:75
 #: openzaak/components/documenten/models.py:849
-#: openzaak/components/zaken/models/zaken.py:1185
+#: openzaak/components/zaken/models/zaken.py:1186
 msgid "telefoonnummer"
 msgstr ""
 
@@ -1960,7 +1964,7 @@ msgid "Gecachete tekstuele waarde van de generieke resultaattypeomschrijving."
 msgstr ""
 
 #: openzaak/components/catalogi/models/resultaattype.py:97
-#: openzaak/components/zaken/models/zaken.py:342
+#: openzaak/components/zaken/models/zaken.py:343
 msgid "selectielijstklasse"
 msgstr ""
 
@@ -1973,7 +1977,7 @@ msgid ""
 msgstr ""
 
 #: openzaak/components/catalogi/models/resultaattype.py:108
-#: openzaak/components/zaken/models/zaken.py:353
+#: openzaak/components/zaken/models/zaken.py:354
 msgid "archiefnominatie"
 msgstr ""
 
@@ -2008,7 +2012,7 @@ msgid "Wijze van bepalen van de brondatum."
 msgstr ""
 
 #: openzaak/components/catalogi/models/resultaattype.py:147
-#: openzaak/components/zaken/models/zaken.py:416
+#: openzaak/components/zaken/models/zaken.py:417
 msgid "datumkenmerk"
 msgstr ""
 
@@ -2032,7 +2036,7 @@ msgid ""
 msgstr ""
 
 #: openzaak/components/catalogi/models/resultaattype.py:168
-#: openzaak/components/zaken/models/zaken.py:431
+#: openzaak/components/zaken/models/zaken.py:432
 msgid "objecttype"
 msgstr ""
 
@@ -2041,12 +2045,12 @@ msgid "Het soort object in de registratie dat het procesobject representeert."
 msgstr ""
 
 #: openzaak/components/catalogi/models/resultaattype.py:178
-#: openzaak/components/zaken/models/zaken.py:437
+#: openzaak/components/zaken/models/zaken.py:438
 msgid "registratie"
 msgstr ""
 
 #: openzaak/components/catalogi/models/resultaattype.py:182
-#: openzaak/components/zaken/models/zaken.py:441
+#: openzaak/components/zaken/models/zaken.py:442
 msgid "De naam van de registratie waarvan het procesobject deel uit maakt."
 msgstr ""
 
@@ -2069,7 +2073,7 @@ msgid ""
 msgstr ""
 
 #: openzaak/components/catalogi/models/resultaattype.py:228
-#: openzaak/components/zaken/models/zaken.py:396
+#: openzaak/components/zaken/models/zaken.py:397
 msgid "procesobjectaard"
 msgstr ""
 
@@ -2325,7 +2329,7 @@ msgid "Zaakobjecttypen"
 msgstr ""
 
 #: openzaak/components/catalogi/models/zaaktype.py:54
-#: openzaak/components/zaken/models/zaken.py:425
+#: openzaak/components/zaken/models/zaken.py:426
 msgid "identificatie"
 msgstr ""
 
@@ -2518,7 +2522,7 @@ msgid ""
 msgstr ""
 
 #: openzaak/components/catalogi/models/zaaktype.py:235
-#: openzaak/components/zaken/models/zaken.py:234
+#: openzaak/components/zaken/models/zaken.py:235
 msgid "URL naar product/dienst"
 msgstr ""
 
@@ -2632,18 +2636,18 @@ msgstr ""
 msgid "Zaaktypen"
 msgstr ""
 
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:250
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:385
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:658
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:703
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:919
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:252
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:387
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:660
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:705
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:976
 #: openzaak/components/catalogi/validators.py:118
 msgid "All related resources should be published"
 msgstr "Alle gerelateerde resources moeten gepubliceerd zijn"
 
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:745
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:760
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:772
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:747
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:762
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:774
 #: openzaak/templates/admin/catalogi/change_form.html:25
 #: openzaak/templates/admin/catalogi/change_form_zaaktype.html:12
 #: openzaak/templates/admin/catalogi/publish_zaaktype.html:57
@@ -2657,12 +2661,12 @@ msgstr ""
 #: openzaak/components/catalogi/tests/admin/test_besluittype_admin.py:358
 #: openzaak/components/catalogi/tests/admin/test_catalogus.py:102
 #: openzaak/components/catalogi/tests/admin/test_eigenschap_admin.py:165
-#: openzaak/components/catalogi/tests/admin/test_informatieobjecttype_admin.py:363
+#: openzaak/components/catalogi/tests/admin/test_informatieobjecttype_admin.py:365
 #: openzaak/components/catalogi/tests/admin/test_resultaattype_admin.py:699
 #: openzaak/components/catalogi/tests/admin/test_roltype_admin.py:105
 #: openzaak/components/catalogi/tests/admin/test_statustype_admin.py:64
 #: openzaak/components/catalogi/tests/admin/test_zaakobjecttype_admin.py:41
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1304
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1361
 msgid "vereist het verwijderen van de volgende gerelateerde objecten"
 msgstr ""
 
@@ -2673,12 +2677,12 @@ msgstr ""
 #: openzaak/components/catalogi/tests/admin/test_besluittype_admin.py:386
 #: openzaak/components/catalogi/tests/admin/test_catalogus.py:135
 #: openzaak/components/catalogi/tests/admin/test_eigenschap_admin.py:197
-#: openzaak/components/catalogi/tests/admin/test_informatieobjecttype_admin.py:402
+#: openzaak/components/catalogi/tests/admin/test_informatieobjecttype_admin.py:404
 #: openzaak/components/catalogi/tests/admin/test_resultaattype_admin.py:736
 #: openzaak/components/catalogi/tests/admin/test_roltype_admin.py:137
 #: openzaak/components/catalogi/tests/admin/test_statustype_admin.py:96
 #: openzaak/components/catalogi/tests/admin/test_zaakobjecttype_admin.py:78
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1332
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1389
 msgid ""
 "vereist het verwijderen van de volgende beschermde gerelateerde objecten"
 msgstr ""
@@ -2715,11 +2719,11 @@ msgstr ""
 msgid "Exporteren"
 msgstr ""
 
-#: openzaak/components/catalogi/tests/admin/test_informatieobjecttype_admin.py:360
+#: openzaak/components/catalogi/tests/admin/test_informatieobjecttype_admin.py:362
 msgid "Informatieobjecttype kan niet worden verwijderd"
 msgstr ""
 
-#: openzaak/components/catalogi/tests/admin/test_informatieobjecttype_admin.py:398
+#: openzaak/components/catalogi/tests/admin/test_informatieobjecttype_admin.py:400
 msgid "Informatieobjecttypen kan niet worden verwijderd"
 msgstr ""
 
@@ -2789,16 +2793,16 @@ msgstr ""
 msgid "Zaakobjecttypen kan niet worden verwijderd"
 msgstr ""
 
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:946
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1066
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1003
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1123
 #: openzaak/components/catalogi/tests/test_zaaktype.py:1763
 #: openzaak/components/catalogi/tests/test_zaaktype.py:1784
 #: openzaak/components/catalogi/validators.py:139
 msgid "Publishing a zaaktype requires at least one roltype to be defined."
 msgstr "Om een zaaktype te publiceren moet minimaal één roltype bestaan."
 
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:967
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1070
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1024
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1127
 #: openzaak/components/catalogi/tests/test_zaaktype.py:1693
 #: openzaak/components/catalogi/tests/test_zaaktype.py:1800
 #: openzaak/components/catalogi/validators.py:160
@@ -2807,8 +2811,8 @@ msgstr ""
 "Om een zaaktype te publiceren moeten minimaal twee statustypen (begin en "
 "eind)  bestaan."
 
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1009
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1068
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1066
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1125
 #: openzaak/components/catalogi/tests/test_zaaktype.py:1737
 #: openzaak/components/catalogi/tests/test_zaaktype.py:1792
 #: openzaak/components/catalogi/validators.py:149
@@ -2816,11 +2820,11 @@ msgid ""
 "Publishing a zaaktype requires at least one resultaattype to be defined."
 msgstr "Om een zaaktype te publiceren moet minimaal één resultaattype bestaan."
 
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1302
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1359
 msgid "Zaaktype kan niet worden verwijderd"
 msgstr ""
 
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1329
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1386
 msgid "Zaaktypen kan niet worden verwijderd"
 msgstr ""
 
@@ -2910,7 +2914,7 @@ msgstr ""
 "Er ging iets fout bij het wegschrijven van het bestand naar de {storage}."
 
 #: openzaak/components/documenten/admin.py:430
-#: openzaak/components/zaken/api/serializers/zaken.py:539
+#: openzaak/components/zaken/api/serializers/zaken.py:538
 msgid "Identificatie"
 msgstr ""
 
@@ -2940,7 +2944,7 @@ msgid "locked"
 msgstr "geblokkeerd"
 
 #: openzaak/components/documenten/admin.py:524
-#: openzaak/components/documenten/api/viewsets.py:288
+#: openzaak/components/documenten/api/viewsets.py:289
 #: openzaak/components/documenten/tests/admin/test_eio.py:184
 msgid ""
 "All relations to the document must be destroyed before destroying the "
@@ -2950,7 +2954,7 @@ msgstr ""
 "zelf mag verwijderen."
 
 #: openzaak/components/documenten/admin.py:532
-#: openzaak/components/documenten/api/viewsets.py:298
+#: openzaak/components/documenten/api/viewsets.py:299
 #: openzaak/components/documenten/tests/admin/test_eio.py:207
 msgid "Locked objects cannot be destroyed"
 msgstr "Gelockte objecten mogen niet worden verwijderd"
@@ -2960,8 +2964,8 @@ msgstr "Gelockte objecten mogen niet worden verwijderd"
 msgid "Een lijst van trefwoorden gescheiden door comma's."
 msgstr ""
 
-#: openzaak/components/documenten/api/filters.py:230
-#: openzaak/components/documenten/api/serializers.py:918
+#: openzaak/components/documenten/api/filters.py:241
+#: openzaak/components/documenten/api/serializers.py:921
 msgid ""
 "URL-referentie naar het gerelateerde OBJECT (in deze of een andere API)."
 msgstr ""
@@ -2984,8 +2988,8 @@ msgid ""
 msgstr ""
 
 #: openzaak/components/documenten/api/serializers.py:277
-#: openzaak/components/documenten/api/serializers.py:701
-#: openzaak/components/documenten/api/serializers.py:803
+#: openzaak/components/documenten/api/serializers.py:704
+#: openzaak/components/documenten/api/serializers.py:806
 msgid "Lock id is not correct"
 msgstr "Het lock ID is niet geldig"
 
@@ -3082,15 +3086,15 @@ msgstr ""
 "De bestandsomvang van de upload moet overeenkomen met het 'bestandsomvang'-"
 "veld"
 
-#: openzaak/components/documenten/api/serializers.py:689
+#: openzaak/components/documenten/api/serializers.py:692
 msgid "Unlocked document can't be modified"
 msgstr "Een geblokkeerd document kan niet gewijzigd worden"
 
-#: openzaak/components/documenten/api/serializers.py:696
+#: openzaak/components/documenten/api/serializers.py:699
 msgid "Lock id must be provided"
 msgstr "Je moet het lock ID meegeven"
 
-#: openzaak/components/documenten/api/serializers.py:719
+#: openzaak/components/documenten/api/serializers.py:722
 msgid ""
 "Lock id generated if the large file is created and should be used while "
 "updating the document. Documents with base64 encoded files are created "
@@ -3100,24 +3104,24 @@ msgstr ""
 "bij document updates. Documenten met base64-encoded bestandsdata worden "
 "zonder lock aangemaakt."
 
-#: openzaak/components/documenten/api/serializers.py:769
+#: openzaak/components/documenten/api/serializers.py:772
 msgid "The document is already locked"
 msgstr "Het document is al geblokkeerd"
 
-#: openzaak/components/documenten/api/serializers.py:813
+#: openzaak/components/documenten/api/serializers.py:816
 msgid "Upload of part files is not complete"
 msgstr "Nog niet alle bestandsdelen zijn volledig geüpload"
 
-#: openzaak/components/documenten/api/serializers.py:818
+#: openzaak/components/documenten/api/serializers.py:821
 msgid "Either file should be upload or the file size = 0"
 msgstr "Je moet een bestand uploaden of de bestandsomvang op 0 zetten"
 
-#: openzaak/components/documenten/api/serializers.py:873
-#: openzaak/components/zaken/api/serializers/zaken.py:763
+#: openzaak/components/documenten/api/serializers.py:876
+#: openzaak/components/zaken/api/serializers/zaken.py:762
 msgid "Array of unieke resource identifiers (UUID4)"
 msgstr "Lijst van unieke resource identifiers (UUID4)"
 
-#: openzaak/components/documenten/api/serializers.py:1017
+#: openzaak/components/documenten/api/serializers.py:1020
 msgid ""
 "Het correspondentieadres, betreffende een adresseerbaar object, van de "
 "BETROKKENE, zijnde afzender of geadresseerde, zoals vermeld in het ontvangen "
@@ -3125,7 +3129,7 @@ msgid ""
 "binnenlandse correspondentieadres van BETROKKENE."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:1030
+#: openzaak/components/documenten/api/serializers.py:1033
 msgid ""
 "De gegevens van het adres in het buitenland van BETROKKENE, zijnde afzender "
 "of geadresseerde, zoals vermeld in het ontvangen of verzonden "
@@ -3133,7 +3137,7 @@ msgid ""
 "BETROKKENE."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:1042
+#: openzaak/components/documenten/api/serializers.py:1045
 msgid ""
 "De gegevens die tezamen een postbusadres of antwoordnummeradres vormen van "
 "BETROKKENE, zijnde afzender of geadresseerde, zoals vermeld in het ontvangen "
@@ -3141,8 +3145,8 @@ msgid ""
 "correspondentiegegevens van BETROKKENE."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:1087
-#: openzaak/components/zaken/api/serializers/zaken.py:252
+#: openzaak/components/documenten/api/serializers.py:1090
+#: openzaak/components/zaken/api/serializers/zaken.py:253
 msgid "Het aantal identificaties om te reserveren."
 msgstr ""
 
@@ -3152,7 +3156,7 @@ msgstr "De velden 'object' en 'informatieobject' moeten samen uniek zijn."
 
 #: openzaak/components/documenten/api/validators.py:82
 #: openzaak/components/documenten/tests/test_validation.py:256
-#: openzaak/components/zaken/api/validators.py:92
+#: openzaak/components/zaken/api/validators.py:96
 #: openzaak/components/zaken/tests/test_zaak_identificatie.py:80
 #, python-brace-format
 msgid ""
@@ -3176,40 +3180,40 @@ msgstr ""
 msgid "Verzending must contain precisely one correspondentieadress"
 msgstr ""
 
-#: openzaak/components/documenten/api/viewsets.py:471
-#: openzaak/components/zaken/api/viewsets.py:397
+#: openzaak/components/documenten/api/viewsets.py:474
+#: openzaak/components/zaken/api/viewsets.py:398
 msgid "Search parameters must be specified"
 msgstr "Je moet zoekparameters opgeven"
 
-#: openzaak/components/documenten/api/viewsets.py:508
+#: openzaak/components/documenten/api/viewsets.py:511
 msgid "Een IMPORT creeren"
 msgstr ""
 
-#: openzaak/components/documenten/api/viewsets.py:530
+#: openzaak/components/documenten/api/viewsets.py:533
 msgid "Een IMPORT bestand uploaden"
 msgstr ""
 
-#: openzaak/components/documenten/api/viewsets.py:550
+#: openzaak/components/documenten/api/viewsets.py:553
 msgid "No response body"
 msgstr ""
 
-#: openzaak/components/documenten/api/viewsets.py:584
+#: openzaak/components/documenten/api/viewsets.py:587
 msgid "De status van een IMPORT opvragen."
 msgstr ""
 
-#: openzaak/components/documenten/api/viewsets.py:605
+#: openzaak/components/documenten/api/viewsets.py:608
 msgid "Het reportage bestand van een IMPORT downloaden."
 msgstr ""
 
-#: openzaak/components/documenten/api/viewsets.py:616
+#: openzaak/components/documenten/api/viewsets.py:619
 msgid "Het reportage bestand van de IMPORT."
 msgstr ""
 
-#: openzaak/components/documenten/api/viewsets.py:639
+#: openzaak/components/documenten/api/viewsets.py:642
 msgid "Een IMPORT verwijderen."
 msgstr ""
 
-#: openzaak/components/documenten/api/viewsets.py:910
+#: openzaak/components/documenten/api/viewsets.py:913
 msgid "The relation between object and informatieobject doesn't exist"
 msgstr "De relatie tussen object en informatieobject bestaat niet"
 
@@ -3403,7 +3407,7 @@ msgid ""
 msgstr ""
 
 #: openzaak/components/documenten/models.py:100
-#: openzaak/components/zaken/models/zaken.py:1737
+#: openzaak/components/zaken/models/zaken.py:1738
 msgid "status"
 msgstr ""
 
@@ -3615,7 +3619,7 @@ msgid "gebruiksrechten informatieobject"
 msgstr ""
 
 #: openzaak/components/documenten/models.py:666
-#: openzaak/components/zaken/models/zaken.py:1883
+#: openzaak/components/zaken/models/zaken.py:1884
 msgid "besluit relative url"
 msgstr "relatieve besluit-url"
 
@@ -3907,7 +3911,7 @@ msgid "Het veld waarop de resultaten geordend worden."
 msgstr ""
 
 #: openzaak/components/zaken/api/filters.py:466
-#: openzaak/components/zaken/api/serializers/zaken.py:830
+#: openzaak/components/zaken/api/serializers/zaken.py:829
 msgid ""
 "Het gegeven is afleidbaar uit de historie van de attribuutsoort Datum status "
 "gezet van van alle statussen bij de desbetreffende zaak."
@@ -4149,7 +4153,7 @@ msgstr ""
 #: openzaak/components/zaken/api/serializers/betrokkenen.py:91
 #: openzaak/components/zaken/api/serializers/betrokkenen.py:161
 #: openzaak/components/zaken/api/serializers/betrokkenen.py:216
-#: openzaak/components/zaken/models/zaken.py:1213
+#: openzaak/components/zaken/models/zaken.py:1214
 msgid "authentication context"
 msgstr "authenticatiecontext"
 
@@ -4167,7 +4171,7 @@ msgid ""
 msgstr ""
 
 #: openzaak/components/zaken/api/serializers/zaakobjecten.py:135
-#: openzaak/components/zaken/models/zaken.py:1428
+#: openzaak/components/zaken/models/zaken.py:1429
 msgid "definitie object type overige"
 msgstr ""
 
@@ -4187,93 +4191,93 @@ msgid ""
 "niet van een waarde voorzien zijn."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:151
-#: openzaak/components/zaken/api/serializers/zaken.py:170
+#: openzaak/components/zaken/api/serializers/zaken.py:152
+#: openzaak/components/zaken/api/serializers/zaken.py:171
 msgid "Reden"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:151
+#: openzaak/components/zaken/api/serializers/zaken.py:152
 msgid "Duur"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:165
+#: openzaak/components/zaken/api/serializers/zaken.py:166
 msgid "Indicatie"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:167
+#: openzaak/components/zaken/api/serializers/zaken.py:168
 msgid "Eerdere opschorting"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:316
+#: openzaak/components/zaken/api/serializers/zaken.py:315
 msgid "URL-referenties naar ZAAK-EIGENSCHAPPen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:324
+#: openzaak/components/zaken/api/serializers/zaken.py:323
 msgid "URL-referenties naar ROLLen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:332
+#: openzaak/components/zaken/api/serializers/zaken.py:331
 msgid "Indien geen status bekend is, dan is de waarde 'null'"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:340
-#: openzaak/components/zaken/api/serializers/zaken.py:839
+#: openzaak/components/zaken/api/serializers/zaken.py:339
+#: openzaak/components/zaken/api/serializers/zaken.py:838
 msgid "URL-referenties naar ZAAKINFORMATIEOBJECTen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:348
+#: openzaak/components/zaken/api/serializers/zaken.py:347
 msgid "URL-referenties naar ZAAKOBJECTen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:362
+#: openzaak/components/zaken/api/serializers/zaken.py:361
 msgid "Uitleg bij `betalingsindicatie`."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:369
-#: openzaak/components/zaken/api/serializers/zaken.py:739
+#: openzaak/components/zaken/api/serializers/zaken.py:368
+#: openzaak/components/zaken/api/serializers/zaken.py:738
 msgid ""
 "Gegevens omtrent het verlengen van de doorlooptijd van de behandeling van de "
 "ZAAK"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:377
-#: openzaak/components/zaken/api/serializers/zaken.py:727
+#: openzaak/components/zaken/api/serializers/zaken.py:376
+#: openzaak/components/zaken/api/serializers/zaken.py:726
 msgid ""
 "Gegevens omtrent het tijdelijk opschorten van de behandeling van de ZAAK"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:387
+#: openzaak/components/zaken/api/serializers/zaken.py:386
 msgid "URL-referenties naar deel ZAAKen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:397
+#: openzaak/components/zaken/api/serializers/zaken.py:396
 msgid ""
 "URL-referentie naar het RESULTAAT. Indien geen resultaat bekend is, dan is "
 "de waarde 'null'"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:405
+#: openzaak/components/zaken/api/serializers/zaken.py:404
 msgid ""
 "Een lijst van relevante andere zaken. **LET OP**: Dit attribuut zal "
 "verwijderd worden in versie 2.0, maak in plaats van dit attribuut gebruik "
 "van `gerelateerdeZaken`."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:414
+#: openzaak/components/zaken/api/serializers/zaken.py:413
 msgid ""
 "Lijst van zaken die gerelateerd zijn aan deze zaak. Deze relatie is "
 "automatisch wederkerig als beide zaken afkomsting zijn uit hetzelfde "
 "zaaksysteem."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:424
+#: openzaak/components/zaken/api/serializers/zaken.py:423
 msgid ""
 "Specificatie van de attribuutsoort van het object, subject of gebeurtenis  "
 "waarop, vanuit archiveringsoptiek, de zaak betrekking heeft en dat bepalend "
 "is voor de start van de archiefactietermijn."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:558
+#: openzaak/components/zaken/api/serializers/zaken.py:557
 msgid ""
 "Aanduiding van de mate waarin het zaakdossier van de ZAAK voor de "
 "openbaarheid bestemd is. Optioneel - indien geen waarde gekozen wordt, dan "
@@ -4281,33 +4285,33 @@ msgid ""
 "_altijd_ een waarde teruggeeft."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:629
+#: openzaak/components/zaken/api/serializers/zaken.py:628
 msgid ""
 "Laatste betaaldatum kan niet gezet worden als de betalingsindicatie \"nvt\" "
 "is"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:648
+#: openzaak/components/zaken/api/serializers/zaken.py:647
 msgid ""
 "Niet alle producten/diensten komen voor in de producten/diensten op het "
 "zaaktype"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:768
+#: openzaak/components/zaken/api/serializers/zaken.py:767
 msgid "Array van zaaktypen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:908
+#: openzaak/components/zaken/api/serializers/zaken.py:914
 msgid "De archiefactiedatum kon niet worden bepaald."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1223
-#: openzaak/components/zaken/api/serializers/zaken.py:1620
-#: openzaak/components/zaken/api/serializers/zaken.py:1672
+#: openzaak/components/zaken/api/serializers/zaken.py:1246
+#: openzaak/components/zaken/api/serializers/zaken.py:1643
+#: openzaak/components/zaken/api/serializers/zaken.py:1695
 msgid "Could not create remote relation due to an unexpected error"
 msgstr "Kon externe relatie niet aanmaken door een onverwachte error"
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1340
+#: openzaak/components/zaken/api/serializers/zaken.py:1363
 msgid ""
 "De gegevens van de persoon die anderen desgevraagd in contact brengt met "
 "medewerkers van de BETROKKENE, een NIET-NATUURLIJK PERSOON of VESTIGING "
@@ -4315,160 +4319,164 @@ msgid ""
 "belang van BETROKKENE in haar ROL bij een ZAAK."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1393
-#: openzaak/components/zaken/models/zaken.py:854
+#: openzaak/components/zaken/api/serializers/zaken.py:1416
+#: openzaak/components/zaken/models/zaken.py:855
 msgid ""
 "De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd dat "
 "STATUSsen in die ZAAK bereikt zijn."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1423
+#: openzaak/components/zaken/api/serializers/zaken.py:1446
 msgid "betrokkene or betrokkeneIdentificatie must be provided"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1434
+#: openzaak/components/zaken/api/serializers/zaken.py:1457
 msgid "`eindeGeldigheid` date cannot be before `beginGeldigheid` date"
 msgstr ""
 "`eindeGeldigheid` datum kan niet eerder zijn dan `beginGeldigheid` datum"
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1691
+#: openzaak/components/zaken/api/serializers/zaken.py:1714
 msgid "URL-referentie naar een ZAAK."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1705
+#: openzaak/components/zaken/api/serializers/zaken.py:1728
 #: openzaak/components/zaken/tests/test_notitie.py:137
 msgid "Notitie can only be modified when status is `concept`."
 msgstr "Een Notitie kan alleen aangepast worden als de status `concept` is."
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1899
+#: openzaak/components/zaken/api/serializers/zaken.py:1922
 msgid "Dubbel uuid: {}."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1906
+#: openzaak/components/zaken/api/serializers/zaken.py:1929
 msgid "uuid {} is niet onderdeel van de zaak."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1911
+#: openzaak/components/zaken/api/serializers/zaken.py:1934
 msgid "uuid {} bestaat niet."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:48
+#: openzaak/components/zaken/api/validators.py:52
 #, python-brace-format
 msgid "There are already {num} `{value}` occurences"
 msgstr "De waarde `{value}` komt al {num} keer voor"
 
-#: openzaak/components/zaken/api/validators.py:101
+#: openzaak/components/zaken/api/validators.py:105
 #, python-brace-format
 msgid "The '{field_name}' may not be a self-reference"
 msgstr "Het veld '{field_name}` mag geen referentie naar zichzelf zijn"
 
-#: openzaak/components/zaken/api/validators.py:113
+#: openzaak/components/zaken/api/validators.py:117
 msgid "Deelzaken van deelzaken wordt niet ondersteund."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:122
+#: openzaak/components/zaken/api/validators.py:126
 msgid "Zaaktype niet vastgelegd in deelzaaktypen van hoofdzaak.zaaktype"
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:141
+#: openzaak/components/zaken/api/validators.py:145
 msgid "Deze datum mag niet in de toekomst zijn"
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:179
+#: openzaak/components/zaken/api/validators.py:183
 msgid ""
 "Er zijn gerelateerde informatieobjecten waarvan de `status` nog niet gelijk "
 "is aan `gearchiveerd`. Dit is een voorwaarde voor het zetten van de "
 "`archiefstatus` op een andere waarde dan `nog_te_archiveren`."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:235
+#: openzaak/components/zaken/api/validators.py:239
 msgid ""
 "Moet van een waarde voorzien zijn als de 'Archiefstatus' een waarde heeft "
 "anders dan "
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:283
+#: openzaak/components/zaken/api/validators.py:287
 msgid "Het is niet toegestaan om een zaak te sluiten via deze endpoint"
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:292
+#: openzaak/components/zaken/api/validators.py:296
 msgid "De status moet een eindstatus zijn voor deze actie."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:306
+#: openzaak/components/zaken/api/validators.py:310
 msgid ""
 "Een deelzaak kan alleen worden heropend als de hoofzaak niet afgesloten is."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:332
+#: openzaak/components/zaken/api/validators.py:336
 msgid ""
 "Er zijn gerelateerde deelzaken die nog niet afgesloten zijn. Deze deelzaken "
 "moeten eerst afgesloten worden voordat de zaak afgesloten kan worden."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:441
+#: openzaak/components/zaken/api/validators.py:445
 #, python-format
 msgid "One of %(fields)s must be provided"
 msgstr "Je moet één van de velden %(fields)s opgeven"
 
-#: openzaak/components/zaken/api/validators.py:467
-msgid "This is not a valid jq expression."
-msgstr "Dit is geen geldige jq-expressie."
-
-#: openzaak/components/zaken/api/validators.py:494
+#: openzaak/components/zaken/api/validators.py:487
 msgid ""
 "Indien je `objectTypeOverigeDefinitie` gebruikt, dan moet je een OBJECT url "
 "opgeven."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:515
-#: openzaak/components/zaken/api/validators.py:545
+#: openzaak/components/zaken/api/validators.py:509
+#: openzaak/components/zaken/api/validators.py:547
 msgid "The endpoint did not return valid JSON."
 msgstr "De endpoint gaf geen geldige JSON terug."
 
-#: openzaak/components/zaken/api/validators.py:533
+#: openzaak/components/zaken/api/validators.py:524
+#: openzaak/components/zaken/api/validators.py:559
+#: openzaak/components/zaken/tests/test_zaakobject_overige.py:247
+#: openzaak/utils/tests/test_validators.py:60 openzaak/utils/validators.py:276
+msgid "An error occurred while executing the jq expression."
+msgstr ""
+
+#: openzaak/components/zaken/api/validators.py:534
+#: openzaak/components/zaken/tests/test_zaakobject_overige.py:153
 msgid "No schema was found at the specified path."
 msgstr "Er is geen schema gevonden op het opgegeven pad."
 
-#: openzaak/components/zaken/api/validators.py:556
+#: openzaak/components/zaken/api/validators.py:569
 msgid "No data was found at the specified path."
 msgstr "Er zijn geen gegevens gevonden op het opgegeven pad."
 
-#: openzaak/components/zaken/api/validators.py:567
+#: openzaak/components/zaken/api/validators.py:580
 msgid "The object data does not match the specified schema."
 msgstr "De objectgegevens komen niet overeen met het opgegeven schema."
 
-#: openzaak/components/zaken/api/validators.py:574
+#: openzaak/components/zaken/api/validators.py:587
 msgid "De 'gezetdoor' rol hoort niet bij het zaak."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:589
+#: openzaak/components/zaken/api/validators.py:602
 msgid ""
 "De huidige zaak archiefstatus staat dit request niet toe. Archiefstatus moet "
 "gelijk zijn aan 'nog_te_archiveren'"
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:650
+#: openzaak/components/zaken/api/validators.py:663
 #, python-brace-format
 msgid ""
 "The 'waarde' value doesn't match the related eigenschap.specificatie '{spec}'"
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:678
+#: openzaak/components/zaken/api/validators.py:691
 msgid "The mandate context is required when a representee is specified."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:690
+#: openzaak/components/zaken/api/validators.py:703
 msgid ""
 "`indicatieMachtiging` must be set to 'gemachtigde' when a representee is "
 "specified"
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:709
+#: openzaak/components/zaken/api/validators.py:722
 msgid "`overigeRelatie` is verplicht als de relatie aard overig is."
 msgstr ""
 
-#: openzaak/components/zaken/api/viewsets.py:509
+#: openzaak/components/zaken/api/viewsets.py:510
 msgid ""
 "Zaak has related Besluit(en), these relations should be deleted before "
 "deleting the Zaak"
@@ -4476,77 +4484,85 @@ msgstr ""
 "De zaak heeft (een) gerelateerd besluit(en), deze relaties moeten verbroken "
 "worden voor je de zaak kan vernietigen."
 
-#: openzaak/components/zaken/api/viewsets.py:645
-#: openzaak/components/zaken/api/viewsets.py:2210
+#: openzaak/components/zaken/api/viewsets.py:646
+#: openzaak/components/zaken/api/viewsets.py:2211
 msgid "Met de '{}' scope mag je slechts 1 status zetten"
 msgstr ""
 
-#: openzaak/components/zaken/api/viewsets.py:658
-#: openzaak/components/zaken/api/viewsets.py:2225
+#: openzaak/components/zaken/api/viewsets.py:659
+#: openzaak/components/zaken/api/viewsets.py:2226
 msgid ""
 "Het heropenen van een gesloten zaak is niet toegestaan zonder de scope {}"
 msgstr ""
 
-#: openzaak/components/zaken/api/viewsets.py:1605
+#: openzaak/components/zaken/api/viewsets.py:1606
 msgid "The relation between zaak and besluit doesn't exist"
 msgstr "De relatie tussen zaak en besluit bestaat niet"
 
-#: openzaak/components/zaken/api/viewsets.py:1650
+#: openzaak/components/zaken/api/viewsets.py:1651
 msgid ""
 "Het Besluit verwijst nog naar deze zaak. Deze relatie moet eerst verbroken "
 "worden."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:106
+#: openzaak/components/zaken/brondatum.py:102
+#: openzaak/components/zaken/tests/test_hoofdzaak_afsluiting.py:910
+#, python-brace-format
+msgid ""
+"De archiefactiedatum kan niet bepaald worden, omdat de afleidingswijze "
+"`{hoofdzaak}` gebruikt wordt, maar de zaak geen hoofdzaak heeft."
+msgstr ""
+
+#: openzaak/components/zaken/brondatum.py:112
 msgid ""
 "Geen datumkenmerk aanwezig om de eigenschap te achterhalen voor het bepalen "
 "van de brondatum."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:120
+#: openzaak/components/zaken/brondatum.py:126
 msgid "Geen geldige datumwaarde in eigenschap \"{}\": {}"
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:133
+#: openzaak/components/zaken/brondatum.py:139
 msgid ""
 "Geen objecttype aanwezig om het zaakobject te achterhalen voor het bepalen "
 "van de brondatum."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:139
+#: openzaak/components/zaken/brondatum.py:145
 msgid ""
 "Geen datumkenmerk aanwezig om het attribuut van het zaakobject te "
 "achterhalen voor het bepalen van de brondatum."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:157
+#: openzaak/components/zaken/brondatum.py:163
 msgid "{} geen geldig attribuut voor ZaakObject van type {}"
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:166
+#: openzaak/components/zaken/brondatum.py:172
 msgid "Geen geldige datumwaarde in attribuut \"{}\": {}"
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:176
+#: openzaak/components/zaken/brondatum.py:182
 msgid ""
 "Geen attribuut gevonden die overeenkomt met het datumkenmerk \"{}\" voor het "
 "bepalen van de brondatum."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:187
+#: openzaak/components/zaken/brondatum.py:193
 msgid "Geen procestermijn aanwezig voor het bepalen van de brondatum."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:193
+#: openzaak/components/zaken/brondatum.py:199
 msgid "Geen geldige periode in procestermijn: {}"
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:202
+#: openzaak/components/zaken/brondatum.py:208
 msgid ""
 "Geen gerelateerde zaken aan zaak gekoppeld om brondatum uit af te leiden."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:232
+#: openzaak/components/zaken/brondatum.py:238
 msgid "Geen besluiten aan zaak gekoppeld om brondatum uit af te leiden."
 msgstr ""
 
@@ -4878,32 +4894,32 @@ msgstr ""
 msgid "medewerkers"
 msgstr ""
 
-#: openzaak/components/zaken/models/identification.py:93
+#: openzaak/components/zaken/models/identification.py:18
 msgid "identification number"
 msgstr "zaakidentificatie"
 
-#: openzaak/components/zaken/models/identification.py:97
+#: openzaak/components/zaken/models/identification.py:22
 msgid ""
 "De unieke identificatie van de ZAAK binnen de organisatie die "
 "verantwoordelijk is voor de behandeling van de ZAAK."
 msgstr ""
 
-#: openzaak/components/zaken/models/identification.py:104
+#: openzaak/components/zaken/models/identification.py:29
 msgid ""
 "Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die de zaak "
 "heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers en voldoen aan "
 "https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef"
 msgstr ""
 
-#: openzaak/components/zaken/models/identification.py:117
+#: openzaak/components/zaken/models/identification.py:37
 msgid "zaak identification"
 msgstr "zaakidentificatie"
 
-#: openzaak/components/zaken/models/identification.py:118
+#: openzaak/components/zaken/models/identification.py:38
 msgid "zaak identifications"
 msgstr "zaakidentificaties"
 
-#: openzaak/components/zaken/models/identification.py:130
+#: openzaak/components/zaken/models/identification.py:50
 #, python-brace-format
 msgid "{identification} ({organisation})"
 msgstr "{identification} ({organisation})"
@@ -5092,11 +5108,11 @@ msgstr ""
 msgid "adressen"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:103
+#: openzaak/components/zaken/models/zaken.py:104
 msgid "Zaak identification details"
 msgstr "Zaakidentificatiedetails"
 
-#: openzaak/components/zaken/models/zaken.py:105
+#: openzaak/components/zaken/models/zaken.py:106
 msgid ""
 "Zaak identification details are tracked in a separate table so numbers can "
 "be generated/reserved before the zaak is actually created."
@@ -5105,149 +5121,149 @@ msgstr ""
 "nummers gegenereerd/gereserveerd kunnen worden voor de daadwerkelijke zaak "
 "aangemaakt wordt."
 
-#: openzaak/components/zaken/models/zaken.py:146
+#: openzaak/components/zaken/models/zaken.py:147
 msgid ""
 "URL-referentie naar de ZAAK, waarom verzocht is door de initiator daarvan, "
 "die behandeld wordt in twee of meer separate ZAAKen waarvan de onderhavige "
 "ZAAK er één is."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:163
+#: openzaak/components/zaken/models/zaken.py:164
 msgid "zaaktype relative url"
 msgstr "relatieve zaaktype-url"
 
-#: openzaak/components/zaken/models/zaken.py:171
+#: openzaak/components/zaken/models/zaken.py:172
 msgid "extern zaaktype"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:176
+#: openzaak/components/zaken/models/zaken.py:177
 msgid "URL-referentie naar extern ZAAKTYPE (in een andere Catalogi API)."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:227
+#: openzaak/components/zaken/models/zaken.py:228
 msgid "publicatiedatum"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:230
+#: openzaak/components/zaken/models/zaken.py:231
 msgid "Datum waarop (het starten van) de zaak gepubliceerd is of wordt."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:237
+#: openzaak/components/zaken/models/zaken.py:238
 msgid ""
 "De producten en/of diensten die door de zaak worden voortgebracht. Dit zijn "
 "URLs naar de resources zoals die door de producten- en dienstencatalogus-API "
 "wordt ontsloten. De producten/diensten moeten bij het zaaktype vermeld zijn."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:246
+#: openzaak/components/zaken/models/zaken.py:247
 msgid "communicatiekanaal"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:250
+#: openzaak/components/zaken/models/zaken.py:251
 msgid ""
 "Het medium waarlangs de aanleiding om een zaak te starten is ontvangen. URL "
 "naar een communicatiekanaal in de VNG-Referentielijst van "
 "communicatiekanalen."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:256
+#: openzaak/components/zaken/models/zaken.py:257
 msgid "vertrouwlijkheidaanduiding"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:258
+#: openzaak/components/zaken/models/zaken.py:259
 msgid ""
 "Aanduiding van de mate waarin het zaakdossier van de ZAAK voor de "
 "openbaarheid bestemd is."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:263
+#: openzaak/components/zaken/models/zaken.py:264
 msgid "betalingsindicatie"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:268
+#: openzaak/components/zaken/models/zaken.py:269
 msgid ""
 "Indicatie of de, met behandeling van de zaak gemoeide, kosten betaald zijn "
 "door de desbetreffende betrokkene."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:273
+#: openzaak/components/zaken/models/zaken.py:274
 msgid "laatste betaaldatum"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:277
+#: openzaak/components/zaken/models/zaken.py:278
 msgid ""
 "De datum waarop de meest recente betaling is verwerkt van kosten die gemoeid "
 "zijn met behandeling van de zaak."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:289
+#: openzaak/components/zaken/models/zaken.py:290
 msgid "reden verlenging"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:293
+#: openzaak/components/zaken/models/zaken.py:294
 msgid ""
 "Omschrijving van de reden voor het verlengen van de behandeling van de zaak."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:297
+#: openzaak/components/zaken/models/zaken.py:298
 msgid "duur verlenging"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:301
+#: openzaak/components/zaken/models/zaken.py:302
 msgid ""
 "Het aantal werkbare dagen waarmee de doorlooptijd van de behandeling van de "
 "ZAAK is verlengd (of verkort) ten opzichte van de eerder gecommuniceerde "
 "doorlooptijd."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:309
+#: openzaak/components/zaken/models/zaken.py:310
 msgid "indicatie opschorting"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:313
+#: openzaak/components/zaken/models/zaken.py:314
 msgid "Aanduiding of de behandeling van de ZAAK tijdelijk is opgeschort."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:317
+#: openzaak/components/zaken/models/zaken.py:318
 msgid "reden opschorting"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:321
+#: openzaak/components/zaken/models/zaken.py:322
 msgid ""
 "Omschrijving van de reden voor het opschorten van de behandeling van de zaak."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:325
+#: openzaak/components/zaken/models/zaken.py:326
 msgid "eerdere opschorting"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:329
+#: openzaak/components/zaken/models/zaken.py:330
 msgid "Aanduiding of de behandeling van de ZAAK in het verleden is opgeschort."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:346
+#: openzaak/components/zaken/models/zaken.py:347
 msgid ""
 "URL-referentie naar de categorie in de gehanteerde 'Selectielijst "
 "Archiefbescheiden' die, gezien het zaaktype en het resultaattype van de "
 "zaak, bepalend is voor het archiefregime van de zaak."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:359
-#: openzaak/components/zaken/models/zaken.py:369
+#: openzaak/components/zaken/models/zaken.py:360
+#: openzaak/components/zaken/models/zaken.py:370
 msgid ""
 "Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn "
 "vernietigd moet worden."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:364
+#: openzaak/components/zaken/models/zaken.py:365
 msgid "archiefstatus"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:374
+#: openzaak/components/zaken/models/zaken.py:375
 msgid "archiefactiedatum"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:378
+#: openzaak/components/zaken/models/zaken.py:379
 msgid ""
 "De datum waarop het gearchiveerde zaakdossier vernietigd moet worden dan wel "
 "overgebracht moet worden naar een archiefbewaarplaats. Wordt automatisch "
@@ -5255,242 +5271,242 @@ msgid ""
 "nog leeg."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:387
+#: openzaak/components/zaken/models/zaken.py:388
 msgid ""
 "De krachtens publiekrecht ingestelde rechtspersoon dan wel ander niet-"
 "natuurlijk persoon waarbinnen het (bestuurs)orgaan zetelt dat opdracht heeft "
 "gegeven om taken uit te voeren waaraan de zaak invulling geeft."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:400
+#: openzaak/components/zaken/models/zaken.py:401
 msgid ""
 "Omschrijving van het object, subject of gebeurtenis waarop, vanuit "
 "archiveringsoptiek, de zaak betrekking heeft."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:406
+#: openzaak/components/zaken/models/zaken.py:407
 msgid "startdatum bewaartermijn"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:410
+#: openzaak/components/zaken/models/zaken.py:411
 msgid ""
 "De datum die de start markeert van de termijn waarop het zaakdossier "
 "vernietigd moet worden."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:420
+#: openzaak/components/zaken/models/zaken.py:421
 msgid ""
 "De naam van de attribuutsoort van het procesobject dat bepalend is voor het "
 "einde van de procestermijn."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:428
+#: openzaak/components/zaken/models/zaken.py:429
 msgid "De unieke aanduiding van het procesobject."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:434
+#: openzaak/components/zaken/models/zaken.py:435
 msgid "Het soort object dat het procesobject representeert."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:445
+#: openzaak/components/zaken/models/zaken.py:446
 msgid "communicatiekanaal naam"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:450
+#: openzaak/components/zaken/models/zaken.py:451
 msgid ""
 "De naam van het medium waarlangs de aanleiding om een zaak te starten is "
 "ontvangen."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:464
+#: openzaak/components/zaken/models/zaken.py:465
 msgid "created on"
 msgstr "aangemaakt op"
 
-#: openzaak/components/zaken/models/zaken.py:472
+#: openzaak/components/zaken/models/zaken.py:473
 msgid "laatst gewijzigd op"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:475
+#: openzaak/components/zaken/models/zaken.py:476
 msgid ""
 "Tijdstip waarop de ZAAK voor het laatst wijzingen heeft gehad die relevant "
 "kunnen zijn voor de initiator van de ZAAK."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:483
+#: openzaak/components/zaken/models/zaken.py:484
 msgid "laatst geopend op"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:486
+#: openzaak/components/zaken/models/zaken.py:487
 msgid ""
 "Tijdstip waarop de ZAAK voor het laatst geopend is door de eigenaar van de "
 "ZAAK."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:673
+#: openzaak/components/zaken/models/zaken.py:674
 msgid "gerelateerde zaak relative url"
 msgstr "relatieve gerelateerde zaak-url"
 
-#: openzaak/components/zaken/models/zaken.py:681
+#: openzaak/components/zaken/models/zaken.py:682
 msgid "externe gerelateerde zaak"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:685
+#: openzaak/components/zaken/models/zaken.py:686
 msgid "URL-referentie naar externe ZAAK (in een andere zaken API)"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:690
+#: openzaak/components/zaken/models/zaken.py:691
 msgid "gerelateerde zaak"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:691
-#: openzaak/components/zaken/models/zaken.py:745
-#: openzaak/components/zaken/models/zaken.py:1819
-#: openzaak/components/zaken/models/zaken.py:1876
-#: openzaak/components/zaken/models/zaken.py:1953
-#: openzaak/components/zaken/models/zaken.py:1991
-#: openzaak/components/zaken/models/zaken.py:2020
+#: openzaak/components/zaken/models/zaken.py:692
+#: openzaak/components/zaken/models/zaken.py:746
+#: openzaak/components/zaken/models/zaken.py:1820
+#: openzaak/components/zaken/models/zaken.py:1877
+#: openzaak/components/zaken/models/zaken.py:1954
+#: openzaak/components/zaken/models/zaken.py:1992
+#: openzaak/components/zaken/models/zaken.py:2021
 msgid "URL-referentie naar de ZAAK."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:699
-#: openzaak/components/zaken/models/zaken.py:753
+#: openzaak/components/zaken/models/zaken.py:700
+#: openzaak/components/zaken/models/zaken.py:754
 msgid ""
 "URL-referentie naar de ZAAK. (Het ZAAKTYPE van deze ZAAK hoeft niet te zijn "
 "toegevoegd aan de gerelateerdeZaaktypen van het andere ZAAKTYPE.)"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:727
+#: openzaak/components/zaken/models/zaken.py:728
 msgid "relevant zaak relative url"
 msgstr "relatieve relevante zaak-url"
 
-#: openzaak/components/zaken/models/zaken.py:735
+#: openzaak/components/zaken/models/zaken.py:736
 msgid "externe relevante zaak"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:739
+#: openzaak/components/zaken/models/zaken.py:740
 msgid "URL-referentie naar extern ZAAK (in een andere zaken API)"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:744
+#: openzaak/components/zaken/models/zaken.py:745
 msgid "relevante zaak"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:763
+#: openzaak/components/zaken/models/zaken.py:764
 msgid ""
 "Benamingen van de aard van de relaties van andere zaken tot (onderhanden) "
 "zaken."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:769
+#: openzaak/components/zaken/models/zaken.py:770
 msgid "overige relatie"
 msgstr "overige relatie"
 
-#: openzaak/components/zaken/models/zaken.py:807
+#: openzaak/components/zaken/models/zaken.py:808
 msgid "statustype relative url"
 msgstr "relatieve statustype-url"
 
-#: openzaak/components/zaken/models/zaken.py:815
+#: openzaak/components/zaken/models/zaken.py:816
 msgid "extern statustype"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:820
+#: openzaak/components/zaken/models/zaken.py:821
 msgid "URL-referentie naar extern STATUSTYPE (in een andere Catalogi API)."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:833
+#: openzaak/components/zaken/models/zaken.py:834
 msgid "URL-referentie naar het STATUSTYPE (in de Catalogi API)."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:849
+#: openzaak/components/zaken/models/zaken.py:850
 msgid "gezet door"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:964
+#: openzaak/components/zaken/models/zaken.py:965
 msgid "resultaattype relative url"
 msgstr "relatieve resultaattype-url"
 
-#: openzaak/components/zaken/models/zaken.py:972
+#: openzaak/components/zaken/models/zaken.py:973
 msgid "extern resultaattype"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:977
+#: openzaak/components/zaken/models/zaken.py:978
 msgid "URL-referentie naar extern RESULTAATTYPE (in een andere Catalogi API)."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:990
+#: openzaak/components/zaken/models/zaken.py:991
 msgid "URL-referentie naar het RESULTAATTYPE (in de Catalogi API)."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1089
+#: openzaak/components/zaken/models/zaken.py:1090
 msgid "afwijkende naam betrokkene"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1091
+#: openzaak/components/zaken/models/zaken.py:1092
 msgid ""
 "De naam van de betrokkene waaronder deze in relatie tot de zaak aangesproken "
 "wil worden."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1102
+#: openzaak/components/zaken/models/zaken.py:1103
 msgid "roltype relative url"
 msgstr "relatieve roltype-url"
 
-#: openzaak/components/zaken/models/zaken.py:1110
+#: openzaak/components/zaken/models/zaken.py:1111
 msgid "extern roltype"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1114
+#: openzaak/components/zaken/models/zaken.py:1115
 msgid "URL-referentie naar extern ROLTYPE (in een andere Catalogi API)."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1126
+#: openzaak/components/zaken/models/zaken.py:1127
 msgid "URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1134
+#: openzaak/components/zaken/models/zaken.py:1135
 msgid "Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1140
+#: openzaak/components/zaken/models/zaken.py:1141
 msgid ""
 "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid uit het "
 "ROLTYPE."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1150
+#: openzaak/components/zaken/models/zaken.py:1151
 msgid ""
 "Toelichting bij de rol (dit veld wijkt af van de standaard, omdat het veld "
 "niet verplicht is)."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1168
+#: openzaak/components/zaken/models/zaken.py:1169
 msgid "email"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1170
+#: openzaak/components/zaken/models/zaken.py:1171
 msgid ""
 "Elektronich postadres waaronder de contactpersoon in de regel bereikbaar is."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1176
+#: openzaak/components/zaken/models/zaken.py:1177
 msgid "functie"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1178
+#: openzaak/components/zaken/models/zaken.py:1179
 msgid ""
 "De aanduiding van de taken, rechten en plichten die de contactpersoon heeft "
 "binnen de organisatie van BETROKKENE. "
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1187
+#: openzaak/components/zaken/models/zaken.py:1188
 msgid "Telefoonnummer waaronder de contactpersoon in de regel bereikbaar is."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1194
+#: openzaak/components/zaken/models/zaken.py:1195
 msgid "De opgemaakte naam van de contactpersoon namens de BETROKKENE."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1218
+#: openzaak/components/zaken/models/zaken.py:1219
 msgid ""
 "Metadata about the authentication context and mandate that applied when the "
 "role was added to the case."
@@ -5498,145 +5514,145 @@ msgstr ""
 "Metadata over de authenticatiecontext en machtiging die van toepassing was "
 "op het moment dat de Rol bij de Zaak is toegevoegd."
 
-#: openzaak/components/zaken/models/zaken.py:1229
+#: openzaak/components/zaken/models/zaken.py:1230
 msgid "begindatum geldigheid"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1233
+#: openzaak/components/zaken/models/zaken.py:1234
 msgid "De datum waarop de geldigheidsperiode van de ROL begint binnen de ZAAK."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1237
+#: openzaak/components/zaken/models/zaken.py:1238
 msgid "einddatum geldigheid"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1242
+#: openzaak/components/zaken/models/zaken.py:1243
 msgid ""
 "De datum waarop de geldigheidsperiode van de ROL eindigt binnen de ZAAK."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1439
+#: openzaak/components/zaken/models/zaken.py:1440
 msgid "zaakobjecttype relative url"
 msgstr "relatieve zaakobjecttype-url"
 
-#: openzaak/components/zaken/models/zaken.py:1447
+#: openzaak/components/zaken/models/zaken.py:1448
 msgid "extern zaakobjecttype"
 msgstr "extern zaakobjecttype"
 
-#: openzaak/components/zaken/models/zaken.py:1452
+#: openzaak/components/zaken/models/zaken.py:1453
 msgid "URL-referentie naar extern ZAAKOBJECTTYPE (in een andere Catalogi API)."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1467
+#: openzaak/components/zaken/models/zaken.py:1468
 msgid "URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API)."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1532
+#: openzaak/components/zaken/models/zaken.py:1533
 msgid "eigenschap relative url"
 msgstr "relatieve eigenschap-url"
 
-#: openzaak/components/zaken/models/zaken.py:1540
+#: openzaak/components/zaken/models/zaken.py:1541
 msgid "externe eigenschap"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1545
+#: openzaak/components/zaken/models/zaken.py:1546
 msgid "URL-referentie naar externe EIGENSCHAP (in een andere Catalogi API)."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1558
+#: openzaak/components/zaken/models/zaken.py:1559
 msgid "URL-referentie naar de EIGENSCHAP (in de Catalogi API)."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1563
+#: openzaak/components/zaken/models/zaken.py:1564
 msgid "De naam van de EIGENSCHAP (overgenomen uit de Catalogi API)."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1672
+#: openzaak/components/zaken/models/zaken.py:1673
 msgid "External informatieobject"
 msgstr "Extern informatieobject"
 
-#: openzaak/components/zaken/models/zaken.py:1691
+#: openzaak/components/zaken/models/zaken.py:1692
 msgid ""
 "URL-referentie naar het INFORMATIEOBJECT (in de Documenten API), waar ook de "
 "relatieinformatie opgevraagd kan worden."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1726
+#: openzaak/components/zaken/models/zaken.py:1727
 msgid "vernietigingsdatum"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1728
+#: openzaak/components/zaken/models/zaken.py:1729
 msgid ""
 "De datum waarop het informatieobject uit het zaakdossier verwijderd moet "
 "worden."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1740
+#: openzaak/components/zaken/models/zaken.py:1741
 msgid ""
 "De bij de desbetreffende ZAAK behorende STATUS waarvoor het ZAAK-"
 "INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken van die "
 "STATUS en/of de communicatie daarover."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1837
+#: openzaak/components/zaken/models/zaken.py:1838
 msgid "Het onderwerp waarover contact is geweest met de klant."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1843
+#: openzaak/components/zaken/models/zaken.py:1844
 msgid "Een toelichting die inhoudelijk het contact met de klant beschrijft."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1891
+#: openzaak/components/zaken/models/zaken.py:1892
 msgid "extern besluit"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1896
+#: openzaak/components/zaken/models/zaken.py:1897
 msgid "URL-referentie naar extern BESLUIT (in een andere Besluiten API)."
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1915
+#: openzaak/components/zaken/models/zaken.py:1916
 msgid "zaakbesluit"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1916
+#: openzaak/components/zaken/models/zaken.py:1917
 msgid "zaakbesluiten"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1928
-#: openzaak/components/zaken/models/zaken.py:1932
+#: openzaak/components/zaken/models/zaken.py:1929
+#: openzaak/components/zaken/models/zaken.py:1933
 #, python-brace-format
 msgid "Relation between {zaak} and {besluit}"
 msgstr "Relatie tussen {zaak} en {besluit}"
 
-#: openzaak/components/zaken/models/zaken.py:1950
-#: openzaak/components/zaken/models/zaken.py:1988
+#: openzaak/components/zaken/models/zaken.py:1951
+#: openzaak/components/zaken/models/zaken.py:1989
 msgid "Unieke resource identifier (UUID4)"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1957
+#: openzaak/components/zaken/models/zaken.py:1958
 msgid "URL-referentie naar het CONTACTMOMENT (in de CMC API)"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:1995
+#: openzaak/components/zaken/models/zaken.py:1996
 msgid "URL-referentie naar het VERZOEK (in de Klantinteractie API)"
 msgstr ""
 
-#: openzaak/components/zaken/models/zaken.py:2026
+#: openzaak/components/zaken/models/zaken.py:2027
 msgid "zaaknotitie"
 msgstr "zaaknotitie"
 
-#: openzaak/components/zaken/models/zaken.py:2027
+#: openzaak/components/zaken/models/zaken.py:2028
 msgid "zaaknotities"
 msgstr "zaaknotities"
 
-#: openzaak/components/zaken/tests/test_auth.py:882
-#: openzaak/components/zaken/tests/test_auth.py:1015
-#: openzaak/components/zaken/tests/test_auth.py:1203
-#: openzaak/components/zaken/tests/test_auth.py:1335
-#: openzaak/components/zaken/tests/test_auth.py:1482
-#: openzaak/components/zaken/tests/test_auth.py:1872
-#: openzaak/components/zaken/tests/test_auth.py:2607
-#: openzaak/utils/permissions.py:119
+#: openzaak/components/zaken/tests/test_auth.py:1106
+#: openzaak/components/zaken/tests/test_auth.py:1239
+#: openzaak/components/zaken/tests/test_auth.py:1427
+#: openzaak/components/zaken/tests/test_auth.py:1559
+#: openzaak/components/zaken/tests/test_auth.py:1706
+#: openzaak/components/zaken/tests/test_auth.py:2096
+#: openzaak/components/zaken/tests/test_auth.py:2831
+#: openzaak/utils/permissions.py:120
 #, python-brace-format
 msgid "Incorrect resource. Expected: {expected}"
 msgstr "Onjuiste resource. Verwacht: {expected}"
@@ -5825,43 +5841,6 @@ msgstr ""
 msgid "Import cannot be deleted due to current status: %s"
 msgstr ""
 
-#: openzaak/notifications/admin.py:19
-#, python-format
-msgid "Resend %(verbose_name_plural)s"
-msgstr "Verstuur %(verbose_name_plural)s opnieuw"
-
-#: openzaak/notifications/models.py:19
-msgid "status_code"
-msgstr ""
-
-#: openzaak/notifications/models.py:20
-msgid "Status code received from the Notifications API."
-msgstr "Status code ontvangen van de Notificaties API."
-
-#: openzaak/notifications/models.py:25
-msgid "notification message"
-msgstr "notificatiebericht"
-
-#: openzaak/notifications/models.py:26
-msgid "Content of the notification that was attempted to send."
-msgstr "Inhoud van de notificatie die geprobeerd werd om te verzenden."
-
-#: openzaak/notifications/models.py:29
-msgid "retried at"
-msgstr "opnieuw geprobeerd op"
-
-#: openzaak/notifications/models.py:32
-msgid "Timestamp logging if/when this message was retried."
-msgstr "Timestamp van wanneer een nieuwe verzendpoging gedaan is."
-
-#: openzaak/notifications/models.py:36
-msgid "failed notification"
-msgstr "gefaalde notificatie"
-
-#: openzaak/notifications/models.py:37
-msgid "failed notifications"
-msgstr "gefaalde notificaties"
-
 #: openzaak/selectielijst/models.py:15
 msgid "Referentielijsten API service"
 msgstr ""
@@ -5912,7 +5891,7 @@ msgid "Welcome,"
 msgstr "Welkom,"
 
 #: openzaak/templates/admin/base.html:54
-#: openzaak/templates/admin/base_site.html:40
+#: openzaak/templates/admin/base_site.html:42
 msgid "View site"
 msgstr "Bekijk website"
 
@@ -5922,12 +5901,12 @@ msgid "Documentation"
 msgstr "Documentatie"
 
 #: openzaak/templates/admin/base.html:63
-#: openzaak/templates/admin/base_site.html:49
+#: openzaak/templates/admin/base_site.html:51
 msgid "Change password"
 msgstr "Wachtwoord wijzigen"
 
 #: openzaak/templates/admin/base.html:67
-#: openzaak/templates/admin/base_site.html:54
+#: openzaak/templates/admin/base_site.html:56
 msgid "Log out"
 msgstr "Uitloggen"
 
@@ -5936,11 +5915,11 @@ msgid "Breadcrumbs"
 msgstr ""
 
 #: openzaak/templates/admin/base_site.html:9
-#: openzaak/templates/admin/base_site.html:25
+#: openzaak/templates/admin/base_site.html:27
 msgid "Administration"
 msgstr ""
 
-#: openzaak/templates/admin/base_site.html:46
+#: openzaak/templates/admin/base_site.html:48
 msgid "Account security"
 msgstr ""
 
@@ -6205,21 +6184,21 @@ msgstr ""
 msgid "Save and continue editing"
 msgstr "Opslaan en doorgaan met bewerken"
 
-#: openzaak/tests/test_view_config.py:57 openzaak/tests/test_view_config.py:82
-#: openzaak/tests/test_view_config.py:104
+#: openzaak/tests/test_view_config.py:56 openzaak/tests/test_view_config.py:80
+#: openzaak/tests/test_view_config.py:101
 msgid "Configured"
 msgstr "Geconfigureerd"
 
-#: openzaak/tests/test_view_config.py:59
+#: openzaak/tests/test_view_config.py:58
 #, python-brace-format
 msgid "Cannot retrieve kanalen: HTTP {status_code}"
 msgstr "Kan de kanalen niet ophalen: HTTP {status_code}"
 
-#: openzaak/tests/test_view_config.py:83
+#: openzaak/tests/test_view_config.py:81
 msgid "Could not connect with NRC"
 msgstr "Kon geen verbinding maken met de Notificaties API"
 
-#: openzaak/tests/test_view_config.py:105
+#: openzaak/tests/test_view_config.py:102
 msgid "Can retrieve kanalen"
 msgstr "Kan kanalen ophalen"
 
@@ -6270,30 +6249,30 @@ msgid ""
 "van dit object."
 msgstr ""
 
-#: openzaak/utils/permissions.py:95
+#: openzaak/utils/permissions.py:96
 msgid "{} is required for permissions"
 msgstr "{} is een verplicht veld voor permissies"
 
-#: openzaak/utils/permissions.py:104
+#: openzaak/utils/permissions.py:105
 msgid "The object does not exist in the database"
 msgstr "Dit object bestaat niet in de database"
 
-#: openzaak/utils/schema.py:278
+#: openzaak/utils/schema.py:279
 msgid ""
 "Display details of the linked resources requested in the `expand` parameter"
 msgstr ""
 
-#: openzaak/utils/schema.py:341
+#: openzaak/utils/schema.py:388
 msgid ""
 "Geeft een specifieke API-versie aan in de context van een specifieke "
 "aanroep. Voorbeeld: 1.2.1."
 msgstr ""
 
-#: openzaak/utils/schema.py:357
+#: openzaak/utils/schema.py:404
 msgid "Content type of the request body."
 msgstr ""
 
-#: openzaak/utils/schema.py:377
+#: openzaak/utils/schema.py:424
 msgid ""
 "Perform conditional requests. This header should contain one or multiple "
 "ETag values of resources the client has cached. If the current resource ETag "
@@ -6302,52 +6281,52 @@ msgid ""
 "for details."
 msgstr ""
 
-#: openzaak/utils/schema.py:387
+#: openzaak/utils/schema.py:434
 msgid "One ETag value"
 msgstr ""
 
-#: openzaak/utils/schema.py:392
+#: openzaak/utils/schema.py:439
 msgid "Multiple ETag values"
 msgstr ""
 
-#: openzaak/utils/schema.py:403
+#: openzaak/utils/schema.py:450
 msgid ""
 "De ETag berekend op de response body JSON. Indien twee resources exact "
 "dezelfde ETag hebben, dan zijn deze resources identiek aan elkaar. Je kan de "
 "ETag gebruiken om caching te implementeren."
 msgstr ""
 
-#: openzaak/utils/schema.py:422
+#: openzaak/utils/schema.py:469
 msgid "Identifier of the request, traceable throughout the network"
 msgstr ""
 
-#: openzaak/utils/schema.py:430
+#: openzaak/utils/schema.py:477
 msgid "Explanation why the request is done"
 msgstr ""
 
-#: openzaak/utils/schema.py:440
+#: openzaak/utils/schema.py:487
 msgid "URL waar de resource leeft."
 msgstr ""
 
-#: openzaak/utils/schema.py:458
+#: openzaak/utils/schema.py:505
 msgid ""
 "The desired 'Coordinate Reference System' (CRS) of the response data. "
 "According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is the same "
 "as WGS84)."
 msgstr ""
 
-#: openzaak/utils/schema.py:474 openzaak/utils/schema.py:489
+#: openzaak/utils/schema.py:521 openzaak/utils/schema.py:536
 msgid ""
 "The 'Coordinate Reference System' (CRS) of the request data. According to "
 "the GeoJSON spec, WGS84 is the default (EPSG: 4326 is the same as WGS84)."
 msgstr ""
 
-#: openzaak/utils/schema.py:502
+#: openzaak/utils/schema.py:549
 #, python-format
 msgid "De headers voor een specifiek(e) %(model)s opvragen "
 msgstr ""
 
-#: openzaak/utils/schema.py:509
+#: openzaak/utils/schema.py:556
 msgid "Vraag de headers op die je bij een GET request zou krijgen."
 msgstr ""
 
@@ -6389,11 +6368,11 @@ msgid ""
 "Je kan %(rel_model_name)s toevoegen nadat dit/deze %(model_name)s bewaard is."
 msgstr ""
 
-#: openzaak/utils/validators.py:31
+#: openzaak/utils/validators.py:36
 msgid "The resource is not published."
 msgstr "De resource is niet gepubliceerd."
 
-#: openzaak/utils/validators.py:122 openzaak/utils/validators.py:233
+#: openzaak/utils/validators.py:127 openzaak/utils/validators.py:238
 #, python-brace-format
 msgid ""
 "The URL {url} resource did not look like a(n) `{resource}`. Please provide a "
@@ -6402,16 +6381,20 @@ msgstr ""
 "De URL {url} resource lijkt niet op een `{resource}`. Geef een geldige URL "
 "op."
 
-#: openzaak/utils/validators.py:158
+#: openzaak/utils/validators.py:163
 msgid "Het informatieobjecttype hoort niet bij het {} van de {}."
 msgstr ""
 
-#: openzaak/utils/validators.py:187
+#: openzaak/utils/validators.py:192
 #, python-brace-format
 msgid ""
 "Het informatieobjecttype en het {objecttype_field} van de/het {object_field} "
 "moeten tot dezelfde catalogus behoren."
 msgstr ""
+
+#: openzaak/utils/validators.py:264
+msgid "This is not a valid jq expression."
+msgstr "Dit is geen geldige jq-expressie."
 
 #: openzaak/config/models.py:15
 msgid "API type"
