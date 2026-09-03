@@ -58,7 +58,7 @@ from openzaak.utils.mixins import (
     CacheQuerysetMixin,
     ExpandMixin,
 )
-from openzaak.utils.pagination import OptimizedPagination
+from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import (
     COMMON_ERROR_RESPONSES,
@@ -336,7 +336,7 @@ class EnkelvoudigInformatieObjectViewSet(
 
     @property
     def pagination_class(self):
-        return OptimizedPagination
+        return ExactPagination
 
     @extend_schema(
         "enkelvoudiginformatieobject_download",
@@ -1001,7 +1001,7 @@ class VerzendingViewSet(
 
     queryset = Verzending.objects.select_related("informatieobject").order_by("-pk")
     serializer_class = VerzendingSerializer
-    pagination_class = OptimizedPagination
+    pagination_class = ExactPagination
     lookup_field = "uuid"
     notifications_kanaal = KANAAL_DOCUMENTEN
     notifications_main_resource_key = "informatieobject"

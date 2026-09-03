@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         ("catalogi", "0026_set_P0D_servicenorms_to_none"),
         (
             "zaken",
-            "0050_remove_status_zaken_status__statustype_or__statustype_base_url_filled_and_more",
+            "0051_remove_status_zaken_status__statustype_or__statustype_base_url_filled_and_more",
         ),
     ]
 

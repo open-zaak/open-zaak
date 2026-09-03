@@ -1,6 +1,62 @@
 Changelog
 =========
 
+1.30.0 (2026-08-20)
+-------------------
+
+**New features**
+
+* [:open-zaak:`2462`] Implement container health checks from ``maykin-common`` (see :ref:`installation_health_checks`).
+
+  * Add ``celery_worker_liveness_probe.sh`` bash script for chart probes.
+
+* [:open-zaak:`2372`] Add custom Zaak identification schema based on elfproef for UWV (see :ref:`case_identification`).
+
+**Bugfixes**
+
+* [:open-zaak:`2165`] Disallow empty duration (e.g. ``P0D``) for zaaktype attribute ``servicenorm`` (``null`` is still allowed).
+* [:open-zaak:`2401`] Fix missing upload URLs in bestandsdelen after versioning.
+* [:open-zaak:`2426`] Add slug to admin external services form to make sure the form doesn't crash
+
+**Project maintenance**
+
+* [:open-api-workflows:`60`] Upgrade ``open-api-workflows`` to ``v7.0.0`` and reenable OAS workflow and replace spectral-cli with vacuum.
+* Configure Dependabot to keep GitHub Actions up to date, group these updates into a single PR and move the
+  configuration to the ``.github`` directory.
+* Configure ``actions/stale`` to automatically close stale issues and PRs.
+* [:open-object:`757`] Migrate FailedNotification model along with reschedule functionality to ``notifications-api-common`` library.
+* [:open-api-workflows:`60`] Reenable OAS workflow and replace spectral with vacuum.
+* Change Bencher alarms for performance tests in CI to use interquartile range.
+* Prevent post install scripts from running in ``.npmrc``.
+* Ensure development catalogi fixtures include feature flag to use concept types.
+* Upgrade NPM dependencies.
+* Upgrade python dependencies.
+
+  * ``bleach`` to 6.4.0
+  * ``commonground-api-common`` to 2.14.0
+  * ``cryptography`` to 50.0.0
+  * ``django`` to 5.2.17
+  * ``django-privates`` to 4.0.3
+  * ``django-simple-certmanager`` to 4.0.0
+  * [:open-api-framework:`223`] ``maykin-common`` to 0.20.1 to add product information
+  * ``msal`` to 1.37.0
+  * ``notifications-api-common`` to 0.13.0
+  * ``open-api-framework`` to 0.14.1
+  * ``pyjwt`` to 2.13.0
+  * ``pyopenssl`` to 26.4.0
+  * ``tornado`` to 6.5.8
+  * ``zgw-consumers`` to 2.0.3
+  * [:open-zaak:`2497`] ``pygraphviz`` to 2.0.1 to ensure compatibility with newer Ubuntu versions.
+
+**Documentation**
+
+* [:open-zaak:`2406`] Fix several issues in Zaken API and Documenten API OpenAPI specifications.
+
+  * Remove incorrect query_parameters from schema for ``_zoek`` endpoints (zaken and enkelvoudiginformatieobjecten).
+  * expand on /zaken/_zoek.
+
+* Fix typo in documenten bulk import upload API spec for content type.
+
 1.29.3 (2026-08-13)
 -------------------
 
@@ -186,6 +242,13 @@ Changelog
 
 1.28.3 (2026-07-02)
 -------------------
+
+.. note::
+
+  The environment variable used to configure the uWSGI port in the Docker
+  entrypoint has been renamed from ``UWSGI_PORT`` to ``OPENZAAK_PORT``
+  (see :ref:`installation_env_config`). Deployments that override the uWSGI
+  port need to update their configuration accordingly.
 
 **Bugfixes**
 

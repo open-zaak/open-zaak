@@ -10,7 +10,7 @@ from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.components.catalogi.models import Eigenschap
 from openzaak.utils.mixins import CacheQuerysetMixin
-from openzaak.utils.pagination import OptimizedPagination
+from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 
 from ..filters import EigenschapFilter
@@ -88,7 +88,7 @@ class EigenschapViewSet(
     serializer_class = EigenschapSerializer
     filterset_class = EigenschapFilter
     lookup_field = "uuid"
-    pagination_class = OptimizedPagination
+    pagination_class = ExactPagination
     permission_classes = (AuthRequired,)
     required_scopes = {
         "list": SCOPE_CATALOGI_READ,
