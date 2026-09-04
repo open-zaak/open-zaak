@@ -13,6 +13,7 @@ from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFac
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.tests.utils.admin import AdminTestMixin
 
+from ...api.audits import AUDIT_DRC
 from ..factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory,
@@ -35,7 +36,7 @@ class EioAdminInlineTests(AdminTestMixin, WebTest):
         )
 
     def assertEioAudittrail(self, audittrail):
-        self.assertEqual(audittrail.bron, "DRC")
+        self.assertEqual(audittrail.bron, AUDIT_DRC.component_name)
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
         self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}")

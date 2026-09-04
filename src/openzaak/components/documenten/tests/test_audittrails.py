@@ -23,7 +23,9 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse, reverse_lazy
 
+from ...zaken.api.audits import AUDIT_ZRC
 from ...zaken.tests.factories import StatusFactory, ZaakFactory
+from ..api.audits import AUDIT_DRC
 from ..models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
@@ -75,7 +77,9 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # Verify that the audittrail for the EnkelvoudigInformatieObject creation contains the correct
         # information
         informatieobject_create_audittrail = audittrails.get()
-        self.assertEqual(informatieobject_create_audittrail.bron, "DRC")
+        self.assertEqual(
+            informatieobject_create_audittrail.bron, AUDIT_DRC.component_name
+        )
         self.assertEqual(informatieobject_create_audittrail.actie, "create")
         self.assertEqual(informatieobject_create_audittrail.resultaat, 201)
         self.assertEqual(informatieobject_create_audittrail.oud, None)
@@ -106,7 +110,9 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # Verify that the audittrail for the Gebruiksrechten creation
         # contains the correct information
         gebruiksrechten_create_audittrail = audittrails.get()
-        self.assertEqual(gebruiksrechten_create_audittrail.bron, "DRC")
+        self.assertEqual(
+            gebruiksrechten_create_audittrail.bron, AUDIT_DRC.component_name
+        )
         self.assertEqual(gebruiksrechten_create_audittrail.actie, "create")
         self.assertEqual(gebruiksrechten_create_audittrail.resultaat, 201)
         self.assertEqual(gebruiksrechten_create_audittrail.oud, None)
@@ -123,7 +129,9 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # Verify that the audittrail for the Gebruiksrechten deletion
         # contains the correct information
         gebruiksrechten_delete_audittrail = audittrails[1]
-        self.assertEqual(gebruiksrechten_delete_audittrail.bron, "DRC")
+        self.assertEqual(
+            gebruiksrechten_delete_audittrail.bron, AUDIT_DRC.component_name
+        )
         self.assertEqual(gebruiksrechten_delete_audittrail.actie, "destroy")
         self.assertEqual(gebruiksrechten_delete_audittrail.resultaat, 204)
         self.assertEqual(
@@ -168,7 +176,9 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # Verify that the audittrail for the EnkelvoudigInformatieObject update
         # contains the correct information
         informatieobject_update_audittrail = audittrails[1]
-        self.assertEqual(informatieobject_update_audittrail.bron, "DRC")
+        self.assertEqual(
+            informatieobject_update_audittrail.bron, AUDIT_DRC.component_name
+        )
         self.assertEqual(informatieobject_update_audittrail.actie, "update")
         self.assertEqual(informatieobject_update_audittrail.resultaat, 200)
 
@@ -209,7 +219,9 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # Verify that the audittrail for the EnkelvoudigInformatieObject
         # partial update contains the correct information
         informatieobject_partial_update_audittrail = audittrails[1]
-        self.assertEqual(informatieobject_partial_update_audittrail.bron, "DRC")
+        self.assertEqual(
+            informatieobject_partial_update_audittrail.bron, AUDIT_DRC.component_name
+        )
 
         # XXX: tracking down the Heisenbug
         if informatieobject_partial_update_audittrail.actie != "partial_update":
@@ -363,7 +375,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             hoofd_object=response.data["enkelvoudiginformatieobject"]["url"]
         ).get()
 
-        self.assertEqual(eio_audittrail.bron, "DRC")
+        self.assertEqual(eio_audittrail.bron, AUDIT_DRC.component_name)
         self.assertEqual(eio_audittrail.actie, "create")
         self.assertEqual(eio_audittrail.resource, "enkelvoudiginformatieobject")
         self.assertEqual(eio_audittrail.oud, None)
@@ -375,7 +387,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             hoofd_object=response.data["zaakinformatieobject"]["zaak"]
         ).get()
 
-        self.assertEqual(zio_audittrail.bron, "ZRC")
+        self.assertEqual(zio_audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(zio_audittrail.actie, "create")
         self.assertEqual(zio_audittrail.resource, "zaakinformatieobject")
         self.assertEqual(zio_audittrail.oud, None)

@@ -36,6 +36,11 @@ from vng_api_common.constants import ComponentTypes
 
 from openzaak.utils.permissions import AuthScopesRequired
 
+from ..utils.namespacing import (
+    get_nested_main_object_url_from_dict,
+    get_nested_main_object_url_from_instance,
+    replace_namespaces,
+)
 from .kanaal import Kanaal
 from .scopes import SCOPE_CLOUDEVENTS_BEZORGEN
 
@@ -148,25 +153,6 @@ class MultipleChannelNotificationMixin(NotificationMixin):
     notifications_main_resource_keys: dict[str, str] | None = None
     notifications_replace_urls_for: list[str] | None = None
 
-    def _get_nested_main_object_url_from_instance(
-        self, key: str, instance: models.Model
-    ) -> str | None:
-        """Returns the url of a nested FK field"""
-        obj = instance
-        for field in key.split("."):
-            obj = getattr(obj, field, None)
-        return obj.get_absolute_api_url(request=self.request) if obj else None
-
-    def _get_nested_main_object_url_from_dict(
-        self, key: str, data: object
-    ) -> str | None:
-        """Returns a nested url field from a dict"""
-        for field in key.split("."):
-            if not isinstance(data, dict):
-                raise KeyError
-            data = data.get(field)
-        return data if isinstance(data, str) else None
-
     def _get_nested_main_object_url(
         self,
         key: str,  # format a.b.c
@@ -175,33 +161,15 @@ class MultipleChannelNotificationMixin(NotificationMixin):
         """returns the nested url key field from an instance or dict"""
         url = None
         if isinstance(main_object_resource, dict):
-            url = self._get_nested_main_object_url_from_dict(key, main_object_resource)
+            url = get_nested_main_object_url_from_dict(key, main_object_resource)
 
         elif isinstance(main_object_resource, models.Model):
-            url = self._get_nested_main_object_url_from_instance(
-                key, main_object_resource
+            url = get_nested_main_object_url_from_instance(
+                key, main_object_resource, self.request
             )
 
         final_key = key.split(".")[-1]
         return {final_key: url} if url else None
-
-    def _replace_namespace(self, url: str, namespace: str) -> str:
-        prefix, sep, rest = url.partition("/api")
-        if not sep:
-            return url
-
-        base, _, old_namespace = prefix.rpartition("/")
-        return f"{base}/{namespace}{sep}{rest}"
-
-    def _replace_urls(
-        self, replace_urls_for: list[str] | None, data: dict, namespace: str
-    ) -> None:
-        if replace_urls_for is None:
-            replace_urls_for = []
-        replace_urls_for.append("url")
-
-        for field in replace_urls_for:
-            data[field] = self._replace_namespace(data[field], namespace)
 
     def _iter_kanalen(
         self,
@@ -212,7 +180,8 @@ class MultipleChannelNotificationMixin(NotificationMixin):
         main_resource_keys: dict[str, str] | None = None,
         main_object_resource: models.Model | dict | None = None,
     ) -> Generator[tuple[Kanaal, dict], None, None]:
-        notification_data = data.copy()
+        fields = ["url"] + (replace_urls_for or [])
+
         for kanaal_config in kanaal_configs:
             if (
                 kanaal_config.get("deprecated", False)
@@ -221,6 +190,7 @@ class MultipleChannelNotificationMixin(NotificationMixin):
                 continue
             kanaal = kanaal_config["kanaal"]
             namespace = kanaal_config.get("namespace", kanaal.label)
+            notification_data = replace_namespaces(data, fields, namespace)
             # if model == main_resource the url field is used which is always set
             # if the model is not main_resource it can be port of notification_data or from a related model.
             # No notification should be sent if the main resource is not set (because it's not required on the model).
@@ -251,8 +221,6 @@ class MultipleChannelNotificationMixin(NotificationMixin):
                         continue
                     else:
                         notification_data.update(url_data)
-
-            self._replace_urls(replace_urls_for, notification_data, namespace)
 
             yield kanaal, notification_data
 

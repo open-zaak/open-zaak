@@ -13,6 +13,7 @@ from vng_api_common.audittrails.models import AuditTrail
 from openzaak.components.documenten.models import Gebruiksrechten
 from openzaak.tests.utils import AdminTestMixin
 
+from ...api.audits import AUDIT_DRC
 from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
 from ..utils import get_operation_url
 
@@ -49,7 +50,7 @@ class GebruiksrechtenAdminTests(AdminTestMixin, TestCase):
 
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "DRC")
+        self.assertEqual(audittrail.bron, AUDIT_DRC.component_name)
         self.assertEqual(audittrail.actie, "create")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
@@ -99,7 +100,7 @@ class GebruiksrechtenAdminTests(AdminTestMixin, TestCase):
         gebruiksrechten.refresh_from_db()
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "DRC")
+        self.assertEqual(audittrail.bron, AUDIT_DRC.component_name)
         self.assertEqual(audittrail.actie, "update")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
@@ -147,7 +148,7 @@ class GebruiksrechtenAdminTests(AdminTestMixin, TestCase):
 
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "DRC")
+        self.assertEqual(audittrail.bron, AUDIT_DRC.component_name)
         self.assertEqual(audittrail.actie, "destroy")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
@@ -195,7 +196,7 @@ class GebruiksrechtenAdminTests(AdminTestMixin, TestCase):
 
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "DRC")
+        self.assertEqual(audittrail.bron, AUDIT_DRC.component_name)
         self.assertEqual(audittrail.actie, "destroy")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")

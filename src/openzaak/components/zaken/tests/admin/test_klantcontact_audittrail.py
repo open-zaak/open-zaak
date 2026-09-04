@@ -12,6 +12,7 @@ from vng_api_common.audittrails.models import AuditTrail
 from openzaak.components.zaken.models import KlantContact
 from openzaak.tests.utils import AdminTestMixin
 
+from ...api.audits import AUDIT_ZRC
 from ..factories import KlantContactFactory, ZaakFactory
 from ..utils import get_operation_url
 
@@ -47,7 +48,7 @@ class KlantContactAdminTests(AdminTestMixin, TestCase):
 
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "ZRC")
+        self.assertEqual(audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(audittrail.actie, "create")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
@@ -89,7 +90,7 @@ class KlantContactAdminTests(AdminTestMixin, TestCase):
         klantcontact.refresh_from_db()
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "ZRC")
+        self.assertEqual(audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(audittrail.actie, "update")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
@@ -127,7 +128,7 @@ class KlantContactAdminTests(AdminTestMixin, TestCase):
 
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "ZRC")
+        self.assertEqual(audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(audittrail.actie, "destroy")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
@@ -162,7 +163,7 @@ class KlantContactAdminTests(AdminTestMixin, TestCase):
 
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "ZRC")
+        self.assertEqual(audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(audittrail.actie, "destroy")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
