@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from collections import defaultdict
 
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 
@@ -71,11 +70,6 @@ class AuthorizationsFilterMixin:
         use_va=True,
     ) -> Q:
         prefix = self.prefix
-        fk_field = (
-            f"_{self.fk_field}"
-            if getattr(self, "allow_external", False)
-            else self.fk_field
-        )  # TODO needed for iot now
 
         fk_objecten = []
         # build the case/when to map the max_vertrouwelijkheidaanduiding based
@@ -112,7 +106,7 @@ class AuthorizationsFilterMixin:
                         va_mapping[choice_item_order].append(instance)
 
         if not use_va:
-            return Q(**{f"{prefix}{fk_field}__in": fk_objecten})
+            return Q(**{f"{prefix}{self.fk_field}__in": fk_objecten})
 
         # Combine the filters: group the minimum required confidentiality with
         # the instances (zaaktypen/informatieobjecttypen) for which this constraint
@@ -120,7 +114,7 @@ class AuthorizationsFilterMixin:
         filters = Q()
         for max_va, instances in va_mapping.items():
             filters |= Q(_va_order__lte=max_va) & Q(
-                **{f"{prefix}{fk_field}__in": instances}
+                **{f"{prefix}{self.fk_field}__in": instances}
             )
         return filters
 
