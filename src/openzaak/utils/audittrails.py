@@ -13,6 +13,8 @@ from vng_api_common.audittrails.viewsets import (
 )
 from vng_api_common.constants import CommonResourceAction
 
+from openzaak.components.besluiten.api.audits import AUDIT_BRC
+from openzaak.components.zaken.api.audits import AUDIT_ZRC
 from openzaak.utils.namespacing import (
     get_nested_main_object_url_from_instance,
     replace_namespaces,
@@ -24,7 +26,7 @@ class MultipleAuditTrailsMixin(AuditTrailMixin):
     audittrail_main_resource_keys: dict[str, str]
     audittrail_replace_urls_for: list[str] | None = None
 
-    _AUDIT_NAMESPACE_MAPPING = {"BRC": "besluiten", "ZRC": "zaken"}
+    _AUDIT_NAMESPACE_MAPPING = {AUDIT_BRC: "besluiten", AUDIT_ZRC: "zaken"}
 
     def _get_audittrail_main_object_url(
         self, data: dict, audit: Audit, instance: Type[models.Model], basename: str
@@ -58,14 +60,14 @@ class MultipleAuditTrailsMixin(AuditTrailMixin):
             version_before_edit = replace_namespaces(
                 version_before_edit,
                 fields,
-                self._AUDIT_NAMESPACE_MAPPING[audit.component_name],
+                self._AUDIT_NAMESPACE_MAPPING[audit],
             )
 
         if version_after_edit:
             version_after_edit = replace_namespaces(
                 version_after_edit,
                 fields,
-                self._AUDIT_NAMESPACE_MAPPING[audit.component_name],
+                self._AUDIT_NAMESPACE_MAPPING[audit],
             )
 
         data = version_after_edit or version_before_edit

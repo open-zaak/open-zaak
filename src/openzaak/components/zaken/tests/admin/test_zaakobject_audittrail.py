@@ -10,6 +10,7 @@ from openzaak.components.catalogi.tests.factories import ZaakObjectTypeFactory
 from openzaak.components.zaken.models import ZaakObject
 from openzaak.tests.utils import AdminTestMixin
 
+from ...api.audits import AUDIT_ZRC
 from ..factories import ZaakFactory, ZaakObjectFactory
 from ..utils import get_operation_url
 
@@ -48,7 +49,7 @@ class ZaakObjectAdminTests(AdminTestMixin, WebTest):
 
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "ZRC")
+        self.assertEqual(audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(audittrail.actie, "create")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
@@ -84,7 +85,7 @@ class ZaakObjectAdminTests(AdminTestMixin, WebTest):
         zaakobject.refresh_from_db()
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "ZRC")
+        self.assertEqual(audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(audittrail.actie, "update")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
@@ -120,7 +121,7 @@ class ZaakObjectAdminTests(AdminTestMixin, WebTest):
 
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "ZRC")
+        self.assertEqual(audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(audittrail.actie, "destroy")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
@@ -154,7 +155,7 @@ class ZaakObjectAdminTests(AdminTestMixin, WebTest):
 
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "ZRC")
+        self.assertEqual(audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(audittrail.actie, "destroy")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")

@@ -23,8 +23,10 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
+from ...zaken.api.audits import AUDIT_ZRC
 from ...zaken.models import Zaak
 from ...zaken.tests.factories import ZaakFactory
+from ..api.audits import AUDIT_BRC
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory
 
@@ -73,7 +75,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # information
         besluit_create_audittrail = audittrails.get()
         besluit = Besluit.objects.get()
-        self.assertEqual(besluit_create_audittrail.bron, "BRC")
+        self.assertEqual(besluit_create_audittrail.bron, AUDIT_BRC.component_name)
         self.assertEqual(besluit_create_audittrail.actie, "create")
         self.assertEqual(besluit_create_audittrail.resultaat, 201)
         self.assertEqual(besluit_create_audittrail.oud, None)
@@ -93,7 +95,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         audittrails = AuditTrail.objects
         self.assertEqual(audittrails.count(), 2)
 
-        besluiten_create_audittrail = audittrails.get(bron="BRC")
+        besluiten_create_audittrail = audittrails.get(bron=AUDIT_BRC.component_name)
         self.assertEqual(besluiten_create_audittrail.actie, "create")
         self.assertEqual(besluiten_create_audittrail.resultaat, 201)
         self.assertEqual(
@@ -111,7 +113,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             | {"url": f"http://testserver{reverse(besluit, namespace='besluiten')}"},
         )
 
-        zaken_create_audittrail = audittrails.get(bron="ZRC")
+        zaken_create_audittrail = audittrails.get(bron=AUDIT_ZRC.component_name)
         self.assertEqual(zaken_create_audittrail.actie, "create")
         self.assertEqual(zaken_create_audittrail.resultaat, 201)
         self.assertEqual(
@@ -147,7 +149,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # information
         besluit_update_audittrail = audittrails.last()
         besluit = Besluit.objects.get()
-        self.assertEqual(besluit_update_audittrail.bron, "BRC")
+        self.assertEqual(besluit_update_audittrail.bron, AUDIT_BRC.component_name)
         self.assertEqual(besluit_update_audittrail.actie, "update")
         self.assertEqual(besluit_update_audittrail.resultaat, 200)
         self.assertEqual(
@@ -175,7 +177,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # Verify that the audittrail for the Besluit partial_update contains the
         # correct information
         besluit_update_audittrail = audittrails.last()
-        self.assertEqual(besluit_update_audittrail.bron, "BRC")
+        self.assertEqual(besluit_update_audittrail.bron, AUDIT_BRC.component_name)
         self.assertEqual(besluit_update_audittrail.actie, "partial_update")
         self.assertEqual(besluit_update_audittrail.resultaat, 200)
         self.assertEqual(
@@ -207,7 +209,9 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
         # Verify that the audittrail for the Besluit partial_update contains the
         # correct information
-        besluit_update_audittrail = audittrails.get(bron="BRC", actie="partial_update")
+        besluit_update_audittrail = audittrails.get(
+            bron=AUDIT_BRC.component_name, actie="partial_update"
+        )
         self.assertEqual(besluit_update_audittrail.resultaat, 200)
         self.assertEqual(
             besluit_update_audittrail.oud,
@@ -228,7 +232,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             f"http://testserver{reverse(besluit, namespace='besluiten')}",
         )
 
-        zaken_update_audittrail = audittrails.get(bron="ZRC")
+        zaken_update_audittrail = audittrails.get(bron=AUDIT_ZRC.component_name)
         self.assertEqual(zaken_update_audittrail.actie, "partial_update")
         self.assertEqual(zaken_update_audittrail.resultaat, 200)
         self.assertEqual(
@@ -279,7 +283,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # Verify that the audittrail for the BesluitInformatieObject creation
         # contains the correct information
         bio_create_audittrail = audittrails.last()
-        self.assertEqual(bio_create_audittrail.bron, "BRC")
+        self.assertEqual(bio_create_audittrail.bron, AUDIT_BRC.component_name)
         self.assertEqual(bio_create_audittrail.actie, "create")
         self.assertEqual(bio_create_audittrail.resultaat, 201)
         self.assertEqual(bio_create_audittrail.oud, None)
@@ -324,7 +328,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # Verify that the audittrail for the BesluitInformatieObject creation
         # contains the correct information
         bio_create_audittrail = audittrails.get(
-            bron="BRC", resource="besluitinformatieobject"
+            bron=AUDIT_BRC.component_name, resource="besluitinformatieobject"
         )
         self.assertEqual(bio_create_audittrail.actie, "create")
         self.assertEqual(bio_create_audittrail.resultaat, 201)
@@ -336,7 +340,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         )
 
         bio_zrc_create_audittrail = audittrails.get(
-            bron="ZRC", resource="besluitinformatieobject"
+            bron=AUDIT_ZRC.component_name, resource="besluitinformatieobject"
         )
         self.assertEqual(bio_zrc_create_audittrail.actie, "create")
         self.assertEqual(bio_zrc_create_audittrail.resultaat, 201)
@@ -401,7 +405,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
         besluit = Besluit.objects.get()
 
-        self.assertEqual(besluit_audittrail.bron, "BRC")
+        self.assertEqual(besluit_audittrail.bron, AUDIT_BRC.component_name)
         self.assertEqual(besluit_audittrail.actie, "create")
         self.assertEqual(besluit_audittrail.oud, None)
         self.assertEqual(
@@ -415,7 +419,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         )
 
         for trail in AuditTrail.objects.filter(resource="besluitinformatieobject"):
-            self.assertEqual(trail.bron, "BRC")
+            self.assertEqual(trail.bron, AUDIT_BRC.component_name)
             self.assertEqual(trail.actie, "create")
             self.assertEqual(trail.oud, None)
             self.assertEqual(
@@ -470,7 +474,9 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(AuditTrail.objects.count(), 6)
 
-        besluit_brc_audittrail = AuditTrail.objects.get(resource="besluit", bron="BRC")
+        besluit_brc_audittrail = AuditTrail.objects.get(
+            resource="besluit", bron=AUDIT_BRC.component_name
+        )
 
         besluit = Besluit.objects.get()
 
@@ -482,7 +488,9 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             f"http://testserver{reverse(besluit, namespace='besluiten')}",
         )
 
-        besluit_zrc_audittrail = AuditTrail.objects.get(resource="besluit", bron="ZRC")
+        besluit_zrc_audittrail = AuditTrail.objects.get(
+            resource="besluit", bron=AUDIT_ZRC.component_name
+        )
 
         self.assertEqual(besluit_zrc_audittrail.actie, "create")
         self.assertEqual(besluit_zrc_audittrail.oud, None)
@@ -496,7 +504,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         )
 
         for brc_bio_trail in AuditTrail.objects.filter(
-            resource="besluitinformatieobject", bron="BRC"
+            resource="besluitinformatieobject", bron=AUDIT_BRC.component_name
         ):
             self.assertEqual(brc_bio_trail.actie, "create")
             self.assertEqual(brc_bio_trail.oud, None)
@@ -510,7 +518,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             self.assertIn("besluiten/api/v1/besluiten", brc_bio_trail.nieuw["besluit"])
 
         for zrc_bio_trail in AuditTrail.objects.filter(
-            resource="besluitinformatieobject", bron="ZRC"
+            resource="besluitinformatieobject", bron=AUDIT_ZRC.component_name
         ):
             self.assertEqual(zrc_bio_trail.actie, "create")
             self.assertEqual(zrc_bio_trail.oud, None)
@@ -547,7 +555,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(audittrails.count(), 2)
 
         zrc_delete_trail = audittrails.get(actie="destroy")
-        self.assertEqual(zrc_delete_trail.bron, "ZRC")
+        self.assertEqual(zrc_delete_trail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(zrc_delete_trail.hoofd_object, f"http://testserver{zaak_url}")
 
     def test_delete_besluitinformatieobject(self):
@@ -579,7 +587,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(audittrails.count(), 3)
 
         bio_delete_trail = audittrails.get(actie="destroy")
-        self.assertEqual(bio_delete_trail.bron, "BRC")
+        self.assertEqual(bio_delete_trail.bron, AUDIT_BRC.component_name)
 
     def test_delete_besluitinformatieobject_with_zaak(self):
         zaak = ZaakFactory.create()
@@ -611,7 +619,9 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         audittrails = AuditTrail.objects
         self.assertEqual(audittrails.count(), 6)
 
-        bio_delete_trail = audittrails.get(actie="destroy", bron="ZRC")
+        bio_delete_trail = audittrails.get(
+            actie="destroy", bron=AUDIT_ZRC.component_name
+        )
         self.assertEqual(
             bio_delete_trail.oud,
             bio_data

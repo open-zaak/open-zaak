@@ -154,7 +154,7 @@ cloudevents==1.12.0
     #   -r requirements/base.txt
 codecov==2.1.13
     # via -r requirements/test-tools.in
-commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@0d24d37625484211ad0f46cdd4093fe478cfdb66
+commonground-api-common==2.15.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

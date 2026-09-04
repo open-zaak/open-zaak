@@ -34,6 +34,7 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
+from ..api.audits import AUDIT_ZRC
 from ..models import Resultaat, Rol, Zaak, ZaakInformatieObject, ZaakObject
 from .factories import RolFactory, ZaakFactory, ZaakObjectFactory
 from .test_rol import BETROKKENE
@@ -72,7 +73,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # Verify that the audittrail for the Zaak creation contains the correct
         # information
         zaak_create_audittrail = audittrails.get()
-        self.assertEqual(zaak_create_audittrail.bron, "ZRC")
+        self.assertEqual(zaak_create_audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(zaak_create_audittrail.actie, "create")
         self.assertEqual(zaak_create_audittrail.resultaat, 201)
         self.assertEqual(zaak_create_audittrail.oud, None)
@@ -179,7 +180,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
         zaak_audittrail = AuditTrail.objects.get(resource="zaak")
 
-        self.assertEqual(zaak_audittrail.bron, "ZRC")
+        self.assertEqual(zaak_audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(zaak_audittrail.actie, "create")
         self.assertEqual(zaak_audittrail.oud, None)
         self.assertEqual(zaak_audittrail.nieuw, response.data["zaak"])
@@ -187,7 +188,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
         status_audittrail = AuditTrail.objects.get(resource="status")
 
-        self.assertEqual(status_audittrail.bron, "ZRC")
+        self.assertEqual(status_audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(status_audittrail.actie, "create")
         self.assertEqual(status_audittrail.resource, "status")
         self.assertEqual(status_audittrail.oud, None)
@@ -195,17 +196,17 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(status_audittrail.hoofd_object, response.data["zaak"]["url"])
 
         for trail in AuditTrail.objects.filter(resource="rol"):
-            self.assertEqual(trail.bron, "ZRC")
+            self.assertEqual(trail.bron, AUDIT_ZRC.component_name)
             self.assertEqual(trail.actie, "create")
             self.assertEqual(trail.oud, None)
 
         for trail in AuditTrail.objects.filter(resource="zaakobject"):
-            self.assertEqual(trail.bron, "ZRC")
+            self.assertEqual(trail.bron, AUDIT_ZRC.component_name)
             self.assertEqual(trail.actie, "create")
             self.assertEqual(trail.oud, None)
 
         for trail in AuditTrail.objects.filter(resource="zaakinformatieobject"):
-            self.assertEqual(trail.bron, "ZRC")
+            self.assertEqual(trail.bron, AUDIT_ZRC.component_name)
             self.assertEqual(trail.actie, "create")
             self.assertEqual(trail.oud, None)
 
@@ -233,7 +234,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # Verify that the audittrail for the Resultaat creation contains the
         # correct information
         resultaat_create_audittrail = audittrails[1]
-        self.assertEqual(resultaat_create_audittrail.bron, "ZRC")
+        self.assertEqual(resultaat_create_audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(resultaat_create_audittrail.actie, "create")
         self.assertEqual(resultaat_create_audittrail.resultaat, 201)
         self.assertEqual(resultaat_create_audittrail.oud, None)
@@ -245,7 +246,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # Verify that the audittrail for the Resultaat deletion contains the
         # correct information
         resultaat_delete_audittrail = audittrails[2]
-        self.assertEqual(resultaat_delete_audittrail.bron, "ZRC")
+        self.assertEqual(resultaat_delete_audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(resultaat_delete_audittrail.actie, "destroy")
         self.assertEqual(resultaat_delete_audittrail.resultaat, 204)
         self.assertEqual(resultaat_delete_audittrail.oud, resultaat_response)
@@ -271,7 +272,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # Verify that the audittrail for the Zaak update contains the correct
         # information
         zaak_update_audittrail = audittrails[1]
-        self.assertEqual(zaak_update_audittrail.bron, "ZRC")
+        self.assertEqual(zaak_update_audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(zaak_update_audittrail.actie, "update")
         self.assertEqual(zaak_update_audittrail.resultaat, 200)
         self.assertEqual(zaak_update_audittrail.oud, zaak_data)
@@ -293,7 +294,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # Verify that the audittrail for the Zaak partial_update contains the
         # correct information
         zaak_update_audittrail = audittrails[1]
-        self.assertEqual(zaak_update_audittrail.bron, "ZRC")
+        self.assertEqual(zaak_update_audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(zaak_update_audittrail.actie, "partial_update")
         self.assertEqual(zaak_update_audittrail.resultaat, 200)
         self.assertEqual(zaak_update_audittrail.oud, zaak_data)
@@ -337,7 +338,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             resource="zaak", actie="partial_update"
         )
 
-        self.assertEqual(zaak_audittrail.bron, "ZRC")
+        self.assertEqual(zaak_audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(zaak_audittrail.oud, zaak_data)
         self.assertEqual(zaak_audittrail.nieuw, response.data["zaak"])
         self.assertEqual(zaak_audittrail.hoofd_object, response.data["zaak"]["url"])
@@ -347,7 +348,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
         status_audittrail = AuditTrail.objects.get(resource="status")
 
-        self.assertEqual(status_audittrail.bron, "ZRC")
+        self.assertEqual(status_audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(status_audittrail.actie, "create")
         self.assertEqual(status_audittrail.resource, "status")
         self.assertEqual(status_audittrail.oud, None)
@@ -411,14 +412,14 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             resource="zaak", actie="partial_update"
         )
 
-        self.assertEqual(zaak_audittrail.bron, "ZRC")
+        self.assertEqual(zaak_audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(zaak_audittrail.oud, zaak_data)
         self.assertEqual(zaak_audittrail.nieuw, response.data["zaak"])
         self.assertEqual(zaak_audittrail.hoofd_object, response.data["zaak"]["url"])
 
         status_audittrail = AuditTrail.objects.get(resource="status")
 
-        self.assertEqual(status_audittrail.bron, "ZRC")
+        self.assertEqual(status_audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(status_audittrail.actie, "create")
         self.assertEqual(status_audittrail.resource, "status")
         self.assertEqual(status_audittrail.oud, None)
@@ -426,7 +427,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(status_audittrail.hoofd_object, response.data["zaak"]["url"])
 
         for trail in AuditTrail.objects.filter(resource="rol"):
-            self.assertEqual(trail.bron, "ZRC")
+            self.assertEqual(trail.bron, AUDIT_ZRC.component_name)
             self.assertEqual(trail.actie, "create")
             self.assertEqual(trail.oud, None)
 
@@ -585,7 +586,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         zaak_audittrail = AuditTrail.objects.get(
             resource="zaak", actie="partial_update"
         )
-        self.assertEqual(zaak_audittrail.bron, "ZRC")
+        self.assertEqual(zaak_audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(zaak_audittrail.oud, zaak_data)
         self.assertEqual(zaak_audittrail.nieuw, response.data["zaak"])
         self.assertEqual(zaak_audittrail.hoofd_object, response.data["zaak"]["url"])
@@ -598,7 +599,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         )
 
         resultaat_audittrail = AuditTrail.objects.get(resource="resultaat")
-        self.assertEqual(resultaat_audittrail.bron, "ZRC")
+        self.assertEqual(resultaat_audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(resultaat_audittrail.actie, "create")
         self.assertEqual(resultaat_audittrail.oud, None)
         self.assertEqual(resultaat_audittrail.nieuw, response.data["resultaat"])
@@ -607,7 +608,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         )
 
         status_audittrail = AuditTrail.objects.get(resource="status")
-        self.assertEqual(status_audittrail.bron, "ZRC")
+        self.assertEqual(status_audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(status_audittrail.actie, "create")
         self.assertEqual(status_audittrail.oud, None)
         self.assertEqual(status_audittrail.nieuw, response.data["status"])
@@ -651,14 +652,14 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             resource="zaak", actie="partial_update"
         )
 
-        self.assertEqual(zaak_audittrail.bron, "ZRC")
+        self.assertEqual(zaak_audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(zaak_audittrail.oud, zaak_data)
         self.assertEqual(zaak_audittrail.nieuw, response.data["zaak"])
         self.assertEqual(zaak_audittrail.hoofd_object, response.data["zaak"]["url"])
 
         status_audittrail = AuditTrail.objects.get(resource="status")
 
-        self.assertEqual(status_audittrail.bron, "ZRC")
+        self.assertEqual(status_audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(status_audittrail.actie, "create")
         self.assertEqual(status_audittrail.resource, "status")
         self.assertEqual(status_audittrail.oud, None)
@@ -694,7 +695,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # Verify that the audittrail for the ZaakInformatieObject creation
         # contains the correct information
         zio_create_audittrail = audittrails[1]
-        self.assertEqual(zio_create_audittrail.bron, "ZRC")
+        self.assertEqual(zio_create_audittrail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(zio_create_audittrail.actie, "create")
         self.assertEqual(zio_create_audittrail.resultaat, 201)
         self.assertEqual(zio_create_audittrail.oud, None)

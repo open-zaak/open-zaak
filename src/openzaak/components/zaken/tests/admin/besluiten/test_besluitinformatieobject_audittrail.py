@@ -8,6 +8,7 @@ from django.urls import reverse as django_reverse
 from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.audittrails.models import AuditTrail
 
+from openzaak.components.besluiten.api.audits import AUDIT_BRC
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
@@ -16,6 +17,7 @@ from openzaak.components.besluiten.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.components.zaken.api.audits import AUDIT_ZRC
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.tests.utils import AdminTestMixin
 from openzaak.utils.urls import reverse
@@ -45,7 +47,7 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
 
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "BRC")
+        self.assertEqual(audittrail.bron, AUDIT_BRC.component_name)
         self.assertEqual(audittrail.actie, "create")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
@@ -87,7 +89,7 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
 
         self.assertEqual(AuditTrail.objects.count(), 2)
 
-        brc_audittrail = AuditTrail.objects.get(bron="BRC")
+        brc_audittrail = AuditTrail.objects.get(bron=AUDIT_BRC.component_name)
         self.assertEqual(brc_audittrail.actie, "create")
         self.assertEqual(brc_audittrail.resultaat, 0)
         self.assertEqual(brc_audittrail.applicatie_weergave, "admin")
@@ -111,7 +113,7 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
             f"http://testserver{reverse(besluit, namespace='besluiten')}",
         )
 
-        zrc_audittrail = AuditTrail.objects.get(bron="ZRC")
+        zrc_audittrail = AuditTrail.objects.get(bron=AUDIT_ZRC.component_name)
         self.assertEqual(zrc_audittrail.actie, "create")
         self.assertEqual(zrc_audittrail.resultaat, 0)
         self.assertEqual(zrc_audittrail.applicatie_weergave, "admin")
@@ -154,7 +156,7 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
         bio.refresh_from_db()
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "BRC")
+        self.assertEqual(audittrail.bron, AUDIT_BRC.component_name)
         self.assertEqual(audittrail.actie, "update")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
@@ -203,7 +205,7 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
 
         bio.refresh_from_db()
 
-        audittrail = AuditTrail.objects.get(bron="BRC")
+        audittrail = AuditTrail.objects.get(bron=AUDIT_BRC.component_name)
         self.assertEqual(audittrail.actie, "update")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
@@ -231,7 +233,7 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
             f"http://testserver{reverse(besluit_new, namespace='besluiten')}",
         )
 
-        audittrail = AuditTrail.objects.get(bron="ZRC")
+        audittrail = AuditTrail.objects.get(bron=AUDIT_ZRC.component_name)
         self.assertEqual(audittrail.actie, "update")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
@@ -276,7 +278,7 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
 
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "BRC")
+        self.assertEqual(audittrail.bron, AUDIT_BRC.component_name)
         self.assertEqual(audittrail.actie, "destroy")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
@@ -314,7 +316,7 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
 
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "BRC")
+        self.assertEqual(audittrail.bron, AUDIT_BRC.component_name)
         self.assertEqual(audittrail.actie, "destroy")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
@@ -354,7 +356,7 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(BesluitInformatieObject.objects.count(), 0)
         self.assertEqual(AuditTrail.objects.count(), 2)
 
-        brc_audittrail = AuditTrail.objects.get(bron="BRC")
+        brc_audittrail = AuditTrail.objects.get(bron=AUDIT_BRC.component_name)
         self.assertEqual(brc_audittrail.actie, "destroy")
         self.assertEqual(brc_audittrail.resultaat, 0)
         self.assertEqual(brc_audittrail.applicatie_weergave, "admin")
@@ -379,7 +381,7 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
             f"http://testserver{reverse(bio.besluit, namespace='besluiten')}",
         )
 
-        zrc_audittrail = AuditTrail.objects.get(bron="ZRC")
+        zrc_audittrail = AuditTrail.objects.get(bron=AUDIT_ZRC.component_name)
         self.assertEqual(zrc_audittrail.actie, "destroy")
         self.assertEqual(zrc_audittrail.resultaat, 0)
         self.assertEqual(zrc_audittrail.applicatie_weergave, "admin")

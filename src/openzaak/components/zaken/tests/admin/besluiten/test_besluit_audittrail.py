@@ -9,9 +9,11 @@ from django.urls import reverse as django_reverse
 from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.audittrails.models import AuditTrail
 
+from openzaak.components.besluiten.api.audits import AUDIT_BRC
 from openzaak.components.besluiten.models import Besluit
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
+from openzaak.components.zaken.api.audits import AUDIT_ZRC
 from openzaak.components.zaken.models import Zaak
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.tests.utils import AdminTestMixin
@@ -62,7 +64,7 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
 
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "BRC")
+        self.assertEqual(audittrail.bron, AUDIT_BRC.component_name)
         self.assertEqual(audittrail.actie, "create")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
@@ -90,7 +92,7 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
 
         self.assertEqual(AuditTrail.objects.count(), 2)
 
-        brc_audittrail = AuditTrail.objects.get(bron="BRC")
+        brc_audittrail = AuditTrail.objects.get(bron=AUDIT_BRC.component_name)
         self.assertEqual(brc_audittrail.actie, "create")
         self.assertEqual(brc_audittrail.resultaat, 0)
         self.assertEqual(brc_audittrail.applicatie_weergave, "admin")
@@ -114,7 +116,7 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
         new_data = brc_audittrail.nieuw
         self.assertEqual(new_data["toelichting"], "desc")
 
-        zrc_audittrail = AuditTrail.objects.get(bron="ZRC")
+        zrc_audittrail = AuditTrail.objects.get(bron=AUDIT_ZRC.component_name)
         self.assertEqual(zrc_audittrail.actie, "create")
         self.assertEqual(zrc_audittrail.resultaat, 0)
         self.assertEqual(zrc_audittrail.applicatie_weergave, "admin")
@@ -160,7 +162,7 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
         besluit.refresh_from_db()
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "BRC")
+        self.assertEqual(audittrail.bron, AUDIT_BRC.component_name)
         self.assertEqual(audittrail.actie, "update")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
@@ -189,7 +191,7 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
         )
         data = {
             "uuid": besluit.uuid,
-            "_besluittype": besluit._besluittype.id,
+            "besluittype": besluit.besluittype.id,
             "verantwoordelijke_organisatie": besluit.verantwoordelijke_organisatie,
             "datum": besluit.datum,
             "ingangsdatum": "15-11-2019",
@@ -204,7 +206,7 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
 
         besluit.refresh_from_db()
 
-        brc_audittrail = AuditTrail.objects.get(bron="BRC")
+        brc_audittrail = AuditTrail.objects.get(bron=AUDIT_BRC.component_name)
         self.assertEqual(brc_audittrail.actie, "update")
         self.assertEqual(brc_audittrail.resultaat, 0)
         self.assertEqual(brc_audittrail.applicatie_weergave, "admin")
@@ -227,7 +229,7 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(old_data["toelichting"], "old")
         self.assertEqual(new_data["toelichting"], "new")
 
-        zrc_audittrail = AuditTrail.objects.get(bron="ZRC")
+        zrc_audittrail = AuditTrail.objects.get(bron=AUDIT_ZRC.component_name)
         self.assertEqual(zrc_audittrail.actie, "update")
         self.assertEqual(zrc_audittrail.resultaat, 0)
         self.assertEqual(zrc_audittrail.applicatie_weergave, "admin")
@@ -297,7 +299,7 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(AuditTrail.objects.count(), 2)
 
         zrc_delete_trail = AuditTrail.objects.get(actie="destroy")
-        self.assertEqual(zrc_delete_trail.bron, "ZRC")
+        self.assertEqual(zrc_delete_trail.bron, AUDIT_ZRC.component_name)
         self.assertEqual(
             zrc_delete_trail.hoofd_object,
             f"http://testserver{reverse(zaak, namespace='zaken')}",

@@ -7,6 +7,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.tests import get_validation_errors
 
+from openzaak.components.besluiten.api.audits import AUDIT_BRC
 from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
@@ -252,7 +253,7 @@ class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
         besluit_url = reverse(besluit)
 
         with self.subTest("audittrail model"):
-            self.assertEqual(audittrail.bron, "BRC")
+            self.assertEqual(audittrail.bron, AUDIT_BRC.component_name)
             self.assertEqual(audittrail.actie, "create")
             self.assertEqual(audittrail.resultaat, 201)
             self.assertEqual(audittrail.hoofd_object, f"http://testserver{besluit_url}")
@@ -272,7 +273,7 @@ class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
 
             data = response.json()[0]
 
-            self.assertEqual(data["bron"], "BRC")
+            self.assertEqual(data["bron"], AUDIT_BRC.component_name)
             self.assertEqual(data["hoofdObject"], f"http://testserver{besluit_url}")
             self.assertEqual(data["resourceUrl"], f"http://testserver{besluit_url}")
             self.assertEqual(
@@ -309,7 +310,7 @@ class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
 
             data = response.json()[0]
 
-            self.assertEqual(data["bron"], "BRC")
+            self.assertEqual(data["bron"], AUDIT_BRC.component_name)
             self.assertEqual(data["hoofdObject"], f"http://testserver{besluit_url}")
             self.assertEqual(data["resourceUrl"], f"http://testserver{besluit_url}")
             self.assertEqual(
@@ -346,7 +347,9 @@ class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
         besluit = Besluit.objects.get()
 
         with self.subTest("audittrail model"):
-            self.assertEqual(audittrail.bron, "BRC")  # TODO see BRC_AUDIT comment
+            self.assertEqual(
+                audittrail.bron, AUDIT_BRC.component_name
+            )  # TODO see BRC_AUDIT comment
             self.assertEqual(audittrail.actie, "create")
             self.assertEqual(audittrail.resultaat, 201)
             self.assertEqual(
@@ -372,7 +375,7 @@ class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
 
             data = response.json()[0]
 
-            self.assertEqual(data["bron"], "BRC")
+            self.assertEqual(data["bron"], AUDIT_BRC.component_name)
             self.assertEqual(
                 data["hoofdObject"],
                 f"http://testserver{reverse(besluit, namespace='besluiten')}",
@@ -415,7 +418,7 @@ class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
 
             data = response.json()[0]
 
-            self.assertEqual(data["bron"], "BRC")
+            self.assertEqual(data["bron"], AUDIT_BRC.component_name)
             self.assertEqual(
                 data["hoofdObject"],
                 f"http://testserver{reverse(besluit, namespace='besluiten')}",
