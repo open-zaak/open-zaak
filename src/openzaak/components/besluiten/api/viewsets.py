@@ -27,7 +27,6 @@ from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.components.zaken.api.kanalen import KANAAL_ZAKEN
 from openzaak.components.zaken.api.mixins import ClosedZaakMixin
-from openzaak.components.zaken.api.utils import delete_remote_zaakbesluit
 from openzaak.notifications.viewsets import (
     MultipleChannelNotificationCreateMixin,
     MultipleChannelNotificationDestroyMixin,
@@ -196,22 +195,6 @@ class BesluitViewSet(
             client_id=self.request.jwt_auth.client_id,
             uuid=uuid,
         )
-
-        if isinstance(instance.zaak, ProxyMixin) and instance._zaakbesluit_url:
-            try:
-                delete_remote_zaakbesluit(instance._zaakbesluit_url)
-            except Exception as exception:
-                logger.error(
-                    "delete_remote_zaakbesluit_failed",
-                    client_id=self.request.jwt_auth.client_id,
-                    uuid=uuid,
-                    error=str(exception),
-                    zaakbesluit_url=instance._zaakbesluit_url,
-                )
-                raise ValidationError(
-                    {"zaak": _("Could not delete remote relation")},
-                    code="pending-relations",
-                )
 
 
 @extend_schema_view(

@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid as _uuid
 
-from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -15,7 +14,6 @@ from vng_api_common.validators import UntilTodayValidator
 from zgw_consumers.models import ServiceUrlField
 
 from openzaak.components.documenten.loaders import EIOLoader
-from openzaak.loaders import AuthorizedRequestsLoader
 from openzaak.utils.fields import FkOrServiceUrlField, RelativeURLField, ServiceFkField
 from openzaak.utils.mixins import APIMixin, AuditTrailMixin
 
@@ -230,12 +228,6 @@ class Besluit(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
 
         if getattr(self, "_previous_zaak_id", None):
             return Zaak.objects.get(pk=self._previous_zaak_id)
-
-        if getattr(self, "_previous_zaak_url", None):
-            remote_model = apps.get_model("zaken", "Zaak")
-            return AuthorizedRequestsLoader().load(
-                url=self._previous_zaak_url, model=remote_model
-            )
 
         return None
 
