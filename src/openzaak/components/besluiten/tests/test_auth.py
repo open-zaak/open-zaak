@@ -8,7 +8,7 @@ from django.test import tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.constants import ComponentTypes
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
@@ -19,6 +19,7 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
+from ...autorisaties.models import Autorisatie
 from ..api.scopes import (
     SCOPE_BESLUITEN_AANMAKEN,
     SCOPE_BESLUITEN_ALLES_LEZEN,
@@ -493,9 +494,7 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
             applicatie=self.applicatie,
             component=self.component,
             scopes=self.scopes or [],
-            zaaktype="",
-            informatieobjecttype="",
-            besluittype=f"http://testserver{reverse(other_besluittype)}",
+            besluittype=other_besluittype,
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
 

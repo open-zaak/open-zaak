@@ -930,9 +930,7 @@ class InformatietypeScopeTests(JWTAuthMixin, APITestCase):
             applicatie=self.applicatie,
             component=self.component,
             scopes=self.scopes or [],
-            zaaktype="",
-            informatieobjecttype=f"http://testserver{reverse(other_informatieobjecttype)}",
-            besluittype="",
+            informatieobjecttype=other_informatieobjecttype,
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
 
@@ -971,7 +969,7 @@ class InformatietypeScopeTests(JWTAuthMixin, APITestCase):
 
         results = response.data["results"]
 
-        self.assertEqual(len(results), 1)
+        self.assertEqual(len(results), 2)
         self.assertEqual(
             results[0]["informatieobjecttype"],
             f"http://testserver{reverse(self.informatieobjecttype)}",
