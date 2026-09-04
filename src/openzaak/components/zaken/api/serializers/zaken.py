@@ -1551,9 +1551,6 @@ class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
                 "lookup_field": "uuid",
                 "max_length": 1000,
                 "min_length": 1,
-                "validators": [
-                    LooseFkResourceValidator("Besluit", settings.BRC_API_STANDARD),
-                ],
                 "view_name": "zaken:besluit-detail",
             },
         }

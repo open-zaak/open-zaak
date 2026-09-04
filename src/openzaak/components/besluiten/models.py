@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid as _uuid
 
-from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -15,7 +14,6 @@ from vng_api_common.validators import UntilTodayValidator
 from zgw_consumers.models import ServiceUrlField
 
 from openzaak.components.documenten.loaders import EIOLoader
-from openzaak.loaders import AuthorizedRequestsLoader
 from openzaak.utils.fields import FkOrServiceUrlField, RelativeURLField, ServiceFkField
 from openzaak.utils.mixins import APIMixin, AuditTrailMixin
 
@@ -49,36 +47,11 @@ class Besluit(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
         on_delete=models.PROTECT,
         help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
     )
-
-    _zaak_base_url = ServiceFkField(
-        help_text="Basis deel van URL-referentie naar de externe ZAAK (in een andere Zaken API).",
-    )
-    _zaak_relative_url = RelativeURLField(
-        _("zaak relative url"),
-        blank=True,
-        null=True,
-        help_text="Relatief deel van URL-referentie naar de externe ZAAK (in een andere Zaken API).",
-    )
-    _zaak_url = ServiceUrlField(
-        base_field="_zaak_base_url",
-        relative_field="_zaak_relative_url",
-        blank=True,
-        null=True,
-        help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
-    )
-
-    _zaak = models.ForeignKey(
+    zaak = models.ForeignKey(
         "zaken.Zaak",
         on_delete=models.PROTECT,
         null=True,
         blank=True,  # een besluit kan niet bij een zaak horen
-        help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
-    )
-    zaak = FkOrServiceUrlField(
-        fk_field="_zaak",
-        url_field="_zaak_url",
-        blank=True,
-        null=True,
         help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
     )
 
@@ -174,8 +147,7 @@ class Besluit(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
         if isinstance(self, ProxyMixin):
             self._previous_zaak = self.zaak
         else:
-            self._previous_zaak_id = self._zaak_id
-            self._previous_zaak_url = self._zaak_url
+            self._previous_zaak_id = self.zaak_id
 
     def __str__(self):
         return f"{self.verantwoordelijke_organisatie} - {self.identificatie}"
@@ -256,12 +228,6 @@ class Besluit(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
 
         if getattr(self, "_previous_zaak_id", None):
             return Zaak.objects.get(pk=self._previous_zaak_id)
-
-        if getattr(self, "_previous_zaak_url", None):
-            remote_model = apps.get_model("zaken", "Zaak")
-            return AuthorizedRequestsLoader().load(
-                url=self._previous_zaak_url, model=remote_model
-            )
 
         return None
 

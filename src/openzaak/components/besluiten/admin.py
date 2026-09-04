@@ -111,7 +111,7 @@ class BesluitAdmin(
         "uuid",
     )
     ordering = ("datum", "identificatie")
-    raw_id_fields = ("besluittype", "_zaak", "_zaak_base_url")
+    raw_id_fields = ("besluittype", "zaak")
     inlines = (BesluitInformatieObjectInline,)
     viewset = "openzaak.components.besluiten.api.viewsets.BesluitViewSet"
 
