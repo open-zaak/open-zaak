@@ -90,7 +90,6 @@ class BesluitSerializer(
                 "view_name": "zaken:zaak-detail",
                 "max_length": 200,
                 "allow_null": False,
-                "allow_blank": True,
             },
             "identificatie": {"validators": [IsImmutableValidator()]},
             "verantwoordelijke_organisatie": {

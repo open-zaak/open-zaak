@@ -49,36 +49,11 @@ class Besluit(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
         on_delete=models.PROTECT,
         help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
     )
-
-    _zaak_base_url = ServiceFkField(
-        help_text="Basis deel van URL-referentie naar de externe ZAAK (in een andere Zaken API).",
-    )
-    _zaak_relative_url = RelativeURLField(
-        _("zaak relative url"),
-        blank=True,
-        null=True,
-        help_text="Relatief deel van URL-referentie naar de externe ZAAK (in een andere Zaken API).",
-    )
-    _zaak_url = ServiceUrlField(
-        base_field="_zaak_base_url",
-        relative_field="_zaak_relative_url",
-        blank=True,
-        null=True,
-        help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
-    )
-
-    _zaak = models.ForeignKey(
+    zaak = models.ForeignKey(
         "zaken.Zaak",
         on_delete=models.PROTECT,
         null=True,
         blank=True,  # een besluit kan niet bij een zaak horen
-        help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
-    )
-    zaak = FkOrServiceUrlField(
-        fk_field="_zaak",
-        url_field="_zaak_url",
-        blank=True,
-        null=True,
         help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
     )
 

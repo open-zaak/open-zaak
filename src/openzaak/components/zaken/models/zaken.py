@@ -1728,6 +1728,7 @@ class ZaakBesluit(models.Model):
         Zaak, on_delete=models.CASCADE, help_text=_("URL-referentie naar de ZAAK.")
     )
 
+    # TODO: Needs to be deprecated
     _besluit_base_url = ServiceFkField(
         help_text="Basis deel van URL-referentie naar externe BESLUIT (in een andere Besluiten API).",
     )
