@@ -149,8 +149,7 @@ class Besluit(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
         if isinstance(self, ProxyMixin):
             self._previous_zaak = self.zaak
         else:
-            self._previous_zaak_id = self._zaak_id
-            self._previous_zaak_url = self._zaak_url
+            self._previous_zaak_id = self.zaak_id
 
     def __str__(self):
         return f"{self.verantwoordelijke_organisatie} - {self.identificatie}"
