@@ -508,8 +508,11 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         whether or not `laatst_gemuteerd` must be updated on save
         """
         super().__init__(*args, **kwargs)
+        deferred = self.get_deferred_fields()
         self._original_values = {
-            f.attname: getattr(self, f.attname) for f in self._meta.concrete_fields
+            f.attname: getattr(self, f.attname)
+            for f in self._meta.concrete_fields
+            if f.attname not in deferred
         }
 
     def save(self, *args, **kwargs):

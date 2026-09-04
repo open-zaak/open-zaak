@@ -129,6 +129,7 @@ INSTALLED_APPS = (
 
 MIDDLEWARE = [
     "openzaak.utils.middleware.OverrideHostMiddleware",
+    "openzaak.utils.middleware.LooseFkFetchCacheMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "sessionprofile.middleware.SessionProfileMiddleware",
     "openzaak.utils.middleware.LogHeadersMiddleware",

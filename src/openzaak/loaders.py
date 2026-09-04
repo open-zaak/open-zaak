@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import json
+from contextvars import ContextVar
 from inspect import getmembers
 from typing import Any, Dict
 
@@ -11,9 +12,24 @@ import requests
 from django_loose_fk.loaders import BaseLoader, FetchError, FetchJsonError
 from django_loose_fk.virtual_models import virtual_model_factory
 from djangorestframework_camel_case.util import underscoreize
+from vng_api_common.client import get_client
 from vng_api_common.descriptors import GegevensGroepType
 
-from openzaak.utils.auth import get_auth
+_clients: dict = {}
+_fetch_cache: ContextVar[dict] = ContextVar("loose_fk_fetch_cache")
+
+
+def _get_cache() -> dict:
+    try:
+        return _fetch_cache.get()
+    except LookupError:
+        cache: dict = {}
+        _fetch_cache.set(cache)
+        return cache
+
+
+def clear_fetch_cache() -> None:
+    _fetch_cache.set({})
 
 
 class AuthorizedRequestsLoader(BaseLoader):
@@ -23,27 +39,37 @@ class AuthorizedRequestsLoader(BaseLoader):
 
     @staticmethod
     def fetch_object(url: str, do_underscoreize=True) -> dict:
-        # TODO should we replace it with Service.get_client() and use it instead of requests?
-        # but in this case we couldn't catch separate FetchJsonError
-        headers = get_auth(url)
+        cache = _get_cache()
 
-        try:
-            response = requests.get(url, headers=headers)
-        except requests.exceptions.RequestException as exc:
-            raise FetchError(exc.args[0]) from exc
+        if url in cache:
+            data = cache[url]
+        else:
+            client = get_client(url, raise_exceptions=True)
+            if client is None:
+                raise FetchError(f"No service configured for url {url}")
 
-        try:
-            response.raise_for_status()
-        except requests.HTTPError as exc:
-            raise FetchError(exc.args[0]) from exc
+            api_root = client.base_url
+            client = _clients.setdefault(api_root, client)
 
-        try:
-            data = response.json()
-        except json.JSONDecodeError as exc:
-            raise FetchJsonError(exc.args[0]) from exc
+            try:
+                response = client.get(url, headers={"Accept-Crs": "EPSG:4326"})
+            except requests.exceptions.RequestException as exc:
+                raise FetchError(exc.args[0]) from exc
+
+            try:
+                response.raise_for_status()
+            except requests.HTTPError as exc:
+                raise FetchError(exc.args[0]) from exc
+
+            try:
+                data = response.json()
+            except json.JSONDecodeError as exc:
+                raise FetchJsonError(exc.args[0]) from exc
+
+            cache[url] = data
 
         if not do_underscoreize:
-            return data
+            return dict(data) if isinstance(data, dict) else data
 
         return underscoreize(data)
 
@@ -72,6 +98,9 @@ def get_model_instance_with_gegevensgroeps(
     for gegevensgroep__name, gegevensgroep in gegevensgroeps:
         if gegevensgroep__name in data:
             group_data = data.pop(gegevensgroep__name)
+
+            if group_data is None:
+                continue
 
             for field, field_value in group_data.items():
                 field_name = gegevensgroep.mapping[field].name

@@ -16,6 +16,7 @@ from vng_api_common.middleware import (
 )
 
 from openzaak.config.models import InternalService
+from openzaak.loaders import clear_fetch_cache
 
 from .constants import COMPONENT_MAPPING
 
@@ -247,3 +248,24 @@ class PyInstrumentMiddleware:  # pragma:no cover
             with open(self.profiler_output_path, "r") as f:
                 return HttpResponse(f.read(), content_type="text/html")
         return HttpResponse("No profiling report available yet.", status=404)
+
+
+class LooseFkFetchCacheMiddleware:
+    """
+    Reset de request-scoped remote-fetch cache per request.
+
+    De cache in AuthorizedRequestsLoader.fetch_object dedupliceert lookups
+    binnen EEN request (bv. dezelfde EIO die anders 7x wordt opgehaald).
+    Zonder deze reset zou de cache over requests heen blijven bestaan en
+    verouderde data teruggeven.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        clear_fetch_cache()
+        try:
+            return self.get_response(request)
+        finally:
+            clear_fetch_cache()

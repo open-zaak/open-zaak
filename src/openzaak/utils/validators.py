@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 import structlog
 from django_loose_fk.virtual_models import ProxyMixin
+from djangorestframework_camel_case.util import camelize
 from rest_framework import serializers
 from rest_framework.utils.representation import smart_repr
 from rest_framework.validators import (
@@ -145,7 +146,7 @@ class LooseFkResourceValidator(ResourceValidatorMixin, FKOrServiceUrlValidator):
 
         # TODO: we can probably use the underlying data directly instead of doing
         # another lookup
-        obj = AuthorizedRequestsLoader.fetch_object(value, do_underscoreize=False)
+        obj = camelize(resolved_instance._initial_data)
 
         # check if the shape matches
         schema = self._resolve_schema()
