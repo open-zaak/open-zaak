@@ -509,49 +509,23 @@ class ZaakBesluitForm(forms.ModelForm):
         model = ZaakBesluit
         fields = "__all__"
 
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if not cleaned_data.get("_besluit") and not cleaned_data.get(
-            "_besluit_base_url"
-        ):
-            raise forms.ValidationError(
-                "Je moet een besluit opgeven: "
-                "selecteer een besluit of vul een externe URL in."
-            )
-
-        return cleaned_data
-
 
 @admin.register(ZaakBesluit)
 class ZaakBesluitAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
-    list_display = ("zaak", "_besluit", "_besluit_base_url", "_besluit_relative_url")
-    list_select_related = ("zaak", "_besluit", "_besluit_base_url")
+    list_display = ("zaak", "besluit")
+    list_select_related = ("zaak", "besluit")
     search_fields = (
         "uuid",
         "zaak__uuid",
         "zaak__identificatie",
-        "_besluit__uuid",
-        "_besluit__identificatie",
+        "besluit__uuid",
+        "besluit__identificatie",
         "besluit_url",
     )
     form = ZaakBesluitForm
-    ordering = ("zaak", "_besluit", "_besluit_base_url", "_besluit_relative_url")
-    raw_id_fields = ("zaak", "_besluit", "_besluit_base_url")
+    ordering = ("zaak", "besluit")
+    raw_id_fields = ("zaak", "besluit")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakBesluitViewSet"
-
-    def get_queryset(self, request):
-        """
-        annotate queryset with composite url field for search purposes
-        """
-        queryset = super().get_queryset(request)
-        return queryset.annotate(
-            besluit_url=Concat(
-                F("_besluit_base_url__api_root"),
-                F("_besluit_relative_url"),
-                output_field=CharField(),
-            )
-        )
 
 
 @admin.register(ZaakContactMoment)
