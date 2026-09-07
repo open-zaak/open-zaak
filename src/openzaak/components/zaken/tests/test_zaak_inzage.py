@@ -5,7 +5,6 @@ from urllib.parse import urljoin
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
     ComponentTypes,
@@ -14,7 +13,6 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
     ZaakobjectTypes,
 )
-from vng_api_common.models import JWTSecret
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.besluiten.api.scopes import SCOPE_BESLUITEN_ALLES_LEZEN
@@ -51,122 +49,76 @@ from .utils import ZAAK_READ_KWARGS
 
 
 class ZaakInzageAuthTests(JWTAuthMixin, APITestCase):
-    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
+    scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_CATALOGI_READ, SCOPE_BESLUITEN_ALLES_LEZEN]
+    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
+    component = ComponentTypes.zrc
 
     @classmethod
-    def setUpClass(cls):
-        APITestCase.setUpClass()
-
-        JWTSecret.objects.get_or_create(
-            identifier=cls.client_id, defaults={"secret": cls.secret}
-        )
-        cls.applicatie = Applicatie.objects.create(
-            client_ids=[cls.client_id],
-            label="for test",
-            heeft_alle_autorisaties=False,
-        )
-        cls.zaaktype = ZaakTypeFactory.create(concept=False)
-        cls.zaaktype_url = cls.check_for_instance(cls.zaaktype)
-
-    def setUp(self):
-        super().setUp()
-        self.zaak = ZaakFactory.create(
-            zaaktype=self.zaaktype,
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create()
+        cls.zaak = ZaakFactory.create(
+            zaaktype=cls.zaaktype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
-        self.url = reverse("zaken:zaakinzage", kwargs={"uuid": self.zaak.uuid})
-
-    def _add_auth(self, scopes, zaaktype=None):
-        return Autorisatie.objects.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.zrc,
-            scopes=scopes,
-            zaaktype=self.zaaktype_url if zaaktype is None else zaaktype,
-            informatieobjecttype="",
-            besluittype="",
-            max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
-        )
+        cls.url = reverse("zaken:zaakinzage", kwargs={"uuid": cls.zaak.uuid})
+        super().setUpTestData()
 
     def test_retrieve_with_required_scopes(self):
-        self._add_auth(
-            [
-                SCOPE_ZAKEN_ALLES_LEZEN,
-                SCOPE_CATALOGI_READ,
-                SCOPE_BESLUITEN_ALLES_LEZEN,
-            ]
-        )
-
         response = self.client.get(self.url, **ZAAK_READ_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_retrieve_without_authorization(self):
+        self.autorisatie.delete()
+
         response = self.client.get(self.url, **ZAAK_READ_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def test_retrieve_with_only_one_required_scope(self):
-        required_scopes = [
-            SCOPE_ZAKEN_ALLES_LEZEN,
-            SCOPE_CATALOGI_READ,
-            SCOPE_BESLUITEN_ALLES_LEZEN,
-        ]
-
-        for scope in required_scopes:
+        for scope in self.scopes:
             with self.subTest(scope=scope):
-                authorization = self._add_auth([scope])
+                self.autorisatie.scopes = [scope]
+                self.autorisatie.save()
 
                 response = self.client.get(self.url, **ZAAK_READ_KWARGS)
 
                 self.assertEqual(
                     response.status_code, status.HTTP_403_FORBIDDEN, response.data
                 )
-                authorization.delete()
 
     def test_retrieve_with_only_two_required_scopes(self):
-        required_scopes = [
-            SCOPE_ZAKEN_ALLES_LEZEN,
-            SCOPE_CATALOGI_READ,
-            SCOPE_BESLUITEN_ALLES_LEZEN,
-        ]
-
-        for missing_scope in required_scopes:
+        for missing_scope in self.scopes:
             with self.subTest(missing_scope=missing_scope):
-                authorization = self._add_auth(
-                    [scope for scope in required_scopes if scope != missing_scope]
-                )
+                self.autorisatie.scopes = [
+                    scope for scope in self.scopes if scope != missing_scope
+                ]
+                self.autorisatie.save()
 
                 response = self.client.get(self.url, **ZAAK_READ_KWARGS)
 
                 self.assertEqual(
                     response.status_code, status.HTTP_403_FORBIDDEN, response.data
                 )
-                authorization.delete()
 
     def test_retrieve_with_authorization_for_different_zaaktype(self):
-        other_zaaktype = ZaakTypeFactory.create(concept=False)
-        self._add_auth(
-            [
-                SCOPE_ZAKEN_ALLES_LEZEN,
-                SCOPE_CATALOGI_READ,
-                SCOPE_BESLUITEN_ALLES_LEZEN,
-            ],
-            zaaktype=self.check_for_instance(other_zaaktype),
+        other_zaaktype = ZaakTypeFactory.create()
+        zaak = ZaakFactory.create(
+            zaaktype=other_zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
+        url = reverse("zaken:zaakinzage", kwargs={"uuid": zaak.uuid})
 
-        response = self.client.get(self.url, **ZAAK_READ_KWARGS)
+        response = self.client.get(url, **ZAAK_READ_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def test_retrieve_with_catalogus_authorization(self):
+        self.autorisatie.delete()
         CatalogusAutorisatieFactory.create(
             applicatie=self.applicatie,
-            component=ComponentTypes.zrc,
-            scopes=[
-                SCOPE_ZAKEN_ALLES_LEZEN,
-                SCOPE_CATALOGI_READ,
-                SCOPE_BESLUITEN_ALLES_LEZEN,
-            ],
+            component=self.component,
+            scopes=self.scopes,
             catalogus=self.zaaktype.catalogus,
             max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
         )
@@ -181,7 +133,7 @@ class ZaakInzageTests(JWTAuthMixin, APITestCase):
     maxDiff = None
 
     def _format_url(self, path: str) -> str:
-        return str(urljoin("http://testserver", path))
+        return str(urljoin(self.host_prefix, path))
 
     def _format_dt(self, value) -> str:
         return value.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
