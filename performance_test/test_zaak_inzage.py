@@ -17,7 +17,6 @@ ZAAK_COLLECTION_RELATIONSHIPS = (
     "zaaknotities",
 )
 ZAAKTYPE_COLLECTION_RELATIONSHIPS = (
-    "besluittypen",
     "eigenschappen",
     "resultaattypen",
     "roltypen",
@@ -40,28 +39,11 @@ def session():
         yield session
 
 
-def assert_relationships(data, relation_count):
-    """Assert the relationship of the zaak"""
-    assert data["zaaktype"]
-    assert data["resultaat"]
-    assert data["status"]
-    assert data["hoofdzaak"] is None
-
-    for relationship in ZAAK_COLLECTION_RELATIONSHIPS:
-        assert len(data[relationship]) == relation_count, relationship
-
-    for relationship in ZAAKTYPE_COLLECTION_RELATIONSHIPS:
-        assert len(data["zaaktype"][relationship]) == relation_count, relationship
-
-    for status in data["statussen"]:
-        assert len(status["substatussen"]) == relation_count
-
-
 @pytest.mark.benchmark(max_time=60, min_rounds=5)
 @pytest.mark.parametrize("relation_count", ZAAK_INZAGE_UUIDS.keys())
 def test_zaak_inzage_retrieve(benchmark, benchmark_assertions, session, relation_count):
     zaak_id = ZAAK_INZAGE_UUIDS[relation_count]
-    url = BASE_URL / f"zaak_inzage/{zaak_id}"
+    url = BASE_URL / f"zaak-inzage/{zaak_id}"
 
     def make_request():
         return session.get(url)
@@ -70,6 +52,23 @@ def test_zaak_inzage_retrieve(benchmark, benchmark_assertions, session, relation
 
     assert result.status_code == 200
     data = result.json()
+
+    def assert_relationships(data, relation_count):
+        """Assert the relationship of the zaak"""
+        assert data["zaaktype"]
+        assert data["resultaat"]
+        assert data["status"]
+        assert data["hoofdzaak"] is None
+
+        for relationship in ZAAK_COLLECTION_RELATIONSHIPS:
+            assert len(data[relationship]) == relation_count, relationship
+
+        for relationship in ZAAKTYPE_COLLECTION_RELATIONSHIPS:
+            assert len(data["zaaktype"][relationship]) == relation_count, relationship
+
+        for status in data["statussen"]:
+            assert len(status["substatussen"]) == relation_count
+
     assert_relationships(data, relation_count)
 
     benchmark_assertions(mean=1, median=1)
