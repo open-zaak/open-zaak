@@ -17,7 +17,6 @@ ZAAK_COLLECTION_RELATIONSHIPS = (
     "zaaknotities",
 )
 ZAAKTYPE_COLLECTION_RELATIONSHIPS = (
-    "besluittypen",
     "eigenschappen",
     "resultaattypen",
     "roltypen",
@@ -57,11 +56,11 @@ def assert_relationships(data, relation_count):
         assert len(status["substatussen"]) == relation_count
 
 
-@pytest.mark.benchmark(max_time=60, min_rounds=5)
+@pytest.mark.benchmark(max_time=15, min_rounds=5)
 @pytest.mark.parametrize("relation_count", ZAAK_INZAGE_UUIDS.keys())
 def test_zaak_inzage_retrieve(benchmark, benchmark_assertions, session, relation_count):
     zaak_id = ZAAK_INZAGE_UUIDS[relation_count]
-    url = BASE_URL / f"zaak_inzage/{zaak_id}"
+    url = BASE_URL / f"zaak-inzage/{zaak_id}"
 
     def make_request():
         return session.get(url)
