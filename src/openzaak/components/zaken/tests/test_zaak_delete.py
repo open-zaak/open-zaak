@@ -6,7 +6,10 @@ from django.test import override_settings, tag
 
 import requests_mock
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APITransactionTestCase
+from vng_api_common.authorizations.models import Applicatie
+from vng_api_common.authorizations.utils import generate_jwt
+from vng_api_common.models import JWTSecret
 from vng_api_common.tests import get_validation_errors, reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
@@ -169,3 +172,40 @@ class ExternalDocumentsDeleteZaakTests(JWTAuthMixin, APITestCase):
 
         delete_call = next(req for req in m.request_history if req.method == "DELETE")
         self.assertEqual(delete_call.url, zio._objectinformatieobject_url)
+
+
+@tag("gh-2484")
+class ZaakDeleteEtagRegressionTests(APITransactionTestCase):
+    client_id = "testsuite"
+    secret = "bab8d686-5d86-4de4-9794-2b18426ea303"
+
+    def setUp(self):
+        JWTSecret.objects.get_or_create(
+            identifier=self.client_id, defaults={"secret": self.secret}
+        )
+        Applicatie.objects.create(
+            client_ids=[self.client_id],
+            label="for test",
+            heeft_alle_autorisaties=True,
+        )
+
+        super().setUp()
+
+        token = generate_jwt(self.client_id, self.secret, "test_user_id", "Test User")
+        self.client.credentials(HTTP_AUTHORIZATION=token)
+
+    def test_delete_zaak_does_not_crash_on_etag_recalculation(self):
+        zaak = ZaakFactory.create()
+        StatusFactory.create(zaak=zaak)
+        StatusFactory.create(zaak=zaak)
+        RolFactory.create(zaak=zaak)
+        ResultaatFactory.create(zaak=zaak)
+
+        zaak_delete_url = get_operation_url("zaak_delete", uuid=zaak.uuid)
+
+        response = self.client.delete(zaak_delete_url, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_204_NO_CONTENT, response.data
+        )
+        self.assertEqual(Zaak.objects.filter(pk=zaak.pk).count(), 0)
