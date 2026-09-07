@@ -1750,14 +1750,9 @@ class ZaakBesluit(models.Model):
         ]
 
     def __str__(self):
-        try:
-            return _("Relation between {zaak} and {besluit}").format(
-                zaak=self.zaak, besluit=self.besluit
-            )
-        except FetchError:
-            return _("Relation between {zaak} and {besluit}").format(
-                zaak=self.zaak, besluit=self.besluit
-            )
+        return _("Relation between {zaak} and {besluit}").format(
+            zaak=self.zaak, besluit=self.besluit
+        )
 
     def unique_representation(self):
         zaak_repr = self.zaak.unique_representation()

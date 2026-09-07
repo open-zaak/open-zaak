@@ -54,6 +54,7 @@ from vng_api_common.serializers import (
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, UntilNowValidator
 
+from openzaak.components.besluiten.models import Besluit
 from openzaak.components.catalogi.models import Eigenschap
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 from openzaak.components.zaken.archiving import calculate_archiving_data
@@ -68,6 +69,7 @@ from openzaak.utils.auth import get_auth
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceLengthHyperlinkedRelatedField,
     FKOrServiceUrlField,
 )
 from openzaak.utils.serializers import (
@@ -1538,6 +1540,12 @@ class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
     Serializer the reverse relation between Besluit-Zaak.
     """
 
+    besluit = DeprecatedNamespaceLengthHyperlinkedRelatedField(
+        queryset=Besluit.objects.all(),
+        lookup_field="uuid",
+        view_name="zaken:besluit-detail",
+    )
+
     parent_lookup_kwargs = {"zaak_uuid": "zaak__uuid"}
 
     class Meta:
@@ -1547,12 +1555,6 @@ class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid", "view_name": "zaken:zaakbesluit-detail"},
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid", "view_name": "zaken:zaak-detail"},
-            "besluit": {
-                "lookup_field": "uuid",
-                "max_length": 1000,
-                "min_length": 1,
-                "view_name": "zaken:besluit-detail",
-            },
         }
         validator = [ZaakArchiefStatusValidator()]
 

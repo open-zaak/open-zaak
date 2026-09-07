@@ -362,7 +362,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             )
 
     def test_queries_with_no_deelzaken(self):
-        with self.assertNumQueries(61):
+        with self.assertNumQueries(63):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -384,7 +384,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         (2) 59: update archiving fields for the deelzaak(s)
         (3) 60: release savepoint
         """
-        with self.assertNumQueries(64):
+        with self.assertNumQueries(66):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -398,7 +398,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
     def test_queries_with_many_deelzaken(self):
         self._generate_deelzaken(20)
 
-        with self.assertNumQueries(64):
+        with self.assertNumQueries(66):
             response = self.client.post(
                 self.status_list_url,
                 {

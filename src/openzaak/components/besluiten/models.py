@@ -145,9 +145,8 @@ class Besluit(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
         # save previous zaak for triggers
         # for virtual models we can't use FK field because of handler assertions
         if isinstance(self, ProxyMixin):
-            self._previous_zaak = self.zaak
-        else:
-            self._previous_zaak_id = self.zaak_id
+            return
+        self._previous_zaak_id = self.zaak_id
 
     def __str__(self):
         return f"{self.verantwoordelijke_organisatie} - {self.identificatie}"
@@ -222,9 +221,6 @@ class Besluit(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
     @property
     def previous_zaak(self):
         from openzaak.components.zaken.models import Zaak
-
-        if getattr(self, "_previous_zaak", None):
-            return self._previous_zaak
 
         if getattr(self, "_previous_zaak_id", None):
             return Zaak.objects.get(pk=self._previous_zaak_id)
