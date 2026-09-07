@@ -14,6 +14,7 @@ from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFac
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.tests.utils import AdminTestMixin
 
+from ...api.audits import AUDIT_DRC
 from ..factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory,
@@ -64,7 +65,7 @@ class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, TestCase):
 
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "DRC")
+        self.assertEqual(audittrail.bron, AUDIT_DRC.component_name)
         self.assertEqual(audittrail.actie, "create")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
@@ -117,7 +118,7 @@ class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, TestCase):
         informatieobject.refresh_from_db()
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "DRC")
+        self.assertEqual(audittrail.bron, AUDIT_DRC.component_name)
         self.assertEqual(audittrail.actie, "update")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")

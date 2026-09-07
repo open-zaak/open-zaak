@@ -18,6 +18,7 @@ from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
 )
 
+from openzaak.components.besluiten.api.audits import AUDIT_BRC
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.tests.utils import patch_resource_validator
 
@@ -680,7 +681,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(
             **{
                 "brondatum_archiefprocedure_datumkenmerk": "",
                 "brondatum_archiefprocedure_objecttype": "adres",
-                "brondatum_archiefprocedure_registratie": "BRC",
+                "brondatum_archiefprocedure_registratie": AUDIT_BRC.component_name,
             },
         )
 
@@ -723,7 +724,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(
             **{
                 "brondatum_archiefprocedure_datumkenmerk": "",
                 "brondatum_archiefprocedure_objecttype": "",
-                "brondatum_archiefprocedure_registratie": "BRC",
+                "brondatum_archiefprocedure_registratie": AUDIT_BRC.component_name,
             },
         )
 
