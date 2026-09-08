@@ -196,7 +196,10 @@ class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
             reverse(gebruiksrechten.get_informatieobject())
         ).json()
         iotype_data = self.client.get(
-            reverse(gebruiksrechten.get_informatieobject().informatieobjecttype)
+            reverse(
+                gebruiksrechten.get_informatieobject().informatieobjecttype,
+                namespace="documenten",
+            )
         ).json()
 
         response = self.client.get(
@@ -229,7 +232,10 @@ class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
             reverse(gebruiksrechten.get_informatieobject())
         ).json()
         iotype_data = self.client.get(
-            reverse(gebruiksrechten.get_informatieobject().informatieobjecttype)
+            reverse(
+                gebruiksrechten.get_informatieobject().informatieobjecttype,
+                namespace="documenten",
+            )
         ).json()
 
         response = self.client.get(
@@ -279,7 +285,7 @@ class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Read informatieobjecttype is NOT allowed with SCOPE_DOCUMENTEN_ALLES_LEZEN
-        response = self.client.get(reverse("catalogi:informatieobjecttype-list"))
+        response = self.client.get(reverse("documenten:informatieobjecttype-list"))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # Read gebruiksrechten with expand informatieobjecttype is NOT allowed with SCOPE_DOCUMENTEN_ALLES_LEZEN

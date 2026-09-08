@@ -28,7 +28,6 @@ from storages.backends.s3 import S3Storage
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import (
     GegevensGroepSerializer,
-    LengthHyperlinkedRelatedField as VngLengthHyperlinkedRelatedField,
     NestedGegevensGroepMixin,
     add_choice_values_help_text,
 )
@@ -36,7 +35,10 @@ from vng_api_common.utils import get_help_text
 
 from openzaak.components.catalogi.models import InformatieObjectType
 from openzaak.contrib.verzoeken.validators import verzoek_validator
-from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
+from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceLengthHyperlinkedRelatedField,
+    LengthHyperlinkedRelatedField,
+)
 from openzaak.utils.serializers import (
     ConvenienceSerializer,
     SubSerializerMixin,
@@ -321,9 +323,9 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "zijn voorzien als de `status` de waarde 'in bewerking' of 'ter vaststelling' heeft."
         ),
     )
-    informatieobjecttype = VngLengthHyperlinkedRelatedField(
+    informatieobjecttype = DeprecatedNamespaceLengthHyperlinkedRelatedField(
         queryset=InformatieObjectType.objects.all(),
-        view_name="catalogi:informatieobjecttype-detail",
+        view_name="documenten:informatieobjecttype-detail",
         lookup_field="uuid",
         max_length=200,
         validators=[PublishValidator()],

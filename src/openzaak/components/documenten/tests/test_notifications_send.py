@@ -247,7 +247,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kanaal": "documenten",
             "kenmerken": {
                 "bronorganisatie": eio.bronorganisatie,
-                "informatieobjecttype": f"http://testserver{reverse(eio.informatieobjecttype)}",
+                "informatieobjecttype": f"http://testserver{reverse(eio.informatieobjecttype, namespace='documenten')}",
                 "informatieobjecttype.catalogus": f"http://testserver{reverse(eio.informatieobjecttype.catalogus)}",
                 "vertrouwelijkheidaanduiding": eio.vertrouwelijkheidaanduiding,
             },
@@ -285,7 +285,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kanaal": "documenten",
             "kenmerken": {
                 "bronorganisatie": eio.bronorganisatie,
-                "informatieobjecttype": f"http://testserver{reverse(eio.informatieobjecttype)}",
+                "informatieobjecttype": f"http://testserver{reverse(eio.informatieobjecttype, namespace='documenten')}",
                 "informatieobjecttype.catalogus": f"http://testserver{reverse(eio.informatieobjecttype.catalogus)}",
                 "vertrouwelijkheidaanduiding": eio.vertrouwelijkheidaanduiding,
             },
@@ -317,7 +317,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kanaal": "documenten",
             "kenmerken": {
                 "bronorganisatie": eio.bronorganisatie,
-                "informatieobjecttype": f"http://testserver{reverse(eio.informatieobjecttype)}",
+                "informatieobjecttype": f"http://testserver{reverse(eio.informatieobjecttype, namespace='documenten')}",
                 "informatieobjecttype.catalogus": f"http://testserver{reverse(eio.informatieobjecttype.catalogus)}",
                 "vertrouwelijkheidaanduiding": eio.vertrouwelijkheidaanduiding,
             },
