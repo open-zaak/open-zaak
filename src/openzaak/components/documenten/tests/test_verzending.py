@@ -662,7 +662,7 @@ class VerzendingFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Read informatieobjecttype is NOT allowed with SCOPE_DOCUMENTEN_ALLES_LEZEN
-        response = self.client.get(reverse("catalogi:informatieobjecttype-list"))
+        response = self.client.get(reverse("documenten:informatieobjecttype-list"))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # Read verzending with expand informatieobjecttype is NOT allowed with SCOPE_DOCUMENTEN_ALLES_LEZEN

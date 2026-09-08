@@ -371,7 +371,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "indicatieGebruiksrecht": None,
             "vertrouwelijkheidaanduiding": "openbaar",
             "integriteit": None,
-            "informatieobjecttype": f"http://testserver{reverse(test_object.informatieobjecttype)}",
+            "informatieobjecttype": f"http://testserver{reverse(test_object.informatieobjecttype, namespace='documenten')}",
             "locked": False,
             "verschijningsvorm": "",
             "trefwoorden": [],
@@ -717,7 +717,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         )
 
         iotype2_url = reverse(
-            "catalogi:informatieobjecttype-detail", kwargs={"uuid": iotype2.uuid}
+            "documenten:informatieobjecttype-detail", kwargs={"uuid": iotype2.uuid}
         )
         eio_url = reverse(
             "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
@@ -1053,7 +1053,9 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
         eio = EnkelvoudigInformatieObjectFactory.create()
 
         eio_data = self.client.get(reverse(eio)).json()
-        iotype_data = self.client.get(reverse(eio.informatieobjecttype)).json()
+        iotype_data = self.client.get(
+            reverse(eio.informatieobjecttype, namespace="documenten")
+        ).json()
 
         response = self.client.get(
             self.url,
@@ -1073,7 +1075,9 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
         url = reverse(eio)
 
         eio_data = self.client.get(reverse(eio)).json()
-        iotype_data = self.client.get(reverse(eio.informatieobjecttype)).json()
+        iotype_data = self.client.get(
+            reverse(eio.informatieobjecttype, namespace="documenten")
+        ).json()
 
         response = self.client.get(
             url,
@@ -1127,7 +1131,7 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Read informatieobjecttype is NOT allowed with SCOPE_DOCUMENTEN_ALLES_LEZEN
-        response = self.client.get(reverse("catalogi:informatieobjecttype-list"))
+        response = self.client.get(reverse("documenten:informatieobjecttype-list"))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # Read eio with expand informatieobjecttype is NOT allowed with SCOPE_DOCUMENTEN_ALLES_LEZEN
