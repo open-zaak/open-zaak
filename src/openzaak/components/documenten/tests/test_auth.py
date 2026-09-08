@@ -976,7 +976,7 @@ class InformatietypeScopeTests(JWTAuthMixin, APITestCase):
         )
         self.assertEqual(
             results[1]["informatieobjecttype"],
-            f"http://testserver{reverse(other_informatieobjecttype)}",
+            f"http://testserver{reverse(other_informatieobjecttype, namespace='documenten')}",
         )
 
     def test_eio_retreive(self):
