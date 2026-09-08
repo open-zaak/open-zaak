@@ -4527,7 +4527,8 @@ paths:
       - in: query
         name: catalogus
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
           behoort.
       - in: query
@@ -8872,8 +8873,8 @@ components:
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
             behoort.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         omschrijving:
           type: string
           description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
@@ -8914,8 +8915,8 @@ components:
           items:
             type: string
             format: uri
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           readOnly: true
           description: URL-referenties naar de BESLUITTYPEN
         informatieobjectcategorie:
@@ -8940,8 +8941,8 @@ components:
           items:
             type: string
             format: uri
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           readOnly: true
           description: URL-referenties naar de ZAAKTYPEN
         beginObject:
@@ -8974,8 +8975,8 @@ components:
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
             behoort.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         omschrijving:
           type: string
           minLength: 1
@@ -9612,8 +9613,8 @@ components:
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
             behoort.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         omschrijving:
           type: string
           minLength: 1
