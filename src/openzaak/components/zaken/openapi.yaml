@@ -87,6 +87,8 @@ info:
     - `zaakbesluit`: create
     - `zaakcontactmoment`: create
     - `zaakverzoek`: create
+    - `besluit`: create, update, destroy
+    - `besluitinformatieobject`: create, destroy
 
 
     **Handige links**
