@@ -35,6 +35,11 @@ STATUS_HELP_TEXT = _("""filter objects depending on their concept status:
 * `concept`: Toon objecten waarvan het attribuut `concept` true is.
 * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
 """)
+STATUS_RESULTAAT_HELP_TEXT = _("""filter de resultaten op basis van de waarde van het boolean attribuut concept van het gerelateerde zaaktype:
+* `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
+* `concept`: Toon objecten waarvan het attribuut `concept` true is.
+* `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
+""")
 STATUS_VERSION_HELP_TEXT = _("""Object versions are based on `{version_field}` field, which means that objects with the same
 `{version_field}` can be published (and have `definitief` status) only if they have
 non-overlapping validity (geldigheids) dates.
@@ -79,7 +84,7 @@ class RolTypeFilter(FilterSet):
     status = filters.ChoiceFilter(
         field_name="zaaktype__concept",
         method=status_filter,
-        help_text=STATUS_HELP_TEXT,
+        help_text=STATUS_RESULTAAT_HELP_TEXT,
         choices=StatusChoices.choices,
     )
     datum_geldigheid = filters.DateFilter(
@@ -114,7 +119,7 @@ class ZaakTypeInformatieObjectTypeFilter(FilterSet):
     status = filters.CharFilter(
         field_name="zaaktype__concept",
         method="status_filter_m2m",
-        help_text=STATUS_HELP_TEXT,
+        help_text=STATUS_RESULTAAT_HELP_TEXT,
     )
 
     class Meta:
@@ -139,7 +144,7 @@ class ResultaatTypeFilter(FilterSet):
     status = filters.ChoiceFilter(
         field_name="zaaktype__concept",
         method=status_filter,
-        help_text=STATUS_HELP_TEXT,
+        help_text=STATUS_RESULTAAT_HELP_TEXT,
         choices=StatusChoices.choices,
     )
     datum_geldigheid = filters.DateFilter(
@@ -160,7 +165,7 @@ class StatusTypeFilter(FilterSet):
     status = filters.ChoiceFilter(
         field_name="zaaktype__concept",
         method=status_filter,
-        help_text=STATUS_HELP_TEXT,
+        help_text=STATUS_RESULTAAT_HELP_TEXT,
         choices=StatusChoices.choices,
     )
     datum_geldigheid = filters.DateFilter(
@@ -181,7 +186,7 @@ class EigenschapFilter(FilterSet):
     status = filters.ChoiceFilter(
         field_name="zaaktype__concept",
         method=status_filter,
-        help_text=STATUS_HELP_TEXT,
+        help_text=STATUS_RESULTAAT_HELP_TEXT,
         choices=StatusChoices.choices,
     )
     datum_geldigheid = filters.DateFilter(
