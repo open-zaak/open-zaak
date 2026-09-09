@@ -133,8 +133,7 @@ paths:
       - in: query
         name: catalogus
         schema:
-          type: string
-          format: uri
+          type: integer
         description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
       - in: query
         name: datumGeldigheid
@@ -1773,6 +1772,333 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+    put:
+      operationId: catalogus_update
+      description: Werk een CATALOGUS in zijn geheel bij.
+      summary: Werk een CATALOGUS in zijn geheel bij.
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
+      tags:
+      - catalogussen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CatalogusRequest'
+        required: true
+      security:
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Catalogus'
+          description: OK
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '404':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not found
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+    patch:
+      operationId: catalogus_partial_update
+      description: Werk een CATALOGUS deels bij.
+      summary: Werk een CATALOGUS deels bij.
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
+      tags:
+      - catalogussen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCatalogusRequest'
+      security:
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Catalogus'
+          description: OK
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '404':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not found
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
     head:
       operationId: catalogus_head
       description: Vraag de headers op die je bij een GET request zou krijgen.
@@ -1864,8 +2190,7 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: string
-          format: uri
+          type: integer
         description: URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze
           EIGENSCHAP van belang is.
       - in: query
@@ -2833,8 +3158,7 @@ paths:
       - in: query
         name: catalogus
         schema:
-          type: string
-          format: uri
+          type: integer
         description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
           behoort.
       - in: query
@@ -4033,8 +4357,7 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: string
-          format: uri
+          type: integer
         description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten
           van dit RESULTAATTYPE bereikt kunnen worden.
       - in: query
@@ -5057,8 +5380,7 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: string
-          format: uri
+          type: integer
         description: URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken
           kunnen zijn.
       - in: query
@@ -6055,8 +6377,7 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: string
-          format: uri
+          type: integer
         description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin STATUSsen
           van dit STATUSTYPE bereikt kunnen worden.
       - in: query
@@ -7030,8 +7351,7 @@ paths:
       - in: query
         name: catalogus
         schema:
-          type: string
-          format: uri
+          type: integer
         description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
       - in: query
         name: datumBeginGeldigheid
@@ -7094,8 +7414,7 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: string
-          format: uri
+          type: integer
         description: URL-referentie naar de ZAAKTYPE waartoe dit ZAAKOBJECTTYPE behoort.
       - in: query
         name: zaaktypeIdentificatie
@@ -8058,8 +8377,7 @@ paths:
       - in: query
         name: informatieobjecttype
         schema:
-          type: string
-          format: uri
+          type: integer
         description: URL-referentie naar het INFORMATIEOBJECTTYPE.
       - name: page
         required: false
@@ -8097,8 +8415,7 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: string
-          format: uri
+          type: integer
         description: URL-referentie naar het ZAAKTYPE.
       tags:
       - zaaktype-informatieobjecttypen
@@ -9071,8 +9388,7 @@ paths:
       - in: query
         name: catalogus
         schema:
-          type: string
-          format: uri
+          type: integer
         description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
       - in: query
         name: datumGeldigheid
@@ -10290,8 +10606,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         zaaktypen:
           type: array
           items:
@@ -10409,8 +10725,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         omschrijving:
           type: string
           description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
@@ -10993,8 +11309,8 @@ components:
           format: uri
           description: URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze
             EIGENSCHAP van belang is.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         zaaktypeIdentificatie:
           type: string
           description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
@@ -11011,8 +11327,8 @@ components:
           nullable: true
           description: Status type moet (onder andere) deze EIGENSCHAP hebben, voordat
             een STATUS van het STATUSTYPE kan worden gezet.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         beginGeldigheid:
           type: string
           format: date
@@ -11069,16 +11385,16 @@ components:
           format: uri
           description: URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze
             EIGENSCHAP van belang is.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         statustype:
           type: string
           format: uri
           nullable: true
           description: Status type moet (onder andere) deze EIGENSCHAP hebben, voordat
             een STATUS van het STATUSTYPE kan worden gezet.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         beginGeldigheid:
           type: string
           format: date
@@ -11251,8 +11567,8 @@ components:
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
             behoort.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         omschrijving:
           type: string
           description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
@@ -11293,8 +11609,8 @@ components:
           items:
             type: string
             format: uri
-            maxLength: 1000
             minLength: 1
+            maxLength: 1000
           readOnly: true
           description: URL-referenties naar de BESLUITTYPEN
         informatieobjectcategorie:
@@ -11319,8 +11635,8 @@ components:
           items:
             type: string
             format: uri
-            maxLength: 1000
             minLength: 1
+            maxLength: 1000
           readOnly: true
           description: URL-referenties naar de ZAAKTYPEN
         beginObject:
@@ -11353,8 +11669,8 @@ components:
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
             behoort.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         omschrijving:
           type: string
           minLength: 1
@@ -11759,8 +12075,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         omschrijving:
           type: string
           description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
@@ -11815,6 +12131,55 @@ components:
           format: date
           nullable: true
           description: De datum waarop het is opgeheven.
+    PatchedCatalogusRequest:
+      type: object
+      properties:
+        domein:
+          type: string
+          minLength: 1
+          description: Een afkorting waarmee wordt aangegeven voor welk domein in
+            een CATALOGUS ZAAKTYPEn zijn uitgewerkt.
+          maxLength: 5
+        rsin:
+          type: string
+          minLength: 9
+          description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
+            NIET-NATUURLIJK PERSOON die de eigenaar is van een CATALOGUS.
+          maxLength: 9
+        contactpersoonBeheerNaam:
+          type: string
+          minLength: 1
+          title: Naam
+          description: De naam van de contactpersoon die verantwoordelijk is voor
+            het beheer van de CATALOGUS.
+          maxLength: 40
+        contactpersoonBeheerTelefoonnummer:
+          type: string
+          title: Telefoonnummer
+          description: Het telefoonnummer van de contactpersoon die verantwoordelijk
+            is voor het beheer van de CATALOGUS.
+          maxLength: 20
+        contactpersoonBeheerEmailadres:
+          type: string
+          format: email
+          title: Emailadres
+          description: Het emailadres van de contactpersoon die verantwoordelijk is
+            voor het beheer van de CATALOGUS.
+          maxLength: 254
+        naam:
+          type: string
+          description: De benaming die is gegeven aan de zaaktypecatalogus.
+          maxLength: 200
+        versie:
+          type: string
+          description: Versie-aanduiding van de van toepassing zijnde zaaktypecatalogus.
+          maxLength: 20
+        begindatumVersie:
+          type: string
+          format: date
+          nullable: true
+          description: Datum waarop de versie van de zaaktypecatalogus van toepassing
+            is geworden.
     PatchedEigenschapRequest:
       type: object
       description: Adds nested create feature
@@ -11841,16 +12206,16 @@ components:
           format: uri
           description: URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze
             EIGENSCHAP van belang is.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         statustype:
           type: string
           format: uri
           nullable: true
           description: Status type moet (onder andere) deze EIGENSCHAP hebben, voordat
             een STATUS van het STATUSTYPE kan worden gezet.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         beginGeldigheid:
           type: string
           format: date
@@ -11869,8 +12234,8 @@ components:
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
             behoort.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         omschrijving:
           type: string
           minLength: 1
@@ -11933,8 +12298,8 @@ components:
           title: is van
           description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten
             van dit RESULTAATTYPE bereikt kunnen worden.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         omschrijving:
           type: string
           minLength: 1
@@ -12013,8 +12378,8 @@ components:
             type: string
             format: uri
             nullable: true
-            maxLength: 1000
             minLength: 1
+            maxLength: 1000
           description: Het BESLUITTYPE van besluiten die gepaard gaan met resultaten
             van het RESULTAATTYPE.
         informatieobjecttypen:
@@ -12023,8 +12388,8 @@ components:
             type: string
             format: uri
             nullable: true
-            maxLength: 1000
             minLength: 1
+            maxLength: 1000
           description: De INFORMATIEOBJECTTYPEn die verplicht aanwezig moeten zijn
             in het zaakdossier van ZAAKen van dit ZAAKTYPE voordat een resultaat van
             dit RESULTAATTYPE kan worden gezet.
@@ -12047,8 +12412,8 @@ components:
           format: uri
           description: URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken
             kunnen zijn.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         omschrijving:
           type: string
           minLength: 1
@@ -12106,8 +12471,8 @@ components:
           format: uri
           description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin STATUSsen
             van dit STATUSTYPE bereikt kunnen worden.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         volgnummer:
           type: integer
           maximum: 9999
@@ -12171,15 +12536,15 @@ components:
           format: uri
           description: URL-referentie naar de ZAAKTYPE waartoe dit ZAAKOBJECTTYPE
             behoort.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         statustype:
           type: string
           format: uri
           nullable: true
           description: URL-referentie naar het STATUSTYPE
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         beginGeldigheid:
           type: string
           format: date
@@ -12201,15 +12566,15 @@ components:
           type: string
           format: uri
           description: URL-referentie naar het ZAAKTYPE.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         informatieobjecttype:
           type: string
           format: uri
           title: Informatie object type
           description: URL-referentie naar het INFORMATIEOBJECTTYPE.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         volgnummer:
           type: integer
           maximum: 999
@@ -12234,8 +12599,8 @@ components:
           title: Status type
           description: URL-referentie naar het STATUSTYPE waarbij deze INFORMATIEOBJECTTYPEn
             verplicht aanwezig moeten zijn.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
     PatchedZaakTypeRequest:
       type: object
       description: |-
@@ -12426,8 +12791,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         besluittypen:
           type: array
           items:
@@ -12443,8 +12808,8 @@ components:
             type: string
             format: uri
             nullable: true
-            maxLength: 1000
             minLength: 1
+            maxLength: 1000
           description: De ZAAKTYPE(n) waaronder ZAAKen als deelzaak kunnen voorkomen
             bij ZAAKen van dit ZAAKTYPE.
         gerelateerdeZaaktypen:
@@ -12509,8 +12874,8 @@ components:
           title: is van
           description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten
             van dit RESULTAATTYPE bereikt kunnen worden.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         zaaktypeIdentificatie:
           type: string
           description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
@@ -12600,8 +12965,8 @@ components:
             type: string
             format: uri
             nullable: true
-            maxLength: 1000
             minLength: 1
+            maxLength: 1000
           description: Het BESLUITTYPE van besluiten die gepaard gaan met resultaten
             van het RESULTAATTYPE.
         besluittypeOmschrijving:
@@ -12616,8 +12981,8 @@ components:
             type: string
             format: uri
             nullable: true
-            maxLength: 1000
             minLength: 1
+            maxLength: 1000
           description: De INFORMATIEOBJECTTYPEn die verplicht aanwezig moeten zijn
             in het zaakdossier van ZAAKen van dit ZAAKTYPE voordat een resultaat van
             dit RESULTAATTYPE kan worden gezet.
@@ -12673,8 +13038,8 @@ components:
           title: is van
           description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten
             van dit RESULTAATTYPE bereikt kunnen worden.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         omschrijving:
           type: string
           minLength: 1
@@ -12753,8 +13118,8 @@ components:
             type: string
             format: uri
             nullable: true
-            maxLength: 1000
             minLength: 1
+            maxLength: 1000
           description: Het BESLUITTYPE van besluiten die gepaard gaan met resultaten
             van het RESULTAATTYPE.
         informatieobjecttypen:
@@ -12763,8 +13128,8 @@ components:
             type: string
             format: uri
             nullable: true
-            maxLength: 1000
             minLength: 1
+            maxLength: 1000
           description: De INFORMATIEOBJECTTYPEn die verplicht aanwezig moeten zijn
             in het zaakdossier van ZAAKen van dit ZAAKTYPE voordat een resultaat van
             dit RESULTAATTYPE kan worden gezet.
@@ -12806,8 +13171,8 @@ components:
           format: uri
           description: URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken
             kunnen zijn.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         zaaktypeIdentificatie:
           type: string
           description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
@@ -12876,8 +13241,8 @@ components:
           format: uri
           description: URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken
             kunnen zijn.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         omschrijving:
           type: string
           minLength: 1
@@ -12946,8 +13311,8 @@ components:
           format: uri
           description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin STATUSsen
             van dit STATUSTYPE bereikt kunnen worden.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         zaaktypeIdentificatie:
           type: string
           description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
@@ -13065,8 +13430,8 @@ components:
           format: uri
           description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin STATUSsen
             van dit STATUSTYPE bereikt kunnen worden.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         volgnummer:
           type: integer
           maximum: 9999
@@ -13185,8 +13550,8 @@ components:
           format: uri
           description: URL-referentie naar de ZAAKTYPE waartoe dit ZAAKOBJECTTYPE
             behoort.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         zaaktypeIdentificatie:
           type: string
           description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
@@ -13197,8 +13562,8 @@ components:
           items:
             type: string
             format: uri
-            maxLength: 1000
             minLength: 1
+            maxLength: 1000
           readOnly: true
           description: URL-referenties naar de RESULTAATTYPEN.
         statustype:
@@ -13206,8 +13571,8 @@ components:
           format: uri
           nullable: true
           description: URL-referentie naar het STATUSTYPE
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         catalogus:
           type: string
           format: uri
@@ -13269,15 +13634,15 @@ components:
           format: uri
           description: URL-referentie naar de ZAAKTYPE waartoe dit ZAAKOBJECTTYPE
             behoort.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         statustype:
           type: string
           format: uri
           nullable: true
           description: URL-referentie naar het STATUSTYPE
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         beginGeldigheid:
           type: string
           format: date
@@ -13497,8 +13862,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         statustypen:
           type: array
           items:
@@ -13554,8 +13919,8 @@ components:
             type: string
             format: uri
             nullable: true
-            maxLength: 1000
             minLength: 1
+            maxLength: 1000
           description: De ZAAKTYPE(n) waaronder ZAAKen als deelzaak kunnen voorkomen
             bij ZAAKen van dit ZAAKTYPE.
         gerelateerdeZaaktypen:
@@ -13622,8 +13987,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar het ZAAKTYPE.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         zaaktypeIdentificatie:
           type: string
           description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
@@ -13634,8 +13999,8 @@ components:
           format: uri
           title: Informatie object type
           description: URL-referentie naar het INFORMATIEOBJECTTYPE.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         volgnummer:
           type: integer
           maximum: 999
@@ -13660,8 +14025,8 @@ components:
           title: Status type
           description: URL-referentie naar het STATUSTYPE waarbij deze INFORMATIEOBJECTTYPEn
             verplicht aanwezig moeten zijn.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         catalogus:
           type: string
           format: uri
@@ -13686,15 +14051,15 @@ components:
           type: string
           format: uri
           description: URL-referentie naar het ZAAKTYPE.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         informatieobjecttype:
           type: string
           format: uri
           title: Informatie object type
           description: URL-referentie naar het INFORMATIEOBJECTTYPE.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         volgnummer:
           type: integer
           maximum: 999
@@ -13719,8 +14084,8 @@ components:
           title: Status type
           description: URL-referentie naar het STATUSTYPE waarbij deze INFORMATIEOBJECTTYPEn
             verplicht aanwezig moeten zijn.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
       required:
       - informatieobjecttype
       - richting
@@ -13916,8 +14281,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
-          maxLength: 1000
           minLength: 1
+          maxLength: 1000
         besluittypen:
           type: array
           items:
@@ -13933,8 +14298,8 @@ components:
             type: string
             format: uri
             nullable: true
-            maxLength: 1000
             minLength: 1
+            maxLength: 1000
           description: De ZAAKTYPE(n) waaronder ZAAKen als deelzaak kunnen voorkomen
             bij ZAAKen van dit ZAAKTYPE.
         gerelateerdeZaaktypen:

@@ -58,6 +58,55 @@ class CatalogusAPITests(APITestCase):
 
         self.assertEqual(catalog.rsin, "100000009")
 
+    def test_update_catalogus(self):
+        catalogus_url = reverse(self.catalogus)
+
+        data = {
+            "domein": "TEST",
+            "contactpersoonBeheerTelefoonnummer": "0698765432",
+            "rsin": "517439943",
+            "contactpersoonBeheerNaam": "aangepast",
+            "contactpersoonBeheerEmailadres": "aangepast@test.com",
+        }
+
+        response = self.client.put(catalogus_url, data)
+        response_data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response_data["domein"], "TEST")
+
+        self.catalogus.refresh_from_db()
+
+        self.assertEqual(self.catalogus.domein, "TEST")
+        self.assertEqual(
+            self.catalogus.contactpersoon_beheer_telefoonnummer,
+            "0698765432",
+        )
+        self.assertEqual(self.catalogus.rsin, "517439943")
+        self.assertEqual(
+            self.catalogus.contactpersoon_beheer_naam,
+            "aangepast",
+        )
+        self.assertEqual(
+            self.catalogus.contactpersoon_beheer_emailadres,
+            "aangepast@test.com",
+        )
+
+    def test_partial_update_catalogus(self):
+        catalogus_url = reverse(self.catalogus)
+
+        response = self.client.patch(
+            catalogus_url,
+            {"naam": "aangepast"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["naam"], "aangepast")
+
+        self.catalogus.refresh_from_db()
+
+        self.assertEqual(self.catalogus.naam, "aangepast")
+
 
 class CatalogusFilterAPITests(APITestCase):
     maxDiff = None
