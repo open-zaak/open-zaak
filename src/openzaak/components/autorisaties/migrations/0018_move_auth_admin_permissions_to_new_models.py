@@ -12,7 +12,7 @@ def _move_permission(apps, old_app: str, new_app: str,  old_model: str, new_mode
     Group = apps.get_model("auth", "Group")
 
     old_ct = ContentType.objects.get(app_label=old_app, model=old_model)
-    new_ct = ContentType.objects.get(app_label=new_app, model=new_model)
+    new_ct, _ = ContentType.objects.get_or_create(app_label=new_app, model=new_model)
 
     action_map = {}
     for old_perm in Permission.objects.filter(content_type=old_ct):
