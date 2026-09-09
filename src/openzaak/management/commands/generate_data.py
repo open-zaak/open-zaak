@@ -49,6 +49,7 @@ from openzaak.components.catalogi.models import (
     ResultaatType,
     RolType,
     StatusType,
+    ZaakObjectType,
     ZaakType,
     ZaakTypeInformatieObjectType,
 )
@@ -60,6 +61,7 @@ from openzaak.components.catalogi.tests.factories import (
     ResultaatTypeFactory,
     RolTypeFactory,
     StatusTypeFactory,
+    ZaakObjectTypeFactory,
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
 )
@@ -90,18 +92,26 @@ from openzaak.components.zaken.models import (
     Resultaat,
     Rol,
     Status,
+    SubStatus,
     Zaak,
+    ZaakContactMoment,
     ZaakEigenschap,
     ZaakInformatieObject,
+    ZaakNotitie,
     ZaakObject,
+    ZaakVerzoek,
 )
 from openzaak.components.zaken.tests.factories import (
     ResultaatFactory,
     RolFactory,
     StatusFactory,
+    SubStatusFactory,
+    ZaakContactMomentFactory,
     ZaakEigenschapFactory,
     ZaakInformatieObjectFactory,
+    ZaakNotitieFactory,
     ZaakObjectFactory,
+    ZaakVerzoekFactory,
 )
 from openzaak.selectielijst.api import get_resultaattype_omschrijvingen
 from openzaak.selectielijst.models import ReferentieLijstConfig
@@ -294,6 +304,16 @@ class Command(BaseCommand):
             default=["zaken", "besluiten", "documenten"],
         )
 
+        parser.add_argument(
+            "--generate-zaak-inzage-data",
+            action="store_true",
+            default=False,
+            help=(
+                "Create five zaak-inzage benchmark cases containing 1, 2, 3, "
+                "5, and 7 records in every collection."
+            ),
+        )
+
     @transaction.atomic
     def handle(self, *args, **options):
         self.partition = options["partition"]
@@ -328,6 +348,13 @@ class Command(BaseCommand):
 
         if generate_besluiten or generate_documenten:
             self.generate_relations()
+
+        if options["generate_zaak_inzage_data"]:
+            if not generate_zaken:
+                raise CommandError(
+                    "--generate-zaak-inzage-data requires 'zaken' in --resources"
+                )
+            self.generate_zaak_inzage_data()
 
         if generate_superuser_credentials:
             self.generate_superuser_credentials()
@@ -827,3 +854,196 @@ class Command(BaseCommand):
                 str(SCOPE_AUTORISATIES_LEZEN),
             ],
         )
+
+    def generate_zaak_inzage_data(self):
+        """
+        Generate zaak inzage data with 1,3,5 data generated for each relationship
+        - test_inzage_1 = 1 zaak + 1 deelzaak
+        - test_inzage_3 = 1 zaak + 3 deelzaak
+        - test_inzage_5 = 1 zaak + 5 deelzaak
+        ----
+        Total new zaken created: 12 zaken
+        Total new eio created: 9 eio
+        """
+        zaak_uuids = {
+            1: "00000000-0000-4000-8000-000000000001",
+            3: "00000000-0000-4000-8000-000000000003",
+            5: "00000000-0000-4000-8000-000000000005",
+        }
+
+        catalog = CatalogusFactory.create(naam="inzage performance test")
+
+        for amount, zaak_uuid in zaak_uuids.items():
+            identificatie = f"ZAAK_INZAGE_{amount}"
+            zaaktype = ZaakTypeFactory.create(
+                catalogus=catalog,
+                concept=False,
+                identificatie=identificatie,
+            )
+            zaak = ZaakBulkFactory.create(
+                uuid=zaak_uuid,
+                zaaktype=zaaktype,
+                identificatie=identificatie,
+            )
+
+            statustypen = StatusType.objects.bulk_create(
+                StatusTypeFactory.build_batch(amount, zaaktype=zaaktype)
+            )
+            resultaattypen = ResultaatType.objects.bulk_create(
+                ResultaatTypeFactory.build_batch(
+                    amount,
+                    zaaktype=zaaktype,
+                )
+            )
+            roltypen = RolType.objects.bulk_create(
+                RolTypeFactory.build_batch(
+                    amount,
+                    zaaktype=zaaktype,
+                )
+            )
+            eigenschappen = Eigenschap.objects.bulk_create(
+                EigenschapFactory.build_batch(
+                    amount,
+                    zaaktype=zaaktype,
+                    specificatie_van_eigenschap=None,
+                )
+            )
+
+            ZaakObjectType.objects.bulk_create(
+                ZaakObjectTypeFactory.build_batch(amount, zaaktype=zaaktype)
+            )
+            informatieobjecttypen = InformatieObjectType.objects.bulk_create(
+                InformatieObjectTypeFactory.build_batch(
+                    amount,
+                    catalogus=catalog,
+                    concept=False,
+                )
+            )
+            ZaakTypeInformatieObjectType.objects.bulk_create(
+                [
+                    ZaakTypeInformatieObjectTypeFactory.build(
+                        zaaktype=zaaktype,
+                        informatieobjecttype=informatieobjecttype,
+                        volgnummer=f"{informatieobjecttype.id}{amount}",
+                    )
+                    for informatieobjecttype in informatieobjecttypen
+                ]
+            )
+
+            ResultaatFactory.create(zaak=zaak, resultaattype=resultaattypen[0])
+            statussen = Status.objects.bulk_create(
+                [
+                    StatusFactory.build(zaak=zaak, statustype=statustype)
+                    for statustype in statustypen
+                ]
+            )
+            SubStatus.objects.bulk_create(
+                [
+                    SubStatusFactory.build(zaak=zaak, status=status)
+                    for status in statussen
+                    for _ in range(amount)
+                ]
+            )
+            Rol.objects.bulk_create(
+                [RolFactory.build(zaak=zaak, roltype=roltype) for roltype in roltypen]
+            )
+            ZaakEigenschap.objects.bulk_create(
+                [
+                    ZaakEigenschapFactory.build(zaak=zaak, eigenschap=eigenschap)
+                    for eigenschap in eigenschappen
+                ]
+            )
+            ZaakObject.objects.bulk_create(
+                ZaakObjectFactory.build_batch(amount, zaak=zaak)
+            )
+
+            informatieobjecten = (
+                EnkelvoudigInformatieObjectCanonical.objects.bulk_create(
+                    EnkelvoudigInformatieObjectCanonicalFactory.build_batch(
+                        amount,
+                        latest_version=None,
+                    ),
+                )
+            )
+            EnkelvoudigInformatieObject.objects.bulk_create(
+                [
+                    EnkelvoudigInformatieObjectFactory.build(
+                        canonical=informatieobject,
+                        identificatie=f"inzage-{informatieobject.pk}",
+                        informatieobjecttype=informatieobjecttypen[0],
+                    )
+                    for informatieobject in informatieobjecten
+                ]
+            )
+
+            ZaakContactMoment.objects.bulk_create(
+                ZaakContactMomentFactory.build_batch(amount, zaak=zaak)
+            )
+            ZaakVerzoek.objects.bulk_create(
+                ZaakVerzoekFactory.build_batch(amount, zaak=zaak)
+            )
+            ZaakNotitie.objects.bulk_create(
+                ZaakNotitieFactory.build_batch(amount, gerelateerd_aan=zaak)
+            )
+
+            besluittype = BesluitTypeFactory.create(
+                catalogus=catalog,
+                concept=False,
+                zaaktypen=[zaaktype],
+            )
+            besluiten = BesluitBulk.objects_bulk.bulk_create(
+                BesluitBulkFactory.build_batch(
+                    amount,
+                    zaak=zaak,
+                    besluittype=besluittype,
+                )
+            )
+            ZaakInformatieObjectBulk.objects.bulk_create(
+                [
+                    ZaakInformatieObjectFactory.build(
+                        zaak=zaak,
+                        informatieobject=informatieobject,
+                    )
+                    for informatieobject in informatieobjecten
+                ]
+            )
+            BesluitInformatieObjectBulk.objects.bulk_create(
+                [
+                    BesluitInformatieObjectFactory.build(
+                        besluit=besluit,
+                        informatieobject=informatieobject,
+                    )
+                    for besluit, informatieobject in zip(besluiten, informatieobjecten)
+                ]
+            )
+            ObjectInformatieObjectBulk.objects.bulk_create(
+                [
+                    ObjectInformatieObject(
+                        zaak=zaak,
+                        informatieobject=informatieobject,
+                        object_type=ObjectInformatieObjectTypes.zaak,
+                    )
+                    for informatieobject in informatieobjecten
+                ]
+                + [
+                    ObjectInformatieObject(
+                        besluit=besluit,
+                        informatieobject=informatieobject,
+                        object_type=ObjectInformatieObjectTypes.besluit,
+                    )
+                    for besluit, informatieobject in zip(besluiten, informatieobjecten)
+                ]
+            )
+
+            deelzaken = ZaakBulkFactory.build_batch(
+                amount,
+                zaaktype=zaaktype,
+                hoofdzaak=zaak,
+            )
+            ZaakBulk.objects_bulk.bulk_create(deelzaken)
+
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Created ZAAK_INZAGE_{amount} with {amount} related records"
+                )
+            )
