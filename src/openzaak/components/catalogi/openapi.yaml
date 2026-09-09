@@ -1855,7 +1855,7 @@ paths:
           - concept
           - definitief
         description: |+
-          filter objecten op basis van de publicatiestatus:
+          filter de resultaten op basis van de waarde van het boolean attribuut concept van het gerelateerde zaaktype:
           * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
           * `concept`: Toon objecten waarvan het attribuut `concept` true is.
           * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
@@ -4024,7 +4024,7 @@ paths:
           - concept
           - definitief
         description: |+
-          filter objecten op basis van de publicatiestatus:
+          filter de resultaten op basis van de waarde van het boolean attribuut concept van het gerelateerde zaaktype:
           * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
           * `concept`: Toon objecten waarvan het attribuut `concept` true is.
           * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
@@ -5048,7 +5048,7 @@ paths:
           - concept
           - definitief
         description: |+
-          filter objecten op basis van de publicatiestatus:
+          filter de resultaten op basis van de waarde van het boolean attribuut concept van het gerelateerde zaaktype:
           * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
           * `concept`: Toon objecten waarvan het attribuut `concept` true is.
           * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
@@ -6046,7 +6046,7 @@ paths:
           - concept
           - definitief
         description: |+
-          filter objecten op basis van de publicatiestatus:
+          filter de resultaten op basis van de waarde van het boolean attribuut concept van het gerelateerde zaaktype:
           * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
           * `concept`: Toon objecten waarvan het attribuut `concept` true is.
           * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
@@ -8090,7 +8090,7 @@ paths:
         schema:
           type: string
         description: |
-          filter objecten op basis van de publicatiestatus:
+          filter de resultaten op basis van de waarde van het boolean attribuut concept van het gerelateerde zaaktype:
           * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
           * `concept`: Toon objecten waarvan het attribuut `concept` true is.
           * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
