@@ -13,7 +13,7 @@ from .models import User
 
 def _excluded_permissions_qs():
     """
-    Exclude replaced common_ground_api_common auth models.
+    Exclude replaced common_ground_api_common auth models, because in 2.0, the auth models have been moved to Open Zaak itself to allow foreign key relations with types
     """
     app_ct = ContentType.objects.get_for_model(Applicatie)
     auth_ct = ContentType.objects.get_for_model(Autorisatie)
