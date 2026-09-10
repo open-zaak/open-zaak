@@ -133,7 +133,8 @@ paths:
       - in: query
         name: catalogus
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
       - in: query
         name: datumGeldigheid
@@ -1863,7 +1864,8 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze
           EIGENSCHAP van belang is.
       - in: query
@@ -2831,7 +2833,8 @@ paths:
       - in: query
         name: catalogus
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
           behoort.
       - in: query
@@ -4030,7 +4033,8 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten
           van dit RESULTAATTYPE bereikt kunnen worden.
       - in: query
@@ -5053,7 +5057,8 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken
           kunnen zijn.
       - in: query
@@ -6050,7 +6055,8 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin STATUSsen
           van dit STATUSTYPE bereikt kunnen worden.
       - in: query
@@ -7024,7 +7030,8 @@ paths:
       - in: query
         name: catalogus
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
       - in: query
         name: datumBeginGeldigheid
@@ -7087,7 +7094,8 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAKTYPE waartoe dit ZAAKOBJECTTYPE behoort.
       - in: query
         name: zaaktypeIdentificatie
@@ -8050,7 +8058,8 @@ paths:
       - in: query
         name: informatieobjecttype
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar het INFORMATIEOBJECTTYPE.
       - name: page
         required: false
@@ -8088,7 +8097,8 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar het ZAAKTYPE.
       tags:
       - zaaktype-informatieobjecttypen
@@ -9061,7 +9071,8 @@ paths:
       - in: query
         name: catalogus
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
       - in: query
         name: datumGeldigheid
@@ -10279,8 +10290,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         zaaktypen:
           type: array
           items:
@@ -10398,8 +10409,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         omschrijving:
           type: string
           description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
@@ -10982,8 +10993,8 @@ components:
           format: uri
           description: URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze
             EIGENSCHAP van belang is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         zaaktypeIdentificatie:
           type: string
           description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
@@ -11000,8 +11011,8 @@ components:
           nullable: true
           description: Status type moet (onder andere) deze EIGENSCHAP hebben, voordat
             een STATUS van het STATUSTYPE kan worden gezet.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         beginGeldigheid:
           type: string
           format: date
@@ -11058,16 +11069,16 @@ components:
           format: uri
           description: URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze
             EIGENSCHAP van belang is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         statustype:
           type: string
           format: uri
           nullable: true
           description: Status type moet (onder andere) deze EIGENSCHAP hebben, voordat
             een STATUS van het STATUSTYPE kan worden gezet.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         beginGeldigheid:
           type: string
           format: date
@@ -11240,8 +11251,8 @@ components:
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
             behoort.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         omschrijving:
           type: string
           description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
@@ -11282,8 +11293,8 @@ components:
           items:
             type: string
             format: uri
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           readOnly: true
           description: URL-referenties naar de BESLUITTYPEN
         informatieobjectcategorie:
@@ -11308,8 +11319,8 @@ components:
           items:
             type: string
             format: uri
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           readOnly: true
           description: URL-referenties naar de ZAAKTYPEN
         beginObject:
@@ -11342,8 +11353,8 @@ components:
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
             behoort.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         omschrijving:
           type: string
           minLength: 1
@@ -11748,8 +11759,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         omschrijving:
           type: string
           description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
@@ -11830,16 +11841,16 @@ components:
           format: uri
           description: URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze
             EIGENSCHAP van belang is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         statustype:
           type: string
           format: uri
           nullable: true
           description: Status type moet (onder andere) deze EIGENSCHAP hebben, voordat
             een STATUS van het STATUSTYPE kan worden gezet.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         beginGeldigheid:
           type: string
           format: date
@@ -11858,8 +11869,8 @@ components:
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
             behoort.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         omschrijving:
           type: string
           minLength: 1
@@ -11922,8 +11933,8 @@ components:
           title: is van
           description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten
             van dit RESULTAATTYPE bereikt kunnen worden.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         omschrijving:
           type: string
           minLength: 1
@@ -12002,8 +12013,8 @@ components:
             type: string
             format: uri
             nullable: true
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           description: Het BESLUITTYPE van besluiten die gepaard gaan met resultaten
             van het RESULTAATTYPE.
         informatieobjecttypen:
@@ -12012,8 +12023,8 @@ components:
             type: string
             format: uri
             nullable: true
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           description: De INFORMATIEOBJECTTYPEn die verplicht aanwezig moeten zijn
             in het zaakdossier van ZAAKen van dit ZAAKTYPE voordat een resultaat van
             dit RESULTAATTYPE kan worden gezet.
@@ -12036,8 +12047,8 @@ components:
           format: uri
           description: URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken
             kunnen zijn.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         omschrijving:
           type: string
           minLength: 1
@@ -12095,8 +12106,8 @@ components:
           format: uri
           description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin STATUSsen
             van dit STATUSTYPE bereikt kunnen worden.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         volgnummer:
           type: integer
           maximum: 9999
@@ -12160,15 +12171,15 @@ components:
           format: uri
           description: URL-referentie naar de ZAAKTYPE waartoe dit ZAAKOBJECTTYPE
             behoort.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         statustype:
           type: string
           format: uri
           nullable: true
           description: URL-referentie naar het STATUSTYPE
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         beginGeldigheid:
           type: string
           format: date
@@ -12190,15 +12201,15 @@ components:
           type: string
           format: uri
           description: URL-referentie naar het ZAAKTYPE.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         informatieobjecttype:
           type: string
           format: uri
           title: Informatie object type
           description: URL-referentie naar het INFORMATIEOBJECTTYPE.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         volgnummer:
           type: integer
           maximum: 999
@@ -12223,8 +12234,8 @@ components:
           title: Status type
           description: URL-referentie naar het STATUSTYPE waarbij deze INFORMATIEOBJECTTYPEn
             verplicht aanwezig moeten zijn.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
     PatchedZaakTypeRequest:
       type: object
       description: |-
@@ -12415,8 +12426,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         besluittypen:
           type: array
           items:
@@ -12432,8 +12443,8 @@ components:
             type: string
             format: uri
             nullable: true
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           description: De ZAAKTYPE(n) waaronder ZAAKen als deelzaak kunnen voorkomen
             bij ZAAKen van dit ZAAKTYPE.
         gerelateerdeZaaktypen:
@@ -12498,8 +12509,8 @@ components:
           title: is van
           description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten
             van dit RESULTAATTYPE bereikt kunnen worden.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         zaaktypeIdentificatie:
           type: string
           description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
@@ -12589,8 +12600,8 @@ components:
             type: string
             format: uri
             nullable: true
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           description: Het BESLUITTYPE van besluiten die gepaard gaan met resultaten
             van het RESULTAATTYPE.
         besluittypeOmschrijving:
@@ -12605,8 +12616,8 @@ components:
             type: string
             format: uri
             nullable: true
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           description: De INFORMATIEOBJECTTYPEn die verplicht aanwezig moeten zijn
             in het zaakdossier van ZAAKen van dit ZAAKTYPE voordat een resultaat van
             dit RESULTAATTYPE kan worden gezet.
@@ -12662,8 +12673,8 @@ components:
           title: is van
           description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten
             van dit RESULTAATTYPE bereikt kunnen worden.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         omschrijving:
           type: string
           minLength: 1
@@ -12742,8 +12753,8 @@ components:
             type: string
             format: uri
             nullable: true
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           description: Het BESLUITTYPE van besluiten die gepaard gaan met resultaten
             van het RESULTAATTYPE.
         informatieobjecttypen:
@@ -12752,8 +12763,8 @@ components:
             type: string
             format: uri
             nullable: true
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           description: De INFORMATIEOBJECTTYPEn die verplicht aanwezig moeten zijn
             in het zaakdossier van ZAAKen van dit ZAAKTYPE voordat een resultaat van
             dit RESULTAATTYPE kan worden gezet.
@@ -12795,8 +12806,8 @@ components:
           format: uri
           description: URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken
             kunnen zijn.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         zaaktypeIdentificatie:
           type: string
           description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
@@ -12865,8 +12876,8 @@ components:
           format: uri
           description: URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken
             kunnen zijn.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         omschrijving:
           type: string
           minLength: 1
@@ -12935,8 +12946,8 @@ components:
           format: uri
           description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin STATUSsen
             van dit STATUSTYPE bereikt kunnen worden.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         zaaktypeIdentificatie:
           type: string
           description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
@@ -13054,8 +13065,8 @@ components:
           format: uri
           description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin STATUSsen
             van dit STATUSTYPE bereikt kunnen worden.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         volgnummer:
           type: integer
           maximum: 9999
@@ -13174,8 +13185,8 @@ components:
           format: uri
           description: URL-referentie naar de ZAAKTYPE waartoe dit ZAAKOBJECTTYPE
             behoort.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         zaaktypeIdentificatie:
           type: string
           description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
@@ -13186,8 +13197,8 @@ components:
           items:
             type: string
             format: uri
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           readOnly: true
           description: URL-referenties naar de RESULTAATTYPEN.
         statustype:
@@ -13195,8 +13206,8 @@ components:
           format: uri
           nullable: true
           description: URL-referentie naar het STATUSTYPE
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         catalogus:
           type: string
           format: uri
@@ -13258,15 +13269,15 @@ components:
           format: uri
           description: URL-referentie naar de ZAAKTYPE waartoe dit ZAAKOBJECTTYPE
             behoort.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         statustype:
           type: string
           format: uri
           nullable: true
           description: URL-referentie naar het STATUSTYPE
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         beginGeldigheid:
           type: string
           format: date
@@ -13486,8 +13497,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         statustypen:
           type: array
           items:
@@ -13543,8 +13554,8 @@ components:
             type: string
             format: uri
             nullable: true
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           description: De ZAAKTYPE(n) waaronder ZAAKen als deelzaak kunnen voorkomen
             bij ZAAKen van dit ZAAKTYPE.
         gerelateerdeZaaktypen:
@@ -13611,8 +13622,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar het ZAAKTYPE.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         zaaktypeIdentificatie:
           type: string
           description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
@@ -13623,8 +13634,8 @@ components:
           format: uri
           title: Informatie object type
           description: URL-referentie naar het INFORMATIEOBJECTTYPE.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         volgnummer:
           type: integer
           maximum: 999
@@ -13649,8 +13660,8 @@ components:
           title: Status type
           description: URL-referentie naar het STATUSTYPE waarbij deze INFORMATIEOBJECTTYPEn
             verplicht aanwezig moeten zijn.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         catalogus:
           type: string
           format: uri
@@ -13675,15 +13686,15 @@ components:
           type: string
           format: uri
           description: URL-referentie naar het ZAAKTYPE.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         informatieobjecttype:
           type: string
           format: uri
           title: Informatie object type
           description: URL-referentie naar het INFORMATIEOBJECTTYPE.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         volgnummer:
           type: integer
           maximum: 999
@@ -13708,8 +13719,8 @@ components:
           title: Status type
           description: URL-referentie naar het STATUSTYPE waarbij deze INFORMATIEOBJECTTYPEn
             verplicht aanwezig moeten zijn.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - informatieobjecttype
       - richting
@@ -13905,8 +13916,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         besluittypen:
           type: array
           items:
@@ -13922,8 +13933,8 @@ components:
             type: string
             format: uri
             nullable: true
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           description: De ZAAKTYPE(n) waaronder ZAAKen als deelzaak kunnen voorkomen
             bij ZAAKen van dit ZAAKTYPE.
         gerelateerdeZaaktypen:

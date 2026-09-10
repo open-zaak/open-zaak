@@ -128,7 +128,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       tags:
       - klantcontacten
@@ -771,7 +772,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       tags:
       - resultaten
@@ -1940,7 +1942,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       tags:
       - rollen
@@ -2789,7 +2792,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       tags:
       - statussen
@@ -3322,7 +3326,8 @@ paths:
       - in: query
         name: status
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de hoofdSTATUS.
       - in: query
         name: tijdstip__gt
@@ -3351,7 +3356,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       tags:
       - substatussen
@@ -4244,7 +4250,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       tags:
       - zaakcontactmomenten
@@ -4834,7 +4841,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       tags:
       - zaakinformatieobjecten
@@ -5898,7 +5906,8 @@ paths:
       - in: query
         name: gerelateerdAan
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       - in: query
         name: notitieType
@@ -7106,7 +7115,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       tags:
       - zaakobjecten
@@ -8031,7 +8041,8 @@ paths:
       - in: query
         name: zaak
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de ZAAK.
       tags:
       - zaakverzoeken
@@ -13112,8 +13123,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         betrokkene:
           type: string
           format: uri
@@ -13199,8 +13210,8 @@ components:
           items:
             type: string
             format: uri
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           readOnly: true
           description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
             dat STATUSsen in die ZAAK bereikt zijn.
@@ -13235,8 +13246,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         betrokkene:
           type: string
           format: uri
@@ -13330,8 +13341,8 @@ components:
           format: uri
           readOnly: true
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         betrokkene:
           type: string
           format: uri
@@ -13417,8 +13428,8 @@ components:
           items:
             type: string
             format: uri
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           readOnly: true
           description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
             dat STATUSsen in die ZAAK bereikt zijn.
@@ -13540,8 +13551,8 @@ components:
           format: uri
           readOnly: true
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         betrokkene:
           type: string
           format: uri
@@ -13627,8 +13638,8 @@ components:
           items:
             type: string
             format: uri
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           readOnly: true
           description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
             dat STATUSsen in die ZAAK bereikt zijn.
@@ -13753,8 +13764,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         object:
           type: string
           format: uri
@@ -13840,8 +13851,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         object:
           type: string
           format: uri
@@ -13939,8 +13950,8 @@ components:
           format: uri
           readOnly: true
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         object:
           type: string
           format: uri
@@ -14620,8 +14631,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         identificatie:
           type: string
           description: De unieke aanduiding van een KLANTCONTACT
@@ -14654,8 +14665,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         identificatie:
           type: string
           minLength: 1
@@ -16329,8 +16340,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         resultaattype:
           type: string
           minLength: 1
@@ -16378,8 +16389,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         titel:
           type: string
           description: De naam waaronder het INFORMATIEOBJECT binnen het OBJECT bekend
@@ -16402,8 +16413,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
     PatchedZaakNotitieRequest:
       type: object
       properties:
@@ -16661,8 +16672,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         relevanteAndereZaken:
           type: array
           items:
@@ -16901,8 +16912,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         relevanteAndereZaken:
           type: array
           items:
@@ -17194,8 +17205,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         resultaattype:
           type: string
           description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
@@ -17218,8 +17229,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         resultaattype:
           type: string
           minLength: 1
@@ -17254,8 +17265,8 @@ components:
           format: uri
           readOnly: true
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         resultaattype:
           type: string
           description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
@@ -17506,8 +17517,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         statustype:
           type: string
           description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
@@ -17535,15 +17546,15 @@ components:
           title: Gezet door
           description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
             dat STATUSsen in die ZAAK bereikt zijn.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         zaakinformatieobjecten:
           type: array
           items:
             type: string
             format: uri
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           readOnly: true
           description: URL-referenties naar ZAAKINFORMATIEOBJECTen.
       required:
@@ -17566,8 +17577,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         statustype:
           type: string
           minLength: 1
@@ -17590,8 +17601,8 @@ components:
           title: Gezet door
           description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
             dat STATUSsen in die ZAAK bereikt zijn.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - datumStatusGezet
       - statustype
@@ -17617,8 +17628,8 @@ components:
           format: uri
           readOnly: true
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         statustype:
           type: string
           description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
@@ -17646,15 +17657,15 @@ components:
           title: Gezet door
           description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
             dat STATUSsen in die ZAAK bereikt zijn.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         zaakinformatieobjecten:
           type: array
           items:
             type: string
             format: uri
-            minLength: 1
             maxLength: 1000
+            minLength: 1
           readOnly: true
           description: URL-referenties naar ZAAKINFORMATIEOBJECTen.
       required:
@@ -17690,8 +17701,8 @@ components:
           title: Gezet door
           description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
             dat STATUSsen in die ZAAK bereikt zijn.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - datumStatusGezet
       - statustype
@@ -17715,15 +17726,15 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         status:
           type: string
           format: uri
           nullable: true
           description: URL-referentie naar de hoofdSTATUS.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         omschrijving:
           type: string
           description: Een, voor de initiator van de zaak relevante, toelichting op
@@ -17750,15 +17761,15 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         status:
           type: string
           format: uri
           nullable: true
           description: URL-referentie naar de hoofdSTATUS.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         omschrijving:
           type: string
           minLength: 1
@@ -18388,8 +18399,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         deelzaken:
           type: array
           items:
@@ -18643,8 +18654,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         contactmoment:
           type: string
           format: uri
@@ -18662,8 +18673,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         contactmoment:
           type: string
           format: uri
@@ -18768,8 +18779,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         aardRelatieWeergave:
           allOf:
           - $ref: '#/components/schemas/AardRelatieWeergaveEnum'
@@ -18803,8 +18814,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - aardRelatieWeergave
       - informatieobject
@@ -18826,8 +18837,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         titel:
           type: string
           description: De naam waaronder het INFORMATIEOBJECT binnen het OBJECT bekend
@@ -18850,8 +18861,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - informatieobject
       - zaak
@@ -18882,8 +18893,8 @@ components:
           format: uri
           readOnly: true
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         aardRelatieWeergave:
           allOf:
           - $ref: '#/components/schemas/AardRelatieWeergaveEnum'
@@ -18917,8 +18928,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - aardRelatieWeergave
       - informatieobject
@@ -18958,8 +18969,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
       required:
       - informatieobject
     ZaakKenmerk:
@@ -19578,8 +19589,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         deelzaken:
           type: array
           items:
@@ -19983,8 +19994,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         relevanteAndereZaken:
           type: array
           items:
@@ -20258,8 +20269,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         deelzaken:
           type: array
           items:
@@ -20563,8 +20574,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         relevanteAndereZaken:
           type: array
           items:
@@ -20880,8 +20891,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         deelzaken:
           type: array
           items:
@@ -21098,8 +21109,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         verzoek:
           type: string
           format: uri
@@ -21117,8 +21128,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         verzoek:
           type: string
           format: uri
