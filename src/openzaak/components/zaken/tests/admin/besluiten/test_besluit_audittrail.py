@@ -47,7 +47,7 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
         if zaak:
             data.update(
                 {
-                    "_zaak": zaak.id,
+                    "zaak": zaak.id,
                 }
             )
 
@@ -196,7 +196,7 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
             "datum": besluit.datum,
             "ingangsdatum": "15-11-2019",
             "toelichting": "new",
-            "_zaak": zaak.id,
+            "zaak": zaak.id,
         }
         data.update(inline_data)
 

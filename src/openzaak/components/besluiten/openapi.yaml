@@ -295,6 +295,7 @@ paths:
         name: zaak
         schema:
           type: string
+          format: uri
         description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
           uitkomst is.
       tags:
@@ -2415,10 +2416,12 @@ components:
           minLength: 1
         zaak:
           type: string
+          format: uri
+          nullable: true
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
-          format: uri
           maxLength: 200
+          minLength: 1
         datum:
           type: string
           format: date
@@ -2587,10 +2590,12 @@ components:
           minLength: 1
         zaak:
           type: string
+          format: uri
+          nullable: true
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
-          format: uri
           maxLength: 200
+          minLength: 1
         datum:
           type: string
           format: date
@@ -2676,10 +2681,12 @@ components:
           minLength: 1
         zaak:
           type: string
+          format: uri
+          nullable: true
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
-          format: uri
           maxLength: 200
+          minLength: 1
         datum:
           type: string
           format: date
@@ -2762,10 +2769,12 @@ components:
           minLength: 1
         zaak:
           type: string
+          format: uri
+          nullable: true
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
-          format: uri
           maxLength: 200
+          minLength: 1
         datum:
           type: string
           format: date
@@ -2951,10 +2960,12 @@ components:
           minLength: 1
         zaak:
           type: string
+          format: uri
+          nullable: true
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
-          format: uri
           maxLength: 200
+          minLength: 1
         datum:
           type: string
           format: date
