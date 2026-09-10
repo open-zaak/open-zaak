@@ -618,13 +618,11 @@ class BesluitTypeAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()["results"]
+
         self.assertEqual(len(data), 1)
-
-        catalogus_response = self.client.get(reverse(self.catalogus))
-
         self.assertEqual(
-            data[0]["_expand"]["catalogus"],
-            catalogus_response.json(),
+            data[0]["_expand"]["catalogus"]["url"],
+            f"http://testserver{reverse(self.catalogus)}",
         )
 
     def test_get_detail_expand_catalogus(self):
@@ -637,11 +635,11 @@ class BesluitTypeAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        catalogus_response = self.client.get(reverse(self.catalogus))
+        data = response.json()
 
         self.assertEqual(
-            response.json()["_expand"]["catalogus"],
-            catalogus_response.json(),
+            data["_expand"]["catalogus"]["url"],
+            f"http://testserver{reverse(self.catalogus)}",
         )
 
     def test_get_detail_expand_zaaktypen(self):
@@ -655,11 +653,12 @@ class BesluitTypeAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        zaaktype_response = self.client.get(reverse(zaaktype))
+        data = response.json()
 
+        self.assertEqual(len(data["_expand"]["zaaktypen"]), 1)
         self.assertEqual(
-            response.json()["_expand"]["zaaktypen"],
-            [zaaktype_response.json()],
+            data["_expand"]["zaaktypen"][0]["url"],
+            f"http://testserver{reverse(zaaktype)}",
         )
 
     def test_get_detail_expand_informatieobjecttypen(self):
@@ -676,11 +675,12 @@ class BesluitTypeAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        informatieobjecttype_response = self.client.get(reverse(informatieobjecttype))
+        data = response.json()
 
+        self.assertEqual(len(data["_expand"]["informatieobjecttypen"]), 1)
         self.assertEqual(
-            response.json()["_expand"]["informatieobjecttypen"],
-            [informatieobjecttype_response.json()],
+            data["_expand"]["informatieobjecttypen"][0]["url"],
+            f"http://testserver{reverse(informatieobjecttype)}",
         )
 
     def test_get_detail_expand_resultaattypen(self):
@@ -696,11 +696,12 @@ class BesluitTypeAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        resultaattype_response = self.client.get(reverse(resultaattype))
+        data = response.json()
 
+        self.assertEqual(len(data["_expand"]["resultaattypen"]), 1)
         self.assertEqual(
-            response.json()["_expand"]["resultaattypen"],
-            [resultaattype_response.json()],
+            data["_expand"]["resultaattypen"][0]["url"],
+            f"http://testserver{reverse(resultaattype)}",
         )
 
     def test_get_detail_expand_multiple(self):
@@ -717,7 +718,7 @@ class BesluitTypeAPITests(APITestCase):
 
         response = self.client.get(
             reverse(besluittype),
-            {"expand": ("catalogus,zaaktypen,informatieobjecttypen,resultaattypen")},
+            {"expand": "catalogus,zaaktypen,informatieobjecttypen,resultaattypen"},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

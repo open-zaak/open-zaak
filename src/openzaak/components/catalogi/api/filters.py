@@ -16,6 +16,7 @@ from vng_api_common.utils import get_help_text, get_resource_for_path
 from openzaak.components.catalogi.api.serializers.besluittype import (
     BesluitTypeSerializer,
 )
+from openzaak.components.catalogi.api.serializers.catalogus import CatalogusSerializer
 from openzaak.utils.filters import (
     CatalogiExpandFilter,
     CharArrayFilter,
@@ -344,9 +345,15 @@ class BesluitTypeDetailFilter(FilterSet):
 
 
 class CatalogusFilter(FilterSet):
+    expand = CatalogiExpandFilter(serializer_class=CatalogusSerializer)
+
     class Meta:
         model = Catalogus
         fields = {"domein": ["exact", "in"], "rsin": ["exact", "in"]}
+
+
+class CatalogusDetailFilter(FilterSet):
+    expand = CatalogiExpandFilter(serializer_class=CatalogusSerializer)
 
 
 class ZaakObjectTypeFilter(FilterSet):

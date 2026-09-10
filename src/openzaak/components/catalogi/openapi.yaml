@@ -1339,6 +1339,21 @@ paths:
         description: Meerdere waarden kunnen gescheiden worden door komma's.
         explode: false
         style: form
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - besluittypen
+            - informatieobjecttypen
+            - zaaktypen
+        description: |+
+          Sluit de gespecificeerde gerelateerde resources aan in het antwoord. Expand naar willekeurige diepte wordt niet ondersteund. Dit wijkt af van de standaard.
+
+        explode: false
+        style: form
       - name: page
         required: false
         in: query
@@ -1383,7 +1398,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedCatalogusList'
+                $ref: '#/components/schemas/PaginatedExpandCatalogusList'
           description: OK
         '400':
           headers:
@@ -1665,6 +1680,21 @@ paths:
           MultipleValues:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
             summary: Meerdere ETag-waardes
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - besluittypen
+            - informatieobjecttypen
+            - zaaktypen
+        description: |+
+          Sluit de gespecificeerde gerelateerde resources aan in het antwoord. Expand naar willekeurige diepte wordt niet ondersteund. Dit wijkt af van de standaard.
+
+        explode: false
+        style: form
       - in: path
         name: uuid
         schema:
@@ -1694,7 +1724,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Catalogus'
+                $ref: '#/components/schemas/ExpandCatalogus'
           description: OK
         '401':
           headers:
@@ -11560,6 +11590,37 @@ components:
                 readOnly: true
                 description: Het RESULTAATTYPE van resultaten die gepaard gaan met
                   besluiten van het BESLUITTYPE.
+    ExpandCatalogus:
+      allOf:
+      - $ref: '#/components/schemas/Catalogus'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              zaaktypen:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZaakType'
+                readOnly: true
+                description: URL-referenties naar ZAAKTYPEn die in deze CATALOGUS
+                  worden ontsloten.
+              besluittypen:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BesluitType'
+                readOnly: true
+                description: URL-referenties naar BESLUITTYPEn die in deze CATALOGUS
+                  worden ontsloten.
+              informatieobjecttypen:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InformatieObjectType'
+                readOnly: true
+                description: URL-referenties naar INFORMATIEOBJECTTYPEn die in deze
+                  CATALOGUS worden ontsloten.
     FieldValidationError:
       type: object
       description: Formaat van validatiefouten.
@@ -11997,6 +12058,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ExpandBesluitType'
+    PaginatedExpandCatalogusList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpandCatalogus'
     PaginatedInformatieObjectTypeList:
       type: object
       required:
