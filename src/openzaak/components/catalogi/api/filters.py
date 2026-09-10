@@ -13,7 +13,13 @@ from vng_api_common.filters import URLModelChoiceFilter
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text, get_resource_for_path
 
-from openzaak.utils.filters import CharArrayFilter
+from openzaak.components.catalogi.api.serializers.besluittype import (
+    BesluitTypeSerializer,
+)
+from openzaak.utils.filters import (
+    CatalogiExpandFilter,
+    CharArrayFilter,
+)
 from openzaak.utils.help_text import mark_experimental
 
 from ..models import (
@@ -318,6 +324,7 @@ class BesluitTypeFilter(FilterSet):
         method=geldigheid_filter,
         help_text=DATUM_GELDIGHEID_HELP_TEXT,
     )
+    expand = CatalogiExpandFilter(serializer_class=BesluitTypeSerializer)
 
     class Meta:
         model = BesluitType
@@ -328,7 +335,12 @@ class BesluitTypeFilter(FilterSet):
             "status",
             "omschrijving",
             "datum_geldigheid",
+            "expand",
         )
+
+
+class BesluitTypeDetailFilter(FilterSet):
+    expand = CatalogiExpandFilter(serializer_class=BesluitTypeSerializer)
 
 
 class CatalogusFilter(FilterSet):

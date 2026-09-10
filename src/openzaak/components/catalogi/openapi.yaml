@@ -142,6 +142,22 @@ paths:
           format: date
         description: filter objecten op hun geldigheids datum.
       - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - catalogus
+            - informatieobjecttypen
+            - resultaattypen
+            - zaaktypen
+        description: |+
+          Sluit de gespecificeerde gerelateerde resources aan in het antwoord. Expand naar willekeurige diepte wordt niet ondersteund. Dit wijkt af van de standaard.
+
+        explode: false
+        style: form
+      - in: query
         name: informatieobjecttypen
         schema:
           type: string
@@ -204,7 +220,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedBesluitTypeList'
+                $ref: '#/components/schemas/PaginatedExpandBesluitTypeList'
           description: OK
         '400':
           headers:
@@ -486,6 +502,22 @@ paths:
           MultipleValues:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
             summary: Meerdere ETag-waardes
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - catalogus
+            - informatieobjecttypen
+            - resultaattypen
+            - zaaktypen
+        description: |+
+          Sluit de gespecificeerde gerelateerde resources aan in het antwoord. Expand naar willekeurige diepte wordt niet ondersteund. Dit wijkt af van de standaard.
+
+        explode: false
+        style: form
       - in: path
         name: uuid
         schema:
@@ -515,7 +547,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BesluitType'
+                $ref: '#/components/schemas/ExpandBesluitType'
           description: OK
         '401':
           headers:
@@ -11493,6 +11525,41 @@ components:
       - formaat
       - kardinaliteit
       - lengte
+    ExpandBesluitType:
+      allOf:
+      - $ref: '#/components/schemas/BesluitType'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              catalogus:
+                allOf:
+                - $ref: '#/components/schemas/Catalogus'
+                description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE
+                  behoort.
+              zaaktypen:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZaakType'
+                readOnly: true
+                description: ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit
+                  BESLUITTYPE
+              informatieobjecttypen:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InformatieObjectType'
+                description: URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
+                  waarin besluiten van dit BESLUITTYPE worden vastgelegd.
+              resultaattypen:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResultaatType'
+                readOnly: true
+                description: Het RESULTAATTYPE van resultaten die gepaard gaan met
+                  besluiten van het BESLUITTYPE.
     FieldValidationError:
       type: object
       description: Formaat van validatiefouten.
@@ -11907,6 +11974,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Eigenschap'
+    PaginatedExpandBesluitTypeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpandBesluitType'
     PaginatedInformatieObjectTypeList:
       type: object
       required:
