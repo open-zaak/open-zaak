@@ -1544,6 +1544,8 @@ class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
         queryset=Besluit.objects.all(),
         lookup_field="uuid",
         view_name="zaken:besluit-detail",
+        min_length=1,
+        help_text=get_help_text("zaken.ZaakBesluit", "besluit"),
     )
 
     parent_lookup_kwargs = {"zaak_uuid": "zaak__uuid"}

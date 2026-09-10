@@ -2417,11 +2417,9 @@ components:
         zaak:
           type: string
           format: uri
-          nullable: true
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           maxLength: 200
-          minLength: 1
         datum:
           type: string
           format: date
@@ -2591,11 +2589,9 @@ components:
         zaak:
           type: string
           format: uri
-          nullable: true
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           maxLength: 200
-          minLength: 1
         datum:
           type: string
           format: date
@@ -2682,11 +2678,9 @@ components:
         zaak:
           type: string
           format: uri
-          nullable: true
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           maxLength: 200
-          minLength: 1
         datum:
           type: string
           format: date
@@ -2770,11 +2764,9 @@ components:
         zaak:
           type: string
           format: uri
-          nullable: true
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           maxLength: 200
-          minLength: 1
         datum:
           type: string
           format: date
@@ -2961,11 +2953,9 @@ components:
         zaak:
           type: string
           format: uri
-          nullable: true
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           maxLength: 200
-          minLength: 1
         datum:
           type: string
           format: date

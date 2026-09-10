@@ -16321,11 +16321,9 @@ components:
         zaak:
           type: string
           format: uri
-          nullable: true
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           maxLength: 200
-          minLength: 1
         datum:
           type: string
           format: date
@@ -16495,11 +16493,9 @@ components:
         zaak:
           type: string
           format: uri
-          nullable: true
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           maxLength: 200
-          minLength: 1
         datum:
           type: string
           format: date
@@ -16586,11 +16582,9 @@ components:
         zaak:
           type: string
           format: uri
-          nullable: true
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           maxLength: 200
-          minLength: 1
         datum:
           type: string
           format: date
@@ -16674,11 +16668,9 @@ components:
         zaak:
           type: string
           format: uri
-          nullable: true
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           maxLength: 200
-          minLength: 1
         datum:
           type: string
           format: date
@@ -19029,11 +19021,9 @@ components:
         zaak:
           type: string
           format: uri
-          nullable: true
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           maxLength: 200
-          minLength: 1
         datum:
           type: string
           format: date
@@ -21346,6 +21336,7 @@ components:
         besluit:
           type: string
           format: uri
+          description: URL-referentie naar het BESLUIT (in de Besluiten API).
           maxLength: 1000
           minLength: 1
       required:
@@ -21359,6 +21350,7 @@ components:
         besluit:
           type: string
           format: uri
+          description: URL-referentie naar het BESLUIT (in de Besluiten API).
           maxLength: 1000
           minLength: 1
       required:

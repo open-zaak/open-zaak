@@ -1732,8 +1732,6 @@ class ZaakBesluit(models.Model):
         "besluiten.Besluit",
         on_delete=models.CASCADE,
         help_text="URL-referentie naar het BESLUIT (in de Besluiten API).",
-        null=True,
-        blank=True,
     )
 
     objects = ZaakBesluitQuerySet.as_manager()

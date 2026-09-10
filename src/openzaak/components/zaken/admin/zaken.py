@@ -512,6 +512,8 @@ class ZaakBesluitForm(forms.ModelForm):
 
 @admin.register(ZaakBesluit)
 class ZaakBesluitAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
+    audittrail_main_object_attr = "zaak"
+
     list_display = ("zaak", "besluit")
     list_select_related = ("zaak", "besluit")
     search_fields = (
@@ -520,7 +522,6 @@ class ZaakBesluitAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
         "zaak__identificatie",
         "besluit__uuid",
         "besluit__identificatie",
-        "besluit_url",
     )
     form = ZaakBesluitForm
     ordering = ("zaak", "besluit")

@@ -14,6 +14,7 @@ from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, validate_rsin
 
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
+from openzaak.components.zaken.models.zaken import Zaak
 from openzaak.utils.api import create_remote_oio
 from openzaak.utils.serializer_fields import (
     DeprecatedNamespaceLengthHyperlinkedRelatedField,
@@ -42,6 +43,16 @@ class BesluitSerializer(
 ):
     vervalreden_weergave = serializers.CharField(
         source="get_vervalreden_display", read_only=True
+    )
+    zaak = DeprecatedNamespaceLengthHyperlinkedRelatedField(
+        queryset=Zaak.objects.all(),
+        lookup_field="uuid",
+        view_name="zaken:zaak-detail",
+        required=False,
+        allow_null=False,
+        max_length=200,
+        min_length=0,
+        help_text=get_help_text("besluiten.Besluit", "zaak"),
     )
 
     class Meta:
@@ -79,12 +90,6 @@ class BesluitSerializer(
                     PublishValidator(),
                 ],
             },
-            # per BRC API spec!
-            "zaak": {
-                "lookup_field": "uuid",
-                "view_name": "zaken:zaak-detail",
-                "max_length": 200,
-            },
             "identificatie": {"validators": [IsImmutableValidator()]},
             "verantwoordelijke_organisatie": {
                 "validators": [IsImmutableValidator(), validate_rsin]
@@ -99,15 +104,6 @@ class BesluitSerializer(
         fields["vervalreden"].help_text += f"\n\n{value_display_mapping}"
 
         return fields
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-
-        # When zaak is None zaak is represented as an empty string, not null
-        if representation["zaak"] is None:
-            representation["zaak"] = ""
-
-        return representation
 
 
 class BesluitSubSerializer(SubSerializerMixin, BesluitSerializer):
