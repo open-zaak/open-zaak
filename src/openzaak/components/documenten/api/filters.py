@@ -25,6 +25,7 @@ from ..models import (
 from .serializers import (
     EnkelvoudigInformatieObjectSerializer,
     GebruiksrechtenSerializer,
+    ObjectInformatieObjectSerializer,
     VerzendingSerializer,
 )
 from .utils import check_path
@@ -244,10 +245,15 @@ class ObjectInformatieObjectFilter(FilterSet):
         zaak_field_name="zaak",
         verzoek_field_name="verzoek",
     )
+    expand = ExpandFilter(serializer_class=ObjectInformatieObjectSerializer)
 
     class Meta:
         model = ObjectInformatieObject
         fields = ("object", "informatieobject")
+
+
+class ObjectInformatieObjectDetailFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=ObjectInformatieObjectSerializer)
 
 
 class VerzendingFilter(FilterSet):

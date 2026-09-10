@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Documenten API
-  version: 1.5.0
+  version: 1.6.0
   description: |
     Een API om een documentregistratiecomponent (DRC) te benaderen.
 
@@ -3956,8 +3956,9 @@ paths:
         **ontvangstdatum**, **verzenddatum**, **indicatieGebruiksrecht**, **verschijningsvorm**,
         **ondertekening.soort**, **ondertekening.datum**, **integriteit.algoritme**,
         **integriteit.waarde**, **integriteit.datum**, **informatieobjecttype**, **zaakUuid**,
-        **trefwoorden**, **inhoudIsVervallen**, **opmerking**, **resultaat**. Voor
-        deze actie is een APPLICATIE nodig met `heeft_alle_autorisaties` ingeschakeld.'
+        **trefwoorden**, **inhoudIsVervallen**, **tonenAanInitiator**, **opmerking**,
+        **resultaat**. Voor deze actie is een APPLICATIE nodig met `heeft_alle_autorisaties`
+        ingeschakeld.'
       summary: Het reportage bestand van een IMPORT downloaden.
       parameters:
       - in: path
@@ -4226,8 +4227,8 @@ paths:
         **ontvangstdatum**, **verzenddatum**, **indicatieGebruiksrecht**, **verschijningsvorm**,
         **ondertekening.soort**, **ondertekening.datum**, **integriteit.algoritme**,
         **integriteit.waarde**, **integriteit.datum**, **informatieobjecttype**, **zaakUuid**,
-        **trefwoorden**, **inhoudIsVervallen**. Voor deze actie is een APPLICATIE
-        nodig met `heeft_alle_autorisaties` ingeschakeld.'
+        **trefwoorden**, **inhoudIsVervallen**, **tonenAanInitiator**. Voor deze actie
+        is een APPLICATIE nodig met `heeft_alle_autorisaties` ingeschakeld.'
       summary: Een IMPORT bestand uploaden
       parameters:
       - in: header
@@ -4521,6 +4522,19 @@ paths:
       summary: Alle OBJECT-INFORMATIEOBJECT relaties opvragen.
       parameters:
       - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - informatieobject
+            - informatieobject.informatieobjecttype
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
+      - in: query
         name: informatieobject
         schema:
           type: string
@@ -4550,7 +4564,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ObjectInformatieObject'
+                  $ref: '#/components/schemas/ExpandObjectInformatieObject'
           description: OK
         '400':
           headers:
@@ -4840,6 +4854,19 @@ paths:
           MultipleValues:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
             summary: Meerdere ETag-waardes
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - informatieobject
+            - informatieobject.informatieobjecttype
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
       - in: path
         name: uuid
         schema:
@@ -4869,7 +4896,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ObjectInformatieObject'
+                $ref: '#/components/schemas/ExpandObjectInformatieObject'
           description: OK
         '401':
           headers:
@@ -6782,6 +6809,10 @@ components:
             * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
             * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
             * `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is.
+        tonenAanInitiator:
+          type: boolean
+          description: Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de
+            initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen.
       required:
       - auteur
       - beginRegistratie
@@ -6958,6 +6989,10 @@ components:
             * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
             * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
             * `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is.
+        tonenAanInitiator:
+          type: boolean
+          description: Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de
+            initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen.
       required:
       - auteur
       - bronorganisatie
@@ -7153,6 +7188,10 @@ components:
             * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
             * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
             * `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is.
+        tonenAanInitiator:
+          type: boolean
+          description: Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de
+            initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen.
         lock:
           type: string
           readOnly: true
@@ -7333,6 +7372,10 @@ components:
             * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
             * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
             * `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is.
+        tonenAanInitiator:
+          type: boolean
+          description: Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de
+            initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen.
       required:
       - auteur
       - bronorganisatie
@@ -7504,6 +7547,10 @@ components:
             * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
             * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
             * `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is.
+        tonenAanInitiator:
+          type: boolean
+          description: Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de
+            initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen.
         lock:
           type: string
           writeOnly: true
@@ -7537,6 +7584,20 @@ components:
     ExpandGebruiksrechten:
       allOf:
       - $ref: '#/components/schemas/Gebruiksrechten'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              informatieobject:
+                allOf:
+                - $ref: '#/components/schemas/EnkelvoudigInformatieObject'
+                description: URL-referentie naar het INFORMATIEOBJECT.
+    ExpandObjectInformatieObject:
+      allOf:
+      - $ref: '#/components/schemas/ObjectInformatieObject'
       - type: object
         properties:
           _expand:
@@ -8187,6 +8248,10 @@ components:
             * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
             * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
             * `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is.
+        tonenAanInitiator:
+          type: boolean
+          description: Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de
+            initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen.
         lock:
           type: string
           writeOnly: true

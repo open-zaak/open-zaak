@@ -19,7 +19,7 @@ from vng_api_common.validators import (
 from openzaak.utils import build_absolute_url
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
 
-from ..constants import ObjectInformatieObjectTypes
+from ..constants import AfzenderTypes, ObjectInformatieObjectTypes
 from ..models import ObjectInformatieObject
 from ..validators import validate_status
 
@@ -285,3 +285,31 @@ class VerzendingAddressValidator:
             )
             if non_empty_partial_count != 1:
                 raise serializers.ValidationError(detail=self.message, code=self.code)
+
+
+class VerzendingVerzenddatumValidator:
+    """
+    `verzenddatum` is required when `aardRelatie` has the value `geadresseerde`.
+    """
+
+    requires_context = True
+    message = _(
+        "`verzenddatum` is verplicht als `aardRelatie` de waarde 'geadresseerde' heeft."
+    )
+    code = "verzenddatum-required"
+
+    def __call__(self, attrs: dict, serializer: serializers.Serializer):
+        if serializer.partial and not ({"aard_relatie", "verzenddatum"} & attrs.keys()):
+            return
+
+        aard_relatie = get_from_serializer_data_or_instance(
+            "aard_relatie", attrs, serializer
+        )
+        verzenddatum = get_from_serializer_data_or_instance(
+            "verzenddatum", attrs, serializer
+        )
+
+        if aard_relatie == AfzenderTypes.geadresseerde and not verzenddatum:
+            raise serializers.ValidationError(
+                {"verzenddatum": self.message}, code=self.code
+            )

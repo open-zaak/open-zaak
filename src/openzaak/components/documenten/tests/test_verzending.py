@@ -507,6 +507,85 @@ class VerzendingAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Verzending.objects.exists())
 
+    def test_create_geadresseerde_without_verzenddatum_fail(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        url = reverse(Verzending)
+        data = {
+            "betrokkene": "http://example.com/betrokkene/1",
+            "informatieobject": f"http://testserver{reverse(eio)}",
+            "aardRelatie": AfzenderTypes.geadresseerde,
+            "contactPersoon": "http://example.com/contactperson/1",
+            "mijnOverheid": True,
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "verzenddatum")
+        self.assertEqual(error["code"], "verzenddatum-required")
+
+    def test_create_geadresseerde_with_verzenddatum_succeeds(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        url = reverse(Verzending)
+        data = {
+            "betrokkene": "http://example.com/betrokkene/1",
+            "informatieobject": f"http://testserver{reverse(eio)}",
+            "aardRelatie": AfzenderTypes.geadresseerde,
+            "verzenddatum": "2024-01-01",
+            "contactPersoon": "http://example.com/contactperson/1",
+            "mijnOverheid": True,
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_create_afzender_without_verzenddatum_succeeds(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        url = reverse(Verzending)
+        data = {
+            "betrokkene": "http://example.com/betrokkene/1",
+            "informatieobject": f"http://testserver{reverse(eio)}",
+            "aardRelatie": AfzenderTypes.afzender,
+            "contactPersoon": "http://example.com/contactperson/1",
+            "mijnOverheid": True,
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_partial_update_to_geadresseerde_without_verzenddatum_fail(self):
+        verzending = VerzendingFactory.create(
+            has_inner_address=True,
+            aard_relatie=AfzenderTypes.afzender,
+            verzenddatum=None,
+        )
+        url = reverse(verzending)
+
+        response = self.client.patch(url, {"aardRelatie": AfzenderTypes.geadresseerde})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "verzenddatum")
+        self.assertEqual(error["code"], "verzenddatum-required")
+
+    def test_partial_update_unrelated_field_on_existing_geadresseerde_succeeds(self):
+        """
+        Regression test: existing Verzendingen that predate this validation
+        and lack a verzenddatum shouldn't be blocked from unrelated updates.
+        """
+        verzending = VerzendingFactory.create(
+            has_inner_address=True,
+            aard_relatie=AfzenderTypes.geadresseerde,
+            verzenddatum=None,
+            toelichting="old",
+        )
+        url = reverse(verzending)
+
+        response = self.client.patch(url, {"toelichting": "new"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
 
 @temp_private_root()
 class VerzendingFilterTests(JWTAuthMixin, APITestCase):

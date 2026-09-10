@@ -226,6 +226,14 @@ class InformatieObject(models.Model):
             "* `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is."
         ),
     )
+    tonen_aan_initiator = models.BooleanField(
+        _("tonen aan initiator"),
+        default=False,
+        help_text=_(
+            "Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de "
+            "initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen."
+        ),
+    )
 
     objects = InformatieobjectQuerySet.as_manager()
 
@@ -653,7 +661,7 @@ class Gebruiksrechten(DocumentETagMixin, APIMixin, models.Model):
         return f"({informatieobject.unique_representation()}) - {self.omschrijving_voorwaarden[:50]}"
 
 
-class ObjectInformatieObject(DocumentETagMixin, models.Model):
+class ObjectInformatieObject(DocumentETagMixin, APIMixin, models.Model):
     uuid = models.UUIDField(
         unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
