@@ -6,12 +6,12 @@ from rest_framework import mixins, viewsets
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
-from openzaak.utils.mixins import CacheQuerysetMixin
+from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 
 from ...models import Catalogus
-from ..filters import CatalogusFilter
+from ..filters import CatalogusDetailFilter, CatalogusFilter
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_WRITE,
     SCOPE_CATALOGI_READ,
@@ -47,6 +47,7 @@ logger = structlog.stdlib.get_logger(__name__)
 class CatalogusViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
+    ExpandMixin,
     mixins.CreateModelMixin,
     mixins.UpdateModelMixin,
     viewsets.ReadOnlyModelViewSet,
@@ -72,6 +73,15 @@ class CatalogusViewSet(
         "update": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_WRITE,
         "partial_update": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_WRITE,
     }
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return CatalogusDetailFilter
+        return CatalogusFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)

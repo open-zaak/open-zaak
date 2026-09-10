@@ -5,7 +5,12 @@ from vng_api_common.tests import get_validation_errors, reverse
 
 from ..models import Catalogus
 from .base import APITestCase
-from .factories import CatalogusFactory
+from .factories import (
+    BesluitTypeFactory,
+    CatalogusFactory,
+    InformatieObjectTypeFactory,
+    ZaakTypeFactory,
+)
 
 
 class CatalogusAPITests(APITestCase):
@@ -38,6 +43,7 @@ class CatalogusAPITests(APITestCase):
             "naam": self.catalogus.naam,
             "versie": "",
             "begindatumVersie": None,
+            "_expand": {},
         }
         self.assertEqual(response.json(), expected)
 
@@ -106,6 +112,73 @@ class CatalogusAPITests(APITestCase):
         self.catalogus.refresh_from_db()
 
         self.assertEqual(self.catalogus.naam, "aangepast")
+
+    def test_get_detail_expand_zaaktypen(self):
+        catalogus = CatalogusFactory.create()
+        zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
+
+        response = self.client.get(
+            reverse(catalogus),
+            {"expand": "zaaktypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(len(data["_expand"]["zaaktypen"]), 1)
+        self.assertEqual(
+            data["_expand"]["zaaktypen"][0]["url"],
+            f"http://testserver{reverse(zaaktype)}",
+        )
+
+    def test_get_detail_expand_besluittypen(self):
+        catalogus = CatalogusFactory.create()
+        besluittype = BesluitTypeFactory.create(catalogus=catalogus)
+
+        response = self.client.get(
+            reverse(catalogus),
+            {"expand": "besluittypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(len(data["_expand"]["besluittypen"]), 1)
+        self.assertEqual(
+            data["_expand"]["besluittypen"][0]["url"],
+            f"http://testserver{reverse(besluittype)}",
+        )
+
+    def test_get_detail_expand_informatieobjecttypen(self):
+        catalogus = CatalogusFactory.create()
+        informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
+
+        response = self.client.get(
+            reverse(catalogus),
+            {"expand": "informatieobjecttypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(len(data["_expand"]["informatieobjecttypen"]), 1)
+        self.assertEqual(
+            data["_expand"]["informatieobjecttypen"][0]["url"],
+            f"http://testserver{reverse(informatieobjecttype)}",
+        )
+
+    def test_get_detail_expand_nested_not_supported(self):
+        catalogus = CatalogusFactory.create()
+
+        response = self.client.get(
+            reverse(catalogus),
+            {"expand": "zaaktypen.catalogus"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class CatalogusFilterAPITests(APITestCase):
