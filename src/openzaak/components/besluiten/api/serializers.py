@@ -100,15 +100,6 @@ class BesluitSerializer(
 
         return fields
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-
-        # When zaak is None zaak is represented as an empty string, not null
-        if representation["zaak"] is None:
-            representation["zaak"] = ""
-
-        return representation
-
 
 class BesluitSubSerializer(SubSerializerMixin, BesluitSerializer):
     pass

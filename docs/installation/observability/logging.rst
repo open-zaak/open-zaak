@@ -111,7 +111,6 @@ The events below are emitted when API operations are performed.
 * ``bestandsdeel_uploaded`` (INFO). Additional context: ``client_id``, ``uuid``.
 * ``catalogus_created`` (INFO). Additional context: ``client_id``, ``uuid``.
 * ``delete_remote_oio_failed`` (ERROR) failed to delete the remote ``ObjectInformatieObject`` relation. Additional context: ``client_id``, ``uuid``, ``error``, ``objectinformatieobject_url``.
-* ``delete_remote_zaakbesluit_failed`` (ERROR). Additional context: ``client_id``, ``uuid``, ``error``, ``zaakbesluit_url``.
 * ``eigenschap_created`` (INFO). Additional context: ``client_id``, ``uuid``.
 * ``eigenschap_delete_failed`` (ERROR). Additional context: ``client_id``, ``uuid``, ``error``.
 * ``eigenschap_deleted`` (INFO). Additional context: ``client_id``, ``uuid``.

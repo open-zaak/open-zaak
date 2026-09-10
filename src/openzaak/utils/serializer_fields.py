@@ -183,3 +183,8 @@ class DeprecatedNamespaceLengthHyperlinkedRelatedField(
         if key == "incorrect_match" and self.source in self._MOVED_MODELS:
             return
         super().fail(key, **kwargs)
+
+    def to_representation(self, value):
+        if value is None:
+            return ""
+        return super().to_representation(value)
