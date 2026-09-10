@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
 from django.core.validators import RegexValidator
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from django_filters import filters
@@ -8,6 +9,7 @@ from rest_framework.exceptions import ParseError
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from .expansion import get_expand_options_for_serializer
+from .help_text import mark_experimental
 
 
 class CharArrayFilter(filters.BaseInFilter, filters.CharFilter):
@@ -38,14 +40,28 @@ class MaximaleVertrouwelijkheidaanduidingFilter(filters.ChoiceFilter):
 class ExpandFilter(filters.BaseInFilter, filters.ChoiceFilter):
     def __init__(self, *args, **kwargs):
         serializer_class = kwargs.pop("serializer_class")
+        experimental_options = kwargs.pop("experimental_options", None)
 
         kwargs.setdefault(
             "choices", get_expand_options_for_serializer(serializer_class)
         )
-        kwargs.setdefault(
-            "help_text",
-            _("Sluit de gespecifieerde gerelateerde resources in in het antwoord. "),
+
+        help_text = _(
+            "Sluit de gespecifieerde gerelateerde resources in in het antwoord. "
         )
+        if experimental_options:
+            options = ", ".join(f"`{option}`" for option in experimental_options)
+            help_text = format_lazy(
+                "{help_text}\n{experimental_note}",
+                help_text=help_text,
+                experimental_note=mark_experimental(
+                    _(
+                        "Het uitbreiden naar {options} maakt nog geen onderdeel uit "
+                        "van de landelijke API-standaard."
+                    ).format(options=options)
+                ),
+            )
+        kwargs.setdefault("help_text", help_text)
 
         super().__init__(*args, **kwargs)
 
