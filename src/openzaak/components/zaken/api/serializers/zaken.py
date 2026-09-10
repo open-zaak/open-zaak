@@ -24,7 +24,13 @@ from django.utils.translation import gettext_lazy as _
 
 import structlog
 from django_loose_fk.virtual_models import ProxyMixin
-from drf_spectacular.utils import extend_schema_serializer
+from djangorestframework_camel_case.settings import api_settings
+from djangorestframework_camel_case.util import camel_to_underscore
+from drf_spectacular.utils import (
+    OpenApiTypes,
+    extend_schema_field,
+    extend_schema_serializer,
+)
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin, UniqueFieldsMixin
 from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
@@ -754,7 +760,95 @@ class GeoWithinSerializer(serializers.Serializer):
     within = GeometryField(required=False)
 
 
+@extend_schema_field(OpenApiTypes.OBJECT)
+class ZoekFieldsField(serializers.JSONField):
+    """JSON field serializer that returns results based on the fields declared on this parameter"""
+
+    default_error_messages = {
+        "invalid": _("Expected an object containing a 'fields' array."),
+        "invalid_selection": _(
+            "Expected an array of field names or nested selections."
+        ),
+        "unknown_field": _("Unknown response field: {name}."),
+        "not_nested": _("Field {name} does not support nested selection."),
+        "too_deep": _("Field selections may be nested at most 10 levels deep."),
+    }
+
+    def to_internal_value(self, data):
+        data = super().to_internal_value(data)
+        if not isinstance(data, dict) or set(data) != {"fields"}:
+            self.fail("invalid")
+
+        serializer = import_string(
+            "openzaak.components.zaken.api.serializers.ZaakSerializer"
+        )()
+        return self.parse_selection(
+            data["fields"], serializer, serializer.inclusion_serializers
+        )
+
+    def parse_selection(self, entries, serializer, inclusions, path=()):
+        if len(path) > 10:
+            self.fail("too_deep")
+        if not isinstance(entries, list):
+            self.fail("invalid_selection")
+
+        selection = {}
+        for entry in entries:
+            if isinstance(entry, str):
+                fields = {entry: None}
+            elif isinstance(entry, dict) and entry:
+                fields = entry
+            else:
+                self.fail("invalid_selection")
+
+            for name, children in fields.items():
+                name = camel_to_underscore(name, **api_settings.JSON_UNDERSCOREIZE)
+                if name == "*" and isinstance(entry, str):
+                    selection[name] = None
+                    continue
+                field = serializer.fields.get(name)
+                if field is None or field.write_only:
+                    self.fail("unknown_field", name=".".join((*path, name)))
+
+                if isinstance(entry, str):
+                    selection.setdefault(name, None)
+                    continue
+
+                child_path = (*path, name)
+                inclusion = inclusions.get(".".join(child_path))
+                if inclusion:
+                    child_serializer = import_string(inclusion)()
+                elif isinstance(field, serializers.ListSerializer):
+                    child_serializer = field.child
+                elif isinstance(field, serializers.Serializer):
+                    child_serializer = field
+                else:
+                    self.fail("not_nested", name=".".join(child_path))
+
+                nested = self.parse_selection(
+                    children, child_serializer, inclusions, child_path
+                )
+                selection[name] = self.merge(selection.get(name) or {}, nested)
+        return selection
+
+    @classmethod
+    def merge(cls, left, right):
+        for name, value in right.items():
+            if isinstance(value, dict) and isinstance(left.get(name), dict):
+                left[name] = cls.merge(left[name], value)
+            elif name not in left or value is not None:
+                left[name] = value
+        return left
+
+
 class ZaakZoekSerializer(serializers.Serializer):
+    fields = ZoekFieldsField(
+        required=False,
+        help_text=_(
+            "De elementen (fields) die worden teruggegeven in de repons"
+            " conform het expand-mechanisme."
+        ),
+    )
     zaakgeometrie = GeoWithinSerializer(required=False)
     uuid__in = serializers.ListField(
         child=serializers.UUIDField(),

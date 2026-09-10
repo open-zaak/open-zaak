@@ -400,6 +400,7 @@ class ZaakViewSet(
             raise serializers.ValidationError({api_settings.NON_FIELD_ERRORS_KEY: err})
 
         search_input = self.get_search_input()
+        self.selected_fields = search_input.pop("fields", None)
         queryset = self.filter_queryset(self.get_queryset())
 
         for name, value in search_input.items():
