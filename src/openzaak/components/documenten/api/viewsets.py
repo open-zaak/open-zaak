@@ -92,6 +92,7 @@ from .filters import (
     EnkelvoudigInformatieObjectZoekFilter,
     GebruiksrechtenDetailFilter,
     GebruiksrechtenFilter,
+    ObjectInformatieObjectDetailFilter,
     ObjectInformatieObjectFilter,
     VerzendingDetailFilter,
     VerzendingFilter,
@@ -708,8 +709,19 @@ class GebruiksrechtenViewSet(
     """
 
     queryset = (
-        Gebruiksrechten.objects.select_related("informatieobject")
-        .prefetch_related("informatieobject__enkelvoudiginformatieobject_set")
+        Gebruiksrechten.objects.select_related(
+            "informatieobject",
+            "informatieobject__latest_version",
+            "informatieobject__latest_version___informatieobjecttype",
+            "informatieobject__latest_version___informatieobjecttype__catalogus",
+            "informatieobject__latest_version__canonical",
+        )
+        .prefetch_related(
+            "informatieobject__enkelvoudiginformatieobject_set",
+            "informatieobject__latest_version__canonical__bestandsdelen",
+            "informatieobject__latest_version___informatieobjecttype__besluittypen",
+            "informatieobject__latest_version___informatieobjecttype__zaaktypen",
+        )
         .all()
     )
     serializer_class = GebruiksrechtenSerializer
@@ -835,6 +847,7 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(AuditTrailViewSet):
 class ObjectInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
+    ExpandMixin,
     ListFilterByAuthorizationsMixin,
     mixins.CreateModelMixin,
     mixins.DestroyModelMixin,
@@ -849,13 +862,23 @@ class ObjectInformatieObjectViewSet(
 
     queryset = (
         ObjectInformatieObject.objects.select_related(
-            "_zaak", "_besluit", "informatieobject"
+            "_zaak",
+            "_besluit",
+            "informatieobject",
+            "informatieobject__latest_version",
+            "informatieobject__latest_version___informatieobjecttype",
+            "informatieobject__latest_version___informatieobjecttype__catalogus",
+            "informatieobject__latest_version__canonical",
         )
-        .prefetch_related("informatieobject__enkelvoudiginformatieobject_set")
+        .prefetch_related(
+            "informatieobject__enkelvoudiginformatieobject_set",
+            "informatieobject__latest_version__canonical__bestandsdelen",
+            "informatieobject__latest_version___informatieobjecttype__besluittypen",
+            "informatieobject__latest_version___informatieobjecttype__zaaktypen",
+        )
         .all()
     )
     serializer_class = ObjectInformatieObjectSerializer
-    filterset_class = ObjectInformatieObjectFilter
     lookup_field = "uuid"
     permission_classes = (InformationObjectAuthRequired,)
     permission_main_object = "informatieobject"
@@ -867,6 +890,12 @@ class ObjectInformatieObjectViewSet(
         "update": SCOPE_DOCUMENTEN_BIJWERKEN,
         "partial_update": SCOPE_DOCUMENTEN_BIJWERKEN,
     }
+
+    @property
+    def filterset_class(self):
+        if self.detail:
+            return ObjectInformatieObjectDetailFilter
+        return ObjectInformatieObjectFilter
 
     def perform_create(self, serializer):
         informatieobject = serializer.validated_data["informatieobject"]
@@ -1256,11 +1285,13 @@ class DocumentRegistrerenViewSet(
                 "vertrouwelijkheidaanduiding": data[
                     "enkelvoudiginformatieobject"
                 ].vertrouwelijkheidaanduiding,
-                "zaak.zaaktype": get_url(
-                    zaak.zaaktype,
-                    request=self.request,
-                )
-                if zaak
-                else None,
+                "zaak.zaaktype": (
+                    get_url(
+                        zaak.zaaktype,
+                        request=self.request,
+                    )
+                    if zaak
+                    else None
+                ),
             },
         )

@@ -2,7 +2,9 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
 
+from django.db import connection
 from django.test import override_settings, tag
+from django.test.utils import CaptureQueriesContext
 
 import requests_mock
 from furl import furl
@@ -958,3 +960,101 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "remote-relation-exists")
         self.assertTrue(ObjectInformatieObject.objects.exists())
+
+
+@tag("oio")
+@temp_private_root()
+@override_settings(
+    ALLOWED_HOSTS=["testserver", "openzaak.nl"], SITE_DOMAIN="testserver"
+)
+class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    list_url = reverse_lazy("objectinformatieobject-list")
+
+    def test_list_expand(self):
+        zaak = ZaakFactory.create()
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio.canonical)
+        oio = ObjectInformatieObject.objects.get()
+
+        oio_data = self.client.get(reverse(oio)).json()
+        io_data = self.client.get(reverse(eio)).json()
+        iotype_data = self.client.get(reverse(eio.informatieobjecttype)).json()
+
+        response = self.client.get(
+            self.list_url,
+            {"expand": "informatieobject,informatieobject.informatieobjecttype"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        expected_results = [
+            {
+                **oio_data,
+                "_expand": {
+                    "informatieobject": {
+                        **io_data,
+                        "_expand": {"informatieobjecttype": iotype_data},
+                    }
+                },
+            }
+        ]
+        self.assertEqual(data, expected_results)
+
+    def test_list_expand_query_count(self):
+        for _ in range(5):
+            eio = EnkelvoudigInformatieObjectFactory.create()
+            ZaakInformatieObjectFactory.create(
+                zaak=ZaakFactory.create(), informatieobject=eio.canonical
+            )
+
+        with CaptureQueriesContext(connection) as ctx:
+            response = self.client.get(
+                self.list_url,
+                {"expand": "informatieobject,informatieobject.informatieobjecttype"},
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 5)
+
+        def count(table):
+            return len(
+                [q for q in ctx.captured_queries if f'FROM "{table}"' in q["sql"]]
+            )
+
+        self.assertEqual(count("catalogi_catalogus"), 0)
+        self.assertEqual(count("catalogi_besluittype"), 1)
+        self.assertEqual(count("catalogi_zaaktype"), 1)
+        self.assertEqual(count("documenten_bestandsdeel"), 1)
+        self.assertEqual(count("documenten_enkelvoudiginformatieobject"), 1)
+
+    def test_retrieve_expand(self):
+        zaak = ZaakFactory.create()
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio.canonical)
+        oio = ObjectInformatieObject.objects.get()
+        url = reverse(oio)
+
+        oio_data = self.client.get(url).json()
+        io_data = self.client.get(reverse(eio)).json()
+        iotype_data = self.client.get(reverse(eio.informatieobjecttype)).json()
+
+        response = self.client.get(
+            url,
+            {"expand": "informatieobject,informatieobject.informatieobjecttype"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        expected_result = {
+            **oio_data,
+            "_expand": {
+                "informatieobject": {
+                    **io_data,
+                    "_expand": {"informatieobjecttype": iotype_data},
+                }
+            },
+        }
+        self.assertEqual(data, expected_result)
