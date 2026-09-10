@@ -523,22 +523,22 @@ class PerformanceTests(
            4-6:   Initialize feature flag config (savepoint, insert, release)
              7:   Look up secret for auth client ID
           8-11:   Application/CatalogusAutorisatie/Autorisatie lookup for permission checks
-         12-18:   Generate zaakidentificatie (savepoints, advisory lock, lookup max, insert)
-             19:   Savepoint for zaak creation
-         20-21:   Lookup zaaktype and feature flag config for validation
-         22-24:   Lookup previous value, update zaakidentificatie, insert zaak
-         25-37:   Query related objects (rollen, status, informatieobjecten,
+         12-19:   Generate zaakidentificatie (savepoints, advisory lock, lookup max, insert)
+             20:   Savepoint for zaak creation
+         21-22:   Lookup zaaktype and feature flag config for validation
+         23-25:   Lookup previous value, update zaakidentificatie, insert zaak
+         26-38:   Query related objects (rollen, status, informatieobjecten,
                   resultaten, relaties, kenmerken, etc.) for serialization/audit
-             38:   Insert audit trail
-         39-40:   Notifications config and select created zaak
-             41:   Release savepoint (NotificationsCreateMixin)
-         42-44:   ETag update (savepoint, update, release)
+             39:   Insert audit trail
+         40-41:   Notifications config and select created zaak
+             42:   Release savepoint (NotificationsCreateMixin)
+         43-45:   ETag update (savepoint, update, release)
         """
         # create a random zaak to get some other initial setup queries out of the way
         # (most notable figuring out the PG/postgres version)
         ZaakFactory.create()
 
-        EXPECTED_NUM_QUERIES = 44
+        EXPECTED_NUM_QUERIES = 45
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")
@@ -576,7 +576,7 @@ class PerformanceTests(
 
         # Two additional queries when there are any number of related zaken specified
         # and 9 per specified related zaak
-        EXPECTED_NUM_QUERIES = 44 + 2 + (9 * num_gerelateerde_zaken)
+        EXPECTED_NUM_QUERIES = 45 + 2 + (9 * num_gerelateerde_zaken)
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")

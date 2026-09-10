@@ -10,12 +10,12 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from vng_api_common.authorizations.models import (
-    Applicatie,
     AuthorizationsConfig,
-    Autorisatie,
 )
 from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.models import JWTSecret
+
+from openzaak.components.autorisaties.models import Applicatie, Autorisatie
 
 from .admin_filters import InvalidApplicationsFilter
 from .admin_views import AutorisatiesView
@@ -23,7 +23,6 @@ from .forms import ApplicatieForm, CredentialsFormSet
 from .models import CatalogusAutorisatie
 
 admin.site.unregister(AuthorizationsConfig)
-admin.site.unregister(Applicatie)
 
 
 class CredentialsInline(admin.TabularInline):
@@ -93,7 +92,7 @@ class ApplicatieAdmin(admin.ModelAdmin):
             path(
                 "<path:object_id>/autorisaties/",
                 self.admin_site.admin_view(self.autorisaties_view),
-                name="authorizations_applicatie_autorisaties",
+                name="autorisaties_applicatie_autorisaties",
             ),
         ]
         return custom_urls + urls
@@ -108,7 +107,7 @@ class ApplicatieAdmin(admin.ModelAdmin):
     def response_post_save_change(self, request, obj):
         if "_autorisaties" in request.POST:
             return redirect(
-                "admin:authorizations_applicatie_autorisaties", object_id=obj.id
+                "admin:autorisaties_applicatie_autorisaties", object_id=obj.id
             )
         return super().response_post_save_change(request, obj)
 

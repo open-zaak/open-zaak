@@ -50,10 +50,8 @@ const TypeSelector = (props) => {
                 typeOptionsField={typeOptionsField}
                 initialValue={values.related_type_selection}
                 selectedValues={values[typeOptionsField]}
-                externalValues={values[`externe_typen`]}
                 selectedCatalogi={values.catalogi}
                 errors={errors[typeOptionsField]}
-                errorsExternal={errors[`externe_typen`]}
             />
         </React.Fragment>
     );

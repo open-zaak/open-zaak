@@ -7,7 +7,7 @@ Test that the caching mechanisms are in place.
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.caching import calculate_etag
-from vng_api_common.tests import CacheMixin, JWTAuthMixin
+from vng_api_common.tests import CacheMixin
 
 from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
@@ -21,6 +21,7 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeInformatieObjectTypeFactory,
 )
 from openzaak.tests.utils import get_spec
+from openzaak.tests.utils.auth import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
 
@@ -69,12 +70,7 @@ class BesluitTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
 
     def setUp(self):
         super().setUp()
-        self._create_credentials(
-            self.client_id,
-            self.secret,
-            self.heeft_alle_autorisaties,
-            self.max_vertrouwelijkheidaanduiding,
-        )
+        super().setUpTestData()
 
     def test_invalidate_etag_after_change(self):
         """
@@ -155,12 +151,7 @@ class CatalogusCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
 
     def setUp(self):
         super().setUp()
-        self._create_credentials(
-            self.client_id,
-            self.secret,
-            self.heeft_alle_autorisaties,
-            self.max_vertrouwelijkheidaanduiding,
-        )
+        super().setUpTestData()
 
     def test_invalidate_etag_after_change(self):
         """
@@ -241,12 +232,7 @@ class EigenschapCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
 
     def setUp(self):
         super().setUp()
-        self._create_credentials(
-            self.client_id,
-            self.secret,
-            self.heeft_alle_autorisaties,
-            self.max_vertrouwelijkheidaanduiding,
-        )
+        super().setUpTestData()
 
     def test_invalidate_etag_after_change(self):
         """
@@ -328,12 +314,7 @@ class InformatieObjectTypeCacheTransactionTests(JWTAuthMixin, APITransactionTest
 
     def setUp(self):
         super().setUp()
-        self._create_credentials(
-            self.client_id,
-            self.secret,
-            self.heeft_alle_autorisaties,
-            self.max_vertrouwelijkheidaanduiding,
-        )
+        super().setUpTestData()
 
     def test_invalidate_etag_after_change(self):
         """
@@ -417,12 +398,7 @@ class ResultaatTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
 
     def setUp(self):
         super().setUp()
-        self._create_credentials(
-            self.client_id,
-            self.secret,
-            self.heeft_alle_autorisaties,
-            self.max_vertrouwelijkheidaanduiding,
-        )
+        super().setUpTestData()
 
     def test_invalidate_etag_after_change(self):
         """
@@ -505,12 +481,7 @@ class RolTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
 
     def setUp(self):
         super().setUp()
-        self._create_credentials(
-            self.client_id,
-            self.secret,
-            self.heeft_alle_autorisaties,
-            self.max_vertrouwelijkheidaanduiding,
-        )
+        super().setUpTestData()
 
     def test_invalidate_etag_after_change(self):
         """
@@ -591,12 +562,7 @@ class StatusTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
 
     def setUp(self):
         super().setUp()
-        self._create_credentials(
-            self.client_id,
-            self.secret,
-            self.heeft_alle_autorisaties,
-            self.max_vertrouwelijkheidaanduiding,
-        )
+        super().setUpTestData()
 
     def test_invalidate_etag_after_change(self):
         """
@@ -684,12 +650,7 @@ class ZaakInformatieobjectTypeCacheTransactionTests(
 
     def setUp(self):
         super().setUp()
-        self._create_credentials(
-            self.client_id,
-            self.secret,
-            self.heeft_alle_autorisaties,
-            self.max_vertrouwelijkheidaanduiding,
-        )
+        super().setUpTestData()
 
     def test_invalidate_etag_after_change(self):
         """
@@ -774,12 +735,7 @@ class ZaakTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
 
     def setUp(self):
         super().setUp()
-        self._create_credentials(
-            self.client_id,
-            self.secret,
-            self.heeft_alle_autorisaties,
-            self.max_vertrouwelijkheidaanduiding,
-        )
+        super().setUpTestData()
 
     def test_invalidate_etag_after_change(self):
         """
@@ -820,12 +776,7 @@ class M2MRelationCachingTests(JWTAuthMixin, APITransactionTestCase):
 
     def setUp(self):
         super().setUp()
-        self._create_credentials(
-            self.client_id,
-            self.secret,
-            self.heeft_alle_autorisaties,
-            self.max_vertrouwelijkheidaanduiding,
-        )
+        super().setUpTestData()
 
     def test_changing_besluittype_zaaktype_m2m_invalidates_both_etags(self):
         """

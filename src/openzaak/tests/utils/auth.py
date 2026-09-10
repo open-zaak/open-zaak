@@ -4,12 +4,12 @@ from typing import ClassVar, Collection
 
 from django.db.models import Model
 
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
 from vng_api_common.scopes import Scope
 
+from openzaak.components.autorisaties.models import Applicatie, Autorisatie
 from openzaak.utils.urls import reverse
 
 
@@ -30,9 +30,9 @@ class JWTAuthMixin:
     scopes: Collection[Scope] | None = None
     heeft_alle_autorisaties = False
     component: ComponentTypes | None = None
-    zaaktype: Model | str | None = None
-    informatieobjecttype: Model | str | None = None
-    besluittype: Model | str | None = None
+    zaaktype: Model | None = None
+    informatieobjecttype: Model | None = None
+    besluittype: Model | None = None
     max_vertrouwelijkheidaanduiding: VertrouwelijkheidsAanduiding = (
         VertrouwelijkheidsAanduiding.zeer_geheim
     )
@@ -63,17 +63,13 @@ class JWTAuthMixin:
         )
 
         if cls.heeft_alle_autorisaties is False:
-            zaaktype_url = cls.check_for_instance(cls.zaaktype)
-            besluittype_url = cls.check_for_instance(cls.besluittype)
-            informatieobjecttype_url = cls.check_for_instance(cls.informatieobjecttype)
-
             cls.autorisatie = Autorisatie.objects.create(
                 applicatie=cls.applicatie,
                 component=cls.component or ComponentTypes.zrc,
                 scopes=cls.scopes or [],
-                zaaktype=zaaktype_url or "",
-                informatieobjecttype=informatieobjecttype_url or "",
-                besluittype=besluittype_url or "",
+                zaaktype=cls.zaaktype,
+                informatieobjecttype=cls.informatieobjecttype,
+                besluittype=cls.besluittype,
                 max_vertrouwelijkheidaanduiding=cls.max_vertrouwelijkheidaanduiding,
             )
 

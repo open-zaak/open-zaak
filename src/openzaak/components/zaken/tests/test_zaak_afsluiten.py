@@ -9,7 +9,6 @@ from dateutil.relativedelta import relativedelta
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze,
     ComponentTypes,
@@ -18,6 +17,7 @@ from vng_api_common.constants import (
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import get_validation_errors
 
+from openzaak.components.autorisaties.models import Applicatie, Autorisatie
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.constants import ArchiefNominatieChoices
 from openzaak.components.catalogi.tests.factories import (
@@ -82,7 +82,7 @@ class ZaakAfsluitenAuthTests(JWTAuthMixin, APITestCase):
 
         cls.eind_statustype_url = cls.check_for_instance(cls.eind_statustype)
 
-    def _add_zaken_auth(self, zaaktype=None, scopes=None):
+    def _add_zaken_auth(self, zaaktype=None, scopes=None, use_default=True):
         if scopes is None:
             scopes = []
 
@@ -90,9 +90,7 @@ class ZaakAfsluitenAuthTests(JWTAuthMixin, APITestCase):
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
             scopes=scopes,
-            zaaktype=self.zaaktype_url if zaaktype is None else zaaktype,
-            informatieobjecttype="",
-            besluittype="",
+            zaaktype=zaaktype if zaaktype else self.zaaktype if use_default else None,
             max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
         )
 
@@ -155,7 +153,7 @@ class ZaakAfsluitenAuthTests(JWTAuthMixin, APITestCase):
 
     def test_zaak_afsluiten_no_zaaktype_in_auth(self):
         self._add_zaken_auth(
-            zaaktype="", scopes=[SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE]
+            scopes=[SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE], use_default=False
         )
 
         response = self.client.post(self.url, self.content)

@@ -17,7 +17,6 @@ from notifications_api_common.models import (
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
-from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.constants import (
     Archiefnominatie,
     BrondatumArchiefprocedureAfleidingswijze,
@@ -29,6 +28,7 @@ from vng_api_common.constants import (
 )
 from vng_api_common.models import JWTSecret
 
+from openzaak.components.autorisaties.models import Applicatie
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,

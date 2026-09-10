@@ -9,7 +9,6 @@ from django.utils.translation import gettext as _
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze,
     ComponentTypes,
@@ -18,6 +17,7 @@ from vng_api_common.constants import (
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import get_validation_errors
 
+from openzaak.components.autorisaties.models import Applicatie, Autorisatie
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
@@ -73,7 +73,7 @@ class ZaakVerlengenAuthTests(JWTAuthMixin, APITestCase):
 
         cls.end_statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
 
-    def _add_zaken_auth(self, zaaktype=None, scopes=None):
+    def _add_zaken_auth(self, zaaktype=None, scopes=None, use_default=True):
         if scopes is None:
             scopes = []
 
@@ -81,9 +81,7 @@ class ZaakVerlengenAuthTests(JWTAuthMixin, APITestCase):
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
             scopes=scopes,
-            zaaktype=self.zaaktype_url if zaaktype is None else zaaktype,
-            informatieobjecttype="",
-            besluittype="",
+            zaaktype=zaaktype if zaaktype else self.zaaktype if use_default else None,
             max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
         )
 
@@ -148,7 +146,7 @@ class ZaakVerlengenAuthTests(JWTAuthMixin, APITestCase):
 
     def test_zaak_verlengen_no_zaaktype_in_auth(self):
         self._add_zaken_auth(
-            zaaktype="", scopes=[SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE]
+            scopes=[SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE], use_default=False
         )
 
         response = self.client.post(self.url, self.content)

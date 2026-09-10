@@ -8,7 +8,6 @@ from django.test import tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin
 
@@ -20,6 +19,7 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
+from ...autorisaties.models import Autorisatie
 from ..api.scopes import (
     SCOPE_BESLUITEN_AANMAKEN,
     SCOPE_BESLUITEN_ALLES_LEZEN,
@@ -142,6 +142,7 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         Assert that CatalogusAutorisatie gives permission to see Besluiten in the list view
         that belong to Besluittypen in the Catalogus
         """
+
         self.applicatie.autorisaties.all().delete()
 
         CatalogusAutorisatieFactory.create(
@@ -177,6 +178,7 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         Assert that CatalogusAutorisatie gives permission to read Besluiten
         that belong to Besluittypen in the Catalogus
         """
+
         self.applicatie.autorisaties.all().delete()
 
         CatalogusAutorisatieFactory.create(
@@ -220,6 +222,7 @@ class BesluitWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
 
         # Different catalogus, should not be allowed
         cls.besluittype_not_allowed = BesluitTypeFactory.create(concept=False)
+
         cls.applicatie.autorisaties.all().delete()
         CatalogusAutorisatieFactory.create(
             catalogus=cls.besluittype.catalogus,
@@ -491,9 +494,7 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
             applicatie=self.applicatie,
             component=self.component,
             scopes=self.scopes or [],
-            zaaktype="",
-            informatieobjecttype="",
-            besluittype=f"http://testserver{reverse(other_besluittype)}",
+            besluittype=other_besluittype,
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
 
@@ -574,8 +575,8 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
             besluit__besluittype=other_besluittype
         )
 
-        url1 = reverse(bio1)
-        url2 = reverse(bio2)
+        url1 = reverse(bio1, namespace=self.NAMESPACE)
+        url2 = reverse(bio2, namespace=self.NAMESPACE)
 
         response1 = self.client.get(url1)
         response2 = self.client.get(url2)

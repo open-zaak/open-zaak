@@ -1,29 +1,34 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid as _uuid
-from unittest import skip
-
-from django.conf import settings
 
 import requests_mock
 from rest_framework import status
-from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Applicatie, AuthorizationsConfig
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from zgw_consumers.test.factories import ServiceFactory
 
+from openzaak.components.autorisaties.models import Applicatie
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse
+
+from .factories import ZaakTypeFactory
 
 
-@skip("Authorization component is internal. Webhooks are not used")
 class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        cls.service = ServiceFactory.create()
+
     @requests_mock.Mocker()
     def test_handle_create_auth(self, m):
-        config = AuthorizationsConfig.get_solo()
+        zaaktype = ZaakTypeFactory.create()
+
         uuid = _uuid.uuid4()
-        applicatie_url = f"{config.api_root}applicaties/{uuid}"
+        applicatie_url = f"{self.service.api_root}/applicaties/{uuid}"
         webhook_url = reverse("catalogi:notificaties-webhook")
         m.get(
             applicatie_url,
@@ -38,7 +43,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
                             "zds.scopes.zaken.lezen",
                             "zds.scopes.zaken.aanmaken",
                         ],
-                        "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
+                        "zaaktype": f"http://testserver{reverse(zaaktype)}",
                         "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                     }
                 ],
@@ -66,20 +71,16 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
 
     @requests_mock.Mocker()
     def test_handle_update_auth(self, m):
+        zaaktype = ZaakTypeFactory.create()
         applicatie = Applicatie.objects.create(
             client_ids=["id1"], label="before", heeft_alle_autorisaties=True
         )
         uuid = applicatie.uuid
-        config = AuthorizationsConfig.get_solo()
-        applicatie_url = f"{config.api_root}/applicaties/{uuid}"
+        applicatie_url = f"{self.service.api_root}/applicaties/{uuid}"
 
         self.assertEqual(applicatie.autorisaties.count(), 0)
 
-        # webhook_url = get_operation_url('notification_receive')
-        webhook_url = reverse(
-            "catalogi:notificaties-webhook",
-            kwargs={"version": settings.REST_FRAMEWORK["DEFAULT_VERSION"]},
-        )
+        webhook_url = reverse("catalogi:notificaties-webhook")
         m.get(
             applicatie_url,
             json={
@@ -93,7 +94,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
                             "zds.scopes.zaken.lezen",
                             "zds.scopes.zaken.aanmaken",
                         ],
-                        "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
+                        "zaaktype": f"http://testserver{reverse(zaaktype)}",
                         "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                     }
                 ],
@@ -120,6 +121,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(applicatie.uuid, uuid)
         self.assertEqual(applicatie.heeft_alle_autorisaties, False)
         self.assertEqual(applicatie.label, "after")
+
         self.assertEqual(applicatie.autorisaties.count(), 1)
 
     def test_handle_delete_auth(self):
@@ -127,18 +129,14 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
             client_ids=["id1"], label="for delete", heeft_alle_autorisaties=True
         )
         uuid = applicatie.uuid
-        config = AuthorizationsConfig.get_solo()
-        applicatie_url = f"{config.api_root}/applicaties/{uuid}"
-        webhook_url = reverse(
-            "catalogi:notificaties-webhook",
-            kwargs={"version": settings.REST_FRAMEWORK["DEFAULT_VERSION"]},
-        )
+        applicatie_url = f"{self.service.api_root}/applicaties/{uuid}"
+        webhook_url = reverse("catalogi:notificaties-webhook")
         data = {
             "kanaal": "autorisaties",
             "hoofdObject": applicatie_url,
             "resource": "applicatie",
             "resourceUrl": applicatie_url,
-            "actie": "delete",
+            "actie": "destroy",
             "aanmaakdatum": "2012-01-14T00:00:00Z",
             "kenmerken": {},
         }
@@ -149,3 +147,54 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
             response.status_code, status.HTTP_204_NO_CONTENT, response.data
         )
         self.assertEqual(Applicatie.objects.filter(client_ids=["id1"]).count(), 0)
+
+    @requests_mock.Mocker()
+    def test_handle_client_error(self, m):
+        applicatie = Applicatie.objects.create(
+            client_ids=["id1"], label="for delete", heeft_alle_autorisaties=True
+        )
+        uuid = applicatie.uuid
+        applicatie_url = f"{self.service.api_root}/applicaties/{uuid}"
+        webhook_url = reverse("catalogi:notificaties-webhook")
+        data = {
+            "kanaal": "autorisaties",
+            "hoofdObject": applicatie_url,
+            "resource": "applicatie",
+            "resourceUrl": applicatie_url,
+            "actie": "create",
+            "aanmaakdatum": "2012-01-14T00:00:00Z",
+            "kenmerken": {},
+        }
+
+        m.get(applicatie_url, status_code=403)
+
+        response = self.client.post(webhook_url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+    def test_handle_service_error(self):
+        applicatie = Applicatie.objects.create(
+            client_ids=["id1"], label="for delete", heeft_alle_autorisaties=True
+        )
+        uuid = applicatie.uuid
+        applicatie_url = (
+            f"'https://autorisaties-api.vng.cloud/api/v99/applicaties/{uuid}"
+        )
+        webhook_url = reverse("catalogi:notificaties-webhook")
+        data = {
+            "kanaal": "autorisaties",
+            "hoofdObject": applicatie_url,
+            "resource": "applicatie",
+            "resourceUrl": applicatie_url,
+            "actie": "create",
+            "aanmaakdatum": "2012-01-14T00:00:00Z",
+            "kenmerken": {},
+        }
+
+        response = self.client.post(webhook_url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )

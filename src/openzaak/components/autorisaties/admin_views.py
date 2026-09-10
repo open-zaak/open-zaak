@@ -10,16 +10,15 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView
 
 from django_loose_fk.loaders import BaseLoader
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes
 
+from openzaak.components.autorisaties.models import Applicatie, Autorisatie
 from openzaak.components.catalogi.models import Catalogus
 from openzaak.utils.admin import AdminContextMixin
 
 from .admin_serializers import CatalogusSerializer
 from .constants import RelatedTypeSelectionMethods
 from .forms import (
-    COMPONENT_TO_FIELDS_MAP,
     COMPONENT_TO_PREFIXES_MAP,
     AutorisatieFormSet,
     VertrouwelijkheidsAanduiding,
@@ -65,20 +64,10 @@ def get_initial_for_component(
     autorisaties: List[Autorisatie],
 ) -> List[Dict[str, Any]]:
     _related_objs = {}
-    _related_objs_external = {}
-
-    internal_autorisaties = []
-    external_autorisaties = []
 
     for autorisatie in autorisaties:
-        if is_local_url(autorisatie):
-            obj = get_related_object(autorisatie)
-            _related_objs[autorisatie.pk] = obj
-            internal_autorisaties.append(autorisatie)
-        else:
-            type_field = COMPONENT_TO_FIELDS_MAP[component]["_autorisatie_type_field"]
-            _related_objs_external[autorisatie.pk] = getattr(autorisatie, type_field)
-            external_autorisaties.append(autorisatie)
+        obj = get_related_object(autorisatie)
+        _related_objs[autorisatie.pk] = obj
 
     related_objs = {pk: obj.id for pk, obj in _related_objs.items() if obj is not None}
 
@@ -86,7 +75,7 @@ def get_initial_for_component(
 
     if component == ComponentTypes.zrc:
         grouped_by_va = defaultdict(list)
-        for autorisatie in internal_autorisaties + external_autorisaties:
+        for autorisatie in autorisaties:
             grouped_by_va[autorisatie.max_vertrouwelijkheidaanduiding].append(
                 autorisatie
             )
@@ -98,25 +87,19 @@ def get_initial_for_component(
                 for autorisatie in _autorisaties
                 if autorisatie.pk in related_objs
             }
-            relevant_external = [
-                _related_objs_external[autorisatie.pk]
-                for autorisatie in _autorisaties
-                if autorisatie.pk in _related_objs_external
-            ]
 
             if _autorisaties:
                 _initial.update(
                     {
                         "related_type_selection": RelatedTypeSelectionMethods.manual_select,
                         "zaaktypen": relevant_ids,
-                        "externe_typen": relevant_external,
                     }
                 )
             initial.append(_initial)
 
     elif component == ComponentTypes.drc:
         grouped_by_va = defaultdict(list)
-        for autorisatie in internal_autorisaties + external_autorisaties:
+        for autorisatie in autorisaties:
             grouped_by_va[autorisatie.max_vertrouwelijkheidaanduiding].append(
                 autorisatie
             )
@@ -128,18 +111,12 @@ def get_initial_for_component(
                 for autorisatie in _autorisaties
                 if autorisatie.pk in related_objs
             }
-            relevant_external = [
-                _related_objs_external[autorisatie.pk]
-                for autorisatie in _autorisaties
-                if autorisatie.pk in _related_objs_external
-            ]
 
             if _autorisaties:
                 _initial.update(
                     {
                         "related_type_selection": RelatedTypeSelectionMethods.manual_select,
                         "informatieobjecttypen": relevant_ids,
-                        "externe_typen": relevant_external,
                     }
                 )
             initial.append(_initial)
@@ -147,7 +124,6 @@ def get_initial_for_component(
     elif component == ComponentTypes.brc:
         relevant_ids = set(related_objs.values())
         _initial = {
-            "externe_typen": list(_related_objs_external.values()),
             "related_type_selection": RelatedTypeSelectionMethods.manual_select,
             "besluittypen": relevant_ids,
         }
@@ -223,6 +199,7 @@ def get_initial(applicatie: Applicatie) -> List[Dict[str, Any]]:
         grouped_catalogus_autorisaties[key].append(catalogus_autorisatie)
 
     grouped_autorisaties = defaultdict(list)
+
     for autorisatie in applicatie.autorisaties.all():
         key = _get_group_key(autorisatie)
         grouped_autorisaties[key].append(autorisatie)
@@ -279,7 +256,7 @@ class AutorisatiesView(AdminContextMixin, DetailView):
         if formset.is_valid():
             formset.save()
             return redirect(
-                "admin:authorizations_applicatie_change", object_id=applicatie.pk
+                "admin:autorisaties_applicatie_change", object_id=applicatie.pk
             )
 
         context = self.get_context_data(formset=formset)
