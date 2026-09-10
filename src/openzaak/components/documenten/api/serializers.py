@@ -76,6 +76,7 @@ from .validators import (
     StatusValidator,
     UniekeIdentificatieValidator,
     VerzendingAddressValidator,
+    VerzendingVerzenddatumValidator,
 )
 
 logger = structlog.stdlib.get_logger(__name__)
@@ -383,6 +384,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "bestandsdelen",
             "trefwoorden",
             "inhoud_is_vervallen",
+            "tonen_aan_initiator",
         )
         extra_kwargs = {
             "taal": {"min_length": 3},
@@ -923,6 +925,11 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         ),
     )
 
+    inclusion_serializers = {
+        "informatieobject": f"{oz}.documenten.api.serializers.EnkelvoudigInformatieObjectSerializer",
+        "informatieobject.informatieobjecttype": f"{oz}.catalogi.api.serializers.InformatieObjectTypeSerializer",
+    }
+
     class Meta:
         model = ObjectInformatieObject
         fields = ("url", "informatieobject", "object", "object_type")
@@ -1079,7 +1086,7 @@ class VerzendingSerializer(
         extra_kwargs = {
             "url": {"lookup_field": "uuid", "read_only": True},
         }
-        validators = [VerzendingAddressValidator()]
+        validators = [VerzendingAddressValidator(), VerzendingVerzenddatumValidator()]
 
 
 class ReservedDocumentSerializer(serializers.ModelSerializer):

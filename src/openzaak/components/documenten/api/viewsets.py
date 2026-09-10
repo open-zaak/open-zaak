@@ -92,6 +92,7 @@ from .filters import (
     EnkelvoudigInformatieObjectZoekFilter,
     GebruiksrechtenDetailFilter,
     GebruiksrechtenFilter,
+    ObjectInformatieObjectDetailFilter,
     ObjectInformatieObjectFilter,
     VerzendingDetailFilter,
     VerzendingFilter,
@@ -835,6 +836,7 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(AuditTrailViewSet):
 class ObjectInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
+    ExpandMixin,
     ListFilterByAuthorizationsMixin,
     mixins.CreateModelMixin,
     mixins.DestroyModelMixin,
@@ -855,7 +857,6 @@ class ObjectInformatieObjectViewSet(
         .all()
     )
     serializer_class = ObjectInformatieObjectSerializer
-    filterset_class = ObjectInformatieObjectFilter
     lookup_field = "uuid"
     permission_classes = (InformationObjectAuthRequired,)
     permission_main_object = "informatieobject"
@@ -867,6 +868,12 @@ class ObjectInformatieObjectViewSet(
         "update": SCOPE_DOCUMENTEN_BIJWERKEN,
         "partial_update": SCOPE_DOCUMENTEN_BIJWERKEN,
     }
+
+    @property
+    def filterset_class(self):
+        if self.detail:
+            return ObjectInformatieObjectDetailFilter
+        return ObjectInformatieObjectFilter
 
     def perform_create(self, serializer):
         informatieobject = serializer.validated_data["informatieobject"]

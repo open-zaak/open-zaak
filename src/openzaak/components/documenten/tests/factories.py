@@ -227,6 +227,7 @@ class DocumentRowFactory(factory.ListFactory):
     zaak_uuid = ""
     trefwoorden = ""
     inhoud_is_vervallen = ""
+    tonen_aan_initiator = ""
 
     @classmethod
     def _create_file(cls, model_class, *args, **kwargs):
@@ -306,6 +307,7 @@ class DocumentRowFactory(factory.ListFactory):
             integriteit_datum=str(datetime.date(2024, 1, 1)),
             trefwoorden='"foo,bar"',
             inhoud_is_vervallen=None,
+            tonen_aan_initiator="true",
         )
 
 
