@@ -69,6 +69,19 @@ class ExpandFilter(filters.BaseInFilter, filters.ChoiceFilter):
         return qs
 
 
+class CatalogiExpandFilter(ExpandFilter):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault(
+            "help_text",
+            _(
+                "Sluit de gespecificeerde gerelateerde resources aan in het antwoord. "
+                "Expand naar willekeurige diepte wordt niet ondersteund. Dit wijkt af van de standaard."
+            ),
+        )
+
+        super().__init__(*args, **kwargs)
+
+
 class KeyValueFilter(filters.CharFilter):
     def __init__(self, key_field_name, value_field_name, *args, **kwargs):
         validators = kwargs.get("validators", [])
