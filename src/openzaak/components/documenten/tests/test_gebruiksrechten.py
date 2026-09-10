@@ -2,6 +2,9 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import datetime
 
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
+
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -247,6 +250,42 @@ class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
             },
         }
         self.assertEqual(data, expected_results)
+
+    def test_list_expand_reuses_shared_informatieobjecttype(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+        GebruiksrechtenFactory.create_batch(
+            3,
+            informatieobject__latest_version__informatieobjecttype=informatieobjecttype,
+        )
+
+        with CaptureQueriesContext(connection) as ctx:
+            response = self.client.get(
+                self.url,
+                {"expand": "informatieobject,informatieobject.informatieobjecttype"},
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        self.assertEqual(len(data), 3)
+
+        iotype_url = reverse(informatieobjecttype)
+        for result in data:
+            iotype_data = result["_expand"]["informatieobject"]["_expand"][
+                "informatieobjecttype"
+            ]
+            self.assertIn(iotype_url, iotype_data["url"])
+            self.assertEqual(iotype_data["besluittypen"], [])
+
+        catalogus_queries = [
+            q for q in ctx.captured_queries if '"catalogi_catalogus"' in q["sql"]
+        ]
+        self.assertEqual(
+            len(catalogus_queries),
+            1,
+            "the shared informatieobjecttype's catalogus should be fetched once, "
+            "not once per gebruiksrecht",
+        )
 
     def test_permissions_expand(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()

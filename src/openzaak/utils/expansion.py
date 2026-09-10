@@ -125,6 +125,8 @@ class ExpandLoader(InclusionLoader):
         super().__init__(*args, **kwargs)
 
         self._seen_external: Dict[str, ProxyMixin] = {}
+        self._seen_local: dict[tuple[type[Serializer], int], models.Model] = {}
+        self._serialized: dict[tuple[type[Serializer], int], dict] = {}
 
     def inclusions_dict(self, serializer: Serializer) -> dict:
         """
@@ -167,11 +169,15 @@ class ExpandLoader(InclusionLoader):
         entries = self._inclusions((), serializer, serializer.instance)
 
         for obj, inclusion_serializer, parent, path, many in entries:
-            data = (
-                obj._initial_data
-                if isinstance(obj, ProxyMixin)
-                else inclusion_serializer(instance=obj, context=serializer.context).data
-            )
+            if isinstance(obj, ProxyMixin):
+                data = obj._initial_data
+            else:
+                cache_key = (inclusion_serializer, obj.pk)
+                if cache_key not in self._serialized:
+                    self._serialized[cache_key] = inclusion_serializer(
+                        instance=obj, context=serializer.context
+                    ).data
+                data = self._serialized[cache_key]
             tree.add_node(
                 id=data["url"],
                 value=data,
@@ -275,7 +281,24 @@ class ExpandLoader(InclusionLoader):
     ) -> Iterator[models.Model]:
         """
         handler for loose-fk-field
+
+        For a local target, peek at the raw FK id first (a plain attribute,
+        never a query) so a target already seen for another parent object can
+        be reused without hitting the database again. This mirrors the
+        existing ``_seen_external`` cache below, which only covers external
+        (URL-based) targets.
         """
+        model_field = field._get_model_and_field()[1]
+        url_value = getattr(instance, model_field.url_field)
+
+        if not url_value:
+            local_pk = getattr(instance, f"{model_field.fk_field}_id", None)
+            if local_pk is not None:
+                cache_key = (inclusion_serializer, local_pk)
+                if cache_key in self._seen_local:
+                    yield self._seen_local[cache_key]
+                    return
+
         obj = field.get_attribute(instance)
 
         if obj is None:
@@ -299,6 +322,8 @@ class ExpandLoader(InclusionLoader):
 
         # local
         else:
+            if obj.pk is not None:
+                self._seen_local[(inclusion_serializer, obj.pk)] = obj
             yield obj
 
     def _has_been_seen(self, obj: models.Model) -> bool:
