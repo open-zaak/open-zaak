@@ -8,6 +8,7 @@ from openzaak.components.besluiten.tests.test_validation import (
 
 class BesluitValidationTests(_BesluitValidationTests):
     NAMESPACE = "zaken"
+    BT_NAMESPACE = "zaken"
 
 
 class BesluitInformatieObjectTests(_BesluitInformatieObjectTests):

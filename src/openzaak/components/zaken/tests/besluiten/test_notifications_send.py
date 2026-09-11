@@ -31,12 +31,12 @@ from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
 # TODO
-# adding test_convenience_cloudevents & test_notification_send testscases as subclasses break random other tests
+# adding test_convenience_cloudevents & test_notification_send testcases as subclasses break random other tests
 # the only clue i have is that some failing tests have NOTIFICATIONS_SOURCE to the value from this testcase
 # got it working for BesluitConvenienceCloudEventTest when adding @override_settings from the parent class and adding
 # SOLO_CACHE=None, but in combination with test_notification_send it keeps having issues.
 # When updating test_convenience_cloudevents or test_notification_send in besluiten just copy over the whole file
-# and change the NAMESPACE to zaken.
+# and change the NAMESPACE & BT_NAMESPACE to zaken.
 
 
 @tag("notifications")
@@ -47,6 +47,7 @@ from openzaak.utils.urls import reverse
 class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     NAMESPACE = "zaken"
+    BT_NAMESPACE = "zaken"
 
     def test_send_notif_create_besluit_with_zaak(self, mock_notif):
         """
@@ -57,7 +58,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype.zaaktypen.add(zaak.zaaktype)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
         url = reverse(Besluit, namespace=self.NAMESPACE)
         data = {
             "zaak": f"http://testserver{zaak_url}",
@@ -94,7 +95,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
                             "verantwoordelijkeOrganisatie": "517439943",
-                            "besluittype": f"http://testserver{besluittype_url}",
+                            "besluittype": f"http://testserver{reverse(besluittype, namespace='catalogi')}",
                             "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus, namespace='catalogi')}",
                         },
                     },
@@ -129,7 +130,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype.zaaktypen.add(zaak.zaaktype)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
         url = reverse(Besluit, namespace=self.NAMESPACE)
         data = {
             "zaak": f"http://testserver{zaak_url}",
@@ -178,7 +179,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 
     def test_send_notif_create_besluit_without_zaak(self, mock_notif):
         besluittype = BesluitTypeFactory.create(concept=False)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
         url = reverse(Besluit, namespace=self.NAMESPACE)
         data = {
             "verantwoordelijkeOrganisatie": "517439943",  # RSIN
@@ -214,7 +215,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
                             "verantwoordelijkeOrganisatie": "517439943",
-                            "besluittype": f"http://testserver{besluittype_url}",
+                            "besluittype": f"http://testserver{reverse(besluittype, namespace='catalogi')}",
                             "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus, namespace='catalogi')}",
                         },
                     },
@@ -228,7 +229,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         self, mock_notif
     ):
         besluittype = BesluitTypeFactory.create(concept=False)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
         url = reverse(Besluit, namespace=self.NAMESPACE)
         data = {
             "verantwoordelijkeOrganisatie": "517439943",  # RSIN
@@ -282,7 +283,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
                             "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
-                            "besluittype": f"http://testserver{reverse(besluit.besluittype)}",
+                            "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}"
+                            "",
                             "besluittype.catalogus": f"http://testserver{reverse(besluit.besluittype.catalogus, namespace='catalogi')}",
                         },
                     },
@@ -335,7 +337,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
                             "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
-                            "besluittype": f"http://testserver{reverse(besluit.besluittype)}",
+                            "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
                             "besluittype.catalogus": f"http://testserver{reverse(besluit.besluittype.catalogus, namespace='catalogi')}",
                         },
                     },
@@ -369,7 +371,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
                             "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
-                            "besluittype": f"http://testserver{reverse(besluit.besluittype)}",
+                            "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
                             "besluittype.catalogus": f"http://testserver{reverse(besluit.besluittype.catalogus, namespace='catalogi')}",
                         },
                     },
@@ -418,7 +420,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
                             "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
-                            "besluittype": f"http://testserver{reverse(besluit.besluittype)}",
+                            "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
                             "besluittype.catalogus": f"http://testserver{reverse(besluit.besluittype.catalogus, namespace='catalogi')}",
                         },
                     },
@@ -434,7 +436,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype.zaaktypen.add(zaak.zaaktype)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=besluittype.catalogus
@@ -510,7 +512,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
                             "verantwoordelijkeOrganisatie": "517439943",
-                            "besluittype": f"http://testserver{besluittype_url}",
+                            "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
                             "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus, namespace='catalogi')}",
                         },
                     },
@@ -543,7 +545,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
                             "verantwoordelijkeOrganisatie": "517439943",
-                            "besluittype": f"http://testserver{besluittype_url}",
+                            "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
                             "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus, namespace='catalogi')}",
                         },
                     },
@@ -576,7 +578,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
                             "verantwoordelijkeOrganisatie": "517439943",
-                            "besluittype": f"http://testserver{besluittype_url}",
+                            "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
                             "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus, namespace='catalogi')}",
                         },
                     },
@@ -612,7 +614,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype.zaaktypen.add(zaak.zaaktype)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=besluittype.catalogus
@@ -736,7 +738,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
     @tag("convenience-endpoints")
     def test_send_notif_verwerk_besluit_without_zaak(self, mock_notif):
         besluittype = BesluitTypeFactory.create(concept=False)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=besluittype.catalogus
@@ -811,7 +813,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
                             "verantwoordelijkeOrganisatie": "517439943",
-                            "besluittype": f"http://testserver{besluittype_url}",
+                            "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
                             "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus, namespace='catalogi')}",
                         },
                     },
@@ -827,7 +829,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
                             "verantwoordelijkeOrganisatie": "517439943",
-                            "besluittype": f"http://testserver{besluittype_url}",
+                            "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
                             "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus, namespace='catalogi')}",
                         },
                     },
@@ -843,7 +845,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
                             "verantwoordelijkeOrganisatie": "517439943",
-                            "besluittype": f"http://testserver{besluittype_url}",
+                            "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
                             "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus, namespace='catalogi')}",
                         },
                     },
@@ -858,7 +860,6 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         Check if notifications will be send when besluitinformatieobject is created
         """
         besluit = BesluitFactory.create()
-        besluittype_url = reverse(besluit.besluittype)
         bio_url = reverse(BesluitInformatieObject, namespace=self.NAMESPACE)
 
         eio = EnkelvoudigInformatieObjectFactory.create()
@@ -884,7 +885,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                 "aanmaakdatum": "2018-09-07T00:00:00Z",
                 "kenmerken": {
                     "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
-                    "besluittype": f"http://testserver{besluittype_url}",
+                    "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
                     "besluittype.catalogus": f"http://testserver{reverse(besluit.besluittype.catalogus, namespace='catalogi')}",
                 },
             },
@@ -900,7 +901,6 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         zaak_url = reverse(zaak)
 
         besluit = BesluitFactory.create(zaak=zaak)
-        besluittype_url = reverse(besluit.besluittype)
         bio_url = reverse(BesluitInformatieObject, namespace=self.NAMESPACE)
 
         eio = EnkelvoudigInformatieObjectFactory.create()
@@ -928,7 +928,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
                             "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
-                            "besluittype": f"http://testserver{besluittype_url}",
+                            "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
                             "besluittype.catalogus": f"http://testserver{reverse(besluit.besluittype.catalogus, namespace='catalogi')}",
                         },
                     },
@@ -1004,7 +1004,6 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         Check if notifications will be send when besluitinformatieobject is deleted
         """
         besluit = BesluitFactory.create()
-        besluittype_url = reverse(besluit.besluittype)
         bio = BesluitInformatieObjectFactory.create(besluit=besluit)
         bio_url = reverse(bio, namespace=self.NAMESPACE)
 
@@ -1025,7 +1024,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                 "aanmaakdatum": "2018-09-07T00:00:00Z",
                 "kenmerken": {
                     "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
-                    "besluittype": f"http://testserver{besluittype_url}",
+                    "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
                     "besluittype.catalogus": f"http://testserver{reverse(besluit.besluittype.catalogus, namespace='catalogi')}",
                 },
             },
@@ -1041,7 +1040,6 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         zaak_url = reverse(zaak)
 
         besluit = BesluitFactory.create(zaak=zaak)
-        besluittype_url = reverse(besluit.besluittype)
         bio = BesluitInformatieObjectFactory.create(besluit=besluit)
         bio_url = reverse(bio, namespace=self.NAMESPACE)
 
@@ -1064,7 +1062,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
                             "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
-                            "besluittype": f"http://testserver{besluittype_url}",
+                            "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
                             "besluittype.catalogus": f"http://testserver{reverse(besluit.besluittype.catalogus, namespace='catalogi')}",
                         },
                     },
@@ -1104,10 +1102,11 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
     heeft_alle_autorisaties = True
     maxDiff = None
     NAMESPACE = "besluiten"
+    BT_NAMESPACE = "catalogi"
 
     def test_besluit_create_fail_send_notification_create_db_entry(self, m):
         besluittype = BesluitTypeFactory.create(concept=False)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
         url = reverse(Besluit, namespace=self.NAMESPACE)
         data = {
             "verantwoordelijkeOrganisatie": "517439943",  # RSIN
@@ -1136,7 +1135,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kanaal": "besluiten",
             "kenmerken": {
                 "verantwoordelijkeOrganisatie": data["verantwoordelijkeOrganisatie"],
-                "besluittype": f"http://testserver{besluittype_url}",
+                "besluittype": f"http://testserver{reverse(besluittype, namespace='catalogi')}",
                 "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus, namespace='catalogi')}",
             },
             "resource": "besluit",
@@ -1152,7 +1151,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         zaak_url = reverse(zaak)
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype.zaaktypen.add(zaak.zaaktype)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
         url = reverse(Besluit, namespace=self.NAMESPACE)
         data = {
             "verantwoordelijkeOrganisatie": "517439943",  # RSIN
@@ -1194,7 +1193,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kanaal": "besluiten",
             "kenmerken": {
                 "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
-                "besluittype": f"http://testserver{reverse(besluit.besluittype)}",
+                "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace=self.BT_NAMESPACE)}",
                 "besluittype.catalogus": f"http://testserver{reverse(besluit.besluittype.catalogus, namespace='catalogi')}",
             },
             "resource": "besluit",
@@ -1237,7 +1236,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kanaal": "besluiten",
             "kenmerken": {
                 "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
-                "besluittype": f"http://testserver{reverse(besluit.besluittype)}",
+                "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace=self.BT_NAMESPACE)}",
                 "besluittype.catalogus": f"http://testserver{reverse(besluit.besluittype.catalogus, namespace='catalogi')}",
             },
             "resource": "besluitinformatieobject",
@@ -1268,7 +1267,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kanaal": "besluiten",
             "kenmerken": {
                 "verantwoordelijkeOrganisatie": bio.besluit.verantwoordelijke_organisatie,
-                "besluittype": f"http://testserver{reverse(bio.besluit.besluittype)}",
+                "besluittype": f"http://testserver{reverse(bio.besluit.besluittype, namespace=self.BT_NAMESPACE)}",
                 "besluittype.catalogus": f"http://testserver{reverse(bio.besluit.besluittype.catalogus, namespace='catalogi')}",
             },
             "resource": "besluitinformatieobject",

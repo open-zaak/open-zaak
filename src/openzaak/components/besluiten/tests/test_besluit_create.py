@@ -28,13 +28,14 @@ from .factories import BesluitFactory, BesluitInformatieObjectFactory
 class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     NAMESPACE = "besluiten"
+    BT_NAMESPACE = "catalogi"
 
     @freeze_time("2018-09-06T12:08+0200")
     def test_us162_voeg_besluit_toe_aan_zaak(self):
         zaak = ZaakFactory.create(zaaktype__concept=False)
         zaak_url = reverse(zaak)
         besluittype = BesluitTypeFactory.create(concept=False)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
         besluittype.zaaktypen.add(zaak.zaaktype)
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
@@ -182,7 +183,7 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         Upstream standard issue: https://github.com/VNG-Realisatie/gemma-zaken/issues/1790
         """
         besluittype = BesluitTypeFactory.create(concept=False)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
 
         url = reverse(Besluit, namespace=self.NAMESPACE)
 
