@@ -17,7 +17,7 @@ jobs:
     uses: maykinmedia/open-api-workflows/.github/workflows/code-quality.yml@31eaea25acd18bb681fe0d01b2452c3dd8d299b9 # v7.0.0
     with:
       apt-packages: "gdal-bin"
-      python-version: "3.12"
+      python-version: "3.14"
       node-version: "24"
       postgres-image: "postgis/postgis:18-3.6"
 
@@ -36,7 +36,7 @@ jobs:
       - uses: maykinmedia/setup-django-backend@4a6c5facc65bb1dd510cf06be20871db11a156b3 # v1.4.2
         with:
           apt-packages: "libxml2 libxmlsec1 libxmlsec1-openssl"
-          python-version: "3.12"
+          python-version: "3.14"
           setup-node: false
       - name: Run check
         run: ./bin/check_spdx.py src
