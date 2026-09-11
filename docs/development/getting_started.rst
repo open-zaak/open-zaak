@@ -18,7 +18,7 @@ Prerequisites
 
 You need the following libraries and/or programs:
 
-* `Python`_ 3.12
+* `Python`_ 3.14
 * Python `Virtualenv`_ and `Pip`_ 26.0.1 or above
 * `uv`_ 0.9.5 or above (recommended)
 * `PostgreSQL`_ 14.0 or above, with the `PostGIS-extension`_ version 3.2 or above
