@@ -85,7 +85,7 @@ click-repl==0.2.0
     # via celery
 cloudevents==1.12.0
     # via -r requirements/base.in
-commonground-api-common==2.15.2
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@66ad1450069b0c88190b59268dfa6f4e086c0c99
     # via
     #   -r requirements/base.in
     #   open-api-framework
@@ -373,13 +373,14 @@ msal-extensions==1.3.1
     # via azure-identity
 nh3==0.3.0
     # via textile
-notifications-api-common==0.13.0
+notifications-api-common==0.13.1
     # via
     #   -r requirements/base.in
     #   commonground-api-common
+    #   open-api-framework
 oauthlib==3.3.1
     # via requests-oauthlib
-open-api-framework==0.14.1
+open-api-framework==0.15.0
     # via -r requirements/base.in
 opentelemetry-api==1.38.0
     # via

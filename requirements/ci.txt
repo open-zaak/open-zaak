@@ -154,7 +154,7 @@ cloudevents==1.12.0
     #   -r requirements/base.txt
 codecov==2.1.13
     # via -r requirements/test-tools.in
-commonground-api-common==2.15.2
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@66ad1450069b0c88190b59268dfa6f4e086c0c99
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -680,7 +680,7 @@ nh3==0.3.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   textile
-notifications-api-common==0.13.0
+notifications-api-common==0.13.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -690,7 +690,7 @@ oauthlib==3.3.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   requests-oauthlib
-open-api-framework==0.14.1
+open-api-framework==0.15.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

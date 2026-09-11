@@ -157,11 +157,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="statustype",
             name="doorlooptijd",
-            field=vng_api_common.fields.DaysDurationField(
+            field=openzaak.utils.fields.DurationField(
                 blank=True,
                 help_text="De door de zaakbehandelende organisatie(s) gestelde norm voor de doorlooptijd voor het bereiken van STATUSsen van dit STATUSTYPE bij het desbetreffende ZAAKTYPE.",
-                max_duration=999,
-                min_duration=1,
                 null=True,
                 verbose_name="doorlooptijd",
             ),
