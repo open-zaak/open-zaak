@@ -62,7 +62,7 @@ from ..api.cloudevents import (
     ZAAK_GEOPEND,
     ZAAK_ONTKOPPELD,
     ZAAK_VERWIJDEREN,
-    ZAAKOBJECT_EINDDATUM_BIJGEWERKT,
+    ZAAKOBJECT_DATUM_BIJGEWERKT,
 )
 from ..models import (
     Resultaat,
@@ -1697,7 +1697,7 @@ class IncomingZaakobjectEinddatumGewijzigdCloudEventTests(JWTAuthMixin, APITestC
         zaak = ZaakFactory.create()
         event = CloudEvent(
             {
-                "type": ZAAKOBJECT_EINDDATUM_BIJGEWERKT,
+                "type": ZAAKOBJECT_DATUM_BIJGEWERKT,
                 "source": "https://example.com/event-producer",
             },
             None,
@@ -1716,7 +1716,7 @@ class IncomingZaakobjectEinddatumGewijzigdCloudEventTests(JWTAuthMixin, APITestC
 
         event = CloudEvent(
             {
-                "type": ZAAKOBJECT_EINDDATUM_BIJGEWERKT,
+                "type": ZAAKOBJECT_DATUM_BIJGEWERKT,
                 "source": "https://example.com/event-producer",
             },
             {
@@ -1737,7 +1737,7 @@ class IncomingZaakobjectEinddatumGewijzigdCloudEventTests(JWTAuthMixin, APITestC
 
         event = CloudEvent(
             {
-                "type": ZAAKOBJECT_EINDDATUM_BIJGEWERKT,
+                "type": ZAAKOBJECT_DATUM_BIJGEWERKT,
                 "source": "https://example.com/event-producer",
             },
             {
@@ -1759,7 +1759,7 @@ class IncomingZaakobjectEinddatumGewijzigdCloudEventTests(JWTAuthMixin, APITestC
 
         event = CloudEvent(
             {
-                "type": ZAAKOBJECT_EINDDATUM_BIJGEWERKT,
+                "type": ZAAKOBJECT_DATUM_BIJGEWERKT,
                 "source": "https://example.com/event-producer",
             },
             {
@@ -1810,7 +1810,7 @@ class IncomingZaakobjectEinddatumGewijzigdCloudEventTests(JWTAuthMixin, APITestC
 
         event = CloudEvent(
             {
-                "type": ZAAKOBJECT_EINDDATUM_BIJGEWERKT,
+                "type": ZAAKOBJECT_DATUM_BIJGEWERKT,
                 "source": "https://example.com/event-producer",
             },
             {
