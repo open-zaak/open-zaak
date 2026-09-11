@@ -126,6 +126,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
                 "eindeGeldigheid": "2023-12-01",
                 "beginObject": "2023-01-01",
                 "eindeObject": "2023-12-01",
+                "_expand": {},
             },
         )
 
@@ -186,6 +187,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
             "eindeGeldigheid": None,
             "beginObject": None,
             "eindeObject": None,
+            "_expand": {},
         }
         self.assertEqual(expected, response.json())
 
@@ -756,6 +758,104 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "relations-incorrect-zaaktype")
+
+    def test_get_detail_expand_catalogus(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        eigenschap = EigenschapFactory.create(zaaktype=zaaktype)
+
+        response = self.client.get(
+            reverse(eigenschap),
+            {"expand": "catalogus"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["_expand"]["catalogus"]["url"],
+            f"http://testserver{reverse(self.catalogus)}",
+        )
+
+    def test_get_detail_expand_zaaktype(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        eigenschap = EigenschapFactory.create(zaaktype=zaaktype)
+
+        response = self.client.get(
+            reverse(eigenschap),
+            {"expand": "zaaktype"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["_expand"]["zaaktype"]["url"],
+            f"http://testserver{reverse(zaaktype)}",
+        )
+
+    def test_get_detail_expand_statustype(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        eigenschap = EigenschapFactory.create(
+            zaaktype=zaaktype,
+            statustype=statustype,
+        )
+
+        response = self.client.get(
+            reverse(eigenschap),
+            {"expand": "statustype"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["_expand"]["statustype"]["url"],
+            f"http://testserver{reverse(statustype)}",
+        )
+
+    def test_get_detail_expand_multiple(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        eigenschap = EigenschapFactory.create(
+            zaaktype=zaaktype,
+            statustype=statustype,
+        )
+
+        response = self.client.get(
+            reverse(eigenschap),
+            {"expand": "catalogus,zaaktype,statustype"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("catalogus", data["_expand"])
+        self.assertIn("zaaktype", data["_expand"])
+        self.assertIn("statustype", data["_expand"])
+
+    def test_get_detail_expand_nested_not_supported(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        eigenschap = EigenschapFactory.create(zaaktype=zaaktype)
+
+        response = self.client.get(
+            reverse(eigenschap),
+            {"expand": "catalogus.zaaktype"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_get_detail_without_expand(self):
+        eigenschap = EigenschapFactory.create()
+
+        response = self.client.get(reverse(eigenschap))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["_expand"], {})
 
 
 class EigenschapFilterAPITests(APITestCase):
