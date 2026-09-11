@@ -18,6 +18,9 @@ from openzaak.components.catalogi.api.serializers.besluittype import (
 )
 from openzaak.components.catalogi.api.serializers.catalogus import CatalogusSerializer
 from openzaak.components.catalogi.api.serializers.eigenschap import EigenschapSerializer
+from openzaak.components.catalogi.api.serializers.informatieobjecttype import (
+    InformatieObjectTypeSerializer,
+)
 from openzaak.utils.filters import (
     CatalogiExpandFilter,
     CharArrayFilter,
@@ -295,10 +298,15 @@ class InformatieObjectTypeFilter(FilterSet):
             + _(" Filter op (een deel van de) omschrijving (hoofdletterongevoelig).")
         ),
     )
+    expand = CatalogiExpandFilter(serializer_class=InformatieObjectTypeSerializer)
 
     class Meta:
         model = InformatieObjectType
         fields = ["catalogus", "omschrijving", "omschrijving__icontains"]
+
+
+class InformatieObjectDetailTypeFilter(FilterSet):
+    expand = CatalogiExpandFilter(serializer_class=InformatieObjectTypeSerializer)
 
 
 class BesluitTypeFilter(FilterSet):
