@@ -38,3 +38,6 @@ zgw-consumers[oauth2]
 cloudevents
 
 notifications-api-common
+
+# py3.13 removed imghdr from stdlib, necessary for drf-extra-fields
+standard-imghdr

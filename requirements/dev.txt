@@ -687,7 +687,7 @@ jmespath==1.0.1
     #   -r requirements/ci.txt
     #   boto3
     #   botocore
-jq==1.7.0
+jq==1.12.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -956,12 +956,12 @@ protobuf==6.33.5
     #   -r requirements/ci.txt
     #   googleapis-common-protos
     #   opentelemetry-proto
-psycopg==3.2.9
+psycopg==3.3.5
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-psycopg-binary==3.2.9
+psycopg-binary==3.3.5
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -982,14 +982,14 @@ pycparser==2.21
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   cffi
-pydantic==2.10.4
+pydantic==2.13.5
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   bump-my-version
     #   django-setup-configuration
     #   pydantic-settings
-pydantic-core==2.27.2
+pydantic-core==2.46.5
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -1180,16 +1180,11 @@ roman-numerals==4.1.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   sphinx
-ruamel-yaml==0.18.10
+ruamel-yaml==0.19.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-setup-configuration
-ruamel-yaml-clib==0.2.12
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   ruamel-yaml
 ruff==0.11.10
     # via
     #   -c requirements/ci.txt
@@ -1313,6 +1308,10 @@ sqlparse==0.5.5
     #   django
     #   django-debug-toolbar
     #   django-silk
+standard-imghdr==3.13.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 structlog==25.4.0
     # via
     #   -c requirements/ci.txt
@@ -1340,7 +1339,7 @@ typer==0.27.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-typing-extensions==4.12.2
+typing-extensions==4.16.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -1365,8 +1364,14 @@ typing-extensions==4.12.2
     #   pyopenssl
     #   qrcode
     #   rich-click
+    #   typing-inspection
     #   zgw-consumers
     #   zgw-consumers-oas
+typing-inspection==0.4.4
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   pydantic
 tzdata==2025.2
     # via
     #   -c requirements/ci.txt

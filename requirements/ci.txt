@@ -608,7 +608,7 @@ jmespath==1.0.1
     #   -r requirements/base.txt
     #   boto3
     #   botocore
-jq==1.7.0
+jq==1.12.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -858,12 +858,12 @@ protobuf==6.33.5
     #   -r requirements/base.txt
     #   googleapis-common-protos
     #   opentelemetry-proto
-psycopg==3.2.9
+psycopg==3.3.5
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
-psycopg-binary==3.2.9
+psycopg-binary==3.3.5
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -879,13 +879,13 @@ pycparser==2.21
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   cffi
-pydantic==2.10.4
+pydantic==2.13.5
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-setup-configuration
     #   pydantic-settings
-pydantic-core==2.27.2
+pydantic-core==2.46.5
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -1047,16 +1047,11 @@ rich==15.0.0
     #   typer
 roman-numerals==4.1.0
     # via sphinx
-ruamel-yaml==0.18.10
+ruamel-yaml==0.19.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-setup-configuration
-ruamel-yaml-clib==0.2.12
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
-    #   ruamel-yaml
 ruff==0.11.10
     # via -r requirements/test-tools.in
 s3transfer==0.16.0
@@ -1145,6 +1140,10 @@ sqlparse==0.5.5
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django
+standard-imghdr==3.13.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
 structlog==25.4.0
     # via
     #   -c requirements/base.txt
@@ -1168,7 +1167,7 @@ typer==0.27.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-typing-extensions==4.12.2
+typing-extensions==4.16.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -1191,8 +1190,14 @@ typing-extensions==4.12.2
     #   pyee
     #   pyopenssl
     #   qrcode
+    #   typing-inspection
     #   zgw-consumers
     #   zgw-consumers-oas
+typing-inspection==0.4.4
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   pydantic
 tzdata==2025.2
     # via
     #   -c requirements/base.txt
