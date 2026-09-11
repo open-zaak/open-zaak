@@ -54,6 +54,7 @@ class StatusTypeAdmin(
                     "toelichting",
                     "datum_begin_geldigheid",
                     "datum_einde_geldigheid",
+                    "doorlooptijd",
                 )
             },
         ),

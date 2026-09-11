@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from datetime import date
 
+from dateutil.relativedelta import relativedelta
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
@@ -48,6 +49,7 @@ class StatusTypeAPITests(APITestCase):
             statustype_omschrijving="Besluit genomen",
             zaaktype__catalogus=self.catalogus,
             toelichting="description",
+            doorlooptijd="P10D",
         )
         eigenschap = EigenschapFactory.create(
             zaaktype=statustype.zaaktype, statustype=statustype
@@ -77,7 +79,7 @@ class StatusTypeAPITests(APITestCase):
             "isEindstatus": True,
             "informeren": False,
             "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
-            "doorlooptijd": None,
+            "doorlooptijd": "P10D",
             "toelichting": "description",
             "checklistitemStatustype": [
                 {
@@ -107,6 +109,7 @@ class StatusTypeAPITests(APITestCase):
             "statustekst": "",
             "zaaktype": "http://testserver{}".format(zaaktype_url),
             "volgnummer": 2,
+            "doorlooptijd": "P10D",
             "beginGeldigheid": "2023-01-01",
             "eindeGeldigheid": "2023-12-01",
         }
@@ -120,6 +123,7 @@ class StatusTypeAPITests(APITestCase):
         self.assertEqual(statustype.zaaktype, zaaktype)
         self.assertEqual(statustype.datum_begin_geldigheid, date(2023, 1, 1))
         self.assertEqual(statustype.datum_einde_geldigheid, date(2023, 12, 1))
+        self.assertEqual(statustype.doorlooptijd, relativedelta(days=+10))
 
     def test_create_statustype_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
@@ -138,6 +142,45 @@ class StatusTypeAPITests(APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
+
+    def test_create_statustype_doorlooptijd(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        statustype_list_url = reverse("statustype-list")
+        data = {
+            "omschrijving": "Besluit genomen",
+            "omschrijvingGeneriek": "",
+            "statustekst": "",
+            "zaaktype": "http://testserver{}".format(zaaktype_url),
+            "volgnummer": 2,
+            "beginGeldigheid": "2023-01-01",
+            "eindeGeldigheid": "2023-12-01",
+        }
+
+        # valid value
+        data["doorlooptijd"] = "P1Y5M5D"
+        response = self.client.post(statustype_list_url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["doorlooptijd"], "P1Y5M5D")
+
+        statustype = StatusType.objects.get()
+        self.assertEqual(
+            statustype.doorlooptijd, relativedelta(years=+1, months=+5, days=+5)
+        )
+
+        # invalid value
+        data["doorlooptijd"] = "test"
+        response = self.client.post(statustype_list_url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "doorlooptijd")
+        self.assertEqual(
+            error,
+            {
+                "name": "doorlooptijd",
+                "code": "invalid",
+                "reason": "Tijdsduur heeft een verkeerd formaat, gebruik 1 van onderstaande formaten: P(n)Y(n)M(n)D.",
+            },
+        )
 
     def test_create_statustype_with_checklist(self):
         zaaktype = ZaakTypeFactory.create()

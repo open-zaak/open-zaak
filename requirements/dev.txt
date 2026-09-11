@@ -181,7 +181,7 @@ codecov==2.1.13
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-commonground-api-common==2.15.2
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@66ad1450069b0c88190b59268dfa6f4e086c0c99
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -764,7 +764,7 @@ nh3==0.3.0
     #   textile
 nodeenv==1.9.1
     # via pre-commit
-notifications-api-common==0.13.0
+notifications-api-common==0.13.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -774,7 +774,7 @@ oauthlib==3.3.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   requests-oauthlib
-open-api-framework==0.14.1
+open-api-framework==0.15.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
