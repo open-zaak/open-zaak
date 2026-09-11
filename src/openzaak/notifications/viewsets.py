@@ -38,9 +38,10 @@ from vng_api_common.constants import ComponentTypes
 from openzaak.utils.permissions import AuthScopesRequired
 
 from ..utils.namespacing import (
+    ReplaceUrlConfig,
     get_nested_main_object_url_from_dict,
     get_nested_main_object_url_from_instance,
-    replace_namespaces,
+    replace_namespaces_from_config,
 )
 from .kanaal import Kanaal
 from .scopes import SCOPE_CLOUDEVENTS_BEZORGEN
@@ -86,14 +87,15 @@ class KanaalConfig(TypedDict):
     kanaal: Kanaal
     deprecated: NotRequired[bool]
     namespace: NotRequired[str]  # kanaal.label override
+    replace_urls_for: NotRequired[list[ReplaceUrlConfig]]
+    replace_urls_in_kenmerken: NotRequired[list[ReplaceUrlConfig]]
+    main_resource_key: NotRequired[str]
 
 
 class MultipleChannelNotificationFieldConfig(TypedDict):
     notifications_kanalen: list[KanaalConfig]
     model: type[models.Model]
     action: NotRequired[str]
-    notifications_replace_urls_for: NotRequired[list[str]]
-    notifications_main_resource_keys: NotRequired[dict[str, str]]
 
 
 TNotificationFieldConfig = TypeVar(
@@ -171,10 +173,6 @@ class MultipleChannelNotificationMixin(
 
     notifications_kanalen: list[KanaalConfig]
 
-    # kanaal label, main_resource_key
-    notifications_main_resource_keys: dict[str, str] | None = None
-    notifications_replace_urls_for: list[str] | None = None
-
     def _get_nested_main_object_url(
         self,
         key: str,  # format a.b.c
@@ -198,12 +196,8 @@ class MultipleChannelNotificationMixin(
         data: dict,
         model: type[models.Model],
         kanaal_configs: list[KanaalConfig],
-        replace_urls_for: list[str] | None = None,
-        main_resource_keys: dict[str, str] | None = None,
         main_object_resource: models.Model | dict | None = None,
-    ) -> Generator[tuple[Kanaal, dict], None, None]:
-        fields = ["url"] + (replace_urls_for or [])
-
+    ) -> Generator[tuple[KanaalConfig, dict], None, None]:
         for kanaal_config in kanaal_configs:
             if (
                 kanaal_config.get("deprecated", False)
@@ -212,12 +206,14 @@ class MultipleChannelNotificationMixin(
                 continue
             kanaal = kanaal_config["kanaal"]
             namespace = kanaal_config.get("namespace", kanaal.label)
-            notification_data = replace_namespaces(data, fields, namespace)
+
+            fields = [{"field": "url"}] + kanaal_config.get("replace_urls_for", [])
+            notification_data = replace_namespaces_from_config(data, fields, namespace)
             # if model == main_resource the url field is used which is always set
             # if the model is not main_resource it can be port of notification_data or from a related model.
             # No notification should be sent if the main resource is not set (because it's not required on the model).
             if model != kanaal.main_resource:
-                if not main_resource_keys or namespace not in main_resource_keys:
+                if not kanaal_config.get("main_resource_key"):
                     # original flow
                     url = self.get_notification_main_object_url(
                         notification_data, kanaal
@@ -235,7 +231,7 @@ class MultipleChannelNotificationMixin(
                     assert main_object_resource is not None
 
                     url_data = self._get_nested_main_object_url(
-                        main_resource_keys[namespace],
+                        kanaal_config["main_resource_key"],
                         main_object_resource,
                     )
                     if not url_data:
@@ -244,20 +240,25 @@ class MultipleChannelNotificationMixin(
                     else:
                         notification_data.update(url_data)
 
-            yield kanaal, notification_data
+            yield kanaal_config, notification_data
 
     def _message(self, data, instance=None) -> None:
-        for kanaal, notification_data in self._iter_kanalen(
+        for kanaal_config, notification_data in self._iter_kanalen(
             data,
             self.get_queryset().model,
             self.notifications_kanalen,
-            self.notifications_replace_urls_for,
-            self.notifications_main_resource_keys,
             data.serializer.instance,
         ):
             message = self.construct_message(
-                notification_data, instance=instance, kanaal=kanaal
+                notification_data, instance=instance, kanaal=kanaal_config["kanaal"]
             )
+
+            message["kenmerken"] = replace_namespaces_from_config(
+                message["kenmerken"],
+                kanaal_config.get("replace_urls_in_kenmerken", []),
+                kanaal_config.get("namespace", kanaal_config["kanaal"].label),
+            )
+
             _schedule(message)
 
 
@@ -300,21 +301,26 @@ class MultipleObjectsMultipleChannelNotificationMixin(
         for config, notification in self._iter_field_notifications(
             data, self.notification_fields
         ):
-            for kanaal, notification_data in self._iter_kanalen(
+            for kanaal_config, notification_data in self._iter_kanalen(
                 notification,
                 config["model"],
                 config["notifications_kanalen"],
-                config.get("notifications_replace_urls_for"),
-                config.get("notifications_main_resource_keys"),
                 data,
             ):
                 message = self.construct_message(
                     notification_data,
                     instance=instance,
-                    kanaal=kanaal,
+                    kanaal=kanaal_config["kanaal"],
                     model=config["model"],
                     action=config.get("action"),
                 )
+
+                message["kenmerken"] = replace_namespaces_from_config(
+                    message["kenmerken"],
+                    kanaal_config.get("replace_urls_in_kenmerken", []),
+                    kanaal_config.get("namespace", kanaal_config["kanaal"].label),
+                )
+
                 _schedule(message)
 
 
