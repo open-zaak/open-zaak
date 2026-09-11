@@ -31,11 +31,15 @@ from .factories import (
 
 class BesluitTypeFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def test_filter_by_invalid_url(self):
         for query_param in ["catalogus", "zaaktypen", "informatieobjecttypen"]:
             with self.subTest(query_param=query_param):
-                response = self.client.get(reverse(BesluitType), {query_param: "bla"})
+                response = self.client.get(
+                    reverse(BesluitType, namespace=self.NAMESPACE),
+                    {query_param: "bla"},
+                )
 
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -49,7 +53,8 @@ class BesluitTypeFilterTests(JWTAuthMixin, APITestCase):
         for query_param in ["catalogus", "zaaktypen", "informatieobjecttypen"]:
             with self.subTest(query_param=query_param):
                 response = self.client.get(
-                    reverse(BesluitType), {query_param: "https://google.com"}
+                    reverse(BesluitType, namespace=self.NAMESPACE),
+                    {query_param: "https://google.com"},
                 )
 
                 self.assertEqual(response.status_code, status.HTTP_200_OK)

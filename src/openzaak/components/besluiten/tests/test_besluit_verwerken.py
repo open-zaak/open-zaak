@@ -216,6 +216,7 @@ class BesluitVerwerkenAuthTests(JWTAuthMixin, APITestCase):
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class BesluitVerwerkenValidationTests(JWTAuthMixin, APITestCase):
     NAMESPACE = "besluiten"
+    BT_NAMESPACE = "catalogi"
     heeft_alle_autorisaties = True
 
     @property
@@ -233,7 +234,7 @@ class BesluitVerwerkenValidationTests(JWTAuthMixin, APITestCase):
         )
         self.besluittype.informatieobjecttypen.add(self.informatieobjecttype)
 
-        self.besluittype_url = reverse(self.besluittype)
+        self.besluittype_url = reverse(self.besluittype, namespace=self.BT_NAMESPACE)
 
         self.informatieobject = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=self.informatieobjecttype

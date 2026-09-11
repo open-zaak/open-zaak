@@ -4,12 +4,12 @@ from django.db import DatabaseError, transaction
 
 import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
-from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.notifications.viewsets import MultipleChannelNotificationViewSetMixin
 from openzaak.utils.mixins import CacheQuerysetMixin
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
@@ -64,7 +64,7 @@ class BesluitTypeViewSet(
     CheckQueryParamsMixin,
     ConceptMixin,
     M2MConceptDestroyMixin,
-    NotificationViewSetMixin,
+    MultipleChannelNotificationViewSetMixin,
     viewsets.ModelViewSet,
 ):
     """
@@ -105,7 +105,9 @@ class BesluitTypeViewSet(
         "destroy": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_DELETE,
         "publish": SCOPE_CATALOGI_WRITE,
     }
-    notifications_kanaal = KANAAL_BESLUITTYPEN
+    notifications_kanalen = [
+        {"kanaal": KANAAL_BESLUITTYPEN, "namespace": "zaken"},
+    ]
     concept_related_fields = ["informatieobjecttypen", "zaaktypen"]
 
     def perform_create(self, serializer):

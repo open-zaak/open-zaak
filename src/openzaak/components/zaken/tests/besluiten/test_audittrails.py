@@ -8,6 +8,7 @@ from openzaak.components.besluiten.tests.test_audittrails import (
 
 class AuditTrailTests(_AuditTrailTests):
     NAMESPACE = "zaken"
+    BT_NAMESPACE = "zaken"
 
 
 class BesluitAuditTrailJWTExpiryTests(_BesluitAuditTrailJWTExpiryTests):

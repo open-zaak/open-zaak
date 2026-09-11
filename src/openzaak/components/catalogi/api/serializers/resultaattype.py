@@ -22,7 +22,7 @@ from openzaak.utils.serializer_fields import (
 )
 from openzaak.utils.validators import ResourceValidator, UniqueTogetherValidator
 
-from ...models import InformatieObjectType, ResultaatType
+from ...models import BesluitType, InformatieObjectType, ResultaatType
 from ...validators import ProcestermijnAfleidingswijzeValidator
 from ..validators import (
     BrondatumArchiefprocedureValidator,
@@ -96,6 +96,15 @@ class ResultaatTypeSerializer(
         required=False,
         view_name="documenten:informatieobjecttype-detail",
     )
+    besluittypen = DeprecatedNamespaceLengthHyperlinkedRelatedField(
+        help_text="Het BESLUITTYPE van besluiten die gepaard gaan met resultaten van het RESULTAATTYPE.",
+        lookup_field="uuid",
+        many=True,
+        queryset=BesluitType.objects.all(),
+        required=False,
+        view_name="zaken:besluittype-detail",
+    )
+
     informatieobjecttype_omschrijving = serializers.SlugRelatedField(
         many=True,
         source="informatieobjecttypen",
@@ -171,11 +180,6 @@ class ResultaatTypeSerializer(
                 "validators": [
                     ResourceValidator("Resultaat", settings.SELECTIELIJST_API_STANDARD)
                 ]
-            },
-            "besluittypen": {
-                "lookup_field": "uuid",
-                "required": False,
-                "view_name": "catalogi:besluittype-detail",
             },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},

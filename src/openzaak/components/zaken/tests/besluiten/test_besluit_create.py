@@ -9,3 +9,4 @@ from openzaak.components.besluiten.tests.test_besluit_create import (
 
 class BesluitCreateTests(_BesluitCreateTests):
     NAMESPACE = "zaken"
+    BT_NAMESPACE = "zaken"

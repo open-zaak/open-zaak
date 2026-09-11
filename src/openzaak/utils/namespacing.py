@@ -1,8 +1,15 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2026 Dimpact
+from typing import NotRequired, TypedDict
+
 from django.db import models
 
 from rest_framework.request import Request
+
+
+class ReplaceUrlConfig(TypedDict):
+    field: str
+    namespace: NotRequired[str]  # kanaal.label override
 
 
 def replace_namespace(url: str, namespace: str) -> str:
@@ -18,6 +25,18 @@ def replace_namespaces(data: dict, fields: list[str], namespace: str) -> dict:
     new_data = data.copy()
     for field in fields:
         new_data[field] = replace_namespace(new_data[field], namespace)
+
+    return new_data
+
+
+def replace_namespaces_from_config(
+    data, configs: list[ReplaceUrlConfig], namespace: str
+) -> ReplaceUrlConfig:
+    new_data = data.copy()
+    for config in configs:
+        new_data[config["field"]] = replace_namespace(
+            new_data[config["field"]], config.get("namespace", namespace)
+        )
 
     return new_data
 

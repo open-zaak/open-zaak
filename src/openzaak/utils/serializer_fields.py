@@ -156,8 +156,9 @@ class DeprecatedNamespaceMixin:
         "besluiten": {
             "besluit": "besluiten",
             "besluitinformatieobject": "besluiten",
+            "besluittype": "catalogi",
         },
-        "catalogi": {"informatieobjecttype": "catalogi"},
+        "catalogi": {"informatieobjecttype": "catalogi", "besluittype": "catalogi"},
     }
 
     def get_url(
@@ -188,6 +189,7 @@ class DeprecatedNamespaceHyperlinkedRelatedField(
         "zaken:besluit-detail",
         "zaken:besluitinformatieobject-detail",
         "documenten:informatieobjecttype-detail",
+        "zaken:besluittype-detail",
     ]
 
     def fail(self, key, **kwargs):

@@ -155,10 +155,10 @@ class ZaakTypeSerializer(
         ),
     )
 
-    besluittypen = CachedHyperlinkedRelatedField(
+    besluittypen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
         many=True,
         label=_("heeft relevante besluittypen"),
-        view_name="catalogi:besluittype-detail",
+        view_name="zaken:besluittype-detail",
         lookup_field="uuid",
         queryset=BesluitType.objects.all(),
         help_text=_(

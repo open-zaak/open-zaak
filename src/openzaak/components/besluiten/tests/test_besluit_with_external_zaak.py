@@ -33,6 +33,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     base = "https://externe.zaken.nl/api/v1/"
     NAMESPACE = "besluiten"
+    BT_NAMESPACE = "catalogi"
 
     @classmethod
     def setUpTestData(cls):
@@ -85,7 +86,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
                 {
                     "verantwoordelijke_organisatie": "517439943",
                     "identificatie": "123123",
-                    "besluittype": f"http://testserver{reverse(besluittype)}",
+                    "besluittype": f"http://testserver{reverse(besluittype, namespace=self.BT_NAMESPACE)}",
                     "datum": "2018-09-06",
                     "toelichting": "Vergunning verleend.",
                     "ingangsdatum": "2018-10-01",
@@ -128,7 +129,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
                 {
                     "verantwoordelijke_organisatie": "517439943",
                     "identificatie": "123123",
-                    "besluittype": f"http://testserver{reverse(besluittype)}",
+                    "besluittype": f"http://testserver{reverse(besluittype, namespace=self.BT_NAMESPACE)}",
                     "datum": "2018-09-06",
                     "toelichting": "Vergunning verleend.",
                     "ingangsdatum": "2018-10-01",
