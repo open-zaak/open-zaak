@@ -40,7 +40,7 @@ def get_informatieobjecttype_url(
 
     base_url = f"https://{settings.SITE_DOMAIN}"
     instance_url = reverse(
-        "catalogi:informatieobjecttype-detail",
+        "documenten:informatieobjecttype-detail",
         kwargs=dict(
             uuid=instance.uuid,
             version=settings.REST_FRAMEWORK["DEFAULT_VERSION"],

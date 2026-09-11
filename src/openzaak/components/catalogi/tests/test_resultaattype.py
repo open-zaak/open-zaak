@@ -753,7 +753,9 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
                 "objecttype": "",
                 "registratie": "",
             },
-            "informatieobjecttypen": [f"http://testserver{reverse(iotype)}"],
+            "informatieobjecttypen": [
+                f"http://testserver{reverse(iotype, namespace='catalogi')}"
+            ],
         }
         mock_selectielijst_oas_get(m)
         m.get(
@@ -806,7 +808,9 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
                 "objecttype": "",
                 "registratie": "",
             },
-            "informatieobjecttypen": [f"http://testserver{reverse(iotype)}"],
+            "informatieobjecttypen": [
+                f"http://testserver{reverse(iotype, namespace='catalogi')}"
+            ],
         }
         mock_selectielijst_oas_get(m)
         m.get(
@@ -848,7 +852,11 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
 
             response = self.client.patch(
                 resultaattype_url,
-                {"informatieobjecttypen": [f"http://testserver{reverse(iotype)}"]},
+                {
+                    "informatieobjecttypen": [
+                        f"http://testserver{reverse(iotype, namespace='catalogi')}"
+                    ]
+                },
             )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -876,7 +884,11 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
 
             response = self.client.patch(
                 resultaattype_url,
-                {"informatieobjecttypen": [f"http://testserver{reverse(iotype)}"]},
+                {
+                    "informatieobjecttypen": [
+                        f"http://testserver{reverse(iotype, namespace='catalogi')}"
+                    ]
+                },
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

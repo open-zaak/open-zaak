@@ -10,6 +10,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from vng_api_common.serializers import (
+    CachedHyperlinkedRelatedField,
     LengthHyperlinkedRelatedField as _LengthHyperlinkedRelatedField,
 )
 from vng_api_common.validators import URLValidator
@@ -151,19 +152,26 @@ class DeprecatedNamespaceMixin:
     request namespaces is used for all models in _MOVED_MODELS
     """
 
-    _MOVED_MODELS = ["besluit", "besluitinformatieobject"]
+    _DEPRECATED_NAMESPACES = {
+        "besluiten": {
+            "besluit": "besluiten",
+            "besluitinformatieobject": "besluiten",
+        },
+        "catalogi": {"informatieobjecttype": "catalogi"},
+    }
 
     def get_url(
         self, obj: Model, view_name: str, request: Request, format: str | None
     ) -> str | None:
-        if obj._meta.model_name in self._MOVED_MODELS and getattr(
-            request, "resolver_match", None
-        ):
-            # serializers called in the AuditTrailAdminMixin pass the admin request.
-            if request.resolver_match.namespace != "admin":
-                view_name = (
-                    f"{request.resolver_match.namespace}:{view_name.split(':')[1]}"
-                )
+        if getattr(request, "resolver_match", None):
+            namespace = request.resolver_match.namespace
+
+            if (
+                namespace in self._DEPRECATED_NAMESPACES
+                and obj._meta.model_name in self._DEPRECATED_NAMESPACES[namespace]
+            ):
+                view_name = f"{self._DEPRECATED_NAMESPACES[namespace][obj._meta.model_name]}:{view_name.split(':')[1]}"
+
         return super().get_url(obj, view_name, request, format)
 
 
@@ -173,13 +181,34 @@ class DeprecatedNamespaceHyperlinkIdentityField(
     pass
 
 
-class DeprecatedNamespaceLengthHyperlinkedRelatedField(
-    DeprecatedNamespaceMixin, _LengthHyperlinkedRelatedField
+class DeprecatedNamespaceHyperlinkedRelatedField(
+    DeprecatedNamespaceMixin, serializers.HyperlinkedRelatedField
 ):
+    _ALLOW_INCORRECT_MATCHES_FOR = [
+        "zaken:besluit-detail",
+        "zaken:besluitinformatieobject-detail",
+        "documenten:informatieobjecttype-detail",
+    ]
+
     def fail(self, key, **kwargs):
         """
-        Checks if incorrect_match happend with deprecated namespace which is allowed.
+        Checks if incorrect_match happened with deprecated namespace which is allowed.
         """
-        if key == "incorrect_match" and self.source in self._MOVED_MODELS:
+        if (
+            key == "incorrect_match"
+            and self.view_name in self._ALLOW_INCORRECT_MATCHES_FOR
+        ):
             return
-        super().fail(key, kwargs)
+        super().fail(key, **kwargs)
+
+
+class DeprecatedNamespaceLengthHyperlinkedRelatedField(
+    DeprecatedNamespaceHyperlinkedRelatedField, _LengthHyperlinkedRelatedField
+):
+    pass
+
+
+class DeprecatedNamespaceCachedHyperlinkedRelatedField(
+    DeprecatedNamespaceHyperlinkedRelatedField, CachedHyperlinkedRelatedField
+):
+    pass

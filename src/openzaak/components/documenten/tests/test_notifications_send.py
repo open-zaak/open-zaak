@@ -41,7 +41,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         Registreer een ENKELVOUDIGINFORMATIEOBJECT
         """
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         url = get_operation_url("enkelvoudiginformatieobject_create")
         data = {
             "identificatie": "AMS20180701001",
@@ -83,7 +83,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
     @tag("convenience-endpoints")
     def test_send_notif_register_document(self, mock_notif):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
 
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
@@ -185,7 +185,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         url = get_operation_url("enkelvoudiginformatieobject_create")
 
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         data = {
             "identificatie": uuid.uuid4().hex,
             "bronorganisatie": "159351741",
@@ -247,7 +247,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kanaal": "documenten",
             "kenmerken": {
                 "bronorganisatie": eio.bronorganisatie,
-                "informatieobjecttype": f"http://testserver{reverse(eio.informatieobjecttype)}",
+                "informatieobjecttype": f"http://testserver{reverse(eio.informatieobjecttype, namespace='documenten')}",
                 "informatieobjecttype.catalogus": f"http://testserver{reverse(eio.informatieobjecttype.catalogus)}",
                 "vertrouwelijkheidaanduiding": eio.vertrouwelijkheidaanduiding,
             },
@@ -285,7 +285,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kanaal": "documenten",
             "kenmerken": {
                 "bronorganisatie": eio.bronorganisatie,
-                "informatieobjecttype": f"http://testserver{reverse(eio.informatieobjecttype)}",
+                "informatieobjecttype": f"http://testserver{reverse(eio.informatieobjecttype, namespace='documenten')}",
                 "informatieobjecttype.catalogus": f"http://testserver{reverse(eio.informatieobjecttype.catalogus)}",
                 "vertrouwelijkheidaanduiding": eio.vertrouwelijkheidaanduiding,
             },
@@ -317,7 +317,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kanaal": "documenten",
             "kenmerken": {
                 "bronorganisatie": eio.bronorganisatie,
-                "informatieobjecttype": f"http://testserver{reverse(eio.informatieobjecttype)}",
+                "informatieobjecttype": f"http://testserver{reverse(eio.informatieobjecttype, namespace='documenten')}",
                 "informatieobjecttype.catalogus": f"http://testserver{reverse(eio.informatieobjecttype.catalogus)}",
                 "vertrouwelijkheidaanduiding": eio.vertrouwelijkheidaanduiding,
             },

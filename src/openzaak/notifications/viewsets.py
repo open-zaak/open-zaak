@@ -24,6 +24,7 @@ from notifications_api_common.viewsets import (
     NotificationCreateMixin,
     NotificationDestroyMixin,
     NotificationMixin,
+    NotificationMixinBase,
     NotificationUpdateMixin,
 )
 from rest_framework import status
@@ -54,6 +55,25 @@ def _schedule(message: dict) -> None:
             msg, notification_id
         )
     )
+
+
+class MultipleChannelNotificationMixinBase(NotificationMixinBase):
+    """
+    NotificationMixinBase.__new__ populates kanaal usage used in api spec documentation.
+    """
+
+    def __new__(cls, name, bases, attrs):
+        new_cls = super().__new__(cls, name, bases, attrs)
+
+        kanalen = attrs.get("notifications_kanalen")
+
+        if kanalen is None:
+            return new_cls
+
+        for kanaal in kanalen:
+            attrs["notifications_kanaal"] = kanaal["kanaal"]
+            new_cls = super().__new__(cls, name, bases, attrs)
+        return new_cls
 
 
 class NotificationFieldConfig(TypedDict):
@@ -142,7 +162,9 @@ class MultipleObjectsNotificationMixin(
             _schedule(message)
 
 
-class MultipleChannelNotificationMixin(NotificationMixin):
+class MultipleChannelNotificationMixin(
+    NotificationMixin, metaclass=MultipleChannelNotificationMixinBase
+):
     """
     NotificationMixin that adds support for sending notifications over multiple channels in deprecated APIS.
     """
