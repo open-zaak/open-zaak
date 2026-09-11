@@ -107,6 +107,7 @@ info:
     * `catalogus`: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE behoort.
 
     **Resources en acties**
+    - `informatieobjecttype`: create, update, destroy
 
 
     **Handige links**
