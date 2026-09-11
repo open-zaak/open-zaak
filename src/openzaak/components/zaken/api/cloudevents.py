@@ -34,7 +34,7 @@ ZAAK_OPGESCHORT = "nl.overheid.zaken.zaak-opgeschort"
 ZAAK_BIJGEWERKT = "nl.overheid.zaken.zaak-bijgewerkt"
 ZAAK_VERLENGD = "nl.overheid.zaken.zaak-verlengd"
 ZAAK_AFGESLOTEN = "nl.overheid.zaken.zaak-afgesloten"
-ZAAKOBJECT_EINDDATUM_BIJGEWERKT = "nl.overheid.zaken.zaakobject-einddatum-bijgewerkt"
+ZAAKOBJECT_BIJGEWERKT = "nl.overheid.zaken.zaakobject-bijgewerkt"
 
 
 def _resolve_zaak_uri(uri: str) -> str | None:
@@ -139,8 +139,8 @@ def handle_zaak_ontkoppeld(event: CloudEvent):
 
 
 @CloudEventWebhook.register_handler
-def handle_zaakobject_einddatum_bijgewerkt(event: CloudEvent):
-    if event["type"] != ZAAKOBJECT_EINDDATUM_BIJGEWERKT:
+def handle_zaakobject_bijgewerkt(event: CloudEvent):
+    if event["type"] != ZAAKOBJECT_BIJGEWERKT:
         return
 
     if not (event_data := event.get_data()):
@@ -151,16 +151,44 @@ def handle_zaakobject_einddatum_bijgewerkt(event: CloudEvent):
         logger.warning("incoming_cloud_event_error", code="unknown-zaak")
         return
 
-    if not zaak.einddatum:
+    if not (link_to := event_data.get("linkTo")):
+        logger.warning("incoming_cloud_event_error", code="missing-linkTo")
         return
 
-    if not (resultaat := getattr(zaak, "resultaat", None)):
+    if not (fields := event_data.get("fields")):
+        logger.warning("incoming_cloud_event_error", code="missing-fields")
         return
 
-    resultaattype = resultaat.resultaattype
-    afleidingswijze = resultaattype.brondatum_archiefprocedure.get("afleidingswijze")
-    if afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.zaakobject:
+    if not zaak.einddatum or not (resultaat := getattr(zaak, "resultaat", None)):
+        # Don't have to do anything if the zaak wasn't closed yet.
+        return
+
+    procedure = resultaat.resultaattype.brondatum_archiefprocedure
+    # Sanity check: this object should exist if the zaak-gekoppeld cloudevents were
+    # sent/processed correctly.
+    if not ZaakObject.objects.filter(
+        zaak=zaak, object=link_to, object_type=procedure.get("objecttype")
+    ).exists():
+        logger.warning(
+            "incoming_cloud_event_error",
+            code="unknown-zaakobject",
+            zaak=zaak,
+            object=link_to,
+            object_type=procedure.get("objecttype"),
+        )
+        return
+
+    if (
+        procedure.get("afleidingswijze")
+        == BrondatumArchiefprocedureAfleidingswijze.zaakobject
+        and procedure.get("datumkenmerk") in fields
+    ):
         try_calculate_archiving(zaak, force=True)
+        logger.info(
+            "incoming_cloud_event_handled",
+            code="zaakobject-bijgewerkt",
+            action="archiving-data-recalculated",
+        )
 
 
 @contextmanager
