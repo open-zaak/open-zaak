@@ -61,11 +61,13 @@ jobs:
 
     strategy:
       matrix:
-        postgres: ["14", "15", "16", "17"]
+        postgres: ["14", "15", "16", "17", "18"]
         postgis: ["3.2", "3.5"]
         use_pooling: [false]
         exclude:
           # postgis 3.2 is not compatible with recent postgres versions
+          - postgres: "18"
+            postgis: "3.2"
           - postgres: "17"
             postgis: "3.2"
           - postgres: "16"
@@ -150,7 +152,7 @@ jobs:
 
     services:
       postgres:
-        image: postgis/postgis:17-3.5
+        image: postgis/postgis:18-3.6
         env:
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
