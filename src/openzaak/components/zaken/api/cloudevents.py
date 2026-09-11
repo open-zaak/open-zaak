@@ -34,7 +34,7 @@ ZAAK_OPGESCHORT = "nl.overheid.zaken.zaak-opgeschort"
 ZAAK_BIJGEWERKT = "nl.overheid.zaken.zaak-bijgewerkt"
 ZAAK_VERLENGD = "nl.overheid.zaken.zaak-verlengd"
 ZAAK_AFGESLOTEN = "nl.overheid.zaken.zaak-afgesloten"
-ZAAKOBJECT_EINDDATUM_BIJGEWERKT = "nl.overheid.zaken.zaakobject-einddatum-bijgewerkt"
+ZAAKOBJECT_DATUM_BIJGEWERKT = "nl.overheid.zaken.zaakobject-datum-bijgewerkt"
 
 
 def _resolve_zaak_uri(uri: str) -> str | None:
@@ -140,7 +140,7 @@ def handle_zaak_ontkoppeld(event: CloudEvent):
 
 @CloudEventWebhook.register_handler
 def handle_zaakobject_einddatum_bijgewerkt(event: CloudEvent):
-    if event["type"] != ZAAKOBJECT_EINDDATUM_BIJGEWERKT:
+    if event["type"] != ZAAKOBJECT_DATUM_BIJGEWERKT:
         return
 
     if not (event_data := event.get_data()):

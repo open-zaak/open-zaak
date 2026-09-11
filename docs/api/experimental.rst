@@ -75,7 +75,7 @@ the following events:
 
   * ``nl.overheid.zaken.zaak-gekoppeld``: create a zaakobject which relates the external object to a zaak
   * ``nl.overheid.zaken.zaak-ontkoppeld``: delete a zaakobject which relates the external object to a zaak
-  * ``nl.overheid.zaken.zaakobject-einddatum-bijgewerkt``: (re)calculate the archiving date for zaken with afleidingswijze ``zaakobject``
+  * ``nl.overheid.zaken.zaakobject-datum-bijgewerkt``: (re)calculate the archiving date for closed zaken with afleidingswijze ``zaakobject``
 
 .. warning::
 
