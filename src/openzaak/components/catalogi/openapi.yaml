@@ -2221,6 +2221,21 @@ paths:
           type: string
           format: date
         description: filter objecten op hun geldigheids datum.
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - catalogus
+            - statustype
+            - zaaktype
+        description: |+
+          Sluit de gespecificeerde gerelateerde resources aan in het antwoord. Expand naar willekeurige diepte wordt niet ondersteund. Dit wijkt af van de standaard.
+
+        explode: false
+        style: form
       - name: page
         required: false
         in: query
@@ -2277,7 +2292,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedEigenschapList'
+                $ref: '#/components/schemas/PaginatedExpandEigenschapList'
           description: OK
         '400':
           headers:
@@ -2560,6 +2575,21 @@ paths:
           MultipleValues:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
             summary: Meerdere ETag-waardes
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - catalogus
+            - statustype
+            - zaaktype
+        description: |+
+          Sluit de gespecificeerde gerelateerde resources aan in het antwoord. Expand naar willekeurige diepte wordt niet ondersteund. Dit wijkt af van de standaard.
+
+        explode: false
+        style: form
       - in: path
         name: uuid
         schema:
@@ -2589,7 +2619,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Eigenschap'
+                $ref: '#/components/schemas/ExpandEigenschap'
           description: OK
         '401':
           headers:
@@ -11621,6 +11651,33 @@ components:
                 readOnly: true
                 description: URL-referenties naar INFORMATIEOBJECTTYPEn die in deze
                   CATALOGUS worden ontsloten.
+    ExpandEigenschap:
+      allOf:
+      - $ref: '#/components/schemas/Eigenschap'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              catalogus:
+                allOf:
+                - $ref: '#/components/schemas/Catalogus'
+                readOnly: true
+                description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE
+                  behoort.
+              zaaktype:
+                allOf:
+                - $ref: '#/components/schemas/ZaakType'
+                description: URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor
+                  deze EIGENSCHAP van belang is.
+              statustype:
+                allOf:
+                - $ref: '#/components/schemas/StatusType'
+                nullable: true
+                description: Status type moet (onder andere) deze EIGENSCHAP hebben,
+                  voordat een STATUS van het STATUSTYPE kan worden gezet.
     FieldValidationError:
       type: object
       description: Formaat van validatiefouten.
@@ -12081,6 +12138,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ExpandCatalogus'
+    PaginatedExpandEigenschapList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpandEigenschap'
     PaginatedInformatieObjectTypeList:
       type: object
       required:

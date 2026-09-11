@@ -17,6 +17,7 @@ from openzaak.components.catalogi.api.serializers.besluittype import (
     BesluitTypeSerializer,
 )
 from openzaak.components.catalogi.api.serializers.catalogus import CatalogusSerializer
+from openzaak.components.catalogi.api.serializers.eigenschap import EigenschapSerializer
 from openzaak.utils.filters import (
     CatalogiExpandFilter,
     CharArrayFilter,
@@ -204,10 +205,15 @@ class EigenschapFilter(FilterSet):
         field_name="zaaktype__identificatie",
         help_text=get_help_text("catalogi.ZaakType", "identificatie"),
     )
+    expand = CatalogiExpandFilter(serializer_class=EigenschapSerializer)
 
     class Meta:
         model = Eigenschap
         fields = ("zaaktype", "status", "datum_geldigheid", "zaaktype_identificatie")
+
+
+class EigenschapDetailFilter(FilterSet):
+    expand = CatalogiExpandFilter(serializer_class=EigenschapSerializer)
 
 
 class ZaakTypeFilter(FilterSet):
