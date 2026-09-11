@@ -27,18 +27,19 @@ from openzaak.utils.urls import reverse
 
 class BesluitTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def test_besluittype_get_cache_header(self):
         besluittype = BesluitTypeFactory.create()
 
-        response = self.client.get(reverse(besluittype))
+        response = self.client.get(reverse(besluittype, namespace=self.NAMESPACE))
 
         self.assertHasETag(response)
 
     def test_besluittype_head_cache_header(self):
         besluittype = BesluitTypeFactory.create()
 
-        self.assertHeadHasETag(reverse(besluittype))
+        self.assertHeadHasETag(reverse(besluittype, namespace=self.NAMESPACE))
 
     def test_head_in_apischema(self):
         spec = get_spec("catalogi")
@@ -50,7 +51,8 @@ class BesluitTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_conditional_get_304(self):
         besluittype = BesluitTypeFactory.create(with_etag=True)
         response = self.client.get(
-            reverse(besluittype), headers={"if-none-match": f'"{besluittype._etag}"'}
+            reverse(besluittype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{besluittype._etag}"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
@@ -59,7 +61,8 @@ class BesluitTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         besluittype = BesluitTypeFactory.create(with_etag=True)
 
         response = self.client.get(
-            reverse(besluittype), headers={"if-none-match": '"not-an-md5"'}
+            reverse(besluittype, namespace=self.NAMESPACE),
+            headers={"if-none-match": '"not-an-md5"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -67,6 +70,7 @@ class BesluitTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
 
 class BesluitTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def setUp(self):
         super().setUp()
@@ -86,7 +90,8 @@ class BesluitTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         besluittype.save()
 
         response = self.client.get(
-            reverse(besluittype), headers={"if-none-match": f'"{etag}"'}
+            reverse(besluittype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -101,7 +106,8 @@ class BesluitTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         etag = besluittype._etag
 
         response = self.client.get(
-            reverse(besluittype), headers={"if-none-match": f'"{etag}"'}
+            reverse(besluittype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 

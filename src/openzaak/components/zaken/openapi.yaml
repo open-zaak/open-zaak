@@ -2282,7 +2282,8 @@ paths:
       - in: query
         name: catalogus
         schema:
-          type: integer
+          type: string
+          format: uri
         description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
       - in: query
         name: datumGeldigheid
@@ -17906,8 +17907,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         zaaktypen:
           type: array
           items:
@@ -18025,8 +18026,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         omschrijving:
           type: string
           description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
@@ -20464,8 +20465,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         omschrijving:
           type: string
           description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
