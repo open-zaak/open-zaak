@@ -35,7 +35,7 @@ jobs:
         uses: maykinmedia/setup-django-backend@4a6c5facc65bb1dd510cf06be20871db11a156b3 # v1.4.2
         with:
           apt-packages: "gdal-bin postgresql-client"
-          python-version: "3.12"
+          python-version: "3.14"
           optimize-postgres: "no"
           setup-node: "no"
 
