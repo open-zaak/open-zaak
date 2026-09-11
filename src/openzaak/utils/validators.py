@@ -186,30 +186,17 @@ class ObjecttypeInformatieobjecttypeRelationValidator:
         else:
             io_type = informatieobject.latest_version.informatieobjecttype
 
-        # zaaktype/besluittype and informatieobjecttype should be both internal or external
-        if bool(objecttype.pk) != bool(io_type.pk):
-            msg_diff = _(
-                "Het informatieobjecttype en het {objecttype_field} van de/het "
-                "{object_field} moeten tot dezelfde catalogus behoren."
-            ).format(
-                objecttype_field=self.objecttype_field, object_field=self.object_field
-            )
-            raise serializers.ValidationError(msg_diff, code=code)
+        # zaaktype/besluittype is always local
 
         # local zaaktype/besluittype
-        if objecttype.pk:
+        if io_type.pk:
             if not objecttype.informatieobjecttypen.filter(uuid=io_type.uuid).exists():
                 raise serializers.ValidationError(message, code=code)
 
-        # external zaaktype/besluittype - workaround since loose-fk field doesn't support m2m relations
         else:
-            objecttype_url = objecttype._loose_fk_data["url"]
-            iotype_url = io_type._loose_fk_data["url"]
-            objecttype_data = AuthorizedRequestsLoader.fetch_object(
-                objecttype_url, do_underscoreize=False
-            )
-            if iotype_url not in objecttype_data.get("informatieobjecttypen", []):
-                raise serializers.ValidationError(message, code=code)
+            # external iot, local zaaktype/besluittype does not support external urls in .informatieobjecttypen
+            # TODO remove validation all together or change .informatieobjecttypen to support urls? or maybe internal & external ones separately?
+            pass
 
 
 class UniqueTogetherValidator(_UniqueTogetherValidator):
