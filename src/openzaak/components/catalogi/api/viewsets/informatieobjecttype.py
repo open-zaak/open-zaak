@@ -17,13 +17,13 @@ from vng_api_common.utils import get_help_text
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.help_text import mark_experimental
-from openzaak.utils.mixins import CacheQuerysetMixin
+from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, VALIDATION_ERROR_RESPONSES
 
 from ...models import InformatieObjectType
-from ..filters import InformatieObjectTypeFilter
+from ..filters import InformatieObjectDetailTypeFilter, InformatieObjectTypeFilter
 from ..kanalen import KANAAL_INFORMATIEOBJECTTYPEN
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_DELETE,
@@ -90,6 +90,7 @@ logger = structlog.stdlib.get_logger(__name__)
 class InformatieObjectTypeViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
+    ExpandMixin,
     ConceptMixin,
     M2MConceptDestroyMixin,
     NotificationViewSetMixin,
@@ -120,7 +121,6 @@ class InformatieObjectTypeViewSet(
     )
     serializer_class = InformatieObjectTypeSerializer
     publish_serializer = InformatieObjectTypePublishSerializer
-    filterset_class = InformatieObjectTypeFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
     permission_classes = (AuthRequired,)
@@ -135,6 +135,15 @@ class InformatieObjectTypeViewSet(
     }
     notifications_kanaal = KANAAL_INFORMATIEOBJECTTYPEN
     concept_related_fields = ["besluittypen", "zaaktypen"]
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return InformatieObjectDetailTypeFilter
+        return InformatieObjectTypeFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
