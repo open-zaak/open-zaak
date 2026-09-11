@@ -334,9 +334,9 @@ class MultipleAuditTrailAdminMixin(AuditTrailAdminMixin):
         data = self.get_serializer_data(request, viewset, obj)
 
         if data_before != data:
-            for audit in viewset.audits:
+            for audit_config in viewset.audit_configs:
                 main_object, data_before, data = viewset._handle_namespacing(
-                    audit,
+                    audit_config,
                     obj,
                     version_before_edit=data_before,
                     version_after_edit=data,
@@ -347,7 +347,14 @@ class MultipleAuditTrailAdminMixin(AuditTrailAdminMixin):
                     continue
 
                 self.trail(
-                    obj, viewset, request, action, data_before, data, audit, main_object
+                    obj,
+                    viewset,
+                    request,
+                    action,
+                    data_before,
+                    data,
+                    audit_config["audit"],
+                    main_object,
                 )
 
     def delete_model(self, request, obj):
@@ -364,13 +371,15 @@ class MultipleAuditTrailAdminMixin(AuditTrailAdminMixin):
 
         with transaction.atomic():
             ModelAdmin.delete_model(self, request, obj)
-            for audit in viewset.audits:
+            for audit_config in viewset.audit_configs:
                 main_object, data, _ = viewset._handle_namespacing(
-                    audit, obj, version_before_edit=data, basename=basename
+                    audit_config, obj, version_before_edit=data, basename=basename
                 )
 
                 if main_object is None:
                     continue
+
+                audit = audit_config["audit"]
 
                 if basename == audit.main_resource:
                     with transaction.atomic():

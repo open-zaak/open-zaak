@@ -27,12 +27,12 @@ from ....documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 from ..factories import ZaakFactory
 
 # TODO
-# adding test_convenience_cloudevents & test_notification_send testscases as subclasses break random other tests
+# adding test_convenience_cloudevents & test_notification_send testcases as subclasses break random other tests
 # the only clue i have is that some failing tests have NOTIFICATIONS_SOURCE to the value from this testcase
 # got it working for BesluitConvenienceCloudEventTest when adding @override_settings from the parent class and adding
 # SOLO_CACHE=None, but in combination with test_notification_send it keeps having issues.
 # When updating test_convenience_cloudevents or test_notification_send in besluiten just copy over the whole file
-# and change the NAMESPACE to zaken.
+# and change the NAMESPACE & BT_NAMESPACE to zaken.
 
 
 @tag("convenience-endpoints", "cloudevents")
@@ -52,11 +52,12 @@ class BesluitConvenienceCloudEventTest(
 ):
     heeft_alle_autorisaties = True
     NAMESPACE = "zaken"
+    BT_NAMESPACE = "zaken"
 
     @patch("notifications_api_common.tasks.send_cloudevent.delay")
     def test_besluiten_verwerken_cloudevent_without_zaak(self, mock_send_cloudevent):
         besluittype = BesluitTypeFactory.create(concept=False)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
 
         catalogus_url = reverse(besluittype.catalogus, namespace="catalogi")
 
@@ -136,7 +137,7 @@ class BesluitConvenienceCloudEventTest(
     @patch("notifications_api_common.tasks.send_cloudevent.delay")
     def test_besluiten_verwerken_cloudevent_with_zaak(self, mock_send_cloudevent):
         besluittype = BesluitTypeFactory.create(concept=False)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
 
         catalogus_url = reverse(besluittype.catalogus, namespace="catalogi")
 

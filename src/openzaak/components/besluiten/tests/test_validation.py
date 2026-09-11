@@ -27,6 +27,7 @@ from .factories import BesluitFactory
 
 class BesluitValidationTests(JWTAuthMixin, APITestCase):
     NAMESPACE = "besluiten"
+    BT_NAMESPACE = "catalogi"
     heeft_alle_autorisaties = True
 
     @property
@@ -124,7 +125,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
 
     def test_validate_besluittype_valid(self):
         besluittype = BesluitTypeFactory.create(concept=False)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
         url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.post(
@@ -190,7 +191,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
 
     def test_besluittype_unpublished(self):
         besluittype = BesluitTypeFactory.create()
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
         url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.post(
@@ -211,7 +212,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
 
     def test_zaaktype_besluittype_relation(self):
         besluittype = BesluitTypeFactory.create(concept=False)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
         zaak = ZaakFactory.create(zaaktype__concept=False)
         zaak_url = reverse(zaak)
         besluittype.zaaktypen.add(zaak.zaaktype)
@@ -233,7 +234,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
 
     def test_no_zaaktype_besluittype_relation(self):
         besluittype = BesluitTypeFactory.create(concept=False)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
         list_url = reverse(Besluit, namespace=self.NAMESPACE)
@@ -285,7 +286,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         besluit_url = reverse(besluit, namespace=self.NAMESPACE)
 
         besluittype = BesluitTypeFactory.create()
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
         response = self.client.patch(
             besluit_url, {"besluittype": f"http://testserver{besluittype_url}"}
         )

@@ -7,3 +7,4 @@ from openzaak.components.besluiten.tests.test_besluit_with_external_zaak import 
 
 class BesluitCreateExternalZaakTests(_BesluitCreateExternalZaakTests):
     NAMESPACE = "zaken"
+    BT_NAMESPACE = "zaken"
