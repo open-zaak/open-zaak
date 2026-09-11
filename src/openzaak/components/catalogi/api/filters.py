@@ -13,7 +13,18 @@ from vng_api_common.filters import URLModelChoiceFilter
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text, get_resource_for_path
 
-from openzaak.utils.filters import CharArrayFilter
+from openzaak.components.catalogi.api.serializers.besluittype import (
+    BesluitTypeSerializer,
+)
+from openzaak.components.catalogi.api.serializers.catalogus import CatalogusSerializer
+from openzaak.components.catalogi.api.serializers.eigenschap import EigenschapSerializer
+from openzaak.components.catalogi.api.serializers.informatieobjecttype import (
+    InformatieObjectTypeSerializer,
+)
+from openzaak.utils.filters import (
+    CatalogiExpandFilter,
+    CharArrayFilter,
+)
 from openzaak.utils.help_text import mark_experimental
 
 from ..models import (
@@ -31,6 +42,11 @@ from ..models import (
 
 # custom filter to show concept and non-concepts
 STATUS_HELP_TEXT = _("""filter objects depending on their concept status:
+* `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
+* `concept`: Toon objecten waarvan het attribuut `concept` true is.
+* `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
+""")
+STATUS_RESULTAAT_HELP_TEXT = _("""filter de resultaten op basis van de waarde van het boolean attribuut concept van het gerelateerde zaaktype:
 * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
 * `concept`: Toon objecten waarvan het attribuut `concept` true is.
 * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
@@ -79,7 +95,7 @@ class RolTypeFilter(FilterSet):
     status = filters.ChoiceFilter(
         field_name="zaaktype__concept",
         method=status_filter,
-        help_text=STATUS_HELP_TEXT,
+        help_text=STATUS_RESULTAAT_HELP_TEXT,
         choices=StatusChoices.choices,
     )
     datum_geldigheid = filters.DateFilter(
@@ -114,7 +130,7 @@ class ZaakTypeInformatieObjectTypeFilter(FilterSet):
     status = filters.CharFilter(
         field_name="zaaktype__concept",
         method="status_filter_m2m",
-        help_text=STATUS_HELP_TEXT,
+        help_text=STATUS_RESULTAAT_HELP_TEXT,
     )
 
     class Meta:
@@ -139,7 +155,7 @@ class ResultaatTypeFilter(FilterSet):
     status = filters.ChoiceFilter(
         field_name="zaaktype__concept",
         method=status_filter,
-        help_text=STATUS_HELP_TEXT,
+        help_text=STATUS_RESULTAAT_HELP_TEXT,
         choices=StatusChoices.choices,
     )
     datum_geldigheid = filters.DateFilter(
@@ -160,7 +176,7 @@ class StatusTypeFilter(FilterSet):
     status = filters.ChoiceFilter(
         field_name="zaaktype__concept",
         method=status_filter,
-        help_text=STATUS_HELP_TEXT,
+        help_text=STATUS_RESULTAAT_HELP_TEXT,
         choices=StatusChoices.choices,
     )
     datum_geldigheid = filters.DateFilter(
@@ -181,7 +197,7 @@ class EigenschapFilter(FilterSet):
     status = filters.ChoiceFilter(
         field_name="zaaktype__concept",
         method=status_filter,
-        help_text=STATUS_HELP_TEXT,
+        help_text=STATUS_RESULTAAT_HELP_TEXT,
         choices=StatusChoices.choices,
     )
     datum_geldigheid = filters.DateFilter(
@@ -192,10 +208,15 @@ class EigenschapFilter(FilterSet):
         field_name="zaaktype__identificatie",
         help_text=get_help_text("catalogi.ZaakType", "identificatie"),
     )
+    expand = CatalogiExpandFilter(serializer_class=EigenschapSerializer)
 
     class Meta:
         model = Eigenschap
         fields = ("zaaktype", "status", "datum_geldigheid", "zaaktype_identificatie")
+
+
+class EigenschapDetailFilter(FilterSet):
+    expand = CatalogiExpandFilter(serializer_class=EigenschapSerializer)
 
 
 class ZaakTypeFilter(FilterSet):
@@ -277,10 +298,15 @@ class InformatieObjectTypeFilter(FilterSet):
             + _(" Filter op (een deel van de) omschrijving (hoofdletterongevoelig).")
         ),
     )
+    expand = CatalogiExpandFilter(serializer_class=InformatieObjectTypeSerializer)
 
     class Meta:
         model = InformatieObjectType
         fields = ["catalogus", "omschrijving", "omschrijving__icontains"]
+
+
+class InformatieObjectDetailTypeFilter(FilterSet):
+    expand = CatalogiExpandFilter(serializer_class=InformatieObjectTypeSerializer)
 
 
 class BesluitTypeFilter(FilterSet):
@@ -313,6 +339,7 @@ class BesluitTypeFilter(FilterSet):
         method=geldigheid_filter,
         help_text=DATUM_GELDIGHEID_HELP_TEXT,
     )
+    expand = CatalogiExpandFilter(serializer_class=BesluitTypeSerializer)
 
     class Meta:
         model = BesluitType
@@ -323,13 +350,24 @@ class BesluitTypeFilter(FilterSet):
             "status",
             "omschrijving",
             "datum_geldigheid",
+            "expand",
         )
 
 
+class BesluitTypeDetailFilter(FilterSet):
+    expand = CatalogiExpandFilter(serializer_class=BesluitTypeSerializer)
+
+
 class CatalogusFilter(FilterSet):
+    expand = CatalogiExpandFilter(serializer_class=CatalogusSerializer)
+
     class Meta:
         model = Catalogus
         fields = {"domein": ["exact", "in"], "rsin": ["exact", "in"]}
+
+
+class CatalogusDetailFilter(FilterSet):
+    expand = CatalogiExpandFilter(serializer_class=CatalogusSerializer)
 
 
 class ZaakObjectTypeFilter(FilterSet):

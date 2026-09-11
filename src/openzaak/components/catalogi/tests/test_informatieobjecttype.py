@@ -85,6 +85,7 @@ class InformatieObjectTypeAPITests(APITestCase):
             "zaaktypen": [],
             "beginObject": "2019-01-01",
             "eindeObject": None,
+            "_expand": {},
         }
         self.assertEqual(expected, response.json())
 
@@ -642,6 +643,123 @@ class InformatieObjectTypeAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["einde_geldigheid"], "2020-01-01")
         informatieobjecttype.delete()
+
+    def test_get_detail_expand_catalogus(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+
+        response = self.client.get(
+            reverse(informatieobjecttype),
+            {"expand": "catalogus"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["_expand"]["catalogus"]["url"],
+            f"http://testserver{reverse(self.catalogus)}",
+        )
+
+    def test_get_detail_expand_zaaktypen(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        ZaakTypeInformatieObjectTypeFactory(
+            zaaktype=zaaktype,
+            informatieobjecttype=informatieobjecttype,
+        )
+
+        response = self.client.get(
+            reverse(informatieobjecttype),
+            {"expand": "zaaktypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("zaaktypen", data["_expand"])
+        self.assertEqual(
+            data["_expand"]["zaaktypen"][0]["url"],
+            f"http://testserver{reverse(zaaktype)}",
+        )
+
+    def test_get_detail_expand_besluittypen(self):
+        besluittype = BesluitTypeFactory.create(
+            catalogus=self.catalogus,
+            concept=False,
+        )
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        informatieobjecttype.besluittypen.add(besluittype)
+
+        response = self.client.get(
+            reverse(informatieobjecttype),
+            {"expand": "besluittypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("besluittypen", data["_expand"])
+        self.assertEqual(
+            data["_expand"]["besluittypen"][0]["url"],
+            f"http://testserver{reverse(besluittype)}",
+        )
+
+    def test_get_detail_expand_multiple(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        besluittype = BesluitTypeFactory.create(
+            catalogus=self.catalogus,
+            concept=False,
+        )
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        ZaakTypeInformatieObjectTypeFactory(
+            zaaktype=zaaktype,
+            informatieobjecttype=informatieobjecttype,
+        )
+        informatieobjecttype.besluittypen.add(besluittype)
+
+        response = self.client.get(
+            reverse(informatieobjecttype),
+            {"expand": "catalogus,zaaktypen,besluittypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("catalogus", data["_expand"])
+        self.assertIn("zaaktypen", data["_expand"])
+        self.assertIn("besluittypen", data["_expand"])
+
+    def test_get_detail_expand_nested_not_supported(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+
+        response = self.client.get(
+            reverse(informatieobjecttype),
+            {"expand": "catalogus.zaaktypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_get_detail_without_expand(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+
+        response = self.client.get(reverse(informatieobjecttype))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["_expand"], {})
 
 
 class InformatieObjectTypeFilterAPITests(APITestCase):
