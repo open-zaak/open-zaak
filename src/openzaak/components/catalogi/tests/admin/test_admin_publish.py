@@ -22,7 +22,6 @@ from openzaak.selectielijst.tests import (
 )
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
-from openzaak.tests.utils.admin import AdminTestMixin
 
 from ..factories import (
     BesluitTypeFactory,
