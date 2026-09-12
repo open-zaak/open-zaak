@@ -44,6 +44,9 @@ from openzaak.components.documenten.api.scopes import (
     SCOPE_DOCUMENTEN_BIJWERKEN,
     SCOPE_DOCUMENTEN_LOCK,
 )
+from openzaak.components.documenten.models import (
+    EnkelvoudigInformatieObject,
+)
 from openzaak.components.zaken.api.scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN,
     SCOPE_ZAKEN_ALLES_VERWIJDEREN,
@@ -608,6 +611,60 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                 with self.subTest(model_name):
                     model = apps.get_model(model_name)
                     self.assertEqual(model.objects.count(), obj_count)
+
+    @override_settings(
+        SITE_DOMAIN="openzaak.local", ALLOWED_HOSTS=["openzaak.local", "testserver"]
+    )
+    def test_generate_zaak_inzage_data(self):
+        """Creates 13 zaken and 9 eio"""
+        with patch("builtins.input", lambda *args: "yes"):
+            call_command(
+                "generate_data",
+                partition=1,
+                zaaktypen=1,
+                zaken=1,
+                resources=["zaken"],
+                generate_zaak_inzage_data=True,
+            )
+
+        for amount in (1, 3, 5):
+            zaak = Zaak.objects.get(identificatie=f"ZAAK_INZAGE_{amount}")
+            self.assertIsNotNone(zaak.resultaat)
+            self.assertIsNotNone(zaak.besluit_set.first().besluittype)
+
+            for relation in (
+                "rol_set",
+                "status_set",
+                "zaakeigenschap_set",
+                "zaakobject_set",
+                "zaakinformatieobject_set",
+                "zaakcontactmoment_set",
+                "zaakverzoek_set",
+                "zaaknotitie_set",
+                "besluit_set",
+                "deelzaken",
+            ):
+                with self.subTest(amount=amount, relation=relation):
+                    self.assertEqual(getattr(zaak, relation).count(), amount)
+
+            for status in zaak.status_set.all():
+                with self.subTest(amount=amount, status=status):
+                    self.assertEqual(status.substatus_set.count(), amount)
+
+            for relation in (
+                "roltype_set",
+                "statustypen",
+                "resultaattypen",
+                "eigenschap_set",
+                "zaakobjecttype_set",
+                "zaaktypeinformatieobjecttype_set",
+            ):
+                with self.subTest(amount=amount, zaaktype_relation=relation):
+                    self.assertEqual(getattr(zaak.zaaktype, relation).count(), amount)
+
+        # Generated 1 zaak from default --zaken=1, 12 zaken from --generate-zaakinzage-data
+        self.assertEqual(Zaak.objects.all().count(), 13)
+        self.assertEqual(EnkelvoudigInformatieObject.objects.all().count(), 9)
 
 
 @disable_admin_mfa()
