@@ -25,6 +25,7 @@ from ..models import (
 from .serializers import (
     EnkelvoudigInformatieObjectSerializer,
     GebruiksrechtenSerializer,
+    ObjectInformatieObjectSerializer,
     VerzendingSerializer,
 )
 from .utils import check_path
@@ -212,7 +213,10 @@ class GebruiksrechtenFilter(FilterSet):
         instance_path="canonical",
         help_text=get_help_text("documenten.Gebruiksrechten", "informatieobject"),
     )
-    expand = ExpandFilter(serializer_class=GebruiksrechtenSerializer)
+    expand = ExpandFilter(
+        serializer_class=GebruiksrechtenSerializer,
+        experimental_options=["informatieobject.informatieobjecttype"],
+    )
 
     class Meta:
         model = Gebruiksrechten
@@ -224,7 +228,10 @@ class GebruiksrechtenFilter(FilterSet):
 
 
 class GebruiksrechtenDetailFilter(FilterSet):
-    expand = ExpandFilter(serializer_class=GebruiksrechtenSerializer)
+    expand = ExpandFilter(
+        serializer_class=GebruiksrechtenSerializer,
+        experimental_options=["informatieobject.informatieobjecttype"],
+    )
 
 
 class ObjectInformatieObjectFilter(FilterSet):
@@ -244,10 +251,21 @@ class ObjectInformatieObjectFilter(FilterSet):
         zaak_field_name="zaak",
         verzoek_field_name="verzoek",
     )
+    expand = ExpandFilter(
+        serializer_class=ObjectInformatieObjectSerializer,
+        experimental_options=["informatieobject.informatieobjecttype"],
+    )
 
     class Meta:
         model = ObjectInformatieObject
         fields = ("object", "informatieobject")
+
+
+class ObjectInformatieObjectDetailFilter(FilterSet):
+    expand = ExpandFilter(
+        serializer_class=ObjectInformatieObjectSerializer,
+        experimental_options=["informatieobject.informatieobjecttype"],
+    )
 
 
 class VerzendingFilter(FilterSet):
@@ -256,7 +274,10 @@ class VerzendingFilter(FilterSet):
         instance_path="canonical",
         help_text=get_help_text("documenten.Verzending", "informatieobject"),
     )
-    expand = ExpandFilter(serializer_class=VerzendingSerializer)
+    expand = ExpandFilter(
+        serializer_class=VerzendingSerializer,
+        experimental_options=["informatieobject.informatieobjecttype"],
+    )
 
     class Meta:
         model = Verzending
@@ -268,4 +289,7 @@ class VerzendingFilter(FilterSet):
 
 
 class VerzendingDetailFilter(FilterSet):
-    expand = ExpandFilter(serializer_class=VerzendingSerializer)
+    expand = ExpandFilter(
+        serializer_class=VerzendingSerializer,
+        experimental_options=["informatieobject.informatieobjecttype"],
+    )
