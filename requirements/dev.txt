@@ -375,7 +375,7 @@ django-log-outgoing-requests==0.9.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-django-loose-fk==1.1.2
+django-loose-fk @ git+https://github.com/maykinmedia/django-loose-fk.git@d616f2488070b6f4c99309a2cbfd276a94e7aa14
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -538,6 +538,7 @@ drf-spectacular==0.27.2
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   commonground-api-common
+    #   django-loose-fk
     #   open-api-framework
 drf-spectacular-sidecar==2024.7.1
     # via
@@ -1318,6 +1319,7 @@ structlog==25.4.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   commonground-api-common
+    #   django-loose-fk
     #   django-structlog
     #   notifications-api-common
 tblib==1.7.0

@@ -16,6 +16,7 @@ django-capture-tag
 django-db-logger
 django-extra-views
 django-loose-fk
+django-loose-fk @ git+https://github.com/maykinmedia/django-loose-fk.git@feature/oz-2549-fix-related-object-error
 django-privates
 django-relativedelta
 django-celery-beat
