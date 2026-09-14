@@ -429,7 +429,7 @@ django-sessionprofile==3.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-django-setup-configuration==0.11.0
+django-setup-configuration @ git+https://github.com/maykinmedia/django-setup-configuration.git@c0986d331dd39006ecdb44f67e7465273a121279
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -701,6 +701,11 @@ kombu==5.5.4
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   celery
+legacy-cgi==2.6.4
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   webob
 lxml==6.1.1
     # via
     #   -c requirements/ci.txt
@@ -1343,7 +1348,6 @@ typing-extensions==4.16.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-    #   anyio
     #   azure-core
     #   azure-identity
     #   azure-storage-blob
@@ -1356,12 +1360,10 @@ typing-extensions==4.16.0
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-    #   psycopg
     #   psycopg-pool
     #   pydantic
     #   pydantic-core
     #   pyee
-    #   pyopenssl
     #   qrcode
     #   rich-click
     #   typing-inspection

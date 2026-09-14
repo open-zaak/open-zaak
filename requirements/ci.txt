@@ -387,7 +387,7 @@ django-sessionprofile==3.0.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
-django-setup-configuration==0.11.0
+django-setup-configuration @ git+https://github.com/maykinmedia/django-setup-configuration.git@c0986d331dd39006ecdb44f67e7465273a121279
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -622,6 +622,8 @@ kombu==5.5.4
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   celery
+legacy-cgi==2.6.4
+    # via webob
 lxml==6.1.1
     # via pyquery
 markdown==3.10.2
@@ -1183,12 +1185,10 @@ typing-extensions==4.16.0
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-    #   psycopg
     #   psycopg-pool
     #   pydantic
     #   pydantic-core
     #   pyee
-    #   pyopenssl
     #   qrcode
     #   typing-inspection
     #   zgw-consumers

@@ -229,8 +229,9 @@ django-sendfile2==0.7.2
     # via django-privates
 django-sessionprofile==3.0.0
     # via open-api-framework
-django-setup-configuration==0.11.0
+django-setup-configuration @ git+https://github.com/maykinmedia/django-setup-configuration.git@c0986d331dd39006ecdb44f67e7465273a121279
     # via
+    #   -r requirements/base.in
     #   commonground-api-common
     #   open-api-framework
 django-simple-certmanager==4.0.0
@@ -626,11 +627,9 @@ typing-extensions==4.16.0
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-    #   psycopg
     #   psycopg-pool
     #   pydantic
     #   pydantic-core
-    #   pyopenssl
     #   qrcode
     #   typing-inspection
     #   zgw-consumers
