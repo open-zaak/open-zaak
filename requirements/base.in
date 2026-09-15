@@ -38,3 +38,7 @@ zgw-consumers[oauth2]
 cloudevents
 
 notifications-api-common
+
+git+https://github.com/maykinmedia/django-setup-configuration.git@chore/upgrade-dependencies
+# py3.13 removed imghdr from stdlib, necessary for drf-extra-fields
+standard-imghdr

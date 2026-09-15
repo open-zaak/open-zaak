@@ -229,8 +229,9 @@ django-sendfile2==0.7.2
     # via django-privates
 django-sessionprofile==3.0.0
     # via open-api-framework
-django-setup-configuration==0.11.0
+django-setup-configuration @ git+https://github.com/maykinmedia/django-setup-configuration.git@c0986d331dd39006ecdb44f67e7465273a121279
     # via
+    #   -r requirements/base.in
     #   commonground-api-common
     #   open-api-framework
 django-simple-certmanager==4.0.0
@@ -335,7 +336,7 @@ jmespath==1.0.1
     # via
     #   boto3
     #   botocore
-jq==1.7.0
+jq==1.12.0
     # via -r requirements/base.in
 jsonschema==4.7.2
     # via
@@ -480,21 +481,21 @@ protobuf==6.33.5
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto
-psycopg==3.2.9
+psycopg==3.3.5
     # via
     #   -r requirements/base.in
     #   open-api-framework
-psycopg-binary==3.2.9
+psycopg-binary==3.3.5
     # via psycopg
 psycopg-pool==3.2.6
     # via psycopg
 pycparser==2.21
     # via cffi
-pydantic==2.10.4
+pydantic==2.13.5
     # via
     #   django-setup-configuration
     #   pydantic-settings
-pydantic-core==2.27.2
+pydantic-core==2.46.5
     # via pydantic
 pydantic-settings==2.7.0
     # via django-setup-configuration
@@ -573,10 +574,8 @@ requests-oauthlib==2.0.0
     # via zgw-consumers
 rich==15.0.0
     # via typer
-ruamel-yaml==0.18.10
+ruamel-yaml==0.19.1
     # via django-setup-configuration
-ruamel-yaml-clib==0.2.12
-    # via ruamel-yaml
 s3transfer==0.16.0
     # via boto3
 self-certifi==1.0.0
@@ -601,6 +600,8 @@ smartypants==2.0.2
     # via django-markup
 sqlparse==0.5.5
     # via django
+standard-imghdr==3.13.0
+    # via -r requirements/base.in
 structlog==25.4.0
     # via
     #   commonground-api-common
@@ -613,7 +614,7 @@ tornado==6.5.8
     # via flower
 typer==0.27.0
     # via maykin-common
-typing-extensions==4.12.2
+typing-extensions==4.16.0
     # via
     #   azure-core
     #   azure-identity
@@ -627,14 +628,15 @@ typing-extensions==4.12.2
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-    #   psycopg
     #   psycopg-pool
     #   pydantic
     #   pydantic-core
-    #   pyopenssl
     #   qrcode
+    #   typing-inspection
     #   zgw-consumers
     #   zgw-consumers-oas
+typing-inspection==0.4.4
+    # via pydantic
 tzdata==2025.2
     # via
     #   django-celery-beat

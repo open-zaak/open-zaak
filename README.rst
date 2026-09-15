@@ -15,7 +15,7 @@ Open Zaak
 :Version: 1.30.0
 :Source: https://github.com/open-zaak/open-zaak
 :Keywords: zaken, zaakgericht werken, zaken-api, catalogi-api, besluiten-api, documenten-api
-:PythonVersion: 3.12
+:PythonVersion: 3.14
 
 |build-status| |docs| |coverage| |code-quality| |ruff| |docker| |docker| |python-version|
 
@@ -120,7 +120,7 @@ Licensed under the EUPL_
     :target: https://github.com/astral-sh/ruff
     :alt: Ruff
 
-.. |python-version| image:: https://img.shields.io/badge/python-3.12-blue.svg
+.. |python-version| image:: https://img.shields.io/badge/python-3.14-blue.svg
     :alt: Supported Python version
 
 .. |docker| image:: https://img.shields.io/docker/image-size/openzaak/open-zaak

@@ -61,11 +61,13 @@ jobs:
 
     strategy:
       matrix:
-        postgres: ["14", "15", "16", "17"]
+        postgres: ["14", "15", "16", "17", "18"]
         postgis: ["3.2", "3.5"]
         use_pooling: [false]
         exclude:
           # postgis 3.2 is not compatible with recent postgres versions
+          - postgres: "18"
+            postgis: "3.2"
           - postgres: "17"
             postgis: "3.2"
           - postgres: "16"
@@ -99,7 +101,7 @@ jobs:
         uses: maykinmedia/setup-django-backend@4a6c5facc65bb1dd510cf06be20871db11a156b3 # v1.4.2
         with:
           apt-packages: "libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client gdal-bin jq"
-          python-version: "3.12"
+          python-version: "3.14"
           optimize-postgres: "yes"
           pg-service: "postgres"
           setup-node: "yes"
@@ -150,7 +152,7 @@ jobs:
 
     services:
       postgres:
-        image: postgis/postgis:17-3.5
+        image: postgis/postgis:18-3.6
         env:
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
@@ -170,7 +172,7 @@ jobs:
         uses: maykinmedia/setup-django-backend@4a6c5facc65bb1dd510cf06be20871db11a156b3 # v1.4.2
         with:
           apt-packages: "gdal-bin"
-          python-version: "3.12"
+          python-version: "3.14"
           optimize-postgres: "no"
           setup-node: "no"
 
@@ -259,7 +261,7 @@ jobs:
     with:
       apt-packages: "gdal-bin graphviz graphviz-dev"
       main-branch: "main"
-      python-version: "3.12"
+      python-version: "3.14"
       django-settings-module: openzaak.conf.ci
       docker-image-name: ${{ needs.store-reusable-workflow-vars.outputs.image-name }}
       docs-ssl-conf: ${{ needs.store-reusable-workflow-vars.outputs.sphinx-ssl-conf }}
