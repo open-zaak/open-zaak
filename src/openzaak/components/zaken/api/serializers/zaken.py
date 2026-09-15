@@ -466,7 +466,7 @@ class ZaakSerializer(
         "resultaat.resultaattype": "openzaak.components.catalogi.api.serializers.ResultaatTypeSerializer",
         "rollen.roltype": "openzaak.components.catalogi.api.serializers.RolTypeSerializer",
         "zaaktype.catalogus": "openzaak.components.catalogi.api.serializers.CatalogusSerializer",
-        "zaakinformatieobjecten.informatieobject": "openzaak.components.documenten.api.serializers.EnkelvoudigInformatieObjectSerializer",
+        # we can't show 'zaakinformatieobjecten.informatieobject' because it's the resource from another API
     }
 
     class Meta:
