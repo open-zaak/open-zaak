@@ -24,7 +24,11 @@ from django.utils.translation import gettext_lazy as _
 
 import structlog
 from django_loose_fk.virtual_models import ProxyMixin
-from drf_spectacular.utils import extend_schema_serializer
+from djangorestframework_camel_case.settings import api_settings
+from djangorestframework_camel_case.util import camel_to_underscore
+from drf_spectacular.utils import (
+    extend_schema_serializer,
+)
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin, UniqueFieldsMixin
 from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
@@ -460,7 +464,8 @@ class ZaakSerializer(
         "status.statustype": "openzaak.components.catalogi.api.serializers.StatusTypeSerializer",
         "resultaat.resultaattype": "openzaak.components.catalogi.api.serializers.ResultaatTypeSerializer",
         "rollen.roltype": "openzaak.components.catalogi.api.serializers.RolTypeSerializer",
-        # we can't show 'zaakinformatieobjecten.informatieobject' because it's the resource from another API
+        "zaaktype.catalogus": "openzaak.components.catalogi.api.serializers.CatalogusSerializer",
+        "zaakinformatieobjecten.informatieobject": "openzaak.components.documenten.api.serializers.EnkelvoudigInformatieObjectSerializer",
     }
 
     class Meta:
@@ -754,7 +759,102 @@ class GeoWithinSerializer(serializers.Serializer):
     within = GeometryField(required=False)
 
 
+class ZoekFieldsSerializer(serializers.ListField):
+    """
+    Validate and parse response field selections for zaken.
+
+    Accept a 'fields' array containing field names, '*' wildcards, or nested
+    selections. Normalize names to snake_case, validate them against the
+    response serializers, and merge repeated selections into a dictionary.
+    """
+
+    default_error_messages = {
+        "invalid_selection": _(
+            "Expected an array of field names or nested selections."
+        ),
+        "unknown_field": _("Unknown response field: {name}."),
+        "not_nested": _("Field {name} does not support nested selection."),
+    }
+
+    def to_internal_value(self, data):
+        data = super().to_internal_value(data)
+
+        serializer = ZaakSerializer()
+
+        return self.parse_selection(
+            data, serializer, serializer.inclusion_serializers, serializer_cache={}
+        )
+
+    def parse_selection(
+        self, entries, serializer, inclusions, path=(), *, serializer_cache
+    ):
+        if not isinstance(entries, list):
+            self.fail("invalid_selection")
+
+        selection = {}
+        for entry in entries:
+            if isinstance(entry, str):
+                fields = {entry: None}
+            elif isinstance(entry, dict) and entry:
+                fields = entry
+            else:
+                self.fail("invalid_selection")
+
+            for name, children in fields.items():
+                # Normalize API field names to serializer field names.
+                name = camel_to_underscore(name, **api_settings.JSON_UNDERSCOREIZE)
+                if name == "*" and isinstance(entry, str):
+                    selection[name] = None
+                    continue
+                field = serializer.fields.get(name)
+
+                if field is None or field.write_only:
+                    self.fail("unknown_field", name=".".join((*path, name)))
+
+                if isinstance(entry, str):
+                    selection.setdefault(name, None)
+                    continue
+
+                child_path = (*path, name)
+                inclusion = inclusions.get(".".join(child_path))
+                if inclusion:
+                    if inclusion not in serializer_cache:
+                        serializer_cache[inclusion] = import_string(inclusion)()
+                    child_serializer = serializer_cache[inclusion]
+                elif isinstance(field, serializers.Serializer):
+                    child_serializer = field
+                else:
+                    self.fail("not_nested", name=".".join(child_path))
+
+                nested = self.parse_selection(
+                    children,
+                    child_serializer,
+                    inclusions,
+                    child_path,
+                    serializer_cache=serializer_cache,
+                )
+                selection[name] = self.merge(selection.get(name) or {}, nested)
+        return selection
+
+    @classmethod
+    def merge(cls, left, right):
+        for name, value in right.items():
+            if name not in left or value is not None:
+                left[name] = value
+        return left
+
+
 class ZaakZoekSerializer(serializers.Serializer):
+    fields = ZoekFieldsSerializer(
+        required=False,
+        help_text=_(
+            "De elementen (fields) die worden teruggegeven in de repons"
+            " conform het expand-mechanisme. Het voorbeeld geeft aan hoe het werkt."
+            ' Hierin betekent "*" dat alle elementen van een resource worden teruggegeven.'
+            '\n\n**Let op:** Het gebruik van het "fields" en "expand" element is'
+            " mutual exclusive. Of je gebruikt de één of de ander maar nooit te gelijk."
+        ),
+    )
     zaakgeometrie = GeoWithinSerializer(required=False)
     uuid__in = serializers.ListField(
         child=serializers.UUIDField(),
