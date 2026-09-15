@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
+import re
 from datetime import date
 from typing import Optional
 from uuid import UUID
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.db import transaction
 from django.db.models import (
     CharField,
@@ -24,7 +26,11 @@ from django.utils.translation import gettext_lazy as _
 
 import structlog
 from django_loose_fk.virtual_models import ProxyMixin
-from drf_spectacular.utils import extend_schema_serializer
+from djangorestframework_camel_case.settings import api_settings
+from djangorestframework_camel_case.util import camel_to_underscore
+from drf_spectacular.utils import (
+    extend_schema_serializer,
+)
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin, UniqueFieldsMixin
 from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
@@ -460,7 +466,8 @@ class ZaakSerializer(
         "status.statustype": "openzaak.components.catalogi.api.serializers.StatusTypeSerializer",
         "resultaat.resultaattype": "openzaak.components.catalogi.api.serializers.ResultaatTypeSerializer",
         "rollen.roltype": "openzaak.components.catalogi.api.serializers.RolTypeSerializer",
-        # we can't show 'zaakinformatieobjecten.informatieobject' because it's the resource from another API
+        "zaaktype.catalogus": "openzaak.components.catalogi.api.serializers.CatalogusSerializer",
+        "zaakinformatieobjecten.informatieobject": "openzaak.components.documenten.api.serializers.EnkelvoudigInformatieObjectSerializer",
     }
 
     class Meta:
@@ -754,7 +761,125 @@ class GeoWithinSerializer(serializers.Serializer):
     within = GeometryField(required=False)
 
 
+class ZoekFieldsSerializer(serializers.ListField):
+    """
+    Validate and parse response field selections for zaken.
+
+    Accept a 'fields' array containing field names, '*' wildcards, or nested
+    selections. Normalize names to snake_case, validate them against the
+    response serializers, and merge repeated selections into a dictionary.
+    """
+
+    default_error_messages = {
+        "invalid_selection": _(
+            "Expected an array of field names or nested selections."
+        ),
+        "unknown_field": _("Unknown response field: {name}."),
+        "not_nested": _("Field {name} does not support nested selection."),
+    }
+    parent_serializer_class = None
+
+    def to_internal_value(self, data):
+        # First validate that the input is a list.
+        data = super().to_internal_value(data)
+
+        if self.parent_serializer_class is None:
+            raise ImproperlyConfigured(
+                "ZoekFieldsSerializer requires parent_serializer_class."
+            )
+        serializer = self.parent_serializer_class()
+
+        return self.parse_selection(
+            data,
+            serializer,
+            getattr(serializer, "inclusion_serializers", {}),
+            serializer_cache={},
+        )
+
+    def parse_selection(
+        self, entries, serializer, inclusions, path=(), *, serializer_cache, api_path=()
+    ):
+        if not isinstance(entries, list):
+            self.fail("invalid_selection")
+
+        selection = {}
+        serializer_fields = serializer.fields
+        for entry in entries:
+            if isinstance(entry, str):
+                fields = {entry: None}
+            elif isinstance(entry, dict) and entry:
+                fields = entry
+            else:
+                self.fail("invalid_selection")
+
+            for name, children in fields.items():
+                # '*' means all fields at this level
+                if name == "*" and isinstance(entry, str):
+                    selection[name] = None
+                    continue
+
+                # Look up snake_case serializer fields keep camelCase for errors
+                api_name = re.sub(
+                    r"_([a-z])", lambda match: match.group(1).upper(), name
+                )
+                name = camel_to_underscore(name, **api_settings.JSON_UNDERSCOREIZE)
+                field = serializer_fields.get(name)
+
+                if field is None or field.write_only:
+                    self.fail("unknown_field", name=".".join((*api_path, api_name)))
+
+                if isinstance(entry, str):
+                    selection.setdefault(name, None)
+                    continue
+
+                child_path = (*path, name)
+                # Use the expanded resource's serializer to check its child fields
+                inclusion = inclusions.get(".".join(child_path))
+                if inclusion:
+                    if inclusion not in serializer_cache:
+                        serializer_cache[inclusion] = import_string(inclusion)()
+                    child_serializer = serializer_cache[inclusion]
+                elif isinstance(field, serializers.Serializer):
+                    child_serializer = field
+                else:
+                    self.fail("not_nested", name=".".join((*api_path, api_name)))
+
+                nested = self.parse_selection(
+                    children,
+                    child_serializer,
+                    inclusions,
+                    child_path,
+                    serializer_cache=serializer_cache,
+                    api_path=(*api_path, api_name),
+                )
+                selection[name] = self.merge(selection.get(name) or {}, nested)
+        return selection
+
+    @classmethod
+    def merge(cls, left, right):
+        for name, value in right.items():
+            if name not in left or value is not None:
+                left[name] = value
+        return left
+
+
+class ZaakZoekFieldsSerializer(ZoekFieldsSerializer):
+    parent_serializer_class = ZaakSerializer
+
+
 class ZaakZoekSerializer(serializers.Serializer):
+    fields = ZaakZoekFieldsSerializer(
+        required=False,
+        help_text=_(
+            "De elementen (fields) die worden teruggegeven in de repons"
+            " conform het expand-mechanisme. Het voorbeeld geeft aan hoe het werkt."
+            ' Hierin betekent "*" dat alle elementen van een resource worden teruggegeven.'
+            "\n\nVoor gerelateerde resources uit de Catalogi API is `catalogi.lezen` nodig;"
+            " voor informatieobjecten uit de Documenten API is `documenten.lezen` nodig."
+            '\n\n**Let op:** Het gebruik van het "fields" en "expand" element is'
+            " mutual exclusive. Of je gebruikt de één of de ander maar nooit te gelijk."
+        ),
+    )
     zaakgeometrie = GeoWithinSerializer(required=False)
     uuid__in = serializers.ListField(
         child=serializers.UUIDField(),
