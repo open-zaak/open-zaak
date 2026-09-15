@@ -27,6 +27,7 @@ from django_loose_fk.virtual_models import ProxyMixin
 from djangorestframework_camel_case.settings import api_settings
 from djangorestframework_camel_case.util import camel_to_underscore
 from drf_spectacular.utils import (
+    extend_schema_field,
     extend_schema_serializer,
 )
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin, UniqueFieldsMixin
@@ -759,6 +760,43 @@ class GeoWithinSerializer(serializers.Serializer):
     within = GeometryField(required=False)
 
 
+@extend_schema_field(
+    {
+        "title": "Fields",
+        "type": "array",
+        "items": {
+            "oneOf": [
+                {"type": "string"},
+                {"type": "object"},
+            ]
+        },
+        "example": [
+            "url",
+            "uuid",
+            "identificatie",
+            "bronorganisatie",
+            {
+                "zaaktype": [
+                    "identificatie",
+                    "omschrijving",
+                    {"catalogus": ["domein"]},
+                ],
+                "status": [{"statustype": "volgnummer"}, "datumStatusGezet"],
+                "resultaat": ["*"],
+                "zaakinformatieobjecten": [
+                    {
+                        "informatieobject": [
+                            "inhoud",
+                            "bestandsnaam",
+                            "bestandsomvang",
+                        ]
+                    }
+                ],
+                "processobject": ["identificatie"],
+            },
+        ],
+    }
+)
 class ZoekFieldsSerializer(serializers.ListField):
     """
     Validate and parse response field selections for zaken.
