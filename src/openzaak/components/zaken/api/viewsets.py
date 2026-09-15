@@ -348,6 +348,45 @@ class ZaakViewSet(
     audit = AUDIT_ZRC
     _generated_identificatie: Optional[ZaakIdentificatie] = None
 
+    def get_requested_inclusions(self, request):
+        requested = super().get_requested_inclusions(request)
+        # Keep the normal expand behavior unless this is a _zoek with fields param.
+        if (
+            self.action != "_zoek"
+            or not isinstance(request.data, dict)
+            or "fields" not in request.data
+        ):
+            return requested
+
+        def selected_inclusions(selection, inclusions, path=()):
+            """Use only registered expansion paths, including each selected parent."""
+            for name, children in selection.items():
+                if children is None:
+                    continue
+                child_path = (*path, name)
+                dotted_path = ".".join(child_path)
+                if dotted_path in inclusions:
+                    yield dotted_path
+                yield from selected_inclusions(children, inclusions, child_path)
+
+        # Expansion permissions run before the search action. Validate selections
+        # here so implicit expansions receive the same checks as explicit ones.
+        if not hasattr(self, "selected_fields"):
+            serializer = self.search_input_serializer_class(
+                data={"fields": request.data["fields"]}
+            )
+            serializer.is_valid(raise_exception=True)
+            self.selected_fields = serializer.validated_data["fields"]
+
+        # Cache expansion paths so repeated calls in this request reuse them.
+        if not hasattr(self, "_selected_inclusions"):
+            self._selected_inclusions = tuple(
+                selected_inclusions(
+                    self.selected_fields, self.serializer_class.inclusion_serializers
+                )
+            )
+        return ",".join(filter(None, [requested, *self._selected_inclusions]))
+
     def get_queryset(self):
         qs = super().get_queryset()
         # codepath via the the `get_viewset_for_path` utilities in various libraries
@@ -399,7 +438,20 @@ class ZaakViewSet(
             )
             raise serializers.ValidationError({api_settings.NON_FIELD_ERRORS_KEY: err})
 
+        elif "expand" in request.data and "fields" in request.data:
+            # Het gebruik van het "fields" en "expand" element is mutual exclusive.
+            # Of je gebruikt de één of de ander maar nooit te gelijk.
+            err = serializers.ErrorDetail(
+                _(
+                    "Het gebruik van het `fields` en `expand` element is mutual exclusive."
+                ),
+                code="invalid_field",
+            )
+            raise serializers.ValidationError({api_settings.NON_FIELD_ERRORS_KEY: err})
+
         search_input = self.get_search_input()
+        # Filter zoek fields separately
+        self.selected_fields = search_input.pop("fields", None)
         queryset = self.filter_queryset(self.get_queryset())
 
         for name, value in search_input.items():
@@ -407,6 +459,26 @@ class ZaakViewSet(
                 queryset = queryset.filter(zaakgeometrie__within=value["within"])
             else:
                 queryset = queryset.filter(**{name: value})
+
+        if self.selected_fields is not None:
+            # The base queryset already prefetches the first-level relations.
+            requested = set(self.get_requested_inclusions(request).split(","))
+            expansion_prefetches = {
+                "zaaktype": "_zaaktype__catalogus",
+                "status": "prefetched_statuses___statustype",
+                "resultaat": "resultaat___resultaattype",
+                "rollen": "rol_set___roltype",
+                "zaakinformatieobjecten": (
+                    "zaakinformatieobject_set___informatieobject__latest_version"
+                ),
+            }
+            queryset = queryset.prefetch_related(
+                *(
+                    lookup
+                    for path, lookup in expansion_prefetches.items()
+                    if path in requested
+                )
+            )
 
         return self.get_search_output(queryset)
 
@@ -544,11 +616,20 @@ class ZaakViewSet(
         )
 
     def get_search_input(self):
+        data = self.request.data
+        # Permission checks already validated fields. Still validate every other
+        # search parameter, without parsing the selection tree a second time.
+        if hasattr(self, "selected_fields") and "fields" in data:
+            data = data.copy()
+            data.pop("fields")
         serializer = self.get_search_input_serializer_class()(
-            data=self.request.data, context={"request": self.request}
+            data=data, context={"request": self.request}
         )
         serializer.is_valid(raise_exception=True)
-        return serializer.validated_data
+        validated_data = serializer.validated_data
+        if hasattr(self, "selected_fields") and "fields" in self.request.data:
+            validated_data["fields"] = self.selected_fields
+        return validated_data
 
 
 @extend_schema_view(

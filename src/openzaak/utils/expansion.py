@@ -166,12 +166,20 @@ class ExpandLoader(InclusionLoader):
 
         entries = self._inclusions((), serializer, serializer.instance)
 
+        # Serialize each shared object once and reuse its data in this response.
+        # ex. Zaak A and Zaak B both reference the same zaaktype.
+        # That zaaktype is the shared object, so its response data is built once and reused for both zaken.
+        serialized = {}
         for obj, inclusion_serializer, parent, path, many in entries:
-            data = (
-                obj._initial_data
-                if isinstance(obj, ProxyMixin)
-                else inclusion_serializer(instance=obj, context=serializer.context).data
-            )
+            if isinstance(obj, ProxyMixin):
+                data = obj._initial_data
+            else:
+                key = (inclusion_serializer, type(obj), obj.pk)
+                if key not in serialized:
+                    serialized[key] = inclusion_serializer(
+                        instance=obj, context=serializer.context
+                    ).data
+                data = serialized[key]
             tree.add_node(
                 id=data["url"],
                 value=data,
@@ -277,6 +285,8 @@ class ExpandLoader(InclusionLoader):
         handler for loose-fk-field
         """
         obj = field.get_attribute(instance)
+        if hasattr(field, "get_inclusion_instance"):
+            obj = field.get_inclusion_instance(obj)
 
         if obj is None:
             return
@@ -327,6 +337,41 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
     loader_class = ExpandLoader
 
     def _render_inclusions(self, data, renderer_context):
+        expanded = self._get_expanded_data(data, renderer_context)
+        context = renderer_context or {}
+        view = context.get("view")
+        selection = getattr(view, "selected_fields", None)
+        if (
+            expanded is None
+            or getattr(view, "action", None) != "_zoek"
+            or selection is None
+        ):
+            return expanded
+
+        def select_fields(value, fields):
+            if isinstance(value, list):
+                return [select_fields(item, fields) for item in value]
+            if not isinstance(value, dict) or fields is None:
+                return value
+            result = value.copy() if "*" in fields else {}
+            for name, children in fields.items():
+                if name in value:
+                    result[name] = select_fields(value[name], children)
+            inclusions = {
+                name: select_fields(item, fields.get(name))
+                for name, item in value.get(EXPAND_KEY, {}).items()
+                if name in fields or "*" in fields
+            }
+            if inclusions:
+                result[EXPAND_KEY] = inclusions
+            return result
+
+        if "results" in expanded:
+            expanded["results"] = select_fields(expanded["results"], selection)
+            return expanded
+        return select_fields(expanded, selection)
+
+    def _get_expanded_data(self, data, renderer_context):
         renderer_context = renderer_context or {}
         response = renderer_context.get("response")
         # if we have an error, return data as-is
@@ -370,6 +415,11 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
         if (
             EXPAND_QUERY_PARAM not in request.query_params
             and EXPAND_QUERY_PARAM not in request.data
+            and not (
+                view is not None
+                and hasattr(view, "get_requested_inclusions")
+                and view.get_requested_inclusions(request)
+            )
         ):
             # Always include the empty `_expand` attribute
             if isinstance(serializer_data, list):

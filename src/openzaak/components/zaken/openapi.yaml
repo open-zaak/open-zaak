@@ -8808,8 +8808,10 @@ paths:
             - status
             - status.statustype
             - zaakinformatieobjecten
+            - zaakinformatieobjecten.informatieobject
             - zaakobjecten
             - zaaktype
+            - zaaktype.catalogus
         description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
           \ \n\n"
         explode: false
@@ -9559,8 +9561,10 @@ paths:
             - status
             - status.statustype
             - zaakinformatieobjecten
+            - zaakinformatieobjecten.informatieobject
             - zaakobjecten
             - zaaktype
+            - zaaktype.catalogus
         description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
           \ \n\n"
         explode: false
@@ -12406,8 +12410,10 @@ paths:
             - status
             - status.statustype
             - zaakinformatieobjecten
+            - zaakinformatieobjecten.informatieobject
             - zaakobjecten
             - zaaktype
+            - zaaktype.catalogus
         description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
           \ \n\n (samengevoegd met evt. expand in body)"
         explode: false
@@ -12433,6 +12439,39 @@ paths:
             schema:
               type: object
               properties:
+                fields:
+                  title: Fields
+                  type: array
+                  items:
+                    oneOf:
+                    - type: string
+                    - type: object
+                  example:
+                  - url
+                  - uuid
+                  - identificatie
+                  - bronorganisatie
+                  - zaaktype:
+                    - identificatie
+                    - omschrijving
+                    - catalogus:
+                      - domein
+                    status:
+                    - statustype: volgnummer
+                    - datumStatusGezet
+                    resultaat:
+                    - '*'
+                    zaakinformatieobjecten:
+                    - informatieobject:
+                      - inhoud
+                      - bestandsnaam
+                      - bestandsomvang
+                    processobject:
+                    - identificatie
+                  description: |-
+                    De elementen (fields) die worden teruggegeven in de repons conform het expand-mechanisme. Het voorbeeld geeft aan hoe het werkt. Hierin betekent "*" dat alle elementen van een resource worden teruggegeven.
+
+                    **Let op:** Het gebruik van het "fields" en "expand" element is mutual exclusive. Of je gebruikt de één of de ander maar nooit te gelijk.
                 zaakgeometrie:
                   $ref: '#/components/schemas/GeoWithinRequest'
                 uuid__in:
@@ -12824,8 +12863,10 @@ paths:
                     - status
                     - status.statustype
                     - zaakinformatieobjecten
+                    - zaakinformatieobjecten.informatieobject
                     - zaakobjecten
                     - zaaktype
+                    - zaaktype.catalogus
                   description: "Sluit de gespecifieerde gerelateerde resources in\
                     \ in het antwoord. \n\n"
       security:
