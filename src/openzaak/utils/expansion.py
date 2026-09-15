@@ -166,12 +166,20 @@ class ExpandLoader(InclusionLoader):
 
         entries = self._inclusions((), serializer, serializer.instance)
 
+        # Serialize each shared object once and reuse its data in this response.
+        # ex. Zaak A and Zaak B both reference the same zaaktype.
+        # That zaaktype is the shared object, so its response data is built once and reused for both zaken.
+        serialized = {}
         for obj, inclusion_serializer, parent, path, many in entries:
-            data = (
-                obj._initial_data
-                if isinstance(obj, ProxyMixin)
-                else inclusion_serializer(instance=obj, context=serializer.context).data
-            )
+            if isinstance(obj, ProxyMixin):
+                data = obj._initial_data
+            else:
+                key = (inclusion_serializer, type(obj), obj.pk)
+                if key not in serialized:
+                    serialized[key] = inclusion_serializer(
+                        instance=obj, context=serializer.context
+                    ).data
+                data = serialized[key]
             tree.add_node(
                 id=data["url"],
                 value=data,
