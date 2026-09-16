@@ -21,6 +21,9 @@ from openzaak.components.catalogi.api.serializers.eigenschap import EigenschapSe
 from openzaak.components.catalogi.api.serializers.informatieobjecttype import (
     InformatieObjectTypeSerializer,
 )
+from openzaak.components.catalogi.api.serializers.relatieklassen import (
+    ZaakTypeInformatieObjectTypeSerializer,
+)
 from openzaak.components.catalogi.api.serializers.resultaattype import (
     ResultaatTypeSerializer,
 )
@@ -145,6 +148,9 @@ class ZaakTypeInformatieObjectTypeFilter(FilterSet):
         method="status_filter_m2m",
         help_text=STATUS_RESULTAAT_HELP_TEXT,
     )
+    expand = CatalogiExpandFilter(
+        serializer_class=ZaakTypeInformatieObjectTypeSerializer
+    )
 
     class Meta:
         model = ZaakTypeInformatieObjectType
@@ -162,6 +168,12 @@ class ZaakTypeInformatieObjectTypeFilter(FilterSet):
             )
         elif value == "alles":
             return queryset
+
+
+class ZaakTypeInformatieObjectTypeDetailFilter(FilterSet):
+    expand = CatalogiExpandFilter(
+        serializer_class=ZaakTypeInformatieObjectTypeSerializer
+    )
 
 
 class ResultaatTypeFilter(FilterSet):
