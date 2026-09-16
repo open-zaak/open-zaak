@@ -178,7 +178,7 @@ class ExpandLoader(InclusionLoader):
         )
         selections_by_path = {}
 
-        for obj, inclusion_serializer, parent, path, many in entries:
+        for obj, inclusion_serializer, parent, path, many in entries:  # pyright: ignore[reportAssignmentType]
             if isinstance(obj, ProxyMixin):
                 data = obj._initial_data
             else:
@@ -321,14 +321,14 @@ class ExpandLoader(InclusionLoader):
                 cache_key = (inclusion_serializer, local_pk)
                 if (
                     cache_key in self._seen_local
-                    and model_field.fk_field not in instance._state.fields_cache
+                    and model_field.fk_field not in instance._state.fields_cache  # pyright: ignore[reportAttributeAccessIssue]
                 ):
                     yield self._seen_local[cache_key]
                     return
 
         obj = field.get_attribute(instance)
         if hasattr(field, "get_inclusion_instance"):
-            obj = field.get_inclusion_instance(obj)
+            obj = field.get_inclusion_instance(obj)  # pyright: ignore[reportAttributeAccessIssue]
 
         if obj is None:
             return
@@ -380,7 +380,9 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
 
     loader_class = ExpandLoader
 
-    def _render_inclusions(self, data, renderer_context):
+    def _render_inclusions(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, data, renderer_context
+    ):
         renderer_context = renderer_context or {}
         response = renderer_context.get("response")
         # if we have an error, return data as-is
@@ -465,7 +467,11 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
                         )
                         yield from explicit_paths(children, (*path, name))
 
-        explicit_fields = set(explicit_paths(view.request.data["fields"]))
+        explicit_fields = set(
+            explicit_paths(
+                view.request.data["fields"]  # pyright: ignore[reportOptionalMemberAccess]
+            )
+        )
 
         def filter_selected_fields(value, selected_fields, path=()):
             if selected_fields is None or not isinstance(value, (dict, list)):
@@ -542,13 +548,17 @@ def limit_serializer_fields(
     """
     Keep only selected fields, including nested fields and any '*' selections
     """
-    if isinstance(serializer, serializers.ListSerializer):
-        serializer = serializer.child
+    target = (
+        serializer.child
+        if isinstance(serializer, serializers.ListSerializer)
+        else serializer
+    )
+    assert isinstance(target, serializers.Serializer)
     select_all = "*" in selected_fields  # avoid repeated call in the loop
 
-    for name, field in list(serializer.fields.items()):
+    for name, field in list(target.fields.items()):
         if not select_all and name not in selected_fields and name != "url":
-            del serializer.fields[name]
+            del target.fields[name]
             continue
         children = selected_fields.get(name)
         if children is not None and isinstance(field, serializers.BaseSerializer):

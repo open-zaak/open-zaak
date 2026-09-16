@@ -13,4 +13,4 @@ class FkServiceHandler(FKHandler):
         if isinstance(raw_data, Service):
             return raw_data
 
-        return super().__get__(instance, cls)
+        return super().__get__(instance, cls)  # pyright: ignore[reportReturnType]

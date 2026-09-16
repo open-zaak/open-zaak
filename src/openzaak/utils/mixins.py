@@ -87,7 +87,7 @@ class ExpandMixin:
     ) -> QuerySet:
         """Update the queryset to fetch the requested related objects in advance"""
 
-        current_prefetches = queryset._prefetch_related_lookups
+        current_prefetches = queryset._prefetch_related_lookups  # pyright: ignore[reportAttributeAccessIssue]
         parent_lookup, separator, child_lookup = lookup.partition("__")
 
         # Prefetch nested relations recursively to avoid queries per object
@@ -239,19 +239,22 @@ class FieldsMixin:
     def get_search_input(self):
         """Validate the request once, store the selected fields, and return search filters"""
         if self._search_input is None:
-            serializer = self.get_search_input_serializer_class()(
-                data=self.request.data, context=self.get_serializer_context()
+            serializer = self.get_search_input_serializer_class()(  # pyright: ignore[reportAttributeAccessIssue]
+                data=self.request.data,  # pyright: ignore[reportAttributeAccessIssue]
+                context=self.get_serializer_context(),  # pyright: ignore[reportAttributeAccessIssue]
             )
             serializer.is_valid(raise_exception=True)
             self._search_input = serializer.validated_data.copy()
-            self._selected_fields = self._search_input.pop("fields", None)
+            self._selected_fields = self._search_input.pop(  # pyright: ignore[reportOptionalMemberAccess]
+                "fields", None
+            )
         return self._search_input
 
     def get_requested_inclusions(self, request):
         """Return expansion paths for nested field selections"""
 
         if not self.has_fields(request):
-            return super().get_requested_inclusions(request)
+            return super().get_requested_inclusions(request)  # pyright: ignore[reportAttributeAccessIssue]
 
         if self._selected_fields is None:
             self.get_search_input()
@@ -259,14 +262,14 @@ class FieldsMixin:
         if self._selected_inclusions is None:
             self._selected_inclusions = tuple(
                 path
-                for path in self.get_serializer_class().inclusion_serializers
+                for path in self.get_serializer_class().inclusion_serializers  # pyright: ignore[reportAttributeAccessIssue]
                 if fields_at_path(self._selected_fields, path.split(".")) is not None
             )
 
         return ",".join(self._selected_inclusions)
 
     def get_serializer(self, *args, **kwargs):
-        serializer = super().get_serializer(*args, **kwargs)
+        serializer = super().get_serializer(*args, **kwargs)  # pyright: ignore[reportAttributeAccessIssue]
 
         if self._selected_fields is not None:
             limit_serializer_fields(serializer, self._selected_fields)
@@ -295,5 +298,5 @@ class CacheQuerysetMixin:
         # the result on the ViewSet instance which is a different instance for every request,
         # so this caching will only be applied for the same request
         if self._cached_queryset is None:
-            self._cached_queryset = super().get_queryset()
+            self._cached_queryset = super().get_queryset()  # pyright: ignore[reportAttributeAccessIssue]
         return self._cached_queryset
