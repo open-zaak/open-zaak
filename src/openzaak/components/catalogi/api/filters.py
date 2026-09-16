@@ -24,6 +24,7 @@ from openzaak.components.catalogi.api.serializers.informatieobjecttype import (
 from openzaak.components.catalogi.api.serializers.resultaattype import (
     ResultaatTypeSerializer,
 )
+from openzaak.components.catalogi.api.serializers.roltype import RolTypeSerializer
 from openzaak.utils.filters import (
     CatalogiExpandFilter,
     CharArrayFilter,
@@ -116,6 +117,7 @@ class RolTypeFilter(FilterSet):
             "Filter op (een deel van de) omschrijving (hoofdletterongevoelig)."
         ),
     )
+    expand = CatalogiExpandFilter(serializer_class=RolTypeSerializer)
 
     class Meta:
         model = RolType
@@ -127,6 +129,10 @@ class RolTypeFilter(FilterSet):
             "zaaktype_identificatie",
             "omschrijving",
         )
+
+
+class RolTypeDetailFilter(FilterSet):
+    expand = CatalogiExpandFilter(serializer_class=RolTypeSerializer)
 
 
 class ZaakTypeInformatieObjectTypeFilter(FilterSet):
