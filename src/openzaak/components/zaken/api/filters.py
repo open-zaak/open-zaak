@@ -17,6 +17,7 @@ from vng_api_common.utils import get_field_attribute, get_help_text
 
 from openzaak.components.zaken.api.serializers.zaken import (
     ResultaatSerializer,
+    RolSerializer,
     ZaakSerializer,
 )
 from openzaak.utils.filters import (
@@ -365,6 +366,8 @@ class ZaakDetailFilter(FilterSet):
 
 
 class RolFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=RolSerializer)
+
     betrokkene_identificatie__natuurlijk_persoon__inp_bsn = filters.CharFilter(
         field_name="natuurlijkpersoon__inp_bsn",
         help_text=get_help_text("zaken.NatuurlijkPersoon", "inp_bsn"),
