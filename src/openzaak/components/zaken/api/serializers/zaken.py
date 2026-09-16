@@ -1535,6 +1535,12 @@ class RolUpdateSubSerializer(RolSubSerializer):
 
 
 class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
+    inclusion_serializers = {
+        "zaak": "openzaak.components.zaken.api.serializers.ZaakSerializer",
+        "zaak.zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "resultaattype": "openzaak.components.catalogi.api.serializers.ResultaatTypeSerializer",
+    }
+
     class Meta:
         model = Resultaat
         fields = ("url", "uuid", "zaak", "resultaattype", "toelichting")

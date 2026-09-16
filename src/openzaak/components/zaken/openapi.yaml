@@ -751,6 +751,20 @@ paths:
       description: Deze lijst kan gefilterd wordt met query-string parameters.
       summary: Alle RESULTAATen van ZAAKen opvragen.
       parameters:
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - resultaattype
+            - zaak
+            - zaak.zaaktype
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
       - name: page
         required: false
         in: query
@@ -791,7 +805,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedResultaatList'
+                $ref: '#/components/schemas/PaginatedExpandResultaatList'
           description: OK
         '400':
           headers:
@@ -1086,6 +1100,25 @@ paths:
           MultipleValues:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
             summary: Meerdere ETag-waardes
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - resultaattype
+            - zaak
+            - zaak.zaaktype
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
+      - in: query
+        name: resultaattype
+        schema:
+          type: string
+        description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
       - in: path
         name: uuid
         schema:
@@ -1093,6 +1126,12 @@ paths:
           format: uuid
           description: Unieke resource identifier (UUID4)
         required: true
+      - in: query
+        name: zaak
+        schema:
+          type: string
+          format: uri
+        description: URL-referentie naar de ZAAK.
       tags:
       - resultaten
       security:
@@ -1115,7 +1154,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resultaat'
+                $ref: '#/components/schemas/ExpandResultaat'
           description: OK
         '401':
           headers:
@@ -14385,6 +14424,25 @@ components:
       - bsn
       - kvkNummer
       type: string
+    ExpandResultaat:
+      allOf:
+      - $ref: '#/components/schemas/Resultaat'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              zaak:
+                allOf:
+                - $ref: '#/components/schemas/Zaak'
+                description: URL-referentie naar de ZAAK.
+              resultaattype:
+                allOf:
+                - $ref: https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.2.0/src/openapi.yaml#/components/schemas/ResultaatType
+                description: URL-referentie naar het RESULTAATTYPE (in de Catalogi
+                  API).
     ExpandZaak:
       allOf:
       - $ref: '#/components/schemas/Zaak'
@@ -16126,6 +16184,29 @@ components:
           description: '**EXPERIMENTEEL** Dit veld wijkt af van de standaard, omdat
             er 255 karakters zijn toegestaan in plaats van 24'
           maxLength: 255
+    PaginatedExpandResultaatList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpandResultaat'
     PaginatedExpandZaakList:
       type: object
       required:
