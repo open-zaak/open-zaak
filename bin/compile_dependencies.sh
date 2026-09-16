@@ -34,6 +34,12 @@ uv pip compile \
     requirements/test-tools.in \
     requirements/performance-tests.in
 
+# Type checking deps - CI + stub packages
+uv pip compile \
+    --output-file requirements/type-checking.txt \
+    "$@" \
+    requirements/type-checking.in
+
 # Dev depedencies - exact same set as CI + some extra tooling
 uv pip compile \
     --output-file requirements/dev.txt \
