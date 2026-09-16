@@ -7584,6 +7584,22 @@ paths:
           format: date
         description: filter objecten op hun geldigheids datum.
       - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - catalogus
+            - resultaattypen
+            - statustype
+            - zaaktype
+        description: |+
+          Sluit de gespecificeerde gerelateerde resources aan in het antwoord. Expand naar willekeurige diepte wordt niet ondersteund. Dit wijkt af van de standaard.
+
+        explode: false
+        style: form
+      - in: query
         name: objecttype
         schema:
           type: string
@@ -7650,7 +7666,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedZaakObjectTypeList'
+                $ref: '#/components/schemas/PaginatedExpandZaakObjectTypeList'
           description: OK
         '400':
           headers:
@@ -7932,6 +7948,22 @@ paths:
           MultipleValues:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
             summary: Meerdere ETag-waardes
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - catalogus
+            - resultaattypen
+            - statustype
+            - zaaktype
+        description: |+
+          Sluit de gespecificeerde gerelateerde resources aan in het antwoord. Expand naar willekeurige diepte wordt niet ondersteund. Dit wijkt af van de standaard.
+
+        explode: false
+        style: form
       - in: path
         name: uuid
         schema:
@@ -7961,7 +7993,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ZaakObjectType'
+                $ref: '#/components/schemas/ExpandZaakObjectType'
           description: OK
         '401':
           headers:
@@ -11909,6 +11941,38 @@ components:
                 readOnly: true
                 description: de EIGENSCHAPpen die verplicht een waarde moeten hebben
                   gekregen, voordat een STATUS van dit STATUSTYPE kan worden gezet.
+    ExpandZaakObjectType:
+      allOf:
+      - $ref: '#/components/schemas/ZaakObjectType'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              zaaktype:
+                allOf:
+                - $ref: '#/components/schemas/ZaakType'
+                description: URL-referentie naar de ZAAKTYPE waartoe dit ZAAKOBJECTTYPE
+                  behoort.
+              resultaattypen:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResultaatType'
+                readOnly: true
+                description: URL-referenties naar de RESULTAATTYPEN.
+              statustype:
+                allOf:
+                - $ref: '#/components/schemas/StatusType'
+                nullable: true
+                description: URL-referentie naar het STATUSTYPE
+              catalogus:
+                allOf:
+                - $ref: '#/components/schemas/Catalogus'
+                readOnly: true
+                description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE
+                  behoort.
     FieldValidationError:
       type: object
       description: Formaat van validatiefouten.
@@ -12484,6 +12548,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ExpandStatusType'
+    PaginatedExpandZaakObjectTypeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpandZaakObjectType'
     PaginatedInformatieObjectTypeList:
       type: object
       required:
