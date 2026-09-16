@@ -1396,6 +1396,7 @@ class RolViewSet(
 @conditional_retrieve()
 class ResultaatViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -1410,6 +1411,17 @@ class ResultaatViewSet(
     queryset = Resultaat.objects.select_related("_resultaattype", "zaak").order_by(
         "-pk"
     )
+    inclusion_viewsets = {
+        "zaak": ("zaak", "openzaak.components.zaken.api.viewsets.ZaakViewSet"),
+        "zaak.zaaktype": (
+            "zaak___zaaktype",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "resultaattype": (
+            "_resultaattype",
+            "openzaak.components.catalogi.api.viewsets.resultaattype.ResultaatTypeViewSet",
+        ),
+    }
     serializer_class = ResultaatSerializer
     filterset_class = ResultaatFilter
     lookup_field = "uuid"
