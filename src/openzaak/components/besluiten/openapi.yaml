@@ -85,6 +85,8 @@ info:
     * `besluittype.catalogus`: **EXPERIMENTEEL** URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
 
     **Resources en acties**
+    - `besluit`: create, update, destroy
+    - `besluitinformatieobject`: create, destroy
 
 
     **Handige links**

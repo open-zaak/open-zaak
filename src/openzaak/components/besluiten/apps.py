@@ -8,3 +8,6 @@ class BesluitenConfig(AppConfig):
 
     def ready(self) -> None:
         from . import signals  # noqa
+
+        # Initialize the viewset for Kanaal.get_usage
+        from .api.viewsets import BesluitViewSet  # noqa
