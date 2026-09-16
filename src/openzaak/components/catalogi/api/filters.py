@@ -32,6 +32,7 @@ from openzaak.components.catalogi.api.serializers.statustype import StatusTypeSe
 from openzaak.components.catalogi.api.serializers.zaakobjecttype import (
     ZaakObjectTypeSerializer,
 )
+from openzaak.components.catalogi.api.serializers.zaaktype import ZaakTypeSerializer
 from openzaak.utils.filters import (
     CatalogiExpandFilter,
     CharArrayFilter,
@@ -285,6 +286,7 @@ class ZaakTypeFilter(FilterSet):
             + _(" Filter op (een deel van de) identificatie (hoofdletterongevoelig).")
         ),
     )
+    expand = CatalogiExpandFilter(serializer_class=ZaakTypeSerializer)
 
     class Meta:
         model = ZaakType
@@ -295,6 +297,10 @@ class ZaakTypeFilter(FilterSet):
             "status",
             "datum_geldigheid",
         )
+
+
+class ZaakTypeDetailFilter(FilterSet):
+    expand = CatalogiExpandFilter(serializer_class=ZaakTypeSerializer)
 
 
 class InformatieObjectTypeFilter(FilterSet):

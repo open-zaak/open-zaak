@@ -511,7 +511,7 @@ class StatusTypeAPITests(APITestCase):
         statustype = StatusTypeFactory.create(
             zaaktype=zaaktype,
         )
-        eigenschap = EigenschapFactory.create(
+        EigenschapFactory.create(
             statustype=statustype,
         )
 
