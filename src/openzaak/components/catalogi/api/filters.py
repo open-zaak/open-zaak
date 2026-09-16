@@ -26,6 +26,9 @@ from openzaak.components.catalogi.api.serializers.resultaattype import (
 )
 from openzaak.components.catalogi.api.serializers.roltype import RolTypeSerializer
 from openzaak.components.catalogi.api.serializers.statustype import StatusTypeSerializer
+from openzaak.components.catalogi.api.serializers.zaakobjecttype import (
+    ZaakObjectTypeSerializer,
+)
 from openzaak.utils.filters import (
     CatalogiExpandFilter,
     CharArrayFilter,
@@ -410,6 +413,7 @@ class ZaakObjectTypeFilter(FilterSet):
         choices=StatusChoices.choices,
         help_text=mark_experimental(STATUS_HELP_TEXT),
     )
+    expand = CatalogiExpandFilter(serializer_class=ZaakObjectTypeSerializer)
 
     class Meta:
         model = ZaakObjectType
@@ -425,3 +429,7 @@ class ZaakObjectTypeFilter(FilterSet):
             "zaaktype_identificatie",
             "status",
         )
+
+
+class ZaakObjectTypeDetailFilter(FilterSet):
+    expand = CatalogiExpandFilter(serializer_class=ZaakObjectTypeSerializer)

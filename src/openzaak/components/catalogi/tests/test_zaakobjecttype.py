@@ -12,7 +12,12 @@ from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import ZaakTypeConceptValidator
 from ..models import ZaakObjectType
 from .base import APITestCase
-from .factories import StatusTypeFactory, ZaakObjectTypeFactory, ZaakTypeFactory
+from .factories import (
+    ResultaatTypeFactory,
+    StatusTypeFactory,
+    ZaakObjectTypeFactory,
+    ZaakTypeFactory,
+)
 
 
 class ZaakObjectTypeAPITests(APITestCase):
@@ -67,6 +72,7 @@ class ZaakObjectTypeAPITests(APITestCase):
             "eindeGeldigheid": "2023-12-01",
             "beginObject": "2023-01-01",
             "eindeObject": "2023-12-01",
+            "_expand": {},
         }
         self.assertEqual(expected, response.json())
 
@@ -253,6 +259,144 @@ class ZaakObjectTypeAPITests(APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
+
+    def test_get_detail_expand_zaaktype(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        zaakobjecttype = ZaakObjectTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+
+        response = self.client.get(
+            reverse(zaakobjecttype),
+            {"expand": "zaaktype"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["_expand"]["zaaktype"]["url"],
+            f"http://testserver{reverse(zaaktype)}",
+        )
+
+    def test_get_detail_expand_resultaattypen(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        resultaat_type = ResultaatTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+        zaakobjecttype = ZaakObjectTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+        zaakobjecttype.resultaattypen.add(resultaat_type)
+
+        response = self.client.get(
+            reverse(zaakobjecttype),
+            {"expand": "resultaattypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("resultaattypen", data["_expand"])
+        self.assertEqual(
+            data["_expand"]["resultaattypen"][0]["url"],
+            f"http://testserver{reverse(resultaat_type)}",
+        )
+
+    def test_get_detail_expand_statustypen(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        statustype = StatusTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+        zaakobjecttype = ZaakObjectTypeFactory.create(
+            zaaktype=zaaktype,
+            statustype=statustype,
+        )
+        response = self.client.get(
+            reverse(zaakobjecttype),
+            {"expand": "statustype"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("statustype", data["_expand"])
+        self.assertEqual(
+            data["_expand"]["statustype"]["url"],
+            f"http://testserver{reverse(statustype)}",
+        )
+
+    def test_get_detail_expand_catalogus(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        zaakobjecttype = ZaakObjectTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+
+        response = self.client.get(
+            reverse(zaakobjecttype),
+            {"expand": "catalogus"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["_expand"]["catalogus"]["url"],
+            f"http://testserver{reverse(self.catalogus)}",
+        )
+
+    def test_get_detail_expand_multiple(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        resultaat_type = ResultaatTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+        statustype = StatusTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+        zaakobjecttype = ZaakObjectTypeFactory.create(
+            zaaktype=zaaktype,
+            statustype=statustype,
+        )
+        zaakobjecttype.resultaattypen.add(resultaat_type)
+
+        response = self.client.get(
+            reverse(zaakobjecttype),
+            {"expand": "zaaktype,resultaattypen,statustype,catalogus"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("zaaktype", data["_expand"])
+        self.assertIn("resultaattypen", data["_expand"])
+        self.assertIn("statustype", data["_expand"])
+        self.assertIn("catalogus", data["_expand"])
+
+    def test_get_detail_expand_nested_not_supported(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        zaakobjecttype = ZaakObjectTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+
+        response = self.client.get(
+            reverse(zaakobjecttype),
+            {"expand": "catalogus.zaaktypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_get_detail_without_expand(self):
+        zaakobjecttype = ZaakObjectTypeFactory.create()
+
+        response = self.client.get(reverse(zaakobjecttype))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["_expand"], {})
 
 
 class ZaakObjectTypeFilterAPITests(APITestCase):
