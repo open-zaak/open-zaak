@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2026 Open Zaak maintainers
-
+import re
 from abc import ABC, abstractmethod
 from datetime import date
 from itertools import chain, count, islice, starmap
@@ -128,8 +128,10 @@ class UWVIdentification(BaseZaakIdentificatie):
 
     """
 
+    _POSTFIX = "-01"
+
     def current(self):
-        pattern = r"[A-Z]{1,2}[0-9]{8}"
+        pattern = r"[A-Z]{1,2}[0-9]{8}" + re.escape(self._POSTFIX)
         max_id = (
             self.model.objects.filter(identificatie__regex=pattern)
             .order_by(-Length("identificatie"), "-identificatie")
@@ -137,7 +139,7 @@ class UWVIdentification(BaseZaakIdentificatie):
             .first()
         )
 
-        return max_id or "A00000000"
+        return max_id.removesuffix(self._POSTFIX) if max_id else "A00000000"
 
     def _as_int(self, char: str) -> int:
         return int(char) if char.isnumeric() else (ord(char) - 65)
@@ -207,6 +209,23 @@ class UWVIdentification(BaseZaakIdentificatie):
                 # we need a single digit checksum
                 # if 10 calculate next
                 yield f"{prefix}{seq}{checksum}"
+
+    def generate(self):
+        with pg_advisory_lock(LOCK_ID_IDENTIFICATION_GENERATION):
+            return self.model.objects.create(
+                identificatie=f"{next(self._sequence(self.current()))}{self._POSTFIX}",
+                bronorganisatie=self.bronorganisatie,
+            )
+
+    def generate_bulk(self, amount: int):
+        with pg_advisory_lock(LOCK_ID_IDENTIFICATION_GENERATION):
+            return self.model.objects.bulk_create(
+                self.model(
+                    identificatie=f"{id}{self._POSTFIX}",
+                    bronorganisatie=self.bronorganisatie,
+                )
+                for id in islice(self._sequence(self.current()), amount)
+            )
 
 
 def get_base_identification_class():

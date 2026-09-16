@@ -26,7 +26,7 @@ class UWVIdentificationTests(TestCase):
             self.assertEqual(self.uwv.current(), "A00000000")
 
         with self.subTest("existing identificatie"):
-            ZaakIdentificatie.objects.create(identificatie="A00000006")
+            ZaakIdentificatie.objects.create(identificatie="A00000006-01")
             self.assertEqual(self.uwv.current(), "A00000006")
 
         with self.subTest("other identificatie"):
@@ -34,7 +34,7 @@ class UWVIdentificationTests(TestCase):
             self.assertEqual(self.uwv.current(), "A00000006")
 
         with self.subTest("later identificatie"):
-            ZaakIdentificatie.objects.create(identificatie="B00000001")
+            ZaakIdentificatie.objects.create(identificatie="B00000001-01")
             self.assertEqual(self.uwv.current(), "B00000001")
 
     def test_next(self):
@@ -56,7 +56,7 @@ class UWVIdentificationTests(TestCase):
             self.assertEqual(ZaakIdentificatie.objects.count(), 1)
             iden = ZaakIdentificatie.objects.get()
 
-            self.assertEqual(iden.identificatie, "A00000006")
+            self.assertEqual(iden.identificatie, "A00000006-01")
             self.assertEqual(iden.bronorganisatie, "111222333")
 
         with self.subTest("next"):
@@ -64,16 +64,16 @@ class UWVIdentificationTests(TestCase):
 
             self.assertEqual(ZaakIdentificatie.objects.count(), 2)
             self.assertEqual(
-                ZaakIdentificatie.objects.last().identificatie, "A00000023"
+                ZaakIdentificatie.objects.last().identificatie, "A00000023-01"
             )
 
         with self.subTest("AA"):
             ZaakIdentificatie.objects.create(
-                identificatie="Z99999990", bronorganisatie="111222333"
+                identificatie="Z99999990-01", bronorganisatie="111222333"
             )
             self.uwv.generate()
             self.assertEqual(
-                ZaakIdentificatie.objects.last().identificatie, "AA00000001"
+                ZaakIdentificatie.objects.last().identificatie, "AA00000001-01"
             )
 
     def test_generate_bulk(self):
@@ -81,7 +81,13 @@ class UWVIdentificationTests(TestCase):
 
         self.assertEqual(ZaakIdentificatie.objects.count(), 5)
 
-        expected = ["A00000006", "A00000023", "A00000037", "A00000040", "A00000054"]
+        expected = [
+            "A00000006-01",
+            "A00000023-01",
+            "A00000037-01",
+            "A00000040-01",
+            "A00000054-01",
+        ]
 
         for i, iden in enumerate(ZaakIdentificatie.objects.order_by("pk")):
             self.assertEqual(iden.identificatie, expected[i])
