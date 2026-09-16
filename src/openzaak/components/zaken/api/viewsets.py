@@ -1281,6 +1281,7 @@ class KlantContactViewSet(
 @conditional_retrieve()
 class RolViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -1296,7 +1297,7 @@ class RolViewSet(
     """
 
     queryset = (
-        Rol.objects.select_related("_roltype", "zaak")
+        Rol.objects.select_related("_roltype", "zaak", "zaak___zaaktype")
         .prefetch_related(
             "natuurlijkpersoon",
             "nietnatuurlijkpersoon",
@@ -1304,9 +1305,25 @@ class RolViewSet(
             "organisatorischeeenheid",
             "medewerker",
             "statussen",
+            "statussen___statustype",
         )
         .order_by("-pk")
     )
+    inclusion_viewsets = {
+        "zaak": ("zaak", "openzaak.components.zaken.api.viewsets.ZaakViewSet"),
+        "zaak.zaaktype": (
+            "zaak___zaaktype",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "roltype": (
+            "_roltype",
+            "openzaak.components.catalogi.api.viewsets.roltype.RolTypeViewSet",
+        ),
+        "statussen": (
+            "statussen",
+            "openzaak.components.zaken.api.viewsets.StatusViewSet",
+        ),
+    }
     serializer_class = RolSerializer
     filterset_class = RolFilter
     lookup_field = "uuid"
