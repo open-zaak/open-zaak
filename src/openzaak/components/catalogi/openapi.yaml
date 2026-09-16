@@ -4448,6 +4448,22 @@ paths:
           type: string
           format: date
         description: filter objecten op hun geldigheids datum.
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - besluittypen
+            - catalogus
+            - informatieobjecttypen
+            - zaaktype
+        description: |+
+          Sluit de gespecificeerde gerelateerde resources aan in het antwoord. Expand naar willekeurige diepte wordt niet ondersteund. Dit wijkt af van de standaard.
+
+        explode: false
+        style: form
       - name: page
         required: false
         in: query
@@ -4504,7 +4520,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedResultaatTypeList'
+                $ref: '#/components/schemas/PaginatedExpandResultaatTypeList'
           description: OK
         '400':
           headers:
@@ -4787,6 +4803,22 @@ paths:
           MultipleValues:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
             summary: Meerdere ETag-waardes
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - besluittypen
+            - catalogus
+            - informatieobjecttypen
+            - zaaktype
+        description: |+
+          Sluit de gespecificeerde gerelateerde resources aan in het antwoord. Expand naar willekeurige diepte wordt niet ondersteund. Dit wijkt af van de standaard.
+
+        explode: false
+        style: form
       - in: path
         name: uuid
         schema:
@@ -4816,7 +4848,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResultaatType'
+                $ref: '#/components/schemas/ExpandResultaatType'
           description: OK
         '401':
           headers:
@@ -5451,6 +5483,20 @@ paths:
           format: date
         description: filter objecten op hun geldigheids datum.
       - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - catalogus
+            - zaaktype
+        description: |+
+          Sluit de gespecificeerde gerelateerde resources aan in het antwoord. Expand naar willekeurige diepte wordt niet ondersteund. Dit wijkt af van de standaard.
+
+        explode: false
+        style: form
+      - in: query
         name: omschrijving
         schema:
           type: string
@@ -5527,7 +5573,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedRolTypeList'
+                $ref: '#/components/schemas/PaginatedExpandRolTypeList'
           description: OK
         '400':
           headers:
@@ -5810,6 +5856,20 @@ paths:
           MultipleValues:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
             summary: Meerdere ETag-waardes
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - catalogus
+            - zaaktype
+        description: |+
+          Sluit de gespecificeerde gerelateerde resources aan in het antwoord. Expand naar willekeurige diepte wordt niet ondersteund. Dit wijkt af van de standaard.
+
+        explode: false
+        style: form
       - in: path
         name: uuid
         schema:
@@ -5838,7 +5898,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RolType'
+                $ref: '#/components/schemas/ExpandRolType'
           description: OK
         '401':
           headers:
@@ -11735,6 +11795,62 @@ components:
                   $ref: '#/components/schemas/BesluitType'
                 readOnly: true
                 description: URL-referenties naar de BESLUITTYPEN
+    ExpandResultaatType:
+      allOf:
+      - $ref: '#/components/schemas/ResultaatType'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              catalogus:
+                allOf:
+                - $ref: '#/components/schemas/Catalogus'
+                readOnly: true
+                description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE
+                  behoort.
+              zaaktype:
+                allOf:
+                - $ref: '#/components/schemas/ZaakType'
+                title: is van
+                description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten
+                  van dit RESULTAATTYPE bereikt kunnen worden.
+              besluittypen:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BesluitType'
+                description: Het BESLUITTYPE van besluiten die gepaard gaan met resultaten
+                  van het RESULTAATTYPE.
+              informatieobjecttypen:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InformatieObjectType'
+                description: De INFORMATIEOBJECTTYPEn die verplicht aanwezig moeten
+                  zijn in het zaakdossier van ZAAKen van dit ZAAKTYPE voordat een
+                  resultaat van dit RESULTAATTYPE kan worden gezet.
+    ExpandRolType:
+      allOf:
+      - $ref: '#/components/schemas/RolType'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              catalogus:
+                allOf:
+                - $ref: '#/components/schemas/Catalogus'
+                readOnly: true
+                description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE
+                  behoort.
+              zaaktype:
+                allOf:
+                - $ref: '#/components/schemas/ZaakType'
+                description: URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken
+                  kunnen zijn.
     FieldValidationError:
       type: object
       description: Formaat van validatiefouten.
@@ -12241,6 +12357,52 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ExpandInformatieObjectType'
+    PaginatedExpandResultaatTypeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpandResultaatType'
+    PaginatedExpandRolTypeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpandRolType'
     PaginatedInformatieObjectTypeList:
       type: object
       required:
