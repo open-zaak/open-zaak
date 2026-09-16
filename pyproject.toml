@@ -109,8 +109,12 @@ select = [
     "B010",
     # https://docs.astral.sh/ruff/rules/#pep8-naming-n
     "N",
-    "TID251",# tidy-imports
     "TID253",
+]
+
+extend-select = [
+    # https://docs.astral.sh/ruff/rules/#flake8-tidy-imports-tid
+    "TID251",
 ]
 
 ignore = [
@@ -176,6 +180,12 @@ section-order = [
 
 [tool.ruff.lint.flake8-tidy-imports.banned-api.logging]
 msg = "Use `structlog.stdlib.get_logger(__name__)` instead."
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api."typing.cast"]
+msg = "Casting is an anti-pattern, use `assert isinstance(...)` instead, or suppress the error."
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api."typing.Any"]
+msg = "Any is an anti-pattern, use a real type instead, or if that's not possible, use 'object'."
 
 [tool.ruff.format]
 line-ending = "lf"
