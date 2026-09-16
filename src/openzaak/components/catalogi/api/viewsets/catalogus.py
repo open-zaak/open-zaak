@@ -62,7 +62,6 @@ class CatalogusViewSet(
         .order_by("-pk")
     )
     serializer_class = CatalogusSerializer
-    filterset_class = CatalogusFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
     permission_classes = (AuthRequired,)
