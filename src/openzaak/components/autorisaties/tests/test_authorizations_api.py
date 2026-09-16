@@ -4,12 +4,15 @@ from django.test import override_settings, tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import get_validation_errors
 
-from openzaak.components.autorisaties.models import CatalogusAutorisatie
+from openzaak.components.autorisaties.models import (
+    Applicatie,
+    Autorisatie,
+    CatalogusAutorisatie,
+)
 from openzaak.components.besluiten.api.scopes import (
     SCOPE_BESLUITEN_AANMAKEN,
     SCOPE_BESLUITEN_BIJWERKEN,
@@ -78,6 +81,8 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
         which scopes are allowed for this particular type. The same applies
         for maxVetrouwelijkheidaanduiding.
         """
+        zaaktype1 = ZaakTypeFactory.create()
+        zaaktype2 = ZaakTypeFactory.create()
         url = get_operation_url("applicatie_create")
 
         data = {
@@ -87,7 +92,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
                 {
                     "component": ComponentTypes.zrc,
                     "scopes": ["zaken.lezen", "zaken.aanmaken"],
-                    "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
+                    "zaaktype": f"http://testserver{reverse(zaaktype1)}",
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                 },
                 {
@@ -97,7 +102,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
                         "zaken.aanmaken",
                         "zaken.verwijderen",
                     ],
-                    "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/2/zaaktypen/1",
+                    "zaaktype": f"http://testserver{reverse(zaaktype2)}",
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.zeer_geheim,
                 },
             ],
@@ -121,10 +126,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(auth1.applicatie, applicatie)
         self.assertEqual(auth1.component, ComponentTypes.zrc)
-        self.assertEqual(
-            auth1.zaaktype,
-            "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
-        )
+        self.assertEqual(auth1.zaaktype, zaaktype1)
         self.assertEqual(auth1.scopes, ["zaken.lezen", "zaken.aanmaken"])
         self.assertEqual(
             auth1.max_vertrouwelijkheidaanduiding,
@@ -140,10 +142,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
                 "zaken.verwijderen",
             ],
         )
-        self.assertEqual(
-            auth2.zaaktype,
-            "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/2/zaaktypen/1",
-        )
+        self.assertEqual(auth2.zaaktype, zaaktype2)
         self.assertEqual(
             auth2.max_vertrouwelijkheidaanduiding,
             VertrouwelijkheidsAanduiding.zeer_geheim,
@@ -156,6 +155,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
         Part one of the XOR test.
         """
         url = get_operation_url("applicatie_create")
+        zaaktype = ZaakTypeFactory.create()
 
         data = {
             "client_ids": ["id1", "id2"],
@@ -165,7 +165,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
                 {
                     "component": ComponentTypes.zrc,
                     "scopes": ["zaken.lezen", "zaken.aanmaken"],
-                    "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
+                    "zaaktype": f"http://testserver{reverse(zaaktype)}",
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                 }
             ],
@@ -246,7 +246,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
         Test request with heeftAlleAutorisaties = null
         """
         url = get_operation_url("applicatie_create")
-
+        zaaktype = ZaakTypeFactory.create()
         data = {
             "client_ids": ["id1", "id2"],
             "label": "Melding Openbare Ruimte consumer",
@@ -255,7 +255,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
                 {
                     "component": ComponentTypes.zrc,
                     "scopes": ["zaken.lezen", "zaken.aanmaken"],
-                    "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
+                    "zaaktype": f"http://testserver{reverse(zaaktype)}",
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                 }
             ],
@@ -327,6 +327,8 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
         """
         url = get_operation_url("applicatie_create")
 
+        zaaktype = ZaakTypeFactory.create()
+
         data = {
             "client_ids": ["id1"],
             "label": "some-app",
@@ -334,7 +336,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
                 {
                     "component": ComponentTypes.zrc,
                     "scopes": [],
-                    "zaaktype": "https://catalogi-api.vng.cloud/api/v1/catalogus/1/zaaktypen/1",
+                    "zaaktype": f"http://testserver{reverse(zaaktype)}",
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                 }
             ],
@@ -345,6 +347,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
+@override_settings(ALLOWED_HOSTS=["testserver"])
 class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
     scopes = [str(SCOPE_AUTORISATIES_LEZEN)]
     component = ComponentTypes.ac
@@ -359,7 +362,6 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
             applicatie__client_ids=["id1", "id2"],
             component=ComponentTypes.zrc,
             scopes=["dummy.scope"],
-            zaaktype="https://example.com",
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
 
@@ -393,7 +395,7 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             response.data["url"],
-            f"http://testserver{reverse(app, namespace='autorisaties')}",
+            f"http://testserver{reverse(app)}",
         )
 
     def test_validate_unknown_query_params(self):
@@ -464,7 +466,7 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
         # Create a "regular" autorisatie, this should be shown first in the list
         AutorisatieFactory.create(
             applicatie=app,
-            zaaktype=f"http://testserver{reverse(zaaktype_regular_autorisatie)}",
+            zaaktype=zaaktype_regular_autorisatie,
             component=ComponentTypes.zrc,
             scopes=[SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_BIJWERKEN],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
@@ -634,12 +636,13 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.data["autorisaties"], expected)
 
     def test_list_with_page_size_in_query(self):
+        zaaktype = ZaakTypeFactory.create()
         AutorisatieFactory.create_batch(
             10,
             applicatie__client_ids=["id3"],
             component=ComponentTypes.zrc,
             scopes=["dummy.scope"],
-            zaaktype="https://example.com",
+            zaaktype=zaaktype,
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         url = get_operation_url("applicatie_list")
@@ -655,6 +658,7 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
         )
 
 
+@override_settings(ALLOWED_HOSTS=["testserver"])
 class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
     scopes = [str(SCOPE_AUTORISATIES_BIJWERKEN)]
     component = ComponentTypes.ac
@@ -669,7 +673,7 @@ class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
             applicatie__client_ids=["id1", "id2"],
             component=ComponentTypes.zrc,
             scopes=["dummy.scope"],
-            zaaktype=f"http://testserver{reverse(cls.zaaktype)}",
+            zaaktype=cls.zaaktype,
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         cls.applicatie = autorisatie.applicatie
@@ -685,6 +689,8 @@ class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(self.applicatie.client_ids, ["id1"])
 
     def test_replace_authorizations(self):
+        zaaktype1 = ZaakTypeFactory.create()
+        zaaktype2 = ZaakTypeFactory.create()
         url = get_operation_url("applicatie_partial_update", uuid=self.applicatie.uuid)
         data = {
             "autorisaties": [
@@ -692,7 +698,7 @@ class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
                     "component": ComponentTypes.zrc,
                     "scopes": ["zaken.lezen", "zaken.aanmaken"],
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-                    "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
+                    "zaaktype": f"http://testserver{reverse(zaaktype1)}",
                 },
                 {
                     "component": ComponentTypes.zrc,
@@ -701,7 +707,7 @@ class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
                         "zaken.aanmaken",
                         "zaken.verwijderen",
                     ],
-                    "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/2/zaaktypen/1",
+                    "zaaktype": f"http://testserver{reverse(zaaktype2)}",
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.zeer_geheim,
                 },
             ]
@@ -714,18 +720,12 @@ class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
 
         auth1, auth2 = self.applicatie.autorisaties.order_by("zaaktype").all()
 
-        self.assertEqual(
-            auth1.zaaktype,
-            "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
-        )
+        self.assertEqual(auth1.zaaktype, zaaktype1)
         self.assertEqual(
             auth1.max_vertrouwelijkheidaanduiding,
             VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
-        self.assertEqual(
-            auth2.zaaktype,
-            "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/2/zaaktypen/1",
-        )
+        self.assertEqual(auth2.zaaktype, zaaktype2)
         self.assertEqual(
             auth2.max_vertrouwelijkheidaanduiding,
             VertrouwelijkheidsAanduiding.zeer_geheim,
@@ -762,7 +762,6 @@ class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(credential.secret, "")
 
     @tag("gh-1661")
-    @override_settings(ALLOWED_HOSTS=["testserver.com"])
     def test_update_authorization_deletes_existing_catalogus_autorisatie(self):
         """
         Updating an Applicatie with autorisaties for typen from another
@@ -793,11 +792,10 @@ class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
                         "scopes": ["dummy.scope"],
                         "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                         # Zaaktype is part of the same catalogus as the CatalogusAutorisatie
-                        "zaaktype": f"http://testserver.com{reverse(zaaktype)}",
+                        "zaaktype": f"http://testserver{reverse(zaaktype)}",
                     },
                 ]
             },
-            headers={"host": "testserver.com"},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -806,6 +804,7 @@ class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
         self.assertFalse(CatalogusAutorisatie.objects.exists())
 
         # The new Autorisatie should be created
+
         [autorisatie] = self.applicatie.autorisaties.all()
 
         self.assertEqual(autorisatie.component, ComponentTypes.zrc)
@@ -814,6 +813,4 @@ class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
             autorisatie.max_vertrouwelijkheidaanduiding,
             VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
-        self.assertEqual(
-            autorisatie.zaaktype, f"http://testserver.com{reverse(zaaktype)}"
-        )
+        self.assertEqual(autorisatie.zaaktype, zaaktype)

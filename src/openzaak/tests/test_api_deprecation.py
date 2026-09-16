@@ -347,9 +347,7 @@ class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
         besluit = Besluit.objects.get()
 
         with self.subTest("audittrail model"):
-            self.assertEqual(
-                audittrail.bron, AUDIT_BRC.component_name
-            )  # TODO see BRC_AUDIT comment
+            self.assertEqual(audittrail.bron, AUDIT_BRC.component_name)
             self.assertEqual(audittrail.actie, "create")
             self.assertEqual(audittrail.resultaat, 201)
             self.assertEqual(

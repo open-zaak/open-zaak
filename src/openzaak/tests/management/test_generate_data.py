@@ -240,12 +240,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                 autorisatie.max_vertrouwelijkheidaanduiding,
                 VertrouwelijkheidsAanduiding.zeer_geheim,
             )
-            zaaktype_uri = reverse(
-                "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
-            )
-            self.assertEqual(
-                autorisatie.zaaktype, f"http://openzaak.local{zaaktype_uri}"
-            )
+            self.assertEqual(autorisatie.zaaktype, zaaktype)
 
             drc_autorisaties = applicatie.autorisaties.filter(
                 component=ComponentTypes.drc
@@ -268,13 +263,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                 autorisatie.max_vertrouwelijkheidaanduiding,
                 VertrouwelijkheidsAanduiding.zeer_geheim,
             )
-            iotype_uri = reverse(
-                "catalogi:informatieobjecttype-detail",
-                kwargs={"uuid": iotype.uuid, "version": 1},
-            )
-            self.assertEqual(
-                autorisatie.informatieobjecttype, f"http://openzaak.local{iotype_uri}"
-            )
+            self.assertEqual(autorisatie.informatieobjecttype, iotype)
 
             brc_autorisaties = applicatie.autorisaties.filter(
                 component=ComponentTypes.brc
@@ -292,13 +281,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                     str(SCOPE_BESLUITEN_ALLES_VERWIJDEREN),
                 ],
             )
-            besluittype_uri = reverse(
-                "catalogi:besluittype-detail",
-                kwargs={"uuid": besluittype.uuid, "version": 1},
-            )
-            self.assertEqual(
-                autorisatie.besluittype, f"http://openzaak.local{besluittype_uri}"
-            )
+            self.assertEqual(autorisatie.besluittype, besluittype)
 
             ztc_autorisaties = applicatie.autorisaties.filter(
                 component=ComponentTypes.ztc
@@ -352,12 +335,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                 autorisatie.max_vertrouwelijkheidaanduiding,
                 VertrouwelijkheidsAanduiding.zeer_geheim,
             )
-            zaaktype_uri = reverse(
-                "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
-            )
-            self.assertEqual(
-                autorisatie.zaaktype, f"http://openzaak.local{zaaktype_uri}"
-            )
+            self.assertEqual(autorisatie.zaaktype, zaaktype)
 
             drc_autorisaties = applicatie.autorisaties.filter(
                 component=ComponentTypes.drc
@@ -380,13 +358,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                 autorisatie.max_vertrouwelijkheidaanduiding,
                 VertrouwelijkheidsAanduiding.zeer_geheim,
             )
-            iotype_uri = reverse(
-                "catalogi:informatieobjecttype-detail",
-                kwargs={"uuid": iotype.uuid, "version": 1},
-            )
-            self.assertEqual(
-                autorisatie.informatieobjecttype, f"http://openzaak.local{iotype_uri}"
-            )
+            self.assertEqual(autorisatie.informatieobjecttype, iotype)
 
             brc_autorisaties = applicatie.autorisaties.filter(
                 component=ComponentTypes.brc
@@ -404,13 +376,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                     str(SCOPE_BESLUITEN_ALLES_VERWIJDEREN),
                 ],
             )
-            besluittype_uri = reverse(
-                "catalogi:besluittype-detail",
-                kwargs={"uuid": besluittype.uuid, "version": 1},
-            )
-            self.assertEqual(
-                autorisatie.besluittype, f"http://openzaak.local{besluittype_uri}"
-            )
+            self.assertEqual(autorisatie.besluittype, besluittype)
 
             ztc_autorisaties = applicatie.autorisaties.filter(
                 component=ComponentTypes.ztc
