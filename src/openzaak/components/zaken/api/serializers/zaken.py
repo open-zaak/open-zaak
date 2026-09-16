@@ -1346,6 +1346,14 @@ class ContactPersoonRolSerializer(GegevensGroepSerializer):
 
 
 class RolSerializer(PolymorphicSerializer):
+    inclusion_serializers = {
+        "zaak": "openzaak.components.zaken.api.serializers.ZaakSerializer",
+        "zaak.zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "roltype": "openzaak.components.catalogi.api.serializers.RolTypeSerializer",
+        "statussen": "openzaak.components.zaken.api.serializers.StatusSerializer",
+        "statussen.statustype": "openzaak.components.catalogi.api.serializers.StatusTypeSerializer",
+    }
+
     discriminator = Discriminator(
         discriminator_field="betrokkene_type",
         mapping={
