@@ -1322,20 +1322,16 @@ components:
         besluittype:
           type: string
           format: uri
-          nullable: true
           description: het besluittype waarop de autorisatie van toepassing is.
           maxLength: 1000
-          minLength: 1
     BesluitTypeAutorisatieRequest:
       type: object
       properties:
         besluittype:
           type: string
           format: uri
-          nullable: true
           description: het besluittype waarop de autorisatie van toepassing is.
           maxLength: 1000
-          minLength: 1
     BlankEnum:
       enum:
       - ''
@@ -1403,11 +1399,9 @@ components:
         informatieobjecttype:
           type: string
           format: uri
-          nullable: true
           description: het informatieobjecttype waarop de autorisatie van toepassing
             is.
           maxLength: 1000
-          minLength: 1
         maxVertrouwelijkheidaanduiding:
           description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
           oneOf:
@@ -1419,11 +1413,9 @@ components:
         informatieobjecttype:
           type: string
           format: uri
-          nullable: true
           description: het informatieobjecttype waarop de autorisatie van toepassing
             is.
           maxLength: 1000
-          minLength: 1
         maxVertrouwelijkheidaanduiding:
           description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
           oneOf:
@@ -1528,10 +1520,8 @@ components:
         zaaktype:
           type: string
           format: uri
-          nullable: true
           description: het zaaktype waarop de autorisatie van toepassing is.
           maxLength: 1000
-          minLength: 1
         maxVertrouwelijkheidaanduiding:
           description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
           oneOf:
@@ -1543,10 +1533,8 @@ components:
         zaaktype:
           type: string
           format: uri
-          nullable: true
           description: het zaaktype waarop de autorisatie van toepassing is.
           maxLength: 1000
-          minLength: 1
         maxVertrouwelijkheidaanduiding:
           description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
           oneOf:

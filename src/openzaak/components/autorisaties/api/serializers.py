@@ -11,15 +11,33 @@ from vng_api_common.authorizations.validators import (
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.models import JWTSecret
 from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
-from vng_api_common.serializers import add_choice_values_help_text
+from vng_api_common.serializers import (
+    LengthHyperlinkedRelatedField,
+    add_choice_values_help_text,
+)
 
 from openzaak.components.autorisaties.api.validators import UniqueClientIDValidator
 from openzaak.components.autorisaties.models import Applicatie, Autorisatie
+from openzaak.components.catalogi.models import (
+    BesluitType,
+    InformatieObjectType,
+    ZaakType,
+)
 
 logger = structlog.stdlib.get_logger(__name__)
 
 
 class ZaakTypeAutorisatieSerializer(serializers.HyperlinkedModelSerializer):
+    zaaktype = LengthHyperlinkedRelatedField(
+        help_text="het zaaktype waarop de autorisatie van toepassing is.",
+        lookup_field="uuid",
+        queryset=ZaakType.objects.all(),
+        view_name="catalogi:zaaktype-detail",
+        required=False,
+        min_length=0,
+        allow_null=False,
+    )
+
     class Meta:
         model = Autorisatie
         fields = ("zaaktype", "max_vertrouwelijkheidaanduiding")
@@ -32,6 +50,16 @@ class ZaakTypeAutorisatieSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class InformatieObjectTypeAutorisatieSerializer(serializers.HyperlinkedModelSerializer):
+    informatieobjecttype = LengthHyperlinkedRelatedField(
+        help_text="het informatieobjecttype waarop de autorisatie van toepassing is.",
+        lookup_field="uuid",
+        queryset=InformatieObjectType.objects.all(),
+        view_name="catalogi:informatieobjecttype-detail",
+        required=False,
+        min_length=0,
+        allow_null=False,
+    )
+
     class Meta:
         model = Autorisatie
         fields = ("informatieobjecttype", "max_vertrouwelijkheidaanduiding")
@@ -44,6 +72,16 @@ class InformatieObjectTypeAutorisatieSerializer(serializers.HyperlinkedModelSeri
 
 
 class BesluitTypeAutorisatieSerializer(serializers.HyperlinkedModelSerializer):
+    besluittype = LengthHyperlinkedRelatedField(
+        help_text="het besluittype waarop de autorisatie van toepassing is.",
+        lookup_field="uuid",
+        queryset=BesluitType.objects.all(),
+        view_name="catalogi:besluittype-detail",
+        required=False,
+        min_length=0,
+        allow_null=False,
+    )
+
     class Meta:
         model = Autorisatie
         fields = ("besluittype",)
