@@ -247,7 +247,9 @@ class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
         super().setUp()
 
         besluittype = BesluitTypeFactory.create(concept=False)
-        self.besluittype_url = f"http://testserver{reverse(besluittype)}"
+        self.besluittype_url = (
+            f"http://testserver{reverse(besluittype, namespace='catalogi')}"
+        )
         self.data = {
             "besluittype": self.besluittype_url,
             "verantwoordelijke_organisatie": "517439943",
@@ -264,7 +266,7 @@ class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
 
         audittrail = AuditTrail.objects.get()
         besluit = Besluit.objects.get()
-        besluit_url = reverse(besluit)
+        besluit_url = reverse(besluit, namespace="besluiten")
 
         with self.subTest("audittrail model"):
             self.assertEqual(audittrail.bron, AUDIT_BRC.component_name)

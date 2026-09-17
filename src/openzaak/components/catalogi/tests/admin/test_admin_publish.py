@@ -119,7 +119,7 @@ class ZaaktypeAdminTests(
 
         # Verify notification is sent
         zaaktype_url = reverse(
-            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
+            "zaken:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
         )
         catalogus_url = reverse(
             "catalogi:catalogus-detail",

@@ -802,7 +802,9 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
             zaaktype=zaaktype, informatieobjecttype=iotype
         )
         ZaakTypeInformatieObjectTypeFactory(informatieobjecttype=iotype)
-        zaaktype_url = f"http://openzaak.nl{reverse(zaaktype)}"
+        zaaktype_url = (
+            f"http://openzaak.nl{reverse(zaaktype, namespace=self.NAMESPACE)}"
+        )
 
         response = self.client.get(
             self.url, {"zaaktype": zaaktype_url}, headers={"host": "openzaak.nl"}

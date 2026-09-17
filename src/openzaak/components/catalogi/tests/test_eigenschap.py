@@ -7,7 +7,6 @@ from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import (
     TypeCheckMixin,
     get_validation_errors,
-    reverse_lazy,
 )
 
 from openzaak.utils.urls import reverse
@@ -23,7 +22,6 @@ from .factories import (
     StatusTypeFactory,
     ZaakTypeFactory,
 )
-from .utils import get_operation_url
 
 
 class EigenschapAPITests(TypeCheckMixin, APITestCase):
@@ -31,6 +29,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
     heeft_alle_autorisaties = False
     scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
+    NAMESPACE = "catalogi"
 
     def test_list_eigenschappen(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
@@ -68,11 +67,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
             ),
         )
 
-        url = get_operation_url(
-            "eigenschap_list",
-            catalogus_uuid=zaaktype.catalogus.uuid,
-            zaaktype_uuid=zaaktype.uuid,
-        )
+        url = reverse(Eigenschap, namespace=self.NAMESPACE)
 
         response = self.client.get(url)
 
@@ -96,15 +91,10 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
             eig for eig in response_data if eig["naam"] == "objecttype"
         )
 
-        zaaktype_url = get_operation_url(
-            "zaaktype_read", catalogus_uuid=zaaktype.catalogus.uuid, uuid=zaaktype.uuid
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
         )
-        detail_url = get_operation_url(
-            "eigenschap_read",
-            catalogus_uuid=zaaktype.catalogus.uuid,
-            zaaktype_uuid=zaaktype.uuid,
-            uuid=eigenschap1.uuid,
-        )
+        detail_url = reverse(eigenschap1, namespace=self.NAMESPACE)
         self.assertEqual(
             eigenschap_objecttype,
             {
@@ -133,10 +123,8 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
     def test_get_list_default_definitief(self):
         EigenschapFactory.create(zaaktype__concept=True)
         eigenschap2 = EigenschapFactory.create(zaaktype__concept=False)
-        eigenschap_list_url = reverse("catalogi:eigenschap-list")
-        eigenschap2_url = reverse(
-            "catalogi:eigenschap-detail", kwargs={"uuid": eigenschap2.uuid}
-        )
+        eigenschap_list_url = reverse(Eigenschap, namespace=self.NAMESPACE)
+        eigenschap2_url = reverse(eigenschap2, namespace=self.NAMESPACE)
 
         response = self.client.get(eigenschap_list_url)
         self.assertEqual(response.status_code, 200)
@@ -161,9 +149,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
             specificatie_van_eigenschap=specificatie,
             statustype=statustype,
         )
-        eigenschap_detail_url = reverse(
-            "catalogi:eigenschap-detail", kwargs={"uuid": eigenschap.uuid}
-        )
+        eigenschap_detail_url = reverse(eigenschap, namespace=self.NAMESPACE)
 
         response = self.client.get(eigenschap_detail_url)
 
@@ -184,7 +170,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
             "zaaktype": "http://testserver{}".format(zaaktype_url),
             "zaaktypeIdentificatie": zaaktype.identificatie,
             "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
-            "statustype": f"http://testserver{reverse(statustype)}",
+            "statustype": f"http://testserver{reverse(statustype, namespace=self.NAMESPACE)}",
             "beginGeldigheid": None,
             "eindeGeldigheid": None,
             "beginObject": None,
@@ -197,7 +183,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         zaaktype_url = reverse(
             "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
         )
-        eigenschap_list_url = reverse("catalogi:eigenschap-list")
+        eigenschap_list_url = reverse(Eigenschap, namespace=self.NAMESPACE)
         data = {
             "naam": "Beoogd product",
             "definitie": "test",
@@ -237,7 +223,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         zaaktype_url = reverse(
             "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
         )
-        eigenschap_list_url = reverse("catalogi:eigenschap-list")
+        eigenschap_list_url = reverse(Eigenschap, namespace=self.NAMESPACE)
         data = {
             "naam": "aangepast",
             "definitie": "test",
@@ -258,7 +244,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         zaaktype_url = reverse(
             "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
         )
-        eigenschap_list_url = reverse("catalogi:eigenschap-list")
+        eigenschap_list_url = reverse(Eigenschap, namespace=self.NAMESPACE)
         data = {
             "naam": "eigenschap1",
             "definitie": "test",
@@ -277,7 +263,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         zaaktype_url = reverse(
             "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
         )
-        eigenschap_list_url = reverse("catalogi:eigenschap-list")
+        eigenschap_list_url = reverse(Eigenschap, namespace=self.NAMESPACE)
         data = {
             "naam": "Beoogd product",
             "definitie": "test",
@@ -311,12 +297,12 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
     def test_create_eigenschap_with_statustype(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
         statustype = StatusTypeFactory.create(zaaktype=zaaktype)
-        eigenschap_list_url = reverse("catalogi:eigenschap-list")
+        eigenschap_list_url = reverse(Eigenschap, namespace=self.NAMESPACE)
         data = {
             "naam": "Beoogd product",
             "definitie": "test",
             "toelichting": "",
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "specificatie": {
                 "groep": "test",
                 "formaat": "tekst",
@@ -324,7 +310,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
                 "kardinaliteit": "1",
                 "waardenverzameling": [],
             },
-            "statustype": f"http://testserver{reverse(statustype)}",
+            "statustype": f"http://testserver{reverse(statustype, namespace=self.NAMESPACE)}",
         }
 
         response = self.client.post(eigenschap_list_url, data)
@@ -340,12 +326,12 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
     def test_create_eigenschap_with_statustype_another_zaaktype_fail(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
         statustype = StatusTypeFactory.create()
-        eigenschap_list_url = reverse("catalogi:eigenschap-list")
+        eigenschap_list_url = reverse(Eigenschap, namespace=self.NAMESPACE)
         data = {
             "naam": "Beoogd product",
             "definitie": "test",
             "toelichting": "",
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "specificatie": {
                 "groep": "test",
                 "formaat": "tekst",
@@ -353,7 +339,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
                 "kardinaliteit": "1",
                 "waardenverzameling": [],
             },
-            "statustype": f"http://testserver{reverse(statustype)}",
+            "statustype": f"http://testserver{reverse(statustype, namespace=self.NAMESPACE)}",
         }
 
         response = self.client.post(eigenschap_list_url, data)
@@ -368,7 +354,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         zaaktype_url = reverse(
             "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
         )
-        eigenschap_list_url = reverse("catalogi:eigenschap-list")
+        eigenschap_list_url = reverse(Eigenschap, namespace=self.NAMESPACE)
         data = {
             "naam": "Beoogd product",
             "definitie": "test",
@@ -404,7 +390,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         zaaktype_url = reverse(
             "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
         )
-        eigenschap_list_url = reverse("catalogi:eigenschap-list")
+        eigenschap_list_url = reverse(Eigenschap, namespace=self.NAMESPACE)
         data = {
             "naam": "Beoogd product",
             "definitie": "test",
@@ -428,7 +414,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         zaaktype_url = reverse(
             "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
         )
-        eigenschap_list_url = reverse("catalogi:eigenschap-list")
+        eigenschap_list_url = reverse(Eigenschap, namespace=self.NAMESPACE)
         data = {
             "naam": "Beoogd product",
             "definitie": "test",
@@ -463,7 +449,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         zaaktype_url = reverse(
             "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
         )
-        eigenschap_list_url = reverse("catalogi:eigenschap-list")
+        eigenschap_list_url = reverse(Eigenschap, namespace=self.NAMESPACE)
         data = {
             "naam": "Beoogd product",
             "definitie": "test",
@@ -490,7 +476,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         zaaktype_url = reverse(
             "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
         )
-        eigenschap_list_url = reverse("catalogi:eigenschap-list")
+        eigenschap_list_url = reverse(Eigenschap, namespace=self.NAMESPACE)
         data = {
             "naam": "Beoogd product",
             "definitie": "test",
@@ -516,12 +502,12 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
     def test_create_eigenschap_with_end_date_before_begin_date(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
-        eigenschap_list_url = reverse("catalogi:eigenschap-list")
+        eigenschap_list_url = reverse(Eigenschap, namespace=self.NAMESPACE)
         data = {
             "naam": "Beoogd product",
             "definitie": "test",
             "toelichting": "",
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "specificatie": {
                 "groep": "test",
                 "formaat": "tekst",
@@ -542,9 +528,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
     def test_delete_eigenschap(self):
         eigenschap = EigenschapFactory.create()
-        eigenschap_url = reverse(
-            "catalogi:eigenschap-detail", kwargs={"uuid": eigenschap.uuid}
-        )
+        eigenschap_url = reverse(eigenschap, namespace=self.NAMESPACE)
 
         response = self.client.delete(eigenschap_url)
 
@@ -553,9 +537,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
     def test_delete_eigenschap_fail_not_concept_zaaktype(self):
         eigenschap = EigenschapFactory.create(zaaktype__concept=False)
-        informatieobjecttypee_url = reverse(
-            "catalogi:eigenschap-detail", kwargs={"uuid": eigenschap.uuid}
-        )
+        informatieobjecttypee_url = reverse(eigenschap, namespace=self.NAMESPACE)
 
         response = self.client.delete(informatieobjecttypee_url)
 
@@ -566,10 +548,10 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
     def test_update_eigenschap(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         specificatie = EigenschapSpecificatieFactory.create()
         eigenschap = EigenschapFactory.create(specificatie_van_eigenschap=specificatie)
-        eigenschap_url = reverse(eigenschap)
+        eigenschap_url = reverse(eigenschap, namespace=self.NAMESPACE)
 
         data = {
             "naam": "aangepast",
@@ -604,9 +586,9 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
     def test_update_eigenschap_nested_spec(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         eigenschap = EigenschapFactory.create()
-        eigenschap_url = reverse(eigenschap)
+        eigenschap_url = reverse(eigenschap, namespace=self.NAMESPACE)
 
         data = {
             "naam": "aangepast",
@@ -636,9 +618,9 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
     def test_update_eigenschap_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype)
-        eigenschap_url = reverse(eigenschap)
+        eigenschap_url = reverse(eigenschap, namespace=self.NAMESPACE)
 
         data = {
             "naam": "aangepast",
@@ -663,9 +645,9 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
     def test_update_eigenschap_add_relation_to_non_concept_zaaktype_fails(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         eigenschap = EigenschapFactory.create()
-        eigenschap_url = reverse(eigenschap)
+        eigenschap_url = reverse(eigenschap, namespace=self.NAMESPACE)
 
         data = {
             "naam": "aangepast",
@@ -690,7 +672,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
     def test_partial_update_eigenschap(self):
         eigenschap = EigenschapFactory.create()
-        eigenschap_url = reverse(eigenschap)
+        eigenschap_url = reverse(eigenschap, namespace=self.NAMESPACE)
 
         response = self.client.patch(eigenschap_url, {"naam": "aangepast"})
 
@@ -704,7 +686,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         eigenschap = EigenschapFactory.create(
             specificatie_van_eigenschap__groep="original"
         )
-        eigenschap_url = reverse(eigenschap)
+        eigenschap_url = reverse(eigenschap, namespace=self.NAMESPACE)
 
         data = {
             "naam": "aangepast",
@@ -730,7 +712,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
     def test_partial_update_eigenschap_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype)
-        eigenschap_url = reverse(eigenschap)
+        eigenschap_url = reverse(eigenschap, namespace=self.NAMESPACE)
 
         response = self.client.patch(eigenschap_url, {"naam": "aangepast"})
 
@@ -741,9 +723,9 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
     def test_partial_update_eigenschap_add_relation_to_non_concept_zaaktype_fails(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         eigenschap = EigenschapFactory.create()
-        eigenschap_url = reverse(eigenschap)
+        eigenschap_url = reverse(eigenschap, namespace=self.NAMESPACE)
 
         response = self.client.patch(eigenschap_url, {"zaaktype": zaaktype_url})
 
@@ -754,11 +736,14 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
     def test_patch_eigenschap_with_statustype(self):
         eigenschap = EigenschapFactory.create()
-        eigenschap_url = reverse(eigenschap)
+        eigenschap_url = reverse(eigenschap, namespace=self.NAMESPACE)
         statustype = StatusTypeFactory.create(zaaktype=eigenschap.zaaktype)
 
         response = self.client.patch(
-            eigenschap_url, {"statustype": f"http://testserver{reverse(statustype)}"}
+            eigenschap_url,
+            {
+                "statustype": f"http://testserver{reverse(statustype, namespace=self.NAMESPACE)}"
+            },
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -768,11 +753,14 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
     def test_patch_eigenschap_with_statustype_another_zaaktype_fail(self):
         eigenschap = EigenschapFactory.create()
-        eigenschap_url = reverse(eigenschap)
+        eigenschap_url = reverse(eigenschap, namespace=self.NAMESPACE)
         statustype = StatusTypeFactory.create()
 
         response = self.client.patch(
-            eigenschap_url, {"statustype": f"http://testserver{reverse(statustype)}"}
+            eigenschap_url,
+            {
+                "statustype": f"http://testserver{reverse(statustype, namespace=self.NAMESPACE)}"
+            },
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -783,7 +771,11 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
 class EigenschapFilterAPITests(APITestCase):
     maxDiff = None
-    url = reverse_lazy("catalogi:eigenschap-list")
+    NAMESPACE = "catalogi"
+
+    @property
+    def url(self):
+        return reverse(Eigenschap, namespace=self.NAMESPACE)
 
     def test_filter_eigenschap_status_alles(self):
         EigenschapFactory.create(zaaktype__concept=True)
@@ -854,7 +846,10 @@ class EigenschapFilterAPITests(APITestCase):
 
         data = response.json()["results"]
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://testserver{reverse(eigenschap)}")
+        self.assertEqual(
+            data[0]["url"],
+            f"http://testserver{reverse(eigenschap, namespace=self.NAMESPACE)}",
+        )
 
     def test_filter_geldigheid(self):
         eigenschap = EigenschapFactory.create(
@@ -872,15 +867,19 @@ class EigenschapFilterAPITests(APITestCase):
 
         data = response.json()["results"]
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://testserver{reverse(eigenschap)}")
+        self.assertEqual(
+            data[0]["url"],
+            f"http://testserver{reverse(eigenschap, namespace=self.NAMESPACE)}",
+        )
 
 
 class EigenschapPaginationTestCase(APITestCase):
     maxDiff = None
+    NAMESPACE = "catalogi"
 
     def test_pagination_default(self):
         EigenschapFactory.create_batch(2, zaaktype__concept=False)
-        eigenschap_list_url = reverse("catalogi:eigenschap-list")
+        eigenschap_list_url = reverse(Eigenschap, namespace=self.NAMESPACE)
 
         response = self.client.get(eigenschap_list_url)
 
@@ -893,7 +892,7 @@ class EigenschapPaginationTestCase(APITestCase):
 
     def test_pagination_page_param(self):
         EigenschapFactory.create_batch(2, zaaktype__concept=False)
-        eigenschap_list_url = reverse("catalogi:eigenschap-list")
+        eigenschap_list_url = reverse(Eigenschap, namespace=self.NAMESPACE)
 
         response = self.client.get(eigenschap_list_url, {"page": 1})
 
@@ -906,7 +905,7 @@ class EigenschapPaginationTestCase(APITestCase):
 
     def test_pagination_pagesize_param(self):
         EigenschapFactory.create_batch(10, zaaktype__concept=False)
-        eigenschap_list_url = reverse("catalogi:eigenschap-list")
+        eigenschap_list_url = reverse(Eigenschap, namespace=self.NAMESPACE)
 
         response = self.client.get(eigenschap_list_url, {"pageSize": 5})
 

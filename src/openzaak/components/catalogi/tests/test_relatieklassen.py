@@ -6,7 +6,7 @@ from rest_framework import status
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors
 
-from openzaak.utils.urls import reverse, reverse_lazy
+from openzaak.utils.urls import reverse
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..constants import RichtingChoices
@@ -24,8 +24,12 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
     heeft_alle_autorisaties = False
     scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
+    NAMESPACE = "catalogi"
+    IOT_NAMESPACE = "catalogi"
 
-    list_url = reverse_lazy(ZaakTypeInformatieObjectType)
+    @property
+    def url(self):
+        return reverse(ZaakTypeInformatieObjectType, namespace=self.NAMESPACE)
 
     def test_get_list_default_definitief(self):
         ZaakTypeInformatieObjectTypeFactory.create(
@@ -40,9 +44,9 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
         ziot4 = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=False, informatieobjecttype__concept=False
         )
-        ziot4_url = reverse(ziot4)
+        ziot4_url = reverse(ziot4, namespace=self.NAMESPACE)
 
-        response = self.client.get(self.list_url)
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
         data = response.json()["results"]
@@ -52,9 +56,11 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
 
     def test_get_detail(self):
         ztiot = ZaakTypeInformatieObjectTypeFactory.create()
-        url = reverse(ztiot)
-        zaaktype_url = reverse(ztiot.zaaktype)
-        informatieobjecttype_url = reverse(ztiot.informatieobjecttype)
+        url = reverse(ztiot, namespace=self.NAMESPACE)
+        zaaktype_url = reverse(ztiot.zaaktype, namespace=self.NAMESPACE)
+        informatieobjecttype_url = reverse(
+            ztiot.informatieobjecttype, namespace=self.IOT_NAMESPACE
+        )
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -73,7 +79,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
 
     def test_create_ziot(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=zaaktype.catalogus
         )
@@ -85,7 +91,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
             "richting": RichtingChoices.inkomend,
         }
 
-        response = self.client.post(self.list_url, data)
+        response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -96,7 +102,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
 
     def test_create_ziot_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=zaaktype.catalogus
         )
@@ -108,13 +114,13 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
             "richting": RichtingChoices.inkomend,
         }
 
-        response = self.client.post(self.list_url, data)
+        response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_ziot_not_concept_informatieobjecttype(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=zaaktype.catalogus
         )
@@ -126,13 +132,13 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
             "richting": RichtingChoices.inkomend,
         }
 
-        response = self.client.post(self.list_url, data)
+        response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_ziot_fail_not_concept_zaaktype_and_informatieobjecttype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=zaaktype.catalogus
         )
@@ -144,7 +150,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
             "richting": RichtingChoices.inkomend,
         }
 
-        response = self.client.post(self.list_url, data)
+        response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -157,13 +163,13 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
             catalogus=ziot.zaaktype.catalogus
         )
         data = {
-            "zaaktype": f"http://testserver.com{reverse(ziot.zaaktype)}",
+            "zaaktype": f"http://testserver.com{reverse(ziot.zaaktype, namespace=self.NAMESPACE)}",
             "informatieobjecttype": f"http://testserver.com{reverse(informatieobjecttype, namespace='catalogi')}",
             "volgnummer": ziot.volgnummer,
             "richting": RichtingChoices.inkomend,
         }
 
-        response = self.client.post(self.list_url, data)
+        response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -214,7 +220,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
 
     def test_update_ziot(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=zaaktype.catalogus
         )
@@ -259,7 +265,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
 
     def test_update_ziot_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=zaaktype.catalogus
         )
@@ -286,7 +292,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
 
     def test_update_ziot_not_concept_informatieobjecttype(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=zaaktype.catalogus, concept=False
         )
@@ -313,7 +319,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
 
     def test_update_ziot_not_concept_zaaktype_and_informatieobjecttype_fails(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=zaaktype.catalogus, concept=False
         )
@@ -395,20 +401,25 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
 
 class ZaakTypeInformatieObjectTypeFilterAPITests(APITestCase):
     maxDiff = None
-    list_url = reverse_lazy(ZaakTypeInformatieObjectType)
+    NAMESPACE = "catalogi"
+    IOT_NAMESPACE = "catalogi"
+
+    @property
+    def url(self):
+        return reverse(ZaakTypeInformatieObjectType, namespace=self.NAMESPACE)
 
     @override_settings(ALLOWED_HOSTS=["openzaak.nl"])
     def test_filter_zaaktype(self):
         ztiot1, ztiot2 = ZaakTypeInformatieObjectTypeFactory.create_batch(
             2, zaaktype__concept=False, informatieobjecttype__concept=False
         )
-        url = f"http://openzaak.nl{reverse(ztiot1)}"
-        zaaktype1_uri = reverse(ztiot1.zaaktype)
-        zaaktype2_uri = reverse(ztiot2.zaaktype)
+        url = f"http://openzaak.nl{reverse(ztiot1, namespace=self.NAMESPACE)}"
+        zaaktype1_uri = reverse(ztiot1.zaaktype, namespace=self.NAMESPACE)
+        zaaktype2_uri = reverse(ztiot2.zaaktype, namespace=self.NAMESPACE)
         zaaktype1_url = f"http://openzaak.nl{zaaktype1_uri}"
 
         response = self.client.get(
-            self.list_url, {"zaaktype": zaaktype1_url}, headers={"host": "openzaak.nl"}
+            self.url, {"zaaktype": zaaktype1_url}, headers={"host": "openzaak.nl"}
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -424,13 +435,17 @@ class ZaakTypeInformatieObjectTypeFilterAPITests(APITestCase):
         ztiot1, ztiot2 = ZaakTypeInformatieObjectTypeFactory.create_batch(
             2, zaaktype__concept=False, informatieobjecttype__concept=False
         )
-        url = f"http://openzaak.nl{reverse(ztiot1)}"
-        informatieobjecttype1_uri = reverse(ztiot1.informatieobjecttype)
-        informatieobjecttype2_uri = reverse(ztiot2.informatieobjecttype)
+        url = f"http://openzaak.nl{reverse(ztiot1, namespace=self.NAMESPACE)}"
+        informatieobjecttype1_uri = reverse(
+            ztiot1.informatieobjecttype, namespace=self.IOT_NAMESPACE
+        )
+        informatieobjecttype2_uri = reverse(
+            ztiot2.informatieobjecttype, namespace=self.IOT_NAMESPACE
+        )
         informatieobjecttype1_url = f"http://openzaak.nl{informatieobjecttype1_uri}"
 
         response = self.client.get(
-            self.list_url,
+            self.url,
             {"informatieobjecttype": informatieobjecttype1_url},
             headers={"host": "openzaak.nl"},
         )
@@ -463,7 +478,7 @@ class ZaakTypeInformatieObjectTypeFilterAPITests(APITestCase):
             zaaktype__concept=False, informatieobjecttype__concept=False
         )
 
-        response = self.client.get(self.list_url, {"status": "alles"})
+        response = self.client.get(self.url, {"status": "alles"})
         self.assertEqual(response.status_code, 200)
 
         data = response.json()["results"]
@@ -483,11 +498,11 @@ class ZaakTypeInformatieObjectTypeFilterAPITests(APITestCase):
         ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=False, informatieobjecttype__concept=False
         )
-        ziot1_url = reverse(ziot1)
-        ziot2_url = reverse(ziot2)
-        ziot3_url = reverse(ziot3)
+        ziot1_url = reverse(ziot1, namespace=self.NAMESPACE)
+        ziot2_url = reverse(ziot2, namespace=self.NAMESPACE)
+        ziot3_url = reverse(ziot3, namespace=self.NAMESPACE)
 
-        response = self.client.get(self.list_url, {"status": "concept"})
+        response = self.client.get(self.url, {"status": "concept"})
         self.assertEqual(response.status_code, 200)
 
         data = response.json()["results"]
@@ -517,9 +532,9 @@ class ZaakTypeInformatieObjectTypeFilterAPITests(APITestCase):
         ziot4 = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=False, informatieobjecttype__concept=False
         )
-        ziot4_url = reverse(ziot4)
+        ziot4_url = reverse(ziot4, namespace=self.NAMESPACE)
 
-        response = self.client.get(self.list_url, {"status": "definitief"})
+        response = self.client.get(self.url, {"status": "definitief"})
         self.assertEqual(response.status_code, 200)
 
         data = response.json()["results"]
@@ -529,7 +544,7 @@ class ZaakTypeInformatieObjectTypeFilterAPITests(APITestCase):
 
     def test_validate_unknown_query_params(self):
         ZaakTypeInformatieObjectTypeFactory.create_batch(2)
-        url = reverse(ZaakTypeInformatieObjectType)
+        url = reverse(ZaakTypeInformatieObjectType, namespace=self.NAMESPACE)
 
         response = self.client.get(url, {"someparam": "somevalue"})
 
@@ -541,7 +556,11 @@ class ZaakTypeInformatieObjectTypeFilterAPITests(APITestCase):
 
 class ZaakTypeInformatieObjectTypePaginationTestCase(APITestCase):
     maxDiff = None
-    list_url = reverse_lazy(ZaakTypeInformatieObjectType)
+    NAMESPACE = "catalogi"
+
+    @property
+    def list_url(self):
+        return reverse(ZaakTypeInformatieObjectType, namespace=self.NAMESPACE)
 
     def test_pagination_default(self):
         ZaakTypeInformatieObjectTypeFactory.create_batch(
@@ -589,14 +608,20 @@ class ZaakTypeInformatieObjectTypePaginationTestCase(APITestCase):
 
 class ZaakTypeInformatieObjectTypeValidationTests(APITestCase):
     maxDiff = None
+    NAMESPACE = "catalogi"
+    IOT_NAMESPACE = "catalogi"
 
-    list_url = reverse_lazy(ZaakTypeInformatieObjectType)
+    @property
+    def url(self):
+        return reverse(ZaakTypeInformatieObjectType, namespace=self.NAMESPACE)
 
     def test_catalogus_mismatch(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         informatieobjecttype = InformatieObjectTypeFactory.create()
-        informatieobjecttype_url = reverse(informatieobjecttype, namespace="catalogi")
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.IOT_NAMESPACE
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
@@ -604,7 +629,7 @@ class ZaakTypeInformatieObjectTypeValidationTests(APITestCase):
             "richting": RichtingChoices.inkomend,
         }
 
-        response = self.client.post(self.list_url, data)
+        response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

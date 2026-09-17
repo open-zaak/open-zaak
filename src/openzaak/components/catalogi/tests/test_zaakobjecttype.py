@@ -6,7 +6,7 @@ from django.test import override_settings
 
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
-from vng_api_common.tests import get_validation_errors, reverse_lazy
+from vng_api_common.tests import get_validation_errors
 
 from openzaak.utils.urls import reverse
 
@@ -21,14 +21,13 @@ class ZaakObjectTypeAPITests(APITestCase):
     heeft_alle_autorisaties = False
     scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
+    NAMESPACE = "catalogi"
 
     def test_list_zaakobjecttypen_default_definitief(self):
         ZaakObjectTypeFactory.create(zaaktype__concept=True)
         zaakobjecttype2 = ZaakObjectTypeFactory.create(zaaktype__concept=False)
-        zaakobjecttype_list_url = reverse("catalogi:zaakobjecttype-list")
-        zaakobjecttype2_url = reverse(
-            "catalogi:zaakobjecttype-detail", kwargs={"uuid": zaakobjecttype2.uuid}
-        )
+        zaakobjecttype_list_url = reverse(ZaakObjectType, namespace=self.NAMESPACE)
+        zaakobjecttype2_url = reverse(zaakobjecttype2, namespace=self.NAMESPACE)
 
         response = self.client.get(zaakobjecttype_list_url)
         self.assertEqual(response.status_code, 200)
@@ -49,7 +48,7 @@ class ZaakObjectTypeAPITests(APITestCase):
             datum_begin_geldigheid=date(2023, 1, 1),
             datum_einde_geldigheid=date(2023, 12, 1),
         )
-        zaakobjecttype_detail_url = reverse(zaakobjecttype)
+        zaakobjecttype_detail_url = reverse(zaakobjecttype, namespace=self.NAMESPACE)
 
         response = self.client.get(zaakobjecttype_detail_url)
 
@@ -57,14 +56,14 @@ class ZaakObjectTypeAPITests(APITestCase):
 
         expected = {
             "url": f"http://testserver{zaakobjecttype_detail_url}",
-            "zaaktype": f"http://testserver{reverse(zaakobjecttype.zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaakobjecttype.zaaktype, namespace=self.NAMESPACE)}",
             "zaaktypeIdentificatie": zaakobjecttype.zaaktype.identificatie,
             "anderObjecttype": False,
             "objecttype": "http://example.org/objecttypen/1",
             "relatieOmschrijving": "test description",
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
             "resultaattypen": [],
-            "statustype": f"http://testserver{reverse(statustype)}",
+            "statustype": f"http://testserver{reverse(statustype, namespace=self.NAMESPACE)}",
             "beginGeldigheid": "2023-01-01",
             "eindeGeldigheid": "2023-12-01",
             "beginObject": "2023-01-01",
@@ -74,9 +73,9 @@ class ZaakObjectTypeAPITests(APITestCase):
 
     def test_create_zaakobjecttype(self):
         zaaktype = ZaakTypeFactory.create()
-        zaakobjecttype_list_url = reverse("catalogi:zaakobjecttype-list")
+        zaakobjecttype_list_url = reverse(ZaakObjectType, namespace=self.NAMESPACE)
         data = {
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "anderObjecttype": False,
             "objecttype": "http://example.org/objecttypen/1",
             "relatieOmschrijving": "test description",
@@ -99,9 +98,9 @@ class ZaakObjectTypeAPITests(APITestCase):
 
     def test_create_zaakobjecttype_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaakobjecttype_list_url = reverse("catalogi:zaakobjecttype-list")
+        zaakobjecttype_list_url = reverse(ZaakObjectType, namespace=self.NAMESPACE)
         data = {
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "anderObjecttype": False,
             "objecttype": "http://example.org/objecttypen/1",
             "relatieOmschrijving": "test description",
@@ -116,13 +115,13 @@ class ZaakObjectTypeAPITests(APITestCase):
     def test_create_zaakobjecttype_with_statustype(self):
         zaaktype = ZaakTypeFactory.create()
         statustype = StatusTypeFactory.create(zaaktype=zaaktype)
-        zaakobjecttype_list_url = reverse("catalogi:zaakobjecttype-list")
+        zaakobjecttype_list_url = reverse(ZaakObjectType, namespace=self.NAMESPACE)
         data = {
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "anderObjecttype": False,
             "objecttype": "http://example.org/objecttypen/1",
             "relatieOmschrijving": "test description",
-            "statustype": f"http://testserver{reverse(statustype)}",
+            "statustype": f"http://testserver{reverse(statustype, namespace=self.NAMESPACE)}",
         }
 
         response = self.client.post(zaakobjecttype_list_url, data)
@@ -135,13 +134,13 @@ class ZaakObjectTypeAPITests(APITestCase):
     def test_create_zaakobjecttype_with_statustype_another_zaaktype_fail(self):
         zaaktype = ZaakTypeFactory.create()
         statustype = StatusTypeFactory.create()
-        zaakobjecttype_list_url = reverse("catalogi:zaakobjecttype-list")
+        zaakobjecttype_list_url = reverse(ZaakObjectType, namespace=self.NAMESPACE)
         data = {
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "anderObjecttype": False,
             "objecttype": "http://example.org/objecttypen/1",
             "relatieOmschrijving": "test description",
-            "statustype": f"http://testserver{reverse(statustype)}",
+            "statustype": f"http://testserver{reverse(statustype, namespace=self.NAMESPACE)}",
         }
 
         response = self.client.post(zaakobjecttype_list_url, data)
@@ -152,9 +151,9 @@ class ZaakObjectTypeAPITests(APITestCase):
 
     def test_create_zaakobject_with_end_date_before_start_date(self):
         zaaktype = ZaakTypeFactory.create()
-        zaakobjecttype_list_url = reverse("catalogi:zaakobjecttype-list")
+        zaakobjecttype_list_url = reverse(ZaakObjectType, namespace=self.NAMESPACE)
         data = {
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "anderObjecttype": False,
             "objecttype": "http://example.org/objecttypen/1",
             "relatieOmschrijving": "test description",
@@ -170,7 +169,7 @@ class ZaakObjectTypeAPITests(APITestCase):
 
     def test_delete_zaakobjecttype(self):
         zaakobjecttype = ZaakObjectTypeFactory.create()
-        zaakobjecttype_url = reverse(zaakobjecttype)
+        zaakobjecttype_url = reverse(zaakobjecttype, namespace=self.NAMESPACE)
 
         response = self.client.delete(zaakobjecttype_url)
 
@@ -179,7 +178,7 @@ class ZaakObjectTypeAPITests(APITestCase):
 
     def test_delete_zaakobjecttype_fail_not_concept_zaaktype(self):
         zaakobjecttype = ZaakObjectTypeFactory.create(zaaktype__concept=False)
-        zaakobjecttype_url = reverse(zaakobjecttype)
+        zaakobjecttype_url = reverse(zaakobjecttype, namespace=self.NAMESPACE)
 
         response = self.client.delete(zaakobjecttype_url)
 
@@ -193,9 +192,9 @@ class ZaakObjectTypeAPITests(APITestCase):
         zaakobjecttype = ZaakObjectTypeFactory.create(
             zaaktype=zaaktype, relatie_omschrijving="old"
         )
-        zaakobjecttype_url = reverse(zaakobjecttype)
+        zaakobjecttype_url = reverse(zaakobjecttype, namespace=self.NAMESPACE)
         data = {
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "anderObjecttype": False,
             "objecttype": "http://example.org/objecttypen/1",
             "relatieOmschrijving": "new",
@@ -213,9 +212,9 @@ class ZaakObjectTypeAPITests(APITestCase):
         zaakobjecttype = ZaakObjectTypeFactory.create(
             zaaktype=zaaktype, relatie_omschrijving="old"
         )
-        zaakobjecttype_url = reverse(zaakobjecttype)
+        zaakobjecttype_url = reverse(zaakobjecttype, namespace=self.NAMESPACE)
         data = {
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "anderObjecttype": False,
             "objecttype": "http://example.org/objecttypen/1",
             "relatieOmschrijving": "new",
@@ -233,7 +232,7 @@ class ZaakObjectTypeAPITests(APITestCase):
         zaakobjecttype = ZaakObjectTypeFactory.create(
             zaaktype=zaaktype, relatie_omschrijving="old"
         )
-        zaakobjecttype_url = reverse(zaakobjecttype)
+        zaakobjecttype_url = reverse(zaakobjecttype, namespace=self.NAMESPACE)
 
         response = self.client.patch(zaakobjecttype_url, {"relatieOmschrijving": "new"})
 
@@ -247,7 +246,7 @@ class ZaakObjectTypeAPITests(APITestCase):
         zaakobjecttype = ZaakObjectTypeFactory.create(
             zaaktype=zaaktype, relatie_omschrijving="old"
         )
-        zaakobjecttype_url = reverse(zaakobjecttype)
+        zaakobjecttype_url = reverse(zaakobjecttype, namespace=self.NAMESPACE)
 
         response = self.client.patch(zaakobjecttype_url, {"relatieOmschrijving": "new"})
 
@@ -258,7 +257,11 @@ class ZaakObjectTypeAPITests(APITestCase):
 
 
 class ZaakObjectTypeFilterAPITests(APITestCase):
-    url = reverse_lazy("catalogi:zaakobjecttype-list")
+    NAMESPACE = "catalogi"
+
+    @property
+    def url(self):
+        return reverse(ZaakObjectType, namespace=self.NAMESPACE)
 
     def test_filter_ander_objecttype(self):
         zaakobjecttype1 = ZaakObjectTypeFactory.create(
@@ -272,7 +275,10 @@ class ZaakObjectTypeFilterAPITests(APITestCase):
         data = response.json()["results"]
 
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://testserver{reverse(zaakobjecttype1)}")
+        self.assertEqual(
+            data[0]["url"],
+            f"http://testserver{reverse(zaakobjecttype1, namespace=self.NAMESPACE)}",
+        )
 
     @override_settings(ALLOWED_HOSTS=["testserver.com"])
     def test_filter_catalogus(self):
@@ -291,9 +297,8 @@ class ZaakObjectTypeFilterAPITests(APITestCase):
         data = response.json()["results"]
 
         self.assertEqual(len(data), 1)
-        self.assertEqual(
-            data[0]["url"], f"http://testserver.com{reverse(zaakobjecttype1)}"
-        )
+        zaakobjecttype1_url = reverse(zaakobjecttype1, namespace=self.NAMESPACE)
+        self.assertEqual(data[0]["url"], f"http://testserver.com{zaakobjecttype1_url}")
 
     def test_filter_objecttype(self):
         zaakobjecttype1 = ZaakObjectTypeFactory.create(
@@ -311,7 +316,10 @@ class ZaakObjectTypeFilterAPITests(APITestCase):
         data = response.json()["results"]
 
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://testserver{reverse(zaakobjecttype1)}")
+        self.assertEqual(
+            data[0]["url"],
+            f"http://testserver{reverse(zaakobjecttype1, namespace=self.NAMESPACE)}",
+        )
 
     def test_filter_relatie_omschrijving(self):
         zaakobjecttype1 = ZaakObjectTypeFactory.create(
@@ -327,7 +335,10 @@ class ZaakObjectTypeFilterAPITests(APITestCase):
         data = response.json()["results"]
 
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://testserver{reverse(zaakobjecttype1)}")
+        self.assertEqual(
+            data[0]["url"],
+            f"http://testserver{reverse(zaakobjecttype1, namespace=self.NAMESPACE)}",
+        )
 
     @override_settings(ALLOWED_HOSTS=["testserver.com"])
     def test_filter_zaaktype(self):
@@ -337,7 +348,9 @@ class ZaakObjectTypeFilterAPITests(APITestCase):
 
         response = self.client.get(
             self.url,
-            {"zaaktype": f"http://testserver.com{reverse(zaaktype)}"},
+            {
+                "zaaktype": f"http://testserver.com{reverse(zaaktype, namespace=self.NAMESPACE)}"
+            },
             headers={"host": "testserver.com"},
         )
         self.assertEqual(response.status_code, 200)
@@ -345,9 +358,8 @@ class ZaakObjectTypeFilterAPITests(APITestCase):
         data = response.json()["results"]
 
         self.assertEqual(len(data), 1)
-        self.assertEqual(
-            data[0]["url"], f"http://testserver.com{reverse(zaakobjecttype1)}"
-        )
+        zaakobjecttype1_url = reverse(zaakobjecttype1, namespace=self.NAMESPACE)
+        self.assertEqual(data[0]["url"], f"http://testserver.com{zaakobjecttype1_url}")
 
     def test_filter_zaaktype_identificatie(self):
         zaakobjecttype1 = ZaakObjectTypeFactory.create(
@@ -363,7 +375,10 @@ class ZaakObjectTypeFilterAPITests(APITestCase):
         data = response.json()["results"]
 
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://testserver{reverse(zaakobjecttype1)}")
+        self.assertEqual(
+            data[0]["url"],
+            f"http://testserver{reverse(zaakobjecttype1, namespace=self.NAMESPACE)}",
+        )
 
     def test_filter_geldigheid(self):
         zaakobjecttype = ZaakObjectTypeFactory.create(
@@ -381,36 +396,45 @@ class ZaakObjectTypeFilterAPITests(APITestCase):
 
         data = response.json()["results"]
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://testserver{reverse(zaakobjecttype)}")
+        self.assertEqual(
+            data[0]["url"],
+            f"http://testserver{reverse(zaakobjecttype, namespace=self.NAMESPACE)}",
+        )
 
     def test_filter_status(self):
         zaakobjecttype_concept = ZaakObjectTypeFactory.create(zaaktype__concept=True)
         zaakobjecttype_def = ZaakObjectTypeFactory.create(zaaktype__concept=False)
+        concept_url = reverse(zaakobjecttype_concept, namespace=self.NAMESPACE)
+        def_url = reverse(zaakobjecttype_def, namespace=self.NAMESPACE)
 
         response = self.client.get(self.url, {"status": "concept"})
         self.assertEqual(response.status_code, 200)
         data = response.json()["results"]
         urls = [r["url"] for r in data]
-        self.assertIn(f"http://testserver{reverse(zaakobjecttype_concept)}", urls)
-        self.assertNotIn(f"http://testserver{reverse(zaakobjecttype_def)}", urls)
+        self.assertIn(f"http://testserver{concept_url}", urls)
+        self.assertNotIn(f"http://testserver{def_url}", urls)
 
         response = self.client.get(self.url, {"status": "definitief"})
         self.assertEqual(response.status_code, 200)
         data = response.json()["results"]
         urls = [r["url"] for r in data]
-        self.assertIn(f"http://testserver{reverse(zaakobjecttype_def)}", urls)
-        self.assertNotIn(f"http://testserver{reverse(zaakobjecttype_concept)}", urls)
+        self.assertIn(f"http://testserver{def_url}", urls)
+        self.assertNotIn(f"http://testserver{concept_url}", urls)
 
         response = self.client.get(self.url, {"status": "alles"})
         self.assertEqual(response.status_code, 200)
         data = response.json()["results"]
         urls = [r["url"] for r in data]
-        self.assertIn(f"http://testserver{reverse(zaakobjecttype_concept)}", urls)
-        self.assertIn(f"http://testserver{reverse(zaakobjecttype_def)}", urls)
+        self.assertIn(f"http://testserver{concept_url}", urls)
+        self.assertIn(f"http://testserver{def_url}", urls)
 
 
 class ZaakObjectTypePaginationTests(APITestCase):
-    url = reverse_lazy("catalogi:zaakobjecttype-list")
+    NAMESPACE = "catalogi"
+
+    @property
+    def url(self):
+        return reverse(ZaakObjectType, namespace=self.NAMESPACE)
 
     def test_pagination_default(self):
         ZaakObjectTypeFactory.create_batch(2, zaaktype__concept=False)

@@ -56,7 +56,7 @@ class BesluitTypeAPITests(APITestCase):
             catalogus=self.catalogus, publicatie_indicatie=True
         )
         zaaktype = besluittype.zaaktypen.get()
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         besluittype_detail_url = reverse(besluittype, namespace=self.NAMESPACE)
         resultaattype = ResultaatTypeFactory.create(zaaktype=zaaktype)
         resultaattype.besluittypen.add(besluittype)
@@ -81,7 +81,9 @@ class BesluitTypeAPITests(APITestCase):
             "beginGeldigheid": "2018-01-01",
             "eindeGeldigheid": None,
             "concept": True,
-            "resultaattypen": [f"http://testserver{reverse(resultaattype)}"],
+            "resultaattypen": [
+                f"http://testserver{reverse(resultaattype, namespace=self.NAMESPACE)}"
+            ],
             "resultaattypenOmschrijving": [resultaattype.omschrijving],
             "beginObject": "2018-01-01",
             "eindeObject": None,
@@ -121,7 +123,7 @@ class BesluitTypeAPITests(APITestCase):
         besluittype.zaaktypen.add(zaaktype1)
 
         besluittype_detail_url = reverse(besluittype, namespace=self.NAMESPACE)
-        zaaktype1_url = reverse(zaaktype1)
+        zaaktype1_url = reverse(zaaktype1, namespace=self.NAMESPACE)
 
         response = self.client.get(besluittype_detail_url)
 
@@ -166,7 +168,7 @@ class BesluitTypeAPITests(APITestCase):
 
     def test_create_besluittype_fail_non_concept_informatieobjecttypen(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=self.catalogus
         )
@@ -200,7 +202,7 @@ class BesluitTypeAPITests(APITestCase):
         self,
     ):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         informatieobjecttype = InformatieObjectTypeFactory.create()
         informatieobjecttype_url = reverse(
             informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE

@@ -112,6 +112,7 @@ class BesluitTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
 
+# TODO
 class CatalogusCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -152,6 +153,7 @@ class CatalogusCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+# TODO
 class CatalogusCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
 
@@ -195,18 +197,19 @@ class CatalogusCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
 
 class EigenschapCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def test_eigenschap_get_cache_header(self):
         eigenschap = EigenschapFactory.create()
 
-        response = self.client.get(reverse(eigenschap))
+        response = self.client.get(reverse(eigenschap, namespace=self.NAMESPACE))
 
         self.assertHasETag(response)
 
     def test_eigenschap_head_cache_header(self):
         eigenschap = EigenschapFactory.create()
 
-        self.assertHeadHasETag(reverse(eigenschap))
+        self.assertHeadHasETag(reverse(eigenschap, namespace=self.NAMESPACE))
 
     def test_head_in_apischema(self):
         spec = get_spec("catalogi")
@@ -218,7 +221,8 @@ class EigenschapCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_conditional_get_304(self):
         eigenschap = EigenschapFactory.create(with_etag=True)
         response = self.client.get(
-            reverse(eigenschap), headers={"if-none-match": f'"{eigenschap._etag}"'}
+            reverse(eigenschap, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{eigenschap._etag}"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
@@ -227,7 +231,8 @@ class EigenschapCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         eigenschap = EigenschapFactory.create(with_etag=True)
 
         response = self.client.get(
-            reverse(eigenschap), headers={"if-none-match": '"not-an-md5"'}
+            reverse(eigenschap, namespace=self.NAMESPACE),
+            headers={"if-none-match": '"not-an-md5"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -235,6 +240,7 @@ class EigenschapCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
 
 class EigenschapCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def setUp(self):
         super().setUp()
@@ -254,7 +260,8 @@ class EigenschapCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         eigenschap.save()
 
         response = self.client.get(
-            reverse(eigenschap), headers={"if-none-match": f'"{etag}"'}
+            reverse(eigenschap, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -269,7 +276,8 @@ class EigenschapCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         etag = eigenschap._etag
 
         response = self.client.get(
-            reverse(eigenschap), headers={"if-none-match": f'"{etag}"'}
+            reverse(eigenschap, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
@@ -367,18 +375,19 @@ class InformatieObjectTypeCacheTransactionTests(JWTAuthMixin, APITransactionTest
 
 class ResultaatTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def test_resultaattype_get_cache_header(self):
         resultaattype = ResultaatTypeFactory.create(resultaattypeomschrijving="")
 
-        response = self.client.get(reverse(resultaattype))
+        response = self.client.get(reverse(resultaattype, namespace=self.NAMESPACE))
 
         self.assertHasETag(response)
 
     def test_resultaattype_head_cache_header(self):
         resultaattype = ResultaatTypeFactory.create(resultaattypeomschrijving="")
 
-        self.assertHeadHasETag(reverse(resultaattype))
+        self.assertHeadHasETag(reverse(resultaattype, namespace=self.NAMESPACE))
 
     def test_head_in_apischema(self):
         spec = get_spec("catalogi")
@@ -390,7 +399,7 @@ class ResultaatTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_conditional_get_304(self):
         resultaattype = ResultaatTypeFactory.create(with_etag=True)
         response = self.client.get(
-            reverse(resultaattype),
+            reverse(resultaattype, namespace=self.NAMESPACE),
             headers={"if-none-match": f'"{resultaattype._etag}"'},
         )
 
@@ -400,7 +409,8 @@ class ResultaatTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         resultaattype = ResultaatTypeFactory.create(with_etag=True)
 
         response = self.client.get(
-            reverse(resultaattype), headers={"if-none-match": '"not-an-md5"'}
+            reverse(resultaattype, namespace=self.NAMESPACE),
+            headers={"if-none-match": '"not-an-md5"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -408,6 +418,7 @@ class ResultaatTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
 
 class ResultaatTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def setUp(self):
         super().setUp()
@@ -429,7 +440,8 @@ class ResultaatTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         resultaattype.save()
 
         response = self.client.get(
-            reverse(resultaattype), headers={"if-none-match": f'"{etag}"'}
+            reverse(resultaattype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -444,25 +456,27 @@ class ResultaatTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         etag = resultaattype._etag
 
         response = self.client.get(
-            reverse(resultaattype), headers={"if-none-match": f'"{etag}"'}
+            reverse(resultaattype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
 
 class RolTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def test_roltype_get_cache_header(self):
         roltype = RolTypeFactory.create()
 
-        response = self.client.get(reverse(roltype))
+        response = self.client.get(reverse(roltype, namespace=self.NAMESPACE))
 
         self.assertHasETag(response)
 
     def test_roltype_head_cache_header(self):
         roltype = RolTypeFactory.create()
 
-        self.assertHeadHasETag(reverse(roltype))
+        self.assertHeadHasETag(reverse(roltype, namespace=self.NAMESPACE))
 
     def test_head_in_apischema(self):
         spec = get_spec("catalogi")
@@ -474,7 +488,8 @@ class RolTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_conditional_get_304(self):
         roltype = RolTypeFactory.create(with_etag=True)
         response = self.client.get(
-            reverse(roltype), headers={"if-none-match": f'"{roltype._etag}"'}
+            reverse(roltype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{roltype._etag}"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
@@ -483,7 +498,8 @@ class RolTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         roltype = RolTypeFactory.create(with_etag=True)
 
         response = self.client.get(
-            reverse(roltype), headers={"if-none-match": '"not-an-md5"'}
+            reverse(roltype, namespace=self.NAMESPACE),
+            headers={"if-none-match": '"not-an-md5"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -491,6 +507,7 @@ class RolTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
 
 class RolTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def setUp(self):
         super().setUp()
@@ -510,7 +527,8 @@ class RolTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         roltype.save()
 
         response = self.client.get(
-            reverse(roltype), headers={"if-none-match": f'"{etag}"'}
+            reverse(roltype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -525,25 +543,27 @@ class RolTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         etag = roltype._etag
 
         response = self.client.get(
-            reverse(roltype), headers={"if-none-match": f'"{etag}"'}
+            reverse(roltype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
 
 class StatusTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def test_statustype_get_cache_header(self):
         statustype = StatusTypeFactory.create()
 
-        response = self.client.get(reverse(statustype))
+        response = self.client.get(reverse(statustype, namespace=self.NAMESPACE))
 
         self.assertHasETag(response)
 
     def test_statustype_head_cache_header(self):
         statustype = StatusTypeFactory.create()
 
-        self.assertHeadHasETag(reverse(statustype))
+        self.assertHeadHasETag(reverse(statustype, namespace=self.NAMESPACE))
 
     def test_head_in_apischema(self):
         spec = get_spec("catalogi")
@@ -555,7 +575,8 @@ class StatusTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_conditional_get_304(self):
         statustype = StatusTypeFactory.create(with_etag=True)
         response = self.client.get(
-            reverse(statustype), headers={"if-none-match": f'"{statustype._etag}"'}
+            reverse(statustype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{statustype._etag}"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
@@ -564,7 +585,8 @@ class StatusTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         statustype = StatusTypeFactory.create(with_etag=True)
 
         response = self.client.get(
-            reverse(statustype), headers={"if-none-match": '"not-an-md5"'}
+            reverse(statustype, namespace=self.NAMESPACE),
+            headers={"if-none-match": '"not-an-md5"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -572,6 +594,7 @@ class StatusTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
 
 class StatusTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def setUp(self):
         super().setUp()
@@ -591,7 +614,8 @@ class StatusTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         statustype.save()
 
         response = self.client.get(
-            reverse(statustype), headers={"if-none-match": f'"{etag}"'}
+            reverse(statustype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -606,25 +630,31 @@ class StatusTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         etag = statustype._etag
 
         response = self.client.get(
-            reverse(statustype), headers={"if-none-match": f'"{etag}"'}
+            reverse(statustype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
 
 class ZaakInformatieobjectTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def test_zaakinformatieobjecttype_get_cache_header(self):
         zaakinformatieobjecttype = ZaakTypeInformatieObjectTypeFactory.create()
 
-        response = self.client.get(reverse(zaakinformatieobjecttype))
+        response = self.client.get(
+            reverse(zaakinformatieobjecttype, namespace=self.NAMESPACE)
+        )
 
         self.assertHasETag(response)
 
     def test_zaakinformatieobjecttype_head_cache_header(self):
         zaakinformatieobjecttype = ZaakTypeInformatieObjectTypeFactory.create()
 
-        self.assertHeadHasETag(reverse(zaakinformatieobjecttype))
+        self.assertHeadHasETag(
+            reverse(zaakinformatieobjecttype, namespace=self.NAMESPACE)
+        )
 
     def test_head_in_apischema(self):
         spec = get_spec("catalogi")
@@ -638,7 +668,7 @@ class ZaakInformatieobjectTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
             with_etag=True
         )
         response = self.client.get(
-            reverse(zaakinformatieobjecttype),
+            reverse(zaakinformatieobjecttype, namespace=self.NAMESPACE),
             headers={"if-none-match": f'"{zaakinformatieobjecttype._etag}"'},
         )
 
@@ -650,7 +680,8 @@ class ZaakInformatieobjectTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         )
 
         response = self.client.get(
-            reverse(zaakinformatieobjecttype), headers={"if-none-match": '"not-an-md5"'}
+            reverse(zaakinformatieobjecttype, namespace=self.NAMESPACE),
+            headers={"if-none-match": '"not-an-md5"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -660,6 +691,7 @@ class ZaakInformatieobjectTypeCacheTransactionTests(
     JWTAuthMixin, APITransactionTestCase
 ):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def setUp(self):
         super().setUp()
@@ -681,7 +713,8 @@ class ZaakInformatieobjectTypeCacheTransactionTests(
         zaakinformatieobjecttype.save()
 
         response = self.client.get(
-            reverse(zaakinformatieobjecttype), headers={"if-none-match": f'"{etag}"'}
+            reverse(zaakinformatieobjecttype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -698,25 +731,27 @@ class ZaakInformatieobjectTypeCacheTransactionTests(
         etag = zaakinformatieobjecttype._etag
 
         response = self.client.get(
-            reverse(zaakinformatieobjecttype), headers={"if-none-match": f'"{etag}"'}
+            reverse(zaakinformatieobjecttype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
 
 class ZaakTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def test_zaaktype_get_cache_header(self):
         zaaktype = ZaakTypeFactory.create()
 
-        response = self.client.get(reverse(zaaktype))
+        response = self.client.get(reverse(zaaktype, namespace=self.NAMESPACE))
 
         self.assertHasETag(response)
 
     def test_zaaktype_head_cache_header(self):
         zaaktype = ZaakTypeFactory.create()
 
-        self.assertHeadHasETag(reverse(zaaktype))
+        self.assertHeadHasETag(reverse(zaaktype, namespace=self.NAMESPACE))
 
     def test_head_in_apischema(self):
         spec = get_spec("catalogi")
@@ -728,7 +763,8 @@ class ZaakTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_conditional_get_304(self):
         zaaktype = ZaakTypeFactory.create(with_etag=True)
         response = self.client.get(
-            reverse(zaaktype), headers={"if-none-match": f'"{zaaktype._etag}"'}
+            reverse(zaaktype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{zaaktype._etag}"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
@@ -737,7 +773,8 @@ class ZaakTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(with_etag=True)
 
         response = self.client.get(
-            reverse(zaaktype), headers={"if-none-match": '"not-an-md5"'}
+            reverse(zaaktype, namespace=self.NAMESPACE),
+            headers={"if-none-match": '"not-an-md5"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -745,6 +782,7 @@ class ZaakTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
 
 class ZaakTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def setUp(self):
         super().setUp()
@@ -764,7 +802,8 @@ class ZaakTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         zaaktype.save()
 
         response = self.client.get(
-            reverse(zaaktype), headers={"if-none-match": f'"{etag}"'}
+            reverse(zaaktype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -779,13 +818,15 @@ class ZaakTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         etag = zaaktype._etag
 
         response = self.client.get(
-            reverse(zaaktype), headers={"if-none-match": f'"{etag}"'}
+            reverse(zaaktype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
 
 class M2MRelationCachingTests(JWTAuthMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def setUp(self):
         super().setUp()
@@ -810,12 +851,14 @@ class M2MRelationCachingTests(JWTAuthMixin, APITransactionTestCase):
         besluittype.save()
 
         response = self.client.get(
-            reverse(besluittype), headers={"if-none-match": f'"{besluittype_etag}"'}
+            reverse(besluittype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{besluittype_etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         response = self.client.get(
-            reverse(zaaktype), headers={"if-none-match": f'"{zaaktype_etag}"'}
+            reverse(zaaktype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{zaaktype_etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -838,11 +881,13 @@ class M2MRelationCachingTests(JWTAuthMixin, APITransactionTestCase):
         besluittype.save()
 
         response = self.client.get(
-            reverse(besluittype), headers={"if-none-match": f'"{besluittype_etag}"'}
+            reverse(besluittype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{besluittype_etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         response = self.client.get(
-            reverse(zaaktype), headers={"if-none-match": f'"{zaaktype_etag}"'}
+            reverse(zaaktype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{zaaktype_etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
