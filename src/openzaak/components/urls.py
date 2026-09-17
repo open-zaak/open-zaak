@@ -33,7 +33,7 @@ urlpatterns = [
             deprecated=True,
             description="Besluit Registratie Component (BRC)"
             "\n\n"
-            "Deze API is deprecated en zal worden verwijderd in Open Zaak versie 3.0. Besluiten zijn verplaatst naar de Zaken API.",
+            "Deze API is deprecated en zal worden verwijderd in Open Zaak versie 3.0.\nBesluiten zijn verplaatst naar de Zaken API.",
             notification_url=f"{BASE_NOTIFICATION_URL}#besluiten",
         ),
         name="index-besluiten",
@@ -48,7 +48,7 @@ urlpatterns = [
             deprecated=True,
             description="Zaaktype Catalogus (ZTC)"
             "\n\n"
-            "Deze API is deprecated en zal worden verwijderd in Open Zaak versie 3.0. Catalogi, ZaakTypen & BesluitTypen zijn verplaatst naar de Zaken API. InformatieObjectTypen zijn verplaatst naar de Documenten API.",
+            "Deze API is deprecated en zal worden verwijderd in Open Zaak versie 3.0.\nCatalogi, ZaakTypen & BesluitTypen zijn verplaatst naar de Zaken API.\nInformatieObjectTypen zijn verplaatst naar de Documenten API.",
             notification_url="https://github.com/VNG-Realisatie/catalogi-api/blob/stable/1.1.x/src/notificaties.md#catalogi",
         ),
         name="index-catalogi",

@@ -97,6 +97,22 @@ info:
     - `verzending`: create, update, destroy
 
 
+    Deze API publiceert notificaties op het kanaal `informatieobjecttypen`.
+
+    **Main resource**
+
+    `informatieobjecttype`
+
+
+
+    **Kenmerken**
+
+    * `catalogus`: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE behoort.
+
+    **Resources en acties**
+    - `informatieobjecttype`: create, update, destroy
+
+
     **Handige links**
 
     * [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)
