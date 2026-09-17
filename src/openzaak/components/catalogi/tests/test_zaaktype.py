@@ -48,7 +48,6 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
     scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
     NAMESPACE = "catalogi"
-    BT_NAMESPACE = "catalogi"
 
     def test_get_list_default_definitief(self):
         zaaktype1 = ZaakTypeFactory.create(concept=True)  # noqa
@@ -159,7 +158,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_create_zaaktype(self):
         besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
-        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
+        besluittype_url = reverse(besluittype, namespace=self.NAMESPACE)
 
         zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
         data = {
@@ -211,7 +210,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
     @tag("gh-1306")
     def test_create_zaaktype_identificatie_all_characters_allowed(self):
         besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
-        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
+        besluittype_url = reverse(besluittype, namespace=self.NAMESPACE)
 
         zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
         data = {
@@ -262,7 +261,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_create_zaaktype_referentieproces_no_link(self):
         besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
-        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
+        besluittype_url = reverse(besluittype, namespace=self.NAMESPACE)
 
         zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
         data = {
@@ -313,7 +312,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_create_zaaktype_without_verlengingstermijn(self):
         besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
-        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
+        besluittype_url = reverse(besluittype, namespace=self.NAMESPACE)
 
         zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
         data = {
@@ -397,7 +396,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_create_zaaktype_fail_besluittype_non_concept(self):
         besluittype = BesluitTypeFactory.create(concept=False, catalogus=self.catalogus)
-        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
+        besluittype_url = reverse(besluittype, namespace=self.NAMESPACE)
 
         zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
         data = {
@@ -441,7 +440,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_create_zaaktype_fail_different_catalogus_besluittypes(self):
         besluittype = BesluitTypeFactory.create()
-        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
+        besluittype_url = reverse(besluittype, namespace=self.NAMESPACE)
 
         zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
         data = {
@@ -1203,7 +1202,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         }
 
         besluittype = BesluitTypeFactory.create(catalogus=catalogus, concept=False)
-        data["besluittypen"] = [reverse(besluittype, namespace=self.BT_NAMESPACE)]
+        data["besluittypen"] = [reverse(besluittype, namespace=self.NAMESPACE)]
 
         response = self.client.put(zaaktype_url, data)
 
@@ -1312,7 +1311,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         besluittype = BesluitTypeFactory.create(
             catalogus=catalogus, concept=False, zaaktypen=[zaaktype_for_besluittype]
         )
-        data = {"besluittypen": [reverse(besluittype, namespace=self.BT_NAMESPACE)]}
+        data = {"besluittypen": [reverse(besluittype, namespace=self.NAMESPACE)]}
 
         response = self.client.patch(zaaktype_url, data)
 
@@ -2094,7 +2093,6 @@ class ZaakTypePaginationTestCase(APITestCase):
 class ZaaktypeValidationTests(SelectieLijstMixin, APITestCase):
     maxDiff = None
     NAMESPACE = "catalogi"
-    BT_NAMESPACE = "catalogi"
 
     @classmethod
     def setUpTestData(cls):
@@ -2111,7 +2109,7 @@ class ZaaktypeValidationTests(SelectieLijstMixin, APITestCase):
         procestype_url = "https://example.com/procestypen/1234"
         m.get(procestype_url, json={"some": "incorrect property"})
         besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
-        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
+        besluittype_url = reverse(besluittype, namespace=self.NAMESPACE)
         zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
         data = {
             "identificatie": 0,

@@ -824,7 +824,7 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
     def test_filter_zaaktype_not_exist(self):
         InformatieObjectTypeFactory.create(omschrijving="some", concept=False)
         zaaktype_url = reverse(
-            "catalogi:zaaktype-detail",
+            f"{self.NAMESPACE}:zaaktype-detail",
             kwargs={"uuid": "221e7626-a556-4eb5-9714-e7693f82c2dd"},
         )
 
