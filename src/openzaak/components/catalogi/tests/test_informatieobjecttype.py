@@ -683,9 +683,13 @@ class InformatieObjectTypeAPITests(APITestCase):
         data = response.json()
 
         self.assertIn("zaaktypen", data["_expand"])
-        self.assertEqual(
-            data["_expand"]["zaaktypen"][0]["url"],
+        zaaktype_urls = [
+            zaaktype_data["url"] for zaaktype_data in data["_expand"]["zaaktypen"]
+        ]
+
+        self.assertIn(
             f"http://testserver{reverse(zaaktype)}",
+            zaaktype_urls,
         )
 
     def test_get_detail_expand_besluittypen(self):

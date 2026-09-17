@@ -48,8 +48,13 @@ class APIMixin(_APIMixin):
 
 
 class ExpandMixin:
-    renderer_classes = (ExpandJSONRenderer,)
     expand_param = EXPAND_QUERY_PARAM
+
+    def get_renderers(self):
+        # Only use the expand renderer for actions that support expansion.
+        if self.action in ["list", "_zoek", "retrieve"]:
+            return [ExpandJSONRenderer()]
+        return super().get_renderers()
 
     def include_allowed(self):
         return self.action in ["list", "_zoek", "retrieve"]
