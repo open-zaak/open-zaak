@@ -22,7 +22,7 @@ from openzaak.tests.utils import ClearCachesMixin
 
 @disable_admin_mfa()
 @requests_mock.Mocker()
-class ZaaktypeAdminTests(
+class InformatieObjectTypeAdminTests(
     NotificationsConfigMixin, ReferentieLijstServiceMixin, ClearCachesMixin, WebTest
 ):
     @classmethod

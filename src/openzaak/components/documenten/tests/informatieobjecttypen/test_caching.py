@@ -11,7 +11,7 @@ from openzaak.components.catalogi.tests.test_caching import (
 
 
 class InformatieObjectTypeCacheTests(_InformatieObjectTypeCacheTests):
-    NAMESAPCE = "documenten"
+    NAMESPACE = "documenten"
 
 
 class InformatieObjectTypeCacheTransactionTests(
