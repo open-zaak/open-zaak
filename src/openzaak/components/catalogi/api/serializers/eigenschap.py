@@ -10,6 +10,7 @@ from vng_api_common.serializers import (
 )
 from vng_api_common.utils import get_help_text
 
+from openzaak.utils.serializers import DeprecatedNamespaceHyperlinkedModelSerializer
 from openzaak.utils.validators import UniqueTogetherValidator
 
 from ...constants import FormaatChoices
@@ -41,7 +42,7 @@ class EigenschapSpecificatieSerializer(serializers.ModelSerializer):
 
 
 class EigenschapSerializer(
-    NestedCreateMixin, NestedUpdateMixin, serializers.HyperlinkedModelSerializer
+    NestedCreateMixin, NestedUpdateMixin, DeprecatedNamespaceHyperlinkedModelSerializer
 ):
     specificatie = EigenschapSpecificatieSerializer(
         source="specificatie_van_eigenschap"
@@ -90,15 +91,15 @@ class EigenschapSerializer(
             "einde_object",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid", "view_name": "catalogi:eigenschap-detail"},
+            "url": {"lookup_field": "uuid", "view_name": "zaken:eigenschap-detail"},
             "naam": {"source": "eigenschapnaam"},
             "zaaktype": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:zaaktype-detail",
+                "view_name": "zaken:zaaktype-detail",
             },
             "statustype": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:statustype-detail",
+                "view_name": "zaken:statustype-detail",
             },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},

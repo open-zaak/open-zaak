@@ -7,6 +7,11 @@ from rest_framework import serializers
 from vng_api_common.serializers import CachedHyperlinkedRelatedField
 from vng_api_common.utils import get_help_text
 
+from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceCachedHyperlinkedRelatedField,
+)
+from openzaak.utils.serializers import DeprecatedNamespaceHyperlinkedModelSerializer
+
 from ...models import CheckListItem, StatusType
 from ..validators import StartBeforeEndValidator, ZaakTypeConceptValidator
 
@@ -23,7 +28,7 @@ class CheckListItemSerializer(serializers.ModelSerializer):
 
 
 class StatusTypeSerializer(
-    NestedCreateMixin, NestedUpdateMixin, serializers.HyperlinkedModelSerializer
+    NestedCreateMixin, NestedUpdateMixin, DeprecatedNamespaceHyperlinkedModelSerializer
 ):
     is_eindstatus = serializers.BooleanField(
         read_only=True,
@@ -48,8 +53,8 @@ class StatusTypeSerializer(
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
         ),
     )
-    eigenschappen = CachedHyperlinkedRelatedField(
-        view_name="catalogi:eigenschap-detail",
+    eigenschappen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
+        view_name="zaken:eigenschap-detail",
         many=True,
         read_only=True,
         lookup_field="uuid",
@@ -58,8 +63,8 @@ class StatusTypeSerializer(
             "voordat een STATUS van dit STATUSTYPE kan worden gezet."
         ),
     )
-    zaakobjecttypen = CachedHyperlinkedRelatedField(
-        view_name="catalogi:zaakobjecttype-detail",
+    zaakobjecttypen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
+        view_name="DeprecatedNamespace:zaakobjecttype-detail",
         many=True,
         read_only=True,
         lookup_field="uuid",
@@ -112,13 +117,13 @@ class StatusTypeSerializer(
             "einde_object",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid", "view_name": "catalogi:statustype-detail"},
+            "url": {"lookup_field": "uuid", "view_name": "zaken:statustype-detail"},
             "omschrijving": {"source": "statustype_omschrijving"},
             "omschrijving_generiek": {"source": "statustype_omschrijving_generiek"},
             "volgnummer": {"source": "statustypevolgnummer"},
             "zaaktype": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:zaaktype-detail",
+                "view_name": "zaken:zaaktype-detail",
             },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},

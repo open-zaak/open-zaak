@@ -11,7 +11,6 @@ from rest_framework.serializers import (
 )
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import (
-    CachedHyperlinkedRelatedField,
     GegevensGroepSerializer,
     NestedGegevensGroepMixin,
     add_choice_values_help_text,
@@ -20,6 +19,7 @@ from vng_api_common.serializers import (
 from openzaak.utils.serializer_fields import (
     DeprecatedNamespaceCachedHyperlinkedRelatedField,
 )
+from openzaak.utils.serializers import DeprecatedNamespaceHyperlinkedModelSerializer
 from openzaak.utils.validators import ResourceValidator
 
 from ...constants import AardRelatieChoices, RichtingChoices
@@ -76,7 +76,7 @@ class ZaakTypeSerializer(
     NestedGegevensGroepMixin,
     NestedCreateMixin,
     NestedUpdateMixin,
-    HyperlinkedModelSerializer,
+    DeprecatedNamespaceHyperlinkedModelSerializer,
 ):
     referentieproces = ReferentieProcesSerializer(
         required=True,
@@ -113,42 +113,42 @@ class ZaakTypeSerializer(
         ),
     )
 
-    statustypen = CachedHyperlinkedRelatedField(
+    statustypen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
-        view_name="catalogi:statustype-detail",
+        view_name="zaken:statustype-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar de STATUSTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
         ),
     )
 
-    resultaattypen = CachedHyperlinkedRelatedField(
+    resultaattypen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
-        view_name="catalogi:resultaattype-detail",
+        view_name="zaken:resultaattype-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar de RESULTAATTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
         ),
     )
 
-    eigenschappen = CachedHyperlinkedRelatedField(
+    eigenschappen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         source="eigenschap_set",
-        view_name="catalogi:eigenschap-detail",
+        view_name="zaken:eigenschap-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar de EIGENSCHAPPEN die aanwezig moeten zijn in ZAKEN van dit ZAAKTYPE."
         ),
     )
 
-    roltypen = CachedHyperlinkedRelatedField(
+    roltypen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         source="roltype_set",
-        view_name="catalogi:roltype-detail",
+        view_name="zaken:roltype-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar de ROLTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
@@ -165,11 +165,11 @@ class ZaakTypeSerializer(
             "URL-referenties naar de BESLUITTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
         ),
     )
-    zaakobjecttypen = CachedHyperlinkedRelatedField(
+    zaakobjecttypen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         source="zaakobjecttype_set",
-        view_name="catalogi:zaakobjecttype-detail",
+        view_name="zaken:zaakobjecttype-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar de ZAAKOBJECTTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
@@ -234,7 +234,7 @@ class ZaakTypeSerializer(
             "zaakobjecttypen",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid", "view_name": "catalogi:zaaktype-detail"},
+            "url": {"lookup_field": "uuid", "view_name": "zaken:zaaktype-detail"},
             "omschrijving": {"source": "zaaktype_omschrijving"},
             "omschrijving_generiek": {"source": "zaaktype_omschrijving_generiek"},
             "catalogus": {
@@ -257,7 +257,7 @@ class ZaakTypeSerializer(
             },
             "deelzaaktypen": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:zaaktype-detail",
+                "view_name": "zaken:zaaktype-detail",
             },
         }
 

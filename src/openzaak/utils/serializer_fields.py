@@ -158,7 +158,17 @@ class DeprecatedNamespaceMixin:
             "besluitinformatieobject": "besluiten",
             "besluittype": "catalogi",
         },
-        "catalogi": {"informatieobjecttype": "catalogi", "besluittype": "catalogi"},
+        "catalogi": {
+            "zaaktype": "catalogi",
+            "statustype": "catalogi",
+            "eigenschap": "catalogi",
+            "roltype": "catalogi",
+            "informatieobjecttype": "catalogi",
+            "besluittype": "catalogi",
+            "resultaattype": "catalogi",
+            "zaaktypeinformatieobjecttype": "catalogi",
+            "zaakobjecttype": "catalogi",
+        },
     }
 
     def get_url(
@@ -189,7 +199,15 @@ class DeprecatedNamespaceHyperlinkedRelatedField(
         "zaken:besluit-detail",
         "zaken:besluitinformatieobject-detail",
         "documenten:informatieobjecttype-detail",
+        "zaken:zaaktype-detail",
+        "zaken:statustype-detail",
+        "zaken:eigenschap-detail",
+        "zaken:roltype-detail",
+        "zaken:informatieobjecttype-detail",
         "zaken:besluittype-detail",
+        "zaken:resultaattype-detail",
+        "zaken:zaaktype-informatieobjecttype-detail",
+        "zaken:zaakobjecttype-detail",
     ]
 
     def fail(self, key, **kwargs):
