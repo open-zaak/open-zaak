@@ -139,7 +139,7 @@ class UWVIdentification(BaseZaakIdentificatie):
             .first()
         )
 
-        return max_id.removesuffix(self._POSTFIX) if max_id else "A00000000"
+        return max_id or f"A00000000{self._POSTFIX}"
 
     def _as_int(self, char: str) -> int:
         return int(char) if char.isnumeric() else (ord(char) - 65)
@@ -184,10 +184,11 @@ class UWVIdentification(BaseZaakIdentificatie):
         return checksum
 
     def _sequence(self, current_identificatie: str) -> Generator[str, None, None]:
+        current_identificatie = current_identificatie.removesuffix(self._POSTFIX)
         if current_identificatie == "A00000000":
             # special case for initial identification
             current_identificatie = "A00000006"
-            yield current_identificatie
+            yield f"{current_identificatie}{self._POSTFIX}"
 
         prefix = current_identificatie.strip("0123456789")
         # sequence number without elf proef checksum
@@ -208,24 +209,7 @@ class UWVIdentification(BaseZaakIdentificatie):
             if checksum != 10:
                 # we need a single digit checksum
                 # if 10 calculate next
-                yield f"{prefix}{seq}{checksum}"
-
-    def generate(self):
-        with pg_advisory_lock(LOCK_ID_IDENTIFICATION_GENERATION):
-            return self.model.objects.create(
-                identificatie=f"{next(self._sequence(self.current()))}{self._POSTFIX}",
-                bronorganisatie=self.bronorganisatie,
-            )
-
-    def generate_bulk(self, amount: int):
-        with pg_advisory_lock(LOCK_ID_IDENTIFICATION_GENERATION):
-            return self.model.objects.bulk_create(
-                self.model(
-                    identificatie=f"{id}{self._POSTFIX}",
-                    bronorganisatie=self.bronorganisatie,
-                )
-                for id in islice(self._sequence(self.current()), amount)
-            )
+                yield f"{prefix}{seq}{checksum}{self._POSTFIX}"
 
 
 def get_base_identification_class():
