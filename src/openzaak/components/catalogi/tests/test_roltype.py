@@ -6,7 +6,7 @@ from django.test import override_settings
 
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes, RolOmschrijving
-from vng_api_common.tests import get_validation_errors, reverse_lazy
+from vng_api_common.tests import get_validation_errors
 
 from openzaak.utils.urls import reverse
 
@@ -22,14 +22,13 @@ class RolTypeAPITests(APITestCase):
     heeft_alle_autorisaties = False
     scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
+    NAMESPACE = "catalogi"
 
     def test_get_list_default_definitief(self):
         RolTypeFactory.create(zaaktype__concept=True)
         roltype2 = RolTypeFactory.create(zaaktype__concept=False)
-        roltype_list_url = reverse("catalogi:roltype-list")
-        roltype2_url = reverse(
-            "catalogi:roltype-detail", kwargs={"uuid": roltype2.uuid}
-        )
+        roltype_list_url = reverse(RolType, namespace=self.NAMESPACE)
+        roltype2_url = reverse(roltype2, namespace=self.NAMESPACE)
 
         response = self.client.get(roltype_list_url)
         self.assertEqual(response.status_code, 200)
@@ -48,12 +47,8 @@ class RolTypeAPITests(APITestCase):
             datum_einde_geldigheid=date(2023, 12, 1),
         )
         zaaktype = rol_type.zaaktype
-        rol_type_detail_url = reverse(
-            "catalogi:roltype-detail", kwargs={"uuid": rol_type.uuid}
-        )
-        zaaktype_url = reverse(
-            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
-        )
+        rol_type_detail_url = reverse(rol_type, namespace=self.NAMESPACE)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         response = self.client.get(rol_type_detail_url)
 
@@ -75,10 +70,8 @@ class RolTypeAPITests(APITestCase):
 
     def test_create_roltype(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(
-            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
-        )
-        rol_type_list_url = reverse("catalogi:roltype-list")
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
+        rol_type_list_url = reverse(RolType, namespace=self.NAMESPACE)
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "Vergunningaanvrager",
@@ -99,10 +92,8 @@ class RolTypeAPITests(APITestCase):
 
     def test_create_roltype_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(
-            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
-        )
-        rol_type_list_url = reverse("catalogi:roltype-list")
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
+        rol_type_list_url = reverse(RolType, namespace=self.NAMESPACE)
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "Vergunningaanvrager",
@@ -118,10 +109,8 @@ class RolTypeAPITests(APITestCase):
 
     def test_create_roltype_with_end_date_before_start_date(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(
-            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
-        )
-        rol_type_list_url = reverse("catalogi:roltype-list")
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
+        rol_type_list_url = reverse(RolType, namespace=self.NAMESPACE)
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "Vergunningaanvrager",
@@ -139,7 +128,7 @@ class RolTypeAPITests(APITestCase):
 
     def test_delete_roltype(self):
         roltype = RolTypeFactory.create()
-        roltype_url = reverse("catalogi:roltype-detail", kwargs={"uuid": roltype.uuid})
+        roltype_url = reverse(roltype, namespace=self.NAMESPACE)
 
         response = self.client.delete(roltype_url)
 
@@ -148,7 +137,7 @@ class RolTypeAPITests(APITestCase):
 
     def test_delete_roltype_fail_not_concept_zaaktype(self):
         roltype = RolTypeFactory.create(zaaktype__concept=False)
-        roltype_url = reverse("catalogi:roltype-detail", kwargs={"uuid": roltype.uuid})
+        roltype_url = reverse(roltype, namespace=self.NAMESPACE)
 
         response = self.client.delete(roltype_url)
 
@@ -159,9 +148,9 @@ class RolTypeAPITests(APITestCase):
 
     def test_update_roltype(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         roltype = RolTypeFactory.create(zaaktype=zaaktype)
-        roltype_url = reverse(roltype)
+        roltype_url = reverse(roltype, namespace=self.NAMESPACE)
 
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
@@ -179,9 +168,9 @@ class RolTypeAPITests(APITestCase):
 
     def test_update_roltype_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         roltype = RolTypeFactory.create(zaaktype=zaaktype)
-        roltype_url = reverse(roltype)
+        roltype_url = reverse(roltype, namespace=self.NAMESPACE)
 
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
@@ -198,9 +187,9 @@ class RolTypeAPITests(APITestCase):
 
     def test_update_roltype_add_relation_to_non_concept_zaaktype_fails(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         roltype = RolTypeFactory.create()
-        roltype_url = reverse(roltype)
+        roltype_url = reverse(roltype, namespace=self.NAMESPACE)
 
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
@@ -218,7 +207,7 @@ class RolTypeAPITests(APITestCase):
     def test_partial_update_roltype(self):
         zaaktype = ZaakTypeFactory.create()
         roltype = RolTypeFactory.create(zaaktype=zaaktype)
-        roltype_url = reverse(roltype)
+        roltype_url = reverse(roltype, namespace=self.NAMESPACE)
 
         response = self.client.patch(roltype_url, {"omschrijving": "aangepast"})
 
@@ -231,7 +220,7 @@ class RolTypeAPITests(APITestCase):
     def test_partial_update_roltype_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
         roltype = RolTypeFactory.create(zaaktype=zaaktype)
-        roltype_url = reverse(roltype)
+        roltype_url = reverse(roltype, namespace=self.NAMESPACE)
 
         response = self.client.patch(roltype_url, {"omschrijving": "aangepast"})
 
@@ -242,9 +231,9 @@ class RolTypeAPITests(APITestCase):
 
     def test_partial_update_roltype_add_relation_to_non_concept_zaaktype_fails(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         roltype = RolTypeFactory.create()
-        roltype_url = reverse(roltype)
+        roltype_url = reverse(roltype, namespace=self.NAMESPACE)
 
         response = self.client.patch(roltype_url, {"zaaktype": zaaktype_url})
 
@@ -255,8 +244,10 @@ class RolTypeAPITests(APITestCase):
 
 
 class FilterValidationTests(APITestCase):
+    NAMESPACE = "catalogi"
+
     def test_invalid_filters(self):
-        url = reverse("catalogi:roltype-list")
+        url = reverse(RolType, namespace=self.NAMESPACE)
 
         invalid_filters = {
             "omschrijvingGeneriek": "invalid-option",  # bestaat niet
@@ -271,12 +262,16 @@ class FilterValidationTests(APITestCase):
 
 class RolTypeFilterAPITests(APITestCase):
     maxDiff = None
-    url = reverse_lazy("catalogi:roltype-list")
+    NAMESPACE = "catalogi"
+
+    @property
+    def url(self):
+        return reverse(RolType, namespace=self.NAMESPACE)
 
     def test_filter_roltype_status_alles(self):
         RolTypeFactory.create(zaaktype__concept=True)
         RolTypeFactory.create(zaaktype__concept=False)
-        roltype_list_url = reverse("catalogi:roltype-list")
+        roltype_list_url = reverse(RolType, namespace=self.NAMESPACE)
 
         response = self.client.get(roltype_list_url, {"status": "alles"})
         self.assertEqual(response.status_code, 200)
@@ -288,10 +283,8 @@ class RolTypeFilterAPITests(APITestCase):
     def test_filter_roltype_status_concept(self):
         roltype1 = RolTypeFactory.create(zaaktype__concept=True)
         RolTypeFactory.create(zaaktype__concept=False)
-        roltype_list_url = reverse("catalogi:roltype-list")
-        roltype1_url = reverse(
-            "catalogi:roltype-detail", kwargs={"uuid": roltype1.uuid}
-        )
+        roltype_list_url = reverse(RolType, namespace=self.NAMESPACE)
+        roltype1_url = reverse(roltype1, namespace=self.NAMESPACE)
 
         response = self.client.get(roltype_list_url, {"status": "concept"})
         self.assertEqual(response.status_code, 200)
@@ -304,10 +297,8 @@ class RolTypeFilterAPITests(APITestCase):
     def test_filter_roltype_status_definitief(self):
         RolTypeFactory.create(zaaktype__concept=True)
         roltype2 = RolTypeFactory.create(zaaktype__concept=False)
-        roltype_list_url = reverse("catalogi:roltype-list")
-        roltype2_url = reverse(
-            "catalogi:roltype-detail", kwargs={"uuid": roltype2.uuid}
-        )
+        roltype_list_url = reverse(RolType, namespace=self.NAMESPACE)
+        roltype2_url = reverse(roltype2, namespace=self.NAMESPACE)
 
         response = self.client.get(roltype_list_url, {"status": "definitief"})
         self.assertEqual(response.status_code, 200)
@@ -322,8 +313,8 @@ class RolTypeFilterAPITests(APITestCase):
         roltype1 = RolTypeFactory.create(zaaktype__concept=False)
         RolTypeFactory.create(zaaktype__concept=False)
         zaaktype1 = roltype1.zaaktype
-        roltype_list_url = reverse("catalogi:roltype-list")
-        roltype1_url = reverse(roltype1)
+        roltype_list_url = reverse(RolType, namespace=self.NAMESPACE)
+        roltype1_url = reverse(roltype1, namespace=self.NAMESPACE)
         zaaktype1_url = reverse(zaaktype1)
 
         response = self.client.get(
@@ -351,7 +342,10 @@ class RolTypeFilterAPITests(APITestCase):
 
         data = response.json()["results"]
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://testserver{reverse(roltype)}")
+        self.assertEqual(
+            data[0]["url"],
+            f"http://testserver{reverse(roltype, namespace=self.NAMESPACE)}",
+        )
 
     def test_filter_geldigheid(self):
         roltype = RolTypeFactory.create(
@@ -369,7 +363,10 @@ class RolTypeFilterAPITests(APITestCase):
 
         data = response.json()["results"]
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://testserver{reverse(roltype)}")
+        self.assertEqual(
+            data[0]["url"],
+            f"http://testserver{reverse(roltype, namespace=self.NAMESPACE)}",
+        )
 
     def test_filter_roltype_omschrijving(self):
         rt1 = RolTypeFactory.create(
@@ -382,7 +379,7 @@ class RolTypeFilterAPITests(APITestCase):
             omschrijving="Behandelaar van verzoek", zaaktype__concept=False
         )
 
-        roltype_list_url = reverse("catalogi:roltype-list")
+        roltype_list_url = reverse(RolType, namespace=self.NAMESPACE)
 
         response = self.client.get(roltype_list_url, {"omschrijving": "behandelaar"})
 
@@ -392,8 +389,8 @@ class RolTypeFilterAPITests(APITestCase):
 
         self.assertEqual(len(data), 2)
 
-        omschrijving_1_url = reverse(rt1)
-        omschrijving_3_url = reverse(rt3)
+        omschrijving_1_url = reverse(rt1, namespace=self.NAMESPACE)
+        omschrijving_3_url = reverse(rt3, namespace=self.NAMESPACE)
 
         self.assertIn(
             f"http://testserver{omschrijving_1_url}", [entry["url"] for entry in data]
@@ -402,7 +399,7 @@ class RolTypeFilterAPITests(APITestCase):
             f"http://testserver{omschrijving_3_url}", [entry["url"] for entry in data]
         )
 
-        omschrijving_2_url = reverse(rt2)
+        omschrijving_2_url = reverse(rt2, namespace=self.NAMESPACE)
         self.assertNotIn(
             f"http://testserver{omschrijving_2_url}", [entry["url"] for entry in data]
         )
@@ -421,7 +418,7 @@ class RolTypeFilterAPITests(APITestCase):
             datum_einde_geldigheid=date(2020, 3, 1),
         )
 
-        roltype_list_url = reverse("catalogi:roltype-list")
+        roltype_list_url = reverse(RolType, namespace=self.NAMESPACE)
 
         response = self.client.get(
             roltype_list_url,
@@ -434,7 +431,7 @@ class RolTypeFilterAPITests(APITestCase):
         self.assertEqual(len(data), 1)
         self.assertEqual(
             data[0]["url"],
-            f"http://testserver{reverse('catalogi:roltype-detail', kwargs={'uuid': rt1.uuid})}",
+            f"http://testserver{reverse(rt1, namespace=self.NAMESPACE)}",
         )
 
     def test_filter_roltype_no_results(self):
@@ -442,7 +439,7 @@ class RolTypeFilterAPITests(APITestCase):
             omschrijving="Behandelaar van klacht", zaaktype__concept=False
         )
 
-        roltype_list_url = reverse("catalogi:roltype-list")
+        roltype_list_url = reverse(RolType, namespace=self.NAMESPACE)
 
         response = self.client.get(roltype_list_url, {"omschrijving": "nonexistent"})
 
@@ -454,10 +451,11 @@ class RolTypeFilterAPITests(APITestCase):
 
 class RolTypePaginationTestCase(APITestCase):
     maxDiff = None
+    NAMESPACE = "catalogi"
 
     def test_pagination_default(self):
         RolTypeFactory.create_batch(2, zaaktype__concept=False)
-        roltype_list_url = reverse("catalogi:roltype-list")
+        roltype_list_url = reverse(RolType, namespace=self.NAMESPACE)
 
         response = self.client.get(roltype_list_url)
 
@@ -470,7 +468,7 @@ class RolTypePaginationTestCase(APITestCase):
 
     def test_pagination_page_param(self):
         RolTypeFactory.create_batch(2, zaaktype__concept=False)
-        roltype_list_url = reverse("catalogi:roltype-list")
+        roltype_list_url = reverse(RolType, namespace=self.NAMESPACE)
 
         response = self.client.get(roltype_list_url, {"page": 1})
 
@@ -483,7 +481,7 @@ class RolTypePaginationTestCase(APITestCase):
 
     def test_pagination_pagesize_param(self):
         RolTypeFactory.create_batch(10, zaaktype__concept=False)
-        roltype_list_url = reverse("catalogi:roltype-list")
+        roltype_list_url = reverse(RolType, namespace=self.NAMESPACE)
 
         response = self.client.get(roltype_list_url, {"pageSize": 5})
 

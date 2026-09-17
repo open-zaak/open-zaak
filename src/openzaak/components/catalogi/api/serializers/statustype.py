@@ -64,7 +64,7 @@ class StatusTypeSerializer(
         ),
     )
     zaakobjecttypen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
-        view_name="DeprecatedNamespace:zaakobjecttype-detail",
+        view_name="zaken:zaakobjecttype-detail",
         many=True,
         read_only=True,
         lookup_field="uuid",

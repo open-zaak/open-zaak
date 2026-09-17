@@ -331,7 +331,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
 class ZakenIncludePermissionsTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = False
     zaak_url = reverse_lazy("zaken:zaak-list")
-    zaaktype_url = reverse_lazy("catalogi:zaaktype-list")
+    zaaktype_url = reverse_lazy("zaken:zaaktype-list")
 
     @classmethod
     def setUpTestData(cls):
@@ -486,7 +486,7 @@ class ZakenIncludePermissionsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_zaken_list_expand_nested_catalogi_resource(self):
-        resultaattype_url = reverse("catalogi:resultaattype-list")
+        resultaattype_url = reverse("zaken:resultaattype-list")
 
         # Read zaken is allowed with SCOPE_ZAKEN_ALLES_LEZEN
         self.autorisatie.scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
