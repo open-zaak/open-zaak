@@ -151,7 +151,7 @@ class InformatieObjectTypeFailedNotificationTests(
 ):
     heeft_alle_autorisaties = True
     maxDiff = None
-    NAMESPACE = "catalogi"
+    NAMESPACE = "documenten"
 
     def test_informatieobjecttype_create_fail_send_notification_create_db_entry(
         self, m
