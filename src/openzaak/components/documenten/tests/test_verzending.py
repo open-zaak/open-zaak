@@ -507,6 +507,21 @@ class VerzendingAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Verzending.objects.exists())
 
+    def test_create_geadresseerde_without_verzenddatum_succeeds(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        url = reverse(Verzending)
+        data = {
+            "betrokkene": "http://example.com/betrokkene/1",
+            "informatieobject": f"http://testserver{reverse(eio)}",
+            "aardRelatie": AfzenderTypes.geadresseerde,
+            "contactPersoon": "http://example.com/contactperson/1",
+            "mijnOverheid": True,
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
 
 @temp_private_root()
 class VerzendingFilterTests(JWTAuthMixin, APITestCase):

@@ -958,3 +958,74 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "remote-relation-exists")
         self.assertTrue(ObjectInformatieObject.objects.exists())
+
+
+@tag("oio")
+@temp_private_root()
+@override_settings(
+    ALLOWED_HOSTS=["testserver", "openzaak.nl"], SITE_DOMAIN="testserver"
+)
+class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    list_url = reverse_lazy("objectinformatieobject-list")
+
+    def test_list_expand(self):
+        zaak = ZaakFactory.create()
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio.canonical)
+        oio = ObjectInformatieObject.objects.get()
+
+        oio_data = self.client.get(reverse(oio)).json()
+        io_data = self.client.get(reverse(eio)).json()
+        iotype_data = self.client.get(reverse(eio.informatieobjecttype)).json()
+
+        response = self.client.get(
+            self.list_url,
+            {"expand": "informatieobject,informatieobject.informatieobjecttype"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        expected_results = [
+            {
+                **oio_data,
+                "_expand": {
+                    "informatieobject": {
+                        **io_data,
+                        "_expand": {"informatieobjecttype": iotype_data},
+                    }
+                },
+            }
+        ]
+        self.assertEqual(data, expected_results)
+
+    def test_retrieve_expand(self):
+        zaak = ZaakFactory.create()
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio.canonical)
+        oio = ObjectInformatieObject.objects.get()
+        url = reverse(oio)
+
+        oio_data = self.client.get(url).json()
+        io_data = self.client.get(reverse(eio)).json()
+        iotype_data = self.client.get(reverse(eio.informatieobjecttype)).json()
+
+        response = self.client.get(
+            url,
+            {"expand": "informatieobject,informatieobject.informatieobjecttype"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        expected_result = {
+            **oio_data,
+            "_expand": {
+                "informatieobject": {
+                    **io_data,
+                    "_expand": {"informatieobjecttype": iotype_data},
+                }
+            },
+        }
+        self.assertEqual(data, expected_result)

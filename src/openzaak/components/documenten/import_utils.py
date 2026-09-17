@@ -44,6 +44,7 @@ class DocumentRow:
     _zaak_uuid: str
     _trefwoorden: str
     _inhoud_is_vervallen: str
+    _tonen_aan_initiator: str
 
     row_index: int
 
@@ -87,6 +88,7 @@ class DocumentRow:
             "zaakUuid",
             "trefwoorden",
             "inhoudIsVervallen",
+            "tonenAanInitiator",
         ]
 
     @classproperty
@@ -210,6 +212,10 @@ class DocumentRow:
         return value == "true"
 
     @property
+    def tonen_aan_initiator(self) -> bool:
+        return self._tonen_aan_initiator.lower() == "true"
+
+    @property
     def processed(self) -> bool:
         return self._processed
 
@@ -264,6 +270,7 @@ class DocumentRow:
             "informatieobjecttype": self._informatieobjecttype,
             "trefwoorden": self.trefwoorden,
             "inhoud_is_vervallen": self.inhoud_is_vervallen,
+            "tonen_aan_initiator": self.tonen_aan_initiator,
         }
 
     def as_original(self):
@@ -296,6 +303,7 @@ class DocumentRow:
             "zaakUuid": self._zaak_uuid,
             "trefwoorden": self._trefwoorden,
             "inhoudIsVervallen": self._inhoud_is_vervallen,
+            "tonenAanInitiator": self._tonen_aan_initiator,
         }
 
     def as_export_data(self):

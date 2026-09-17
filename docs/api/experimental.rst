@@ -242,6 +242,11 @@ Query parameters
     * ``trefwoorden__overlap``
     * ``vertrouwelijkheidaanduiding``
 
+* ``/api/v1/gebruiksrechten``, ``/api/v1/objectinformatieobjecten`` and ``/api/v1/verzendingen``
+  endpoints. The ``expand`` query parameter supports expanding to ``informatieobject.informatieobjecttype``,
+  in addition to ``informatieobject``. Only expanding to ``informatieobject`` is part of the
+  VNG standard for these endpoints, so ``informatieobject.informatieobjecttype`` will remain
+  marked as experimental until the VNG standard officially supports it.
 
 Catalogi API
 ============
