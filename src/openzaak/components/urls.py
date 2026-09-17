@@ -45,7 +45,10 @@ urlpatterns = [
         ComponentIndexView.as_view(
             component="catalogi",
             api_version="1",
-            description="Zaaktype Catalogus (ZTC)",
+            deprecated=True,
+            description="Zaaktype Catalogus (ZTC)"
+            "\n\n"
+            "Deze API is deprecated en zal worden verwijderd in Open Zaak versie 3.0. Catalogi, ZaakTypen & BesluitTypen zijn verplaatst naar de Zaken API. InformatieObjectTypen zijn verplaatst naar de Documenten API.",
             notification_url="https://github.com/VNG-Realisatie/catalogi-api/blob/stable/1.1.x/src/notificaties.md#catalogi",
         ),
         name="index-catalogi",

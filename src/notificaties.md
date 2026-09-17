@@ -191,4 +191,8 @@ De architectuur van de notificaties staat beschreven op <a href="https://github.
 
 * <code>zaakverzoek</code>: create
 
+* <code>besluit</code>: create, update, destroy
+
+* <code>besluitinformatieobject</code>: create, destroy
+
 

@@ -18,6 +18,7 @@ class DocumentenConfig(AppConfig):
 
         # Initialize the viewset for Kanaal.get_usage
         from .api.viewsets import EnkelvoudigInformatieObjectViewSet  # noqa
+        from openzaak.components.catalogi.api.viewsets import InformatieObjectType  # noqa
 
         validate_eio_headers()
 
