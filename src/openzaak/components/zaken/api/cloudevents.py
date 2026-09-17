@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from contextlib import contextmanager
 
 from django.conf import settings
-from django.db import DatabaseError, transaction
+from django.db import DatabaseError
 from django.http import HttpRequest
 
 from cloudevents.http import CloudEvent
@@ -191,20 +190,8 @@ def handle_zaakobject_bijgewerkt(event: CloudEvent):
         )
 
 
-@contextmanager
-def _fake_atomic():
-    yield
-
-
 class CloudEventException(Exception):
     pass
-
-
-def conditional_atomic(wrap: bool = True):
-    """
-    Wrap either a fake or real atomic transaction context manager.
-    """
-    return transaction.atomic if wrap else _fake_atomic
 
 
 def send_zaak_cloudevent(event_type: str, zaak: Zaak, request: HttpRequest):
