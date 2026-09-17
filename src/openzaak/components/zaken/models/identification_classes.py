@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2026 Open Zaak maintainers
-
+import re
 from abc import ABC, abstractmethod
 from datetime import date
 from itertools import chain, count, islice, starmap
@@ -128,8 +128,10 @@ class UWVIdentification(BaseZaakIdentificatie):
 
     """
 
+    _POSTFIX = "-01"
+
     def current(self):
-        pattern = r"[A-Z]{1,2}[0-9]{8}"
+        pattern = r"[A-Z]{1,2}[0-9]{8}" + re.escape(self._POSTFIX)
         max_id = (
             self.model.objects.filter(identificatie__regex=pattern)
             .order_by(-Length("identificatie"), "-identificatie")
@@ -137,7 +139,7 @@ class UWVIdentification(BaseZaakIdentificatie):
             .first()
         )
 
-        return max_id or "A00000000"
+        return max_id or f"A00000000{self._POSTFIX}"
 
     def _as_int(self, char: str) -> int:
         return int(char) if char.isnumeric() else (ord(char) - 65)
@@ -182,10 +184,11 @@ class UWVIdentification(BaseZaakIdentificatie):
         return checksum
 
     def _sequence(self, current_identificatie: str) -> Generator[str, None, None]:
+        current_identificatie = current_identificatie.removesuffix(self._POSTFIX)
         if current_identificatie == "A00000000":
             # special case for initial identification
             current_identificatie = "A00000006"
-            yield current_identificatie
+            yield f"{current_identificatie}{self._POSTFIX}"
 
         prefix = current_identificatie.strip("0123456789")
         # sequence number without elf proef checksum
@@ -206,7 +209,7 @@ class UWVIdentification(BaseZaakIdentificatie):
             if checksum != 10:
                 # we need a single digit checksum
                 # if 10 calculate next
-                yield f"{prefix}{seq}{checksum}"
+                yield f"{prefix}{seq}{checksum}{self._POSTFIX}"
 
 
 def get_base_identification_class():

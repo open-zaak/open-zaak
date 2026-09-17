@@ -163,4 +163,4 @@ class US164TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         zaak = Zaak.objects.get()
-        self.assertEqual(zaak.identificatie, "A00000006")
+        self.assertEqual(zaak.identificatie, "A00000006-01")

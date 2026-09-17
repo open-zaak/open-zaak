@@ -793,7 +793,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertEqual(ZaakIdentificatie.objects.count(), 1)
 
         zaak_identificatie = ZaakIdentificatie.objects.get()
-        self.assertEqual(zaak_identificatie.identificatie, "A00000006")
+        self.assertEqual(zaak_identificatie.identificatie, "A00000006-01")
 
         zaak_id = response.json()["zaaknummer"]
         zaak_data = {
@@ -920,11 +920,11 @@ class ZakenTests(JWTAuthMixin, APITestCase):
 
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-            self.assertEqual(response.data, {"zaaknummer": "A00000006"})
+            self.assertEqual(response.data, {"zaaknummer": "A00000006-01"})
 
             self.assertTrue(
                 ZaakIdentificatie.objects.filter(
-                    identificatie="A00000006", bronorganisatie="517439943"
+                    identificatie="A00000006-01", bronorganisatie="517439943"
                 ).exists()
             )
 
@@ -973,9 +973,9 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             self.assertEqual(len(result), 3)
 
             expected_ids = [
-                "A00000006",
-                "A00000023",
-                "A00000037",
+                "A00000006-01",
+                "A00000023-01",
+                "A00000037-01",
             ]
 
             actual_ids = [item["zaaknummer"] for item in result]
@@ -994,7 +994,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             identificatie="ZAAK-2025-0000000010", bronorganisatie="517439943"
         )
         ZaakIdentificatie.objects.create(
-            identificatie="A00000006", bronorganisatie="517439943"
+            identificatie="A00000006-01", bronorganisatie="517439943"
         )
 
         data = {
@@ -1020,8 +1020,8 @@ class ZakenTests(JWTAuthMixin, APITestCase):
 
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-            self.assertEqual(response.data[0]["zaaknummer"], "A00000023")
-            self.assertEqual(response.data[1]["zaaknummer"], "A00000037")
+            self.assertEqual(response.data[0]["zaaknummer"], "A00000023-01")
+            self.assertEqual(response.data[1]["zaaknummer"], "A00000037-01")
 
     @tag("gh-2011")
     def test_betalingsindicatie_weergave(self):
