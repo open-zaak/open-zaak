@@ -1,8 +1,12 @@
 openapi: 3.0.3
 info:
-  title: Catalogi API
+  title: Catalogi API (DEPRECATED)
   version: 1.3.1
-  description: |
+  description: |2
+
+    **Deze API is deprecated en zal worden verwijderd in Open Zaak versie 3.0.
+    Catalogi, ZaakTypen & BesluitTypen zijn verplaatst naar de Zaken API. InformatieObjectTypen zijn verplaatst naar de Documenten API.**
+
     Een API om een zaaktypecatalogus (ZTC) te benaderen.
 
     De zaaktypecatalogus helpt gemeenten om het proces vanuit de 'vraag van een

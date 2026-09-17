@@ -50,7 +50,7 @@ Deze API is afhankelijk van:
 """
 
 custom_settings = {
-    "TITLE": "Catalogi API",
+    "TITLE": "Catalogi API (DEPRECATED)",
     "VERSION": settings.CATALOGI_API_VERSION,
     "DESCRIPTION": description,
     "SERVERS": [{"url": "/catalogi/api/v1"}],
