@@ -13,26 +13,18 @@ from vng_api_common.filters import URLModelChoiceFilter
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text, get_resource_for_path
 
-from openzaak.components.catalogi.api.serializers.besluittype import (
+from openzaak.components.catalogi.api.serializers import (
     BesluitTypeSerializer,
-)
-from openzaak.components.catalogi.api.serializers.catalogus import CatalogusSerializer
-from openzaak.components.catalogi.api.serializers.eigenschap import EigenschapSerializer
-from openzaak.components.catalogi.api.serializers.informatieobjecttype import (
+    CatalogusSerializer,
+    EigenschapSerializer,
     InformatieObjectTypeSerializer,
-)
-from openzaak.components.catalogi.api.serializers.relatieklassen import (
-    ZaakTypeInformatieObjectTypeSerializer,
-)
-from openzaak.components.catalogi.api.serializers.resultaattype import (
     ResultaatTypeSerializer,
-)
-from openzaak.components.catalogi.api.serializers.roltype import RolTypeSerializer
-from openzaak.components.catalogi.api.serializers.statustype import StatusTypeSerializer
-from openzaak.components.catalogi.api.serializers.zaakobjecttype import (
+    RolTypeSerializer,
+    StatusTypeSerializer,
     ZaakObjectTypeSerializer,
+    ZaakTypeInformatieObjectTypeSerializer,
+    ZaakTypeSerializer,
 )
-from openzaak.components.catalogi.api.serializers.zaaktype import ZaakTypeSerializer
 from openzaak.utils.filters import (
     CatalogiExpandFilter,
     CharArrayFilter,

@@ -1265,6 +1265,9 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
 
         eio_data = self.client.get(reverse(eio)).json()
         iotype_data = self.client.get(reverse(eio.informatieobjecttype)).json()
+        # Remove _expand because a normal GET adds it, while the query parameter
+        # only adds it when a further expansion is requested.
+        iotype_data.pop("_expand", None)
 
         response = self.client.get(
             self.url,
@@ -1285,6 +1288,9 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
 
         eio_data = self.client.get(reverse(eio)).json()
         iotype_data = self.client.get(reverse(eio.informatieobjecttype)).json()
+        # Remove _expand because a normal GET adds it, while the query parameter
+        # only adds it when a further expansion is requested.
+        iotype_data.pop("_expand", None)
 
         response = self.client.get(
             url,

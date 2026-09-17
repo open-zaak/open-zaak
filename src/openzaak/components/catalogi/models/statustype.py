@@ -9,7 +9,6 @@ from django.utils.translation import gettext_lazy as _
 from vng_api_common.caching import ETagMixin
 
 from openzaak.utils.fields import DurationField
-
 from openzaak.utils.mixins import APIMixin
 
 from .mixins import OptionalGeldigheidMixin
