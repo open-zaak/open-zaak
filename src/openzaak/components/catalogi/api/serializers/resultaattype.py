@@ -20,6 +20,7 @@ from vng_api_common.utils import get_help_text
 from openzaak.utils.serializer_fields import (
     DeprecatedNamespaceLengthHyperlinkedRelatedField,
 )
+from openzaak.utils.serializers import DeprecatedNamespaceHyperlinkedModelSerializer
 from openzaak.utils.validators import ResourceValidator, UniqueTogetherValidator
 
 from ...models import BesluitType, InformatieObjectType, ResultaatType
@@ -55,7 +56,7 @@ class BrondatumArchiefprocedureSerializer(GegevensGroepSerializer):
 
 
 class ResultaatTypeSerializer(
-    NestedGegevensGroepMixin, serializers.HyperlinkedModelSerializer
+    NestedGegevensGroepMixin, DeprecatedNamespaceHyperlinkedModelSerializer
 ):
     brondatum_archiefprocedure = BrondatumArchiefprocedureSerializer(
         label=_("Brondatum archiefprocedure"),
@@ -155,7 +156,7 @@ class ResultaatTypeSerializer(
         extra_kwargs = {
             "url": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:resultaattype-detail",
+                "view_name": "zaken:resultaattype-detail",
             },
             "resultaattypeomschrijving": {
                 "validators": [
@@ -174,7 +175,7 @@ class ResultaatTypeSerializer(
             "zaaktype": {
                 "lookup_field": "uuid",
                 "label": _("is van"),
-                "view_name": "catalogi:zaaktype-detail",
+                "view_name": "zaken:zaaktype-detail",
             },
             "selectielijstklasse": {
                 "validators": [

@@ -12,6 +12,7 @@ from vng_api_common.utils import get_help_text
 from openzaak.utils.serializer_fields import (
     DeprecatedNamespaceLengthHyperlinkedRelatedField,
 )
+from openzaak.utils.serializers import DeprecatedNamespaceHyperlinkedModelSerializer
 from openzaak.utils.validators import UniqueTogetherValidator
 
 from ...constants import RichtingChoices
@@ -19,7 +20,9 @@ from ...models import InformatieObjectType, ZaakTypeInformatieObjectType
 from ..validators import ZaakTypeInformatieObjectTypeCatalogusValidator, is_force_write
 
 
-class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
+class ZaakTypeInformatieObjectTypeSerializer(
+    DeprecatedNamespaceHyperlinkedModelSerializer
+):
     """
     Represent a ZaakTypeInformatieObjectType.
 
@@ -66,15 +69,15 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
         extra_kwargs = {
             "url": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:zaaktypeinformatieobjecttype-detail",
+                "view_name": "zaken:zaaktypeinformatieobjecttype-detail",
             },
             "zaaktype": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:zaaktype-detail",
+                "view_name": "zaken:zaaktype-detail",
             },
             "statustype": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:statustype-detail",
+                "view_name": "zaken:statustype-detail",
             },
         }
         validators = [

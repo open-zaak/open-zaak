@@ -3,7 +3,6 @@
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
-from vng_api_common.serializers import CachedHyperlinkedRelatedField
 
 from openzaak.utils.serializer_fields import (
     DeprecatedNamespaceCachedHyperlinkedRelatedField,
@@ -13,11 +12,11 @@ from ...models import Catalogus
 
 
 class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
-    zaaktypen = CachedHyperlinkedRelatedField(
+    zaaktypen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         source="zaaktype_set",
-        view_name="catalogi:zaaktype-detail",
+        view_name="zaken:zaaktype-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar ZAAKTYPEn die in deze CATALOGUS worden ontsloten."

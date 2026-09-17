@@ -18,13 +18,35 @@ def _magic_args(
     Do some trivial introspection to translate objects/models into common
     used urls.
     """
+
+    DEFAULT_NAMESPACES = {
+        "roltype": "zaken",
+        "statustype": "zaken",
+        "resultaattype": "zaken",
+        "eigenschap": "zaken",
+        "besluittype": "zaken",
+        "besluit": "zaken",
+        "besluitinformatieobject": "zaken",
+        "zaaktype": "zaken",
+        "zaaktypeinformatieobjecttype": "zaken",
+        "zaakobjecttype": "zaken",
+        "informatieobjecttype": "zaken",
+        # "catalogus": "zaken",
+    }
+
     if args and isinstance(args[0], models.Model):
-        namespace = kwargs.pop("namespace", args[0]._meta.app_label)
+        namespace = kwargs.pop(
+            "namespace",
+            DEFAULT_NAMESPACES.get(args[0]._meta.model_name, args[0]._meta.app_label),
+        )
         url_name = f"{namespace}:{args[0]._meta.model_name}-detail"
         kwargs["kwargs"].setdefault("uuid", args[0].uuid)
         args = (url_name,) + args[1:]
     elif args and inspect.isclass(args[0]) and issubclass(args[0], models.Model):
-        namespace = kwargs.pop("namespace", args[0]._meta.app_label)
+        namespace = kwargs.pop(
+            "namespace",
+            DEFAULT_NAMESPACES.get(args[0]._meta.model_name, args[0]._meta.app_label),
+        )
         url_name = f"{namespace}:{args[0]._meta.model_name}-list"
         args = (url_name,) + args[1:]
     return args, kwargs

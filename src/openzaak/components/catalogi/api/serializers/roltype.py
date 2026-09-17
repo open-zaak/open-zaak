@@ -11,11 +11,15 @@ from vng_api_common.serializers import (
 )
 from vng_api_common.utils import get_help_text
 
+from openzaak.utils.serializers import DeprecatedNamespaceHyperlinkedModelSerializer
+
 from ...models import RolType
 from ..validators import StartBeforeEndValidator, ZaakTypeConceptValidator
 
 
-class RolTypeSerializer(NestedCreateMixin, serializers.HyperlinkedModelSerializer):
+class RolTypeSerializer(
+    NestedCreateMixin, DeprecatedNamespaceHyperlinkedModelSerializer
+):
     catalogus = CachedHyperlinkedRelatedField(
         view_name="catalogi:catalogus-detail",
         source="zaaktype.catalogus",
@@ -57,10 +61,10 @@ class RolTypeSerializer(NestedCreateMixin, serializers.HyperlinkedModelSerialize
             "einde_object",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid", "view_name": "catalogi:roltype-detail"},
+            "url": {"lookup_field": "uuid", "view_name": "zaken:roltype-detail"},
             "zaaktype": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:zaaktype-detail",
+                "view_name": "zaken:zaaktype-detail",
             },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
