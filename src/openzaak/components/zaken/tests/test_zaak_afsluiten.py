@@ -1,10 +1,13 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2025 Dimpact
 
+from datetime import date
+
 from django.test import override_settings, tag
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
+import requests_mock
 from dateutil.relativedelta import relativedelta
 from freezegun import freeze_time
 from rest_framework import status
@@ -14,9 +17,12 @@ from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze,
     ComponentTypes,
     VertrouwelijkheidsAanduiding,
+    ZaakobjectTypes,
 )
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import get_validation_errors, reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.constants import ArchiefNominatieChoices
@@ -36,6 +42,7 @@ from openzaak.components.zaken.models import Resultaat, Status, Zaak
 from openzaak.components.zaken.tests.factories import (
     StatusFactory,
     ZaakFactory,
+    ZaakObjectFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin
 
@@ -538,5 +545,59 @@ class ZaakAfsluitenTests(JWTAuthMixin, APITestCase):
             ),
             content,
         )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    def test_zaak_afsluiten_works_when_related_zaakobject_has_no_end_date(self):
+        """
+        Ensure a zaak with afleidingswijze zaakobject can be closed if the related
+        zaakobject has no end date yet.
+        """
+        zaak = ZaakFactory.create(
+            zaaktype__concept=False, startdatum=date(2023, 1, 1), einddatum=None
+        )
+        ZaakObjectFactory.create(
+            zaak=zaak,
+            object="https://producten.local.nl/api/v1/producten/54041c7b-5c72-4fe1-856e-f51fbfef2056",
+            object_type=ZaakobjectTypes.product,
+            relatieomschrijving="Product",
+        )
+        ServiceFactory.create(
+            api_root="https://producten.local.nl/api/v1", api_type=APITypes.pc
+        )
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P10Y",
+            archiefnominatie=ArchiefNominatieChoices.vernietigen,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.zaakobject,
+            brondatum_archiefprocedure_objecttype=ZaakobjectTypes.product,
+            brondatum_archiefprocedure_datumkenmerk="eind_datum",
+            zaaktype=zaak.zaaktype,
+        )
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+
+        zaak_data = self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).data
+        content = {
+            "zaak": zaak_data,
+            "status": {
+                "statustype": f"http://testserver{reverse(statustype)}",
+                "datumStatusGezet": "2024-01-01T00:00:00",
+            },
+            "resultaat": {
+                "resultaattype": f"http://testserver{reverse(resultaattype)}",
+                "toelichting": "Behandeld",
+            },
+        }
+
+        with requests_mock.Mocker() as m:
+            m.get(
+                "https://producten.local.nl/api/v1/producten/54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                json={
+                    "uuid": "54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                    "eind_datum": None,
+                },
+            )
+            response = self.client.post(
+                reverse("zaakafsluiten", kwargs={"uuid": zaak.uuid}), content
+            )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)

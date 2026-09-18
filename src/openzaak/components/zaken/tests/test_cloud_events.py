@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from unittest import TestCase, skip
 from unittest.mock import Mock, patch
 from uuid import UUID, uuid4
@@ -62,6 +62,7 @@ from ..api.cloudevents import (
     ZAAK_GEOPEND,
     ZAAK_ONTKOPPELD,
     ZAAK_VERWIJDEREN,
+    ZAAKOBJECT_BIJGEWERKT,
 )
 from ..models import (
     Resultaat,
@@ -1675,3 +1676,314 @@ class IncomingZaakOntkoppeldCloudEventTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
         self.assertEqual(self.zaak.zaakobject_set.count(), 0)
+
+
+@tag("cloudevents")
+class IncomingZaakobjectBijgewerktCloudEventTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = False
+
+    component = ComponentTypes.nrc
+    scopes = [SCOPE_CLOUDEVENTS_BEZORGEN]
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        from django.urls import reverse as dj_reverse
+
+        cls.endpoint = dj_reverse("cloudevent-webhook")
+
+    def test_no_event_data(self):
+        zaak = ZaakFactory.create()
+        event = CloudEvent(
+            {
+                "type": ZAAKOBJECT_BIJGEWERKT,
+                "source": "https://example.com/event-producer",
+            },
+            None,
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertIsNone(zaak.archiefactiedatum)
+
+    def test_zaak_cannot_be_resolved(self):
+        zaak = ZaakFactory.create()
+
+        event = CloudEvent(
+            {
+                "type": ZAAKOBJECT_BIJGEWERKT,
+                "source": "https://example.com/event-producer",
+            },
+            {
+                "zaak": "https://other-zaaksysteem/api/v1/zaken/7a9e164a-f69b-4111-843d-1e466c859368",
+            },
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertIsNone(zaak.archiefactiedatum)
+
+    def test_without_linkto(self):
+        zaak = ZaakFactory.create()
+
+        event = CloudEvent(
+            {
+                "type": ZAAKOBJECT_BIJGEWERKT,
+                "source": "https://example.com/event-producer",
+            },
+            {
+                "zaak": f"http://testserver{reverse('zaak-detail', kwargs={'uuid': zaak.uuid})}",
+            },
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertIsNone(zaak.archiefactiedatum)
+
+    def test_without_fields(self):
+        zaak = ZaakFactory.create()
+
+        event = CloudEvent(
+            {
+                "type": ZAAKOBJECT_BIJGEWERKT,
+                "source": "https://example.com/event-producer",
+            },
+            {
+                "zaak": f"http://testserver{reverse('zaak-detail', kwargs={'uuid': zaak.uuid})}",
+                "linkTo": "https://producten.local.nl/api/v1/producten/54041c7b-5c72-4fe1-856e-f51fbfef2056",
+            },
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertIsNone(zaak.archiefactiedatum)
+
+    def test_with_zaak_without_end_date(self):
+        zaak = ZaakFactory.create(startdatum=date(2025, 9, 3), einddatum=None)
+
+        event = CloudEvent(
+            {
+                "type": ZAAKOBJECT_BIJGEWERKT,
+                "source": "https://example.com/event-producer",
+            },
+            {
+                "zaak": f"http://testserver{reverse('zaak-detail', kwargs={'uuid': zaak.uuid})}",
+                "linkTo": "https://producten.local.nl/api/v1/producten/54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                "fields": ["naam"],
+            },
+        )
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertIsNone(zaak.archiefactiedatum)
+
+    def test_with_zaak_without_resultaat(self):
+        zaak = ZaakFactory.create(
+            startdatum=date(2025, 9, 3), einddatum=date(2027, 9, 3)
+        )
+
+        event = CloudEvent(
+            {
+                "type": ZAAKOBJECT_BIJGEWERKT,
+                "source": "https://example.com/event-producer",
+            },
+            {
+                "zaak": f"http://testserver{reverse('zaak-detail', kwargs={'uuid': zaak.uuid})}",
+                "linkTo": "https://producten.local.nl/api/v1/producten/54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                "fields": ["naam"],
+            },
+        )
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertIsNone(zaak.archiefactiedatum)
+
+    def test_without_relevant_zaakobject(self):
+        """
+        Note: this shouldn't happen if zaak-gekoppeld cloudevents were sent/processed
+        correctly, but can help when debugging in case things don't work as expected.
+        """
+        zaak = ZaakFactory.create(
+            startdatum=date(2025, 9, 3), einddatum=date(2027, 9, 3)
+        )
+        ServiceFactory.create(
+            api_root="https://producten.local.nl/api/v1", api_type=APITypes.pc
+        )
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P10Y",
+            archiefnominatie=Archiefnominatie.vernietigen,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.zaakobject,
+            brondatum_archiefprocedure_objecttype=ZaakobjectTypes.product,
+            brondatum_archiefprocedure_datumkenmerk="eind_datum",
+            zaaktype=zaak.zaaktype,
+        )
+        ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
+
+        event = CloudEvent(
+            {
+                "type": ZAAKOBJECT_BIJGEWERKT,
+                "source": "https://example.com/event-producer",
+            },
+            {
+                "zaak": f"http://testserver{reverse('zaak-detail', kwargs={'uuid': zaak.uuid})}",
+                "linkTo": "https://producten.local.nl/api/v1/producten/54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                "fields": ["naam"],
+            },
+        )
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        zaak.refresh_from_db()
+        self.assertIsNone(zaak.archiefactiedatum)
+
+    def test_with_zaak_with_zaakobject_afleidingswijze_and_non_relevant_changed_field(
+        self,
+    ):
+        zaak = ZaakFactory.create(
+            startdatum=date(2025, 9, 3), einddatum=date(2027, 9, 3)
+        )
+        ZaakObjectFactory.create(
+            zaak=zaak,
+            object="https://producten.local.nl/api/v1/producten/54041c7b-5c72-4fe1-856e-f51fbfef2056",
+            object_type=ZaakobjectTypes.product,
+            relatieomschrijving="Product",
+        )
+        ServiceFactory.create(
+            api_root="https://producten.local.nl/api/v1", api_type=APITypes.pc
+        )
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P10Y",
+            archiefnominatie=Archiefnominatie.vernietigen,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.zaakobject,
+            brondatum_archiefprocedure_objecttype=ZaakobjectTypes.product,
+            brondatum_archiefprocedure_datumkenmerk="eind_datum",
+            zaaktype=zaak.zaaktype,
+        )
+        # Prevent the archiefactiedatum already being calculated when creating the resultaat
+        # (see `Resultaat.save`)
+        with requests_mock.Mocker() as m:
+            m.get(
+                "https://producten.local.nl/api/v1/producten/54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                json={
+                    "uuid": "54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                    "eind_datum": None,
+                },
+            )
+            ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
+        self.assertIsNone(zaak.archiefactiedatum)
+
+        event = CloudEvent(
+            {
+                "type": ZAAKOBJECT_BIJGEWERKT,
+                "source": "https://example.com/event-producer",
+            },
+            {
+                "zaak": f"http://testserver{reverse('zaak-detail', kwargs={'uuid': zaak.uuid})}",
+                "linkTo": "https://producten.local.nl/api/v1/producten/54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                "fields": ["naam"],
+            },
+        )
+        with requests_mock.Mocker() as m:
+            m.get(
+                "https://producten.local.nl/api/v1/producten/54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                json={
+                    "uuid": "54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                    "eind_datum": "2028-09-03",
+                },
+            )
+            response = self.client.post(
+                self.endpoint,
+                to_dict(event),
+                headers={"content-type": "application/cloudevents+json"},
+            )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        zaak.refresh_from_db()
+        self.assertIsNone(zaak.archiefactiedatum)
+
+    def test_with_zaak_with_zaakobject_afleidingswijze_and_relevant_changed_field(self):
+        zaak = ZaakFactory.create(
+            startdatum=date(2025, 9, 3), einddatum=date(2027, 9, 3)
+        )
+        ZaakObjectFactory.create(
+            zaak=zaak,
+            object="https://producten.local.nl/api/v1/producten/54041c7b-5c72-4fe1-856e-f51fbfef2056",
+            object_type=ZaakobjectTypes.product,
+            relatieomschrijving="Product",
+        )
+        ServiceFactory.create(
+            api_root="https://producten.local.nl/api/v1", api_type=APITypes.pc
+        )
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P10Y",
+            archiefnominatie=Archiefnominatie.vernietigen,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.zaakobject,
+            brondatum_archiefprocedure_objecttype=ZaakobjectTypes.product,
+            brondatum_archiefprocedure_datumkenmerk="eind_datum",
+            zaaktype=zaak.zaaktype,
+        )
+        # Prevent the archiefactiedatum already being calculated when creating the resultaat
+        # (see `Resultaat.save`)
+        with requests_mock.Mocker() as m:
+            m.get(
+                "https://producten.local.nl/api/v1/producten/54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                json={
+                    "uuid": "54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                    "eind_datum": None,
+                },
+            )
+            ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
+        self.assertIsNone(zaak.archiefactiedatum)
+
+        event = CloudEvent(
+            {
+                "type": ZAAKOBJECT_BIJGEWERKT,
+                "source": "https://example.com/event-producer",
+            },
+            {
+                "zaak": f"http://testserver{reverse('zaak-detail', kwargs={'uuid': zaak.uuid})}",
+                "linkTo": "https://producten.local.nl/api/v1/producten/54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                "fields": ["naam", "eind_datum"],
+            },
+        )
+        with requests_mock.Mocker() as m:
+            m.get(
+                "https://producten.local.nl/api/v1/producten/54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                json={
+                    "uuid": "54041c7b-5c72-4fe1-856e-f51fbfef2056",
+                    "eind_datum": "2028-09-03",
+                },
+            )
+            response = self.client.post(
+                self.endpoint,
+                to_dict(event),
+                headers={"content-type": "application/cloudevents+json"},
+            )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.archiefactiedatum, date(2038, 9, 3))
