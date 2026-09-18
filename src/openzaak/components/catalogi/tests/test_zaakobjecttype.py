@@ -61,7 +61,7 @@ class ZaakObjectTypeAPITests(APITestCase):
             "anderObjecttype": False,
             "objecttype": "http://example.org/objecttypen/1",
             "relatieOmschrijving": "test description",
-            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "catalogus": f"http://testserver{reverse(self.catalogus, namespace=self.NAMESPACE)}",
             "resultaattypen": [],
             "statustype": f"http://testserver{reverse(statustype, namespace=self.NAMESPACE)}",
             "beginGeldigheid": "2023-01-01",

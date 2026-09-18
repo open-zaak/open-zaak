@@ -60,7 +60,7 @@ class RolTypeAPITests(APITestCase):
             "zaaktypeIdentificatie": rol_type.zaaktype.identificatie,
             "omschrijving": "Vergunningaanvrager",
             "omschrijvingGeneriek": RolOmschrijving.initiator,
-            "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
+            "catalogus": f"http://testserver{reverse(zaaktype.catalogus, namespace=self.NAMESPACE)}",
             "beginGeldigheid": "2023-01-01",
             "eindeGeldigheid": "2023-12-01",
             "beginObject": "2023-01-01",

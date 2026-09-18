@@ -93,7 +93,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "aanleiding": zaaktype.aanleiding,
             "verlengingstermijn": None if not zaaktype.verlenging_mogelijk else "P30D",
             "opschortingEnAanhoudingMogelijk": zaaktype.opschorting_en_aanhouding_mogelijk,
-            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "catalogus": f"http://testserver{reverse(self.catalogus, namespace=self.NAMESPACE)}",
             "indicatieInternOfExtern": zaaktype.indicatie_intern_of_extern,
             "verlengingMogelijk": zaaktype.verlenging_mogelijk,
             "handelingBehandelaar": zaaktype.handeling_behandelaar,

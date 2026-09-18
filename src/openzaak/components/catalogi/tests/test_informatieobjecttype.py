@@ -67,7 +67,9 @@ class InformatieObjectTypeAPITests(APITestCase):
         self.assertEqual(response.status_code, 200)
 
         expected = {
-            "catalogus": "http://testserver{}".format(self.catalogus_detail_url),
+            "catalogus": "http://testserver{}".format(
+                reverse(self.catalogus, namespace=self.NAMESPACE)
+            ),
             "omschrijving": iotype.omschrijving,
             "url": "http://testserver{}".format(informatieobjecttype_detail_url),
             "vertrouwelijkheidaanduiding": "openbaar",

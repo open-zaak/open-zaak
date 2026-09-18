@@ -74,7 +74,7 @@ class StatusTypeAPITests(APITestCase):
             "volgnummer": statustype.statustypevolgnummer,
             "isEindstatus": True,
             "informeren": False,
-            "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
+            "catalogus": f"http://testserver{reverse(zaaktype.catalogus, namespace=self.NAMESPACE)}",
             "doorlooptijd": None,
             "toelichting": "description",
             "checklistitemStatustype": [

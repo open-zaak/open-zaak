@@ -157,7 +157,7 @@ class DeprecatedNamespaceMixin:
             "besluit": "besluiten",
             "besluitinformatieobject": "besluiten",
             "besluittype": "catalogi",
-            "catalogi": "catalogi",
+            "catalogus": "catalogi",
         },
         "catalogi": {
             "zaaktype": "catalogi",
@@ -169,7 +169,7 @@ class DeprecatedNamespaceMixin:
             "resultaattype": "catalogi",
             "zaaktypeinformatieobjecttype": "catalogi",
             "zaakobjecttype": "catalogi",
-            "catalogi": "catalogi",
+            "catalogus": "catalogi",
         },
     }
 

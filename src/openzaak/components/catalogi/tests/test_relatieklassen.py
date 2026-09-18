@@ -73,7 +73,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
             "volgnummer": ztiot.volgnummer,
             "richting": ztiot.richting,
             "statustype": None,
-            "catalogus": f"http://testserver{reverse(ztiot.zaaktype.catalogus)}",
+            "catalogus": f"http://testserver{reverse(ztiot.zaaktype.catalogus, namespace=self.NAMESPACE)}",
         }
         self.assertEqual(response.json(), expected)
 

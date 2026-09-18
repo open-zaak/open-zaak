@@ -115,18 +115,19 @@ class BesluitTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
 # TODO
 class CatalogusCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def test_catalogus_get_cache_header(self):
         catalogus = CatalogusFactory.create()
 
-        response = self.client.get(reverse(catalogus))
+        response = self.client.get(reverse(catalogus, namespace=self.NAMESPACE))
 
         self.assertHasETag(response)
 
     def test_catalogus_head_cache_header(self):
         catalogus = CatalogusFactory.create()
 
-        self.assertHeadHasETag(reverse(catalogus))
+        self.assertHeadHasETag(reverse(catalogus, namespace=self.NAMESPACE))
 
     def test_head_in_apischema(self):
         spec = get_spec("catalogi")
@@ -138,7 +139,8 @@ class CatalogusCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_conditional_get_304(self):
         catalogus = CatalogusFactory.create(with_etag=True)
         response = self.client.get(
-            reverse(catalogus), headers={"if-none-match": f'"{catalogus._etag}"'}
+            reverse(catalogus, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{catalogus._etag}"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
@@ -147,7 +149,8 @@ class CatalogusCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         catalogus = CatalogusFactory.create(with_etag=True)
 
         response = self.client.get(
-            reverse(catalogus), headers={"if-none-match": '"not-an-md5"'}
+            reverse(catalogus, namespace=self.NAMESPACE),
+            headers={"if-none-match": '"not-an-md5"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -156,6 +159,7 @@ class CatalogusCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
 # TODO
 class CatalogusCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def setUp(self):
         super().setUp()
@@ -175,7 +179,8 @@ class CatalogusCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         catalogus.save()
 
         response = self.client.get(
-            reverse(catalogus), headers={"if-none-match": f'"{etag}"'}
+            reverse(catalogus, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -190,7 +195,8 @@ class CatalogusCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         etag = catalogus._etag
 
         response = self.client.get(
-            reverse(catalogus), headers={"if-none-match": f'"{etag}"'}
+            reverse(catalogus, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 

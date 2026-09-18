@@ -136,7 +136,7 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
                 "indicatieSpecifiek": None,
                 "procesobjectaard": "",
                 "procestermijn": None,
-                "catalogus": f"http://testserver{reverse(resultaattype.zaaktype.catalogus)}",
+                "catalogus": f"http://testserver{reverse(resultaattype.zaaktype.catalogus, namespace=self.NAMESPACE)}",
                 "informatieobjecttypen": [],
                 "informatieobjecttypeOmschrijving": [],
                 "besluittypen": [],

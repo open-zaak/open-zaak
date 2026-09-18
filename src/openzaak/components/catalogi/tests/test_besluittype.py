@@ -66,7 +66,7 @@ class BesluitTypeAPITests(APITestCase):
         self.assertEqual(response.status_code, 200)
         expected = {
             "url": f"http://testserver{besluittype_detail_url}",
-            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "catalogus": f"http://testserver{reverse(self.catalogus, namespace=self.NAMESPACE)}",
             "zaaktypen": [f"http://testserver{zaaktype_url}"],
             "omschrijving": besluittype.omschrijving,
             "omschrijvingGeneriek": "",
