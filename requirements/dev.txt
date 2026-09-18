@@ -375,7 +375,7 @@ django-log-outgoing-requests==0.9.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-django-loose-fk @ git+https://github.com/maykinmedia/django-loose-fk.git@1be66990697fb03c70e38ab315559da58d69b057
+django-loose-fk @ git+https://github.com/maykinmedia/django-loose-fk.git@485e0199d2a18276b55e5250f4ba2fb61572d8c3
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
