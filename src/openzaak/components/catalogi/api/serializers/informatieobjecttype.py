@@ -64,6 +64,11 @@ class InformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
         read_only=True,
         help_text=_("De datum van de aller laatste versie van het object."),
     )
+    inclusion_serializers = {
+        "catalogus": "openzaak.components.catalogi.api.serializers.CatalogusSerializer",
+        "zaaktypen": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "besluittypen": "openzaak.components.catalogi.api.serializers.BesluitTypeSerializer",
+    }
 
     class Meta:
         model = InformatieObjectType

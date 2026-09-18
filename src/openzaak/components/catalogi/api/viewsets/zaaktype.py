@@ -8,13 +8,13 @@ from rest_framework.decorators import action
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
-from openzaak.utils.mixins import CacheQuerysetMixin
+from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, VALIDATION_ERROR_RESPONSES
 
 from ...models import ZaakType
-from ..filters import ZaakTypeFilter
+from ..filters import ZaakTypeDetailFilter, ZaakTypeFilter
 from ..kanalen import KANAAL_ZAAKTYPEN
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_DELETE,
@@ -83,6 +83,7 @@ logger = structlog.stdlib.get_logger(__name__)
 class ZaakTypeViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
+    ExpandMixin,
     ConceptPublishMixin,
     ConceptDestroyMixin,
     ConceptFilterMixin,
@@ -116,7 +117,6 @@ class ZaakTypeViewSet(
     serializer_class = ZaakTypeSerializer
     publish_serializer = ZaakTypePublishSerializer
     lookup_field = "uuid"
-    filterset_class = ZaakTypeFilter
     pagination_class = ExactPagination
     permission_classes = (AuthRequired,)
     required_scopes = {
@@ -130,6 +130,15 @@ class ZaakTypeViewSet(
     }
     notifications_kanaal = KANAAL_ZAAKTYPEN
     concept_related_fields = ["besluittypen", "informatieobjecttypen"]
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return ZaakTypeDetailFilter
+        return ZaakTypeFilter
 
     def get_queryset(self):
         qs = super().get_queryset()

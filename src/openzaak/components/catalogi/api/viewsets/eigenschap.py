@@ -9,11 +9,11 @@ from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.components.catalogi.models import Eigenschap
-from openzaak.utils.mixins import CacheQuerysetMixin
+from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 
-from ..filters import EigenschapFilter
+from ..filters import EigenschapDetailFilter, EigenschapFilter
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_DELETE,
     SCOPE_CATALOGI_FORCED_WRITE,
@@ -68,6 +68,7 @@ logger = structlog.stdlib.get_logger(__name__)
 class EigenschapViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
+    ExpandMixin,
     ZaakTypeConceptMixin,
     viewsets.ModelViewSet,
 ):
@@ -86,7 +87,6 @@ class EigenschapViewSet(
         .order_by("-pk")
     )
     serializer_class = EigenschapSerializer
-    filterset_class = EigenschapFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
     permission_classes = (AuthRequired,)
@@ -98,6 +98,15 @@ class EigenschapViewSet(
         "partial_update": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_WRITE,
         "destroy": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_DELETE,
     }
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return EigenschapDetailFilter
+        return EigenschapFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
