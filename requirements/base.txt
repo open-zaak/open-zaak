@@ -201,7 +201,7 @@ django-jsonform==2.22.0
     #   open-api-framework
 django-log-outgoing-requests==0.9.1
     # via open-api-framework
-django-loose-fk @ git+https://github.com/maykinmedia/django-loose-fk.git@874df2a111d7d0a292d11285e8f75296fbe1b987
+django-loose-fk @ git+https://github.com/maykinmedia/django-loose-fk.git@7eafcf382e2f31d385f96dc4292232baf41762f5
     # via -r requirements/base.in
 django-markup==1.9.1
     # via open-api-framework
