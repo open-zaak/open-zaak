@@ -1728,36 +1728,9 @@ class ZaakBesluit(models.Model):
         Zaak, on_delete=models.CASCADE, help_text=_("URL-referentie naar de ZAAK.")
     )
 
-    _besluit_base_url = ServiceFkField(
-        help_text="Basis deel van URL-referentie naar externe BESLUIT (in een andere Besluiten API).",
-    )
-    _besluit_relative_url = RelativeURLField(
-        _("besluit relative url"),
-        blank=True,
-        null=True,
-        help_text="Relatief deel van URL-referentie naar externe BESLUIT (in een andere Besluiten API).",
-    )
-    _besluit_url = ServiceUrlField(
-        base_field="_besluit_base_url",
-        relative_field="_besluit_relative_url",
-        verbose_name=_("extern besluit"),
-        blank=True,
-        null=True,
-        max_length=1000,
-        help_text=_(
-            "URL-referentie naar extern BESLUIT (in een andere Besluiten API)."
-        ),
-    )
-    _besluit = models.ForeignKey(
+    besluit = models.ForeignKey(
         "besluiten.Besluit",
         on_delete=models.CASCADE,
-        help_text="URL-referentie naar het BESLUIT (in de Besluiten API).",
-        null=True,
-        blank=True,
-    )
-    besluit = FkOrServiceUrlField(
-        fk_field="_besluit",
-        url_field="_besluit_url",
         help_text="URL-referentie naar het BESLUIT (in de Besluiten API).",
     )
 
@@ -1766,24 +1739,18 @@ class ZaakBesluit(models.Model):
     class Meta:
         verbose_name = _("zaakbesluit")
         verbose_name_plural = _("zaakbesluiten")
-        unique_together = ("zaak", "_besluit")
+        unique_together = ("zaak", "besluit")
         constraints = [
             models.UniqueConstraint(
-                fields=["zaak", "_besluit_base_url", "_besluit_relative_url"],
-                condition=models.Q(_besluit_base_url__isnull=False),
+                fields=["zaak", "besluit"],
                 name="unique_zaak_and_besluit",
             )
         ]
 
     def __str__(self):
-        try:
-            return _("Relation between {zaak} and {besluit}").format(
-                zaak=self.zaak, besluit=self.besluit
-            )
-        except FetchError:
-            return _("Relation between {zaak} and {besluit}").format(
-                zaak=self.zaak, besluit=self._besluit_url
-            )
+        return _("Relation between {zaak} and {besluit}").format(
+            zaak=self.zaak, besluit=self.besluit
+        )
 
     def unique_representation(self):
         zaak_repr = self.zaak.unique_representation()

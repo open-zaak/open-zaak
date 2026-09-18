@@ -7,7 +7,10 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import empty
 from rest_framework.serializers import Serializer
 
-from openzaak.utils.serializer_fields import DeprecatedNamespaceHyperlinkIdentityField
+from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceHyperlinkIdentityField,
+    DeprecatedNamespaceLengthHyperlinkedRelatedField,
+)
 
 
 class ConvertNoneMixin:
@@ -27,6 +30,10 @@ class ConvertNoneMixin:
 
         for field in fields:
             if representation[field.field_name] is not None:
+                continue
+
+            if isinstance(field, DeprecatedNamespaceLengthHyperlinkedRelatedField):
+                representation[field.field_name] = ""
                 continue
 
             if field.allow_null:

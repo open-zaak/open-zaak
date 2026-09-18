@@ -176,10 +176,16 @@ class DeprecatedNamespaceHyperlinkIdentityField(
 class DeprecatedNamespaceLengthHyperlinkedRelatedField(
     DeprecatedNamespaceMixin, _LengthHyperlinkedRelatedField
 ):
+    def run_validation(self, data=serializers.empty):
+        if data == "":
+            return None
+
+        return super().run_validation(data)
+
     def fail(self, key, **kwargs):
         """
         Checks if incorrect_match happend with deprecated namespace which is allowed.
         """
         if key == "incorrect_match" and self.source in self._MOVED_MODELS:
             return
-        super().fail(key, kwargs)
+        super().fail(key, **kwargs)

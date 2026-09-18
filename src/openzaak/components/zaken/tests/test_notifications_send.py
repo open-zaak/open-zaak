@@ -1504,7 +1504,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
 
     def test_zaakbesluit_create_fail_send_notification_create_db_entry(self, m):
         besluit = BesluitFactory.create(for_zaak=True)
-        besluit_url = reverse(besluit)
+        besluit_url = reverse(besluit, namespace="zaken")
         url = reverse("zaken:zaakbesluit-list", kwargs={"zaak_uuid": besluit.zaak.uuid})
 
         mock_notification_send(m, status_code=403)

@@ -29,7 +29,6 @@ from openzaak.components.zaken.models.betrokkenen import (
 )
 from openzaak.tests.utils.admin import AdminTestMixin
 
-from ...models import ZaakBesluit
 from ..factories import (
     ResultaatFactory,
     RolFactory,
@@ -69,25 +68,6 @@ class ZaakAdminTests(AdminTestMixin, WebTest):
         self.assertEqual(response.status_code, 200)
 
         self.assertIn("https://external.nl/api/v1/io/404", response.text)
-
-    @override_settings(ALLOWED_HOSTS=["testserver"])
-    def test_zaaktype_detail_external_besluit_not_available(self):
-        zaak = ZaakFactory.create()
-        ZaakBesluit.objects.create(
-            zaak=zaak,
-            _besluit_base_url=self.service,
-            _besluit_relative_url="besluiten/404",
-        )
-
-        url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
-
-        with requests_mock.Mocker() as m:
-            m.get("https://external.nl/api/v1/besluiten/404", status_code=404, json={})
-            response = self.app.get(url)
-
-        self.assertEqual(response.status_code, 200)
-
-        self.assertIn("https://external.nl/api/v1/besluiten/404", response.text)
 
     def test_non_alphanumeric_identificatie_validation(self):
         """

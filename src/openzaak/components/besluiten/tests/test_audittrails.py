@@ -546,7 +546,6 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
         besluit_data = self._create_besluit(zaak=zaak)
-
         # Delete the Besluit
         response = self.client.delete(besluit_data["url"])
         self.assertEqual(response.status_code, 204)

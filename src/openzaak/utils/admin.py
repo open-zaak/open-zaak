@@ -135,6 +135,7 @@ class EditInlineAdminMixin:
 
 class AuditTrailAdminMixin:
     viewset = None
+    audittrail_main_object_attr = None
 
     def get_viewset(self, request):
         if not self.viewset:
@@ -181,7 +182,12 @@ class AuditTrailAdminMixin:
             audit = viewset.audit
 
         if not main_object:
-            if basename == viewset.audit.main_resource:
+            if self.audittrail_main_object_attr:
+                main_object = getattr(
+                    obj,
+                    self.audittrail_main_object_attr,
+                )
+            elif basename == viewset.audit.main_resource:
                 main_object = data["url"]
             elif hasattr(viewset, "audittrail_main_resource_key"):
                 main_object = data[viewset.audittrail_main_resource_key]
