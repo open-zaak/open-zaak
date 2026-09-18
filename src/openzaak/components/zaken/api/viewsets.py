@@ -1273,6 +1273,7 @@ class KlantContactViewSet(
 @conditional_retrieve()
 class RolViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -1288,7 +1289,7 @@ class RolViewSet(
     """
 
     queryset = (
-        Rol.objects.select_related("_roltype", "zaak")
+        Rol.objects.select_related("_roltype", "zaak", "zaak___zaaktype")
         .prefetch_related(
             "natuurlijkpersoon",
             "nietnatuurlijkpersoon",
@@ -1296,6 +1297,7 @@ class RolViewSet(
             "organisatorischeeenheid",
             "medewerker",
             "statussen",
+            "statussen___statustype",
         )
         .order_by("-pk")
     )
@@ -1396,6 +1398,7 @@ class RolViewSet(
 @conditional_retrieve()
 class ResultaatViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
