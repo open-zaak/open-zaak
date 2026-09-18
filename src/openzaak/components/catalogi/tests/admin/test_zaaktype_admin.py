@@ -292,7 +292,7 @@ class ZaaktypeAdminTests(
             "zaken:zaaktype-detail", kwargs={"uuid": zaaktype_new.uuid, "version": 1}
         )
         catalogus_url = reverse(
-            "catalogi:catalogus-detail",
+            "zaken:catalogus-detail",
             kwargs={"uuid": zaaktype_new.catalogus.uuid, "version": 1},
         )
         mock_notif.assert_called_with(

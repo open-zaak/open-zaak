@@ -132,7 +132,9 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
     def test_get_detail_404(self):
         ZaakTypeFactory.create(catalogus=self.catalogus)
 
-        url = reverse("catalogi:zaaktype-detail", kwargs={"uuid": uuid.uuid4()})
+        url = reverse(
+            f"{self.NAMESPACE}:zaaktype-detail", kwargs={"uuid": uuid.uuid4()}
+        )
 
         response = self.client.get(url)
 
@@ -1415,10 +1417,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus, concept=False)
 
         response = self.client.patch(
-            reverse(
-                "catalogi:zaaktype-detail",
-                kwargs={"uuid": zaaktype.uuid, "version": "1"},
-            ),
+            reverse(zaaktype, namespace=self.NAMESPACE),
             {"omschrijving": "Updated description"},
             format="json",
         )

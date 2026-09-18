@@ -239,7 +239,7 @@ class ZaakTypeSerializer(
             "omschrijving_generiek": {"source": "zaaktype_omschrijving_generiek"},
             "catalogus": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:catalogus-detail",
+                "view_name": "zaken:catalogus-detail",
             },
             "doorlooptijd": {"source": "doorlooptijd_behandeling"},
             "servicenorm": {

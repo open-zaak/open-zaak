@@ -3,9 +3,11 @@
 from django.utils.translation import gettext as _
 
 from rest_framework import serializers
-from vng_api_common.serializers import CachedHyperlinkedRelatedField
 from vng_api_common.utils import get_help_text
 
+from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceCachedHyperlinkedRelatedField,
+)
 from openzaak.utils.serializers import DeprecatedNamespaceHyperlinkedModelSerializer
 
 from ...models import ZaakObjectType
@@ -25,8 +27,8 @@ class ZaakObjectTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializer):
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
         ),
     )
-    catalogus = CachedHyperlinkedRelatedField(
-        view_name="catalogi:catalogus-detail",
+    catalogus = DeprecatedNamespaceCachedHyperlinkedRelatedField(
+        view_name="zaken:catalogus-detail",
         source="zaaktype.catalogus",
         read_only=True,
         lookup_field="uuid",

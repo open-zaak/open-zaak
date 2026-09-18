@@ -4,12 +4,12 @@ from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
 from vng_api_common.serializers import (
-    CachedHyperlinkedRelatedField,
     add_choice_values_help_text,
 )
 from vng_api_common.utils import get_help_text
 
 from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceCachedHyperlinkedRelatedField,
     DeprecatedNamespaceLengthHyperlinkedRelatedField,
 )
 from openzaak.utils.serializers import DeprecatedNamespaceHyperlinkedModelSerializer
@@ -29,8 +29,8 @@ class ZaakTypeInformatieObjectTypeSerializer(
     Relatie met informatieobjecttype dat relevant is voor zaaktype.
     """
 
-    catalogus = CachedHyperlinkedRelatedField(
-        view_name="catalogi:catalogus-detail",
+    catalogus = DeprecatedNamespaceCachedHyperlinkedRelatedField(
+        view_name="zaken:catalogus-detail",
         source="zaaktype.catalogus",
         read_only=True,
         lookup_field="uuid",

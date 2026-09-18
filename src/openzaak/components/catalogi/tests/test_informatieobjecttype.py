@@ -695,6 +695,7 @@ class InformatieObjectTypeAPITests(APITestCase):
 class InformatieObjectTypeFilterAPITests(APITestCase):
     maxDiff = None
     NAMESPACE = "catalogi"
+    ZT_NAMESPACE = "catalogi"
 
     @property
     def url(self):
@@ -803,7 +804,7 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
         )
         ZaakTypeInformatieObjectTypeFactory(informatieobjecttype=iotype)
         zaaktype_url = (
-            f"http://openzaak.nl{reverse(zaaktype, namespace=self.NAMESPACE)}"
+            f"http://openzaak.nl{reverse(zaaktype, namespace=self.ZT_NAMESPACE)}"
         )
 
         response = self.client.get(
@@ -824,7 +825,7 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
     def test_filter_zaaktype_not_exist(self):
         InformatieObjectTypeFactory.create(omschrijving="some", concept=False)
         zaaktype_url = reverse(
-            f"{self.NAMESPACE}:zaaktype-detail",
+            f"{self.ZT_NAMESPACE}:zaaktype-detail",
             kwargs={"uuid": "221e7626-a556-4eb5-9714-e7693f82c2dd"},
         )
 

@@ -187,7 +187,7 @@ class CreateIotypeTests(NotificationsConfigMixin, AdminTestMixin, WebTest):
             namespace="documenten",
         )
         catalogus_url = reverse(
-            "catalogi:catalogus-detail", kwargs={"uuid": catalogus.uuid, "version": 1}
+            "zaken:catalogus-detail", kwargs={"uuid": catalogus.uuid, "version": 1}
         )
         mock_notif.assert_called_with(
             {

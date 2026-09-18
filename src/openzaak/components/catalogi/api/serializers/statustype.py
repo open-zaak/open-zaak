@@ -4,7 +4,6 @@ from django.utils.translation import gettext_lazy as _
 
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
-from vng_api_common.serializers import CachedHyperlinkedRelatedField
 from vng_api_common.utils import get_help_text
 
 from openzaak.utils.serializer_fields import (
@@ -38,8 +37,8 @@ class StatusTypeSerializer(
             "met het hoogste volgnummer."
         ),
     )
-    catalogus = CachedHyperlinkedRelatedField(
-        view_name="catalogi:catalogus-detail",
+    catalogus = DeprecatedNamespaceCachedHyperlinkedRelatedField(
+        view_name="zaken:catalogus-detail",
         source="zaaktype.catalogus",
         read_only=True,
         lookup_field="uuid",

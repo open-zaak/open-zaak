@@ -31,7 +31,7 @@ def _magic_args(
         "zaaktypeinformatieobjecttype": "zaken",
         "zaakobjecttype": "zaken",
         "informatieobjecttype": "zaken",
-        # "catalogus": "zaken",
+        "catalogus": "zaken",
     }
 
     if args and isinstance(args[0], models.Model):

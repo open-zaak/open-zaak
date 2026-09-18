@@ -157,6 +157,7 @@ class DeprecatedNamespaceMixin:
             "besluit": "besluiten",
             "besluitinformatieobject": "besluiten",
             "besluittype": "catalogi",
+            "catalogi": "catalogi",
         },
         "catalogi": {
             "zaaktype": "catalogi",
@@ -168,6 +169,7 @@ class DeprecatedNamespaceMixin:
             "resultaattype": "catalogi",
             "zaaktypeinformatieobjecttype": "catalogi",
             "zaakobjecttype": "catalogi",
+            "catalogi": "catalogi",
         },
     }
 
@@ -214,6 +216,7 @@ class DeprecatedNamespaceHyperlinkedRelatedField(
         "zaken:resultaattype-detail",
         "zaken:zaaktype-informatieobjecttype-detail",
         "zaken:zaakobjecttype-detail",
+        "zaken:catalogi-detail",
     ]
 
     def fail(self, key, **kwargs):

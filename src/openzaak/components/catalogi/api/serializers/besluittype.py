@@ -81,7 +81,7 @@ class BesluitTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid", "view_name": "zaken:besluittype-detail"},
             "catalogus": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:catalogus-detail",
+                "view_name": "zaken:catalogus-detail",
             },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},

@@ -13,6 +13,7 @@ class InformatieObjectTypeAPITests(_InformatieObjectTypeAPITests):
 
 class InformatieObjectTypeFilterAPITests(_InformatieObjectTypeFilterAPITests):
     NAMESPACE = "documenten"
+    ZT_NAMESPACE = "zaken"
 
 
 class InformatieObjectTypePaginationTestCase(_InformatieObjectTypePaginationTestCase):
