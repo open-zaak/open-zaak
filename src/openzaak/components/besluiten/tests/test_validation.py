@@ -170,7 +170,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         A local besluittype URL that doesn't resolve to an existing
         besluittype should be a regular validation error, not a server error.
         """
-        list_url = reverse("besluiten:besluit-list")
+        list_url = reverse(f"{self.NAMESPACE}:besluit-list")
 
         response = self.client.post(
             list_url,

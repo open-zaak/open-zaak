@@ -7,6 +7,7 @@ from notifications_api_common.utils import notification_documentation
 
 from openzaak.utils.apidoc import DOC_AUTH_JWT
 
+from ...catalogi.api.kanalen import KANAAL_INFORMATIEOBJECTTYPEN
 from .kanalen import KANAAL_DOCUMENTEN
 
 min_upload_size = naturalsize(settings.MIN_UPLOAD_SIZE, binary=True)
@@ -49,6 +50,8 @@ Deze API is afhankelijk van:
 ### Notificaties
 
 {notification_documentation(KANAAL_DOCUMENTEN)}
+
+{notification_documentation(KANAAL_INFORMATIEOBJECTTYPEN)}
 
 **Handige links**
 

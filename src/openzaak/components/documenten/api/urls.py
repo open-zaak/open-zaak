@@ -12,6 +12,7 @@ from openzaak.utils.oas_extensions.views import (
     SpectacularYAMLAPIView,
 )
 
+from ...catalogi.api.viewsets import InformatieObjectTypeViewSet
 from ..api.schema import custom_settings
 from .viewsets import (
     BestandsDeelViewSet,
@@ -44,6 +45,7 @@ router.register("documentnummer_reserveren", ReservedDocumentViewSet)
 router.register(
     "document_registreren", DocumentRegistrerenViewSet, basename="registreerdocument"
 )
+router.register(r"informatieobjecttypen", InformatieObjectTypeViewSet)
 
 app_name = "documenten"
 

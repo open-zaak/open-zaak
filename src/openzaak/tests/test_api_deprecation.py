@@ -13,7 +13,13 @@ from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
 )
-from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
+from openzaak.components.catalogi.models import ZaakTypeInformatieObjectType
+from openzaak.components.catalogi.tests.factories import (
+    BesluitTypeFactory,
+    InformatieObjectTypeFactory,
+    ZaakTypeFactory,
+)
+from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
@@ -146,6 +152,10 @@ class BesluitenApiDeprecationTests(JWTAuthMixin, APITestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            response.json()["besluit"],
+            f"http://testserver{reverse(besluit, namespace='besluiten')}",
+        )
 
     def test_create_bio_in_zaken_with_besluiten_url(self):
         url = reverse(BesluitInformatieObject, namespace="zaken")
@@ -163,6 +173,10 @@ class BesluitenApiDeprecationTests(JWTAuthMixin, APITestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            response.json()["besluit"],
+            f"http://testserver{reverse(besluit, namespace='zaken')}",
+        )
 
     def test_create_bio_in_zaken_with_non_existent_namespace(self):
         """
@@ -477,3 +491,125 @@ class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
         self.assertIn("/besluiten/api/v1/besluiten/", update_trail.resource_url)
         self.assertIn("/besluiten/api/v1/besluiten/", update_trail.oud["url"])
         self.assertIn("/besluiten/api/v1/besluiten/", update_trail.nieuw["url"])
+
+
+class InformatieObjectTypeDeprecationTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    def setUp(self):
+        super().setUp()
+        self.iot = InformatieObjectTypeFactory.create(concept=False)
+
+    def test_deprecated_catalogi_api_response(self):
+        url = reverse(self.iot, namespace="catalogi")
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("catalogi/api/v1/informatieobjecttype", response.data["url"])
+        self.assertIn("catalogi/api/v1/catalogus", response.data["catalogus"])
+
+    def test_documenten_api_response(self):
+        url = reverse(self.iot, namespace="documenten")
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("documenten/api/v1/informatieobjecttype", response.data["url"])
+        self.assertIn("catalogi/api/v1/catalogus", response.data["catalogus"])
+
+    def test_deprecated_paths(self):
+        self.assertEqual(
+            reverse("catalogi:informatieobjecttype-list"),
+            "/catalogi/api/v1/informatieobjecttypen",
+        )
+        self.assertEqual(
+            reverse("catalogi:informatieobjecttype-detail", kwargs={"uuid": 1}),
+            "/catalogi/api/v1/informatieobjecttypen/1",
+        )
+
+    def test_new_paths(self):
+        self.assertEqual(
+            reverse("documenten:informatieobjecttype-list"),
+            "/documenten/api/v1/informatieobjecttypen",
+        )
+        self.assertEqual(
+            reverse("documenten:informatieobjecttype-detail", kwargs={"uuid": 1}),
+            "/documenten/api/v1/informatieobjecttypen/1",
+        )
+
+    def test_create_eio_with_catalogi_url(self):
+        url = reverse(EnkelvoudigInformatieObject, namespace="documenten")
+
+        response = self.client.post(
+            url,
+            {
+                "informatieobjecttype": f"http://testserver{reverse(self.iot, namespace='catalogi')}",
+                "bronorganisatie": "517439943",
+                "creatiedatum": "2026-05-05",
+                "titel": "test",
+                "auteur": "test",
+                "taal": "nld",
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.json())
+        self.assertEqual(
+            response.json()["informatieobjecttype"],
+            f"http://testserver{reverse(self.iot, namespace='documenten')}",
+        )
+
+    def test_create_eio_with_documenten_url(self):
+        url = reverse(EnkelvoudigInformatieObject, namespace="documenten")
+
+        response = self.client.post(
+            url,
+            {
+                "informatieobjecttype": f"http://testserver{reverse(self.iot, namespace='documenten')}",
+                "bronorganisatie": "517439943",
+                "creatiedatum": "2026-05-05",
+                "titel": "test",
+                "auteur": "test",
+                "taal": "nld",
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.json())
+        self.assertEqual(
+            response.json()["informatieobjecttype"],
+            f"http://testserver{reverse(self.iot, namespace='documenten')}",
+        )
+
+    def test_create_ziot_with_catalogi_url(self):
+        url = reverse(ZaakTypeInformatieObjectType, namespace="catalogi")
+        zaaktype = ZaakTypeFactory.create(catalogus=self.iot.catalogus)
+
+        response = self.client.post(
+            url,
+            {
+                "informatieobjecttype": f"http://testserver{reverse(self.iot, namespace='catalogi')}",
+                "zaaktype": f"http://testserver{reverse(zaaktype, namespace='catalogi')}",
+                "volgnummer": 1,
+                "richting": "inkomend",
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.json())
+        self.assertEqual(
+            response.json()["informatieobjecttype"],
+            f"http://testserver{reverse(self.iot, namespace='catalogi')}",
+        )
+
+    def test_create_ziot_with_documenten_url(self):
+        url = reverse(ZaakTypeInformatieObjectType, namespace="catalogi")
+        zaaktype = ZaakTypeFactory.create(catalogus=self.iot.catalogus)
+
+        response = self.client.post(
+            url,
+            {
+                "informatieobjecttype": f"http://testserver{reverse(self.iot, namespace='documenten')}",
+                "zaaktype": f"http://testserver{reverse(zaaktype, namespace='catalogi')}",
+                "volgnummer": 1,
+                "richting": "inkomend",
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.json())
+        self.assertEqual(
+            response.json()["informatieobjecttype"],
+            f"http://testserver{reverse(self.iot, namespace='catalogi')}",
+        )

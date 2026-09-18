@@ -94,7 +94,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
 
     def test_validate_informatieobjecttype_unpublished(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         response = self.client.post(
@@ -154,7 +154,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
         eio_url = reverse(eio)
 
         iotype = InformatieObjectTypeFactory.create(concept=False)
-        iotype_url = reverse(iotype)
+        iotype_url = reverse(iotype, namespace="documenten")
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
 
         response = self.client.patch(
@@ -168,7 +168,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
     @temp_private_root()
     def test_inhoud_incorrect_padding(self):
         iotype = InformatieObjectTypeFactory.create(concept=False)
-        iotype_url = reverse(iotype)
+        iotype_url = reverse(iotype, namespace="documenten")
 
         url = reverse("documenten:enkelvoudiginformatieobject-list")
         content = {
@@ -199,7 +199,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
     @temp_private_root()
     def test_inhoud_correct_padding(self):
         iotype = InformatieObjectTypeFactory.create(concept=False)
-        iotype_url = reverse(iotype)
+        iotype_url = reverse(iotype, namespace="documenten")
 
         url = reverse("documenten:enkelvoudiginformatieobject-list")
         content = {
@@ -230,7 +230,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
         )
 
         iotype = InformatieObjectTypeFactory.create(concept=False)
-        iotype_url = reverse(iotype)
+        iotype_url = reverse(iotype, namespace="documenten")
 
         url = reverse("documenten:enkelvoudiginformatieobject-list")
         content = {
@@ -278,7 +278,7 @@ class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
         informatieobjecten.
         """
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         invalid_statuses = (Statussen.in_bewerking, Statussen.ter_vaststelling)
         data = {
             "bronorganisatie": "319582462",

@@ -8,7 +8,11 @@ from openzaak.utils.apidoc import DOC_AUTH_JWT
 
 from .kanalen import KANAAL_BESLUITTYPEN, KANAAL_INFORMATIEOBJECTTYPEN, KANAAL_ZAAKTYPEN
 
-description = f"""Een API om een zaaktypecatalogus (ZTC) te benaderen.
+description = f"""
+**Deze API is deprecated en zal worden verwijderd in Open Zaak versie 3.0.
+Catalogi, ZaakTypen & BesluitTypen zijn verplaatst naar de Zaken API. InformatieObjectTypen zijn verplaatst naar de Documenten API.**
+
+Een API om een zaaktypecatalogus (ZTC) te benaderen.
 
 De zaaktypecatalogus helpt gemeenten om het proces vanuit de 'vraag van een
 klant' (productaanvraag, melding, aangifte, informatieverzoek e.d.) tot en met
@@ -46,7 +50,7 @@ Deze API is afhankelijk van:
 """
 
 custom_settings = {
-    "TITLE": "Catalogi API",
+    "TITLE": "Catalogi API (DEPRECATED)",
     "VERSION": settings.CATALOGI_API_VERSION,
     "DESCRIPTION": description,
     "SERVERS": [{"url": "/catalogi/api/v1"}],

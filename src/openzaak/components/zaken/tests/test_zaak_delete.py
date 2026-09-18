@@ -149,7 +149,8 @@ class ExternalDocumentsDeleteZaakTests(JWTAuthMixin, APITestCase):
         )
         zaak = ZaakFactory.create(zaaktype=zaaktype)
         document_data = get_eio_response(
-            document_url, informatieobjecttype=f"http://testserver{reverse(iotype)}"
+            document_url,
+            informatieobjecttype=f"http://testserver{reverse(iotype, namespace='documenten')}",
         )
         m.get(document_url, json=document_data)
         zio = ZaakInformatieObjectFactory.create(

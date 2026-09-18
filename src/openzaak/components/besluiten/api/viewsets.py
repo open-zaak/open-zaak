@@ -510,7 +510,7 @@ class BesluitVerwerkenViewSet(
 
         iotype_urls = [
             reverse(
-                "catalogi:informatieobjecttype-detail",
+                "documenten:informatieobjecttype-detail",
                 kwargs={
                     "uuid": bio.informatieobject.latest_version.informatieobjecttype.uuid
                 },
@@ -523,9 +523,7 @@ class BesluitVerwerkenViewSet(
         process_cloudevent(
             type=BESLUIT_VERWERKT,
             subject=str(data["besluit"].uuid),
-            dataref=data["besluit"].get_absolute_api_url(
-                namespace=self.request.resolver_match.namespace
-            ),
+            dataref=data["besluit"].get_absolute_api_url(namespace="zaken"),
             data={
                 "verantwoordelijkeOrganisatie": data[
                     "besluit"

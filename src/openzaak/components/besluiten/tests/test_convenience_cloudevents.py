@@ -57,7 +57,7 @@ class BesluitConvenienceCloudEventTest(
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=besluittype.catalogus
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
 
         besluittype.informatieobjecttypen.add(informatieobjecttype)
         besluittype.zaaktypen.add(zaak.zaaktype)
@@ -99,7 +99,7 @@ class BesluitConvenienceCloudEventTest(
         self.assertEqual(mock_send_cloudevent.call_count, 1)
 
         besluit = Besluit.objects.get()
-        besluit_url = reverse(besluit, namespace=self.NAMESPACE)
+        besluit_url = reverse(besluit, namespace="zaken")
 
         mock_send_cloudevent.assert_called_once_with(
             {
@@ -139,7 +139,7 @@ class BesluitConvenienceCloudEventTest(
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=besluittype.catalogus
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
 
         besluittype.informatieobjecttypen.add(informatieobjecttype)
         besluittype.zaaktypen.add(zaak.zaaktype)
@@ -183,7 +183,7 @@ class BesluitConvenienceCloudEventTest(
         self.assertEqual(mock_send_cloudevent.call_count, 2)
 
         besluit = Besluit.objects.get()
-        besluit_url = reverse(besluit, namespace=self.NAMESPACE)
+        besluit_url = reverse(besluit, namespace="zaken")
 
         mock_send_cloudevent.assert_has_calls(
             [

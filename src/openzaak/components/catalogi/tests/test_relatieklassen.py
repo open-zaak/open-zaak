@@ -77,7 +77,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=zaaktype.catalogus
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="catalogi")
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
@@ -100,7 +100,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=zaaktype.catalogus
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="catalogi")
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
@@ -118,7 +118,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=zaaktype.catalogus
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="catalogi")
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
@@ -136,7 +136,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=zaaktype.catalogus
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="catalogi")
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
@@ -158,7 +158,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
         )
         data = {
             "zaaktype": f"http://testserver.com{reverse(ziot.zaaktype)}",
-            "informatieobjecttype": f"http://testserver.com{reverse(informatieobjecttype)}",
+            "informatieobjecttype": f"http://testserver.com{reverse(informatieobjecttype, namespace='catalogi')}",
             "volgnummer": ziot.volgnummer,
             "richting": RichtingChoices.inkomend,
         }
@@ -218,7 +218,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=zaaktype.catalogus
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="catalogi")
         ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
@@ -263,7 +263,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=zaaktype.catalogus
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="catalogi")
         ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
@@ -290,7 +290,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=zaaktype.catalogus, concept=False
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="catalogi")
         ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
@@ -317,7 +317,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=zaaktype.catalogus, concept=False
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="catalogi")
         ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
@@ -596,7 +596,7 @@ class ZaakTypeInformatieObjectTypeValidationTests(APITestCase):
         zaaktype = ZaakTypeFactory.create()
         zaaktype_url = reverse(zaaktype)
         informatieobjecttype = InformatieObjectTypeFactory.create()
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="catalogi")
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
