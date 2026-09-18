@@ -67,7 +67,7 @@ class BesluitenApiDeprecationTests(JWTAuthMixin, APITestCase):
             response = self.client.get(url)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertIn("zaken/api/v1/besluiten", response.data["url"])
-            self.assertIn("catalogi/api/v1/besluittypen", response.data["besluittype"])
+            self.assertIn("zaken/api/v1/besluittypen", response.data["besluittype"])
             self.assertIn("zaken/api/v1/zaken", response.data["zaak"])
 
         with self.subTest("besluitinformatieobject"):
@@ -613,3 +613,94 @@ class InformatieObjectTypeDeprecationTests(JWTAuthMixin, APITestCase):
             response.json()["informatieobjecttype"],
             f"http://testserver{reverse(self.iot, namespace='catalogi')}",
         )
+
+
+class BesluitTypeDeprecationTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    def setUp(self):
+        super().setUp()
+        self.bt = BesluitTypeFactory.create(concept=False)
+
+    def test_deprecated_catalogi_api_response(self):
+        url = reverse(self.bt, namespace="catalogi")
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("catalogi/api/v1/besluittype", response.data["url"])
+        self.assertIn("catalogi/api/v1/catalogus", response.data["catalogus"])
+
+    def test_zaken_api_response(self):
+        url = reverse(self.bt, namespace="zaken")
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("zaken/api/v1/besluittype", response.data["url"])
+        self.assertIn("catalogi/api/v1/catalogus", response.data["catalogus"])
+
+    def test_deprecated_paths(self):
+        self.assertEqual(
+            reverse("catalogi:besluittype-list"),
+            "/catalogi/api/v1/besluittypen",
+        )
+        self.assertEqual(
+            reverse("catalogi:besluittype-detail", kwargs={"uuid": 1}),
+            "/catalogi/api/v1/besluittypen/1",
+        )
+
+    def test_new_paths(self):
+        self.assertEqual(
+            reverse("zaken:besluittype-list"),
+            "/zaken/api/v1/besluittypen",
+        )
+        self.assertEqual(
+            reverse("zaken:besluittype-detail", kwargs={"uuid": 1}),
+            "/zaken/api/v1/besluittypen/1",
+        )
+
+    def test_create_besluit_with_namespaces(self):
+        def create(b_namespace: str, bt_namespace: str):
+            url = reverse(Besluit, namespace=b_namespace)
+
+            response = self.client.post(
+                url,
+                {
+                    "besluittype": f"http://testserver{reverse(self.bt, namespace=bt_namespace)}",
+                    "verantwoordelijke_organisatie": "517439943",
+                    "datum": "2026-05-05",
+                    "ingangsdatum": "2026-05-05",
+                    "toelichting": "desc",
+                },
+            )
+            self.assertEqual(
+                response.status_code, status.HTTP_201_CREATED, response.json()
+            )
+            return response
+
+        with self.subTest("besluit in zaken with zaken bt"):
+            response = create("zaken", "zaken")
+            self.assertEqual(
+                response.json()["besluittype"],
+                f"http://testserver{reverse(self.bt, namespace='zaken')}",
+            )
+
+        with self.subTest("besluit in zaken with catalogi bt"):
+            response = create("zaken", "catalogi")
+            self.assertEqual(
+                response.json()["besluittype"],
+                f"http://testserver{reverse(self.bt, namespace='zaken')}",
+            )
+
+        with self.subTest("besluit in besluiten with catalogi bt"):
+            response = create("besluiten", "catalogi")
+            self.assertEqual(
+                response.json()["besluittype"],
+                f"http://testserver{reverse(self.bt, namespace='catalogi')}",
+            )
+
+        with self.subTest("besluit in besluiten with zaken bt"):
+            response = create("besluiten", "zaken")
+            self.assertEqual(
+                response.json()["besluittype"],
+                f"http://testserver{reverse(self.bt, namespace='catalogi')}",
+            )

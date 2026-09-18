@@ -76,7 +76,7 @@ class BesluitSerializer(
             # per BRC API spec!
             "besluittype": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:besluittype-detail",
+                "view_name": "zaken:besluittype-detail",
                 "max_length": 200,
                 "min_length": 1,
                 "validators": [

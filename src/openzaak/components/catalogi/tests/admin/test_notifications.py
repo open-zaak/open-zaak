@@ -15,9 +15,8 @@ from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
 from openzaak.tests.utils.admin import AdminTestMixin
 
-from ...models import BesluitType, ZaakType
+from ...models import ZaakType
 from ..factories import (
-    BesluitTypeFactory,
     CatalogusFactory,
     ZaakTypeFactory,
 )
@@ -50,97 +49,6 @@ class NotificationAdminTests(
             "catalogi:catalogus-detail",
             kwargs={"uuid": cls.catalogus.uuid, "version": 1},
         )
-
-    def test_besluittype_notify_on_create(self, mock_notif):
-        procestype_url = (
-            "https://selectielijst.openzaak.nl/api/v1/"
-            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
-        )
-
-        url = reverse("admin:catalogi_besluittype_add")
-
-        response = self.app.get(url)
-
-        zaaktype = ZaakTypeFactory.create(
-            concept=True,
-            zaaktype_omschrijving="test",
-            vertrouwelijkheidaanduiding="openbaar",
-            trefwoorden=["test"],
-            verantwoordingsrelatie=["bla"],
-            selectielijst_procestype=procestype_url,
-        )
-
-        form = response.forms["besluittype_form"]
-        form["datum_begin_geldigheid"] = "2019-01-01"
-        form["zaaktypen"] = zaaktype.id
-        form["catalogus"] = self.catalogus.pk
-
-        with self.captureOnCommitCallbacks(execute=True):
-            form.submit("_save")
-
-        besluittype = BesluitType.objects.get()
-        besluittype_url = reverse(
-            "catalogi:besluittype-detail",
-            kwargs={"uuid": besluittype.uuid, "version": 1},
-        )
-        mock_notif.assert_called_with(
-            {
-                "hoofdObject": f"http://testserver{besluittype_url}",
-                "kanaal": "besluittypen",
-                "aanmaakdatum": "2022-01-01T00:00:00Z",
-                "actie": "create",
-                "resource": "besluittype",
-                "resourceUrl": f"http://testserver{besluittype_url}",
-                "kenmerken": {
-                    "catalogus": f"http://testserver{self.catalogus_url}",
-                },
-            },
-            None,
-        )
-
-    def test_besluit_notify_on_change(self, mock_notif):
-        besluittype = BesluitTypeFactory.create(
-            concept=True, omschrijving="test", catalogus=self.catalogus
-        )
-        url = reverse("admin:catalogi_besluittype_change", args=(besluittype.pk,))
-
-        response = self.app.get(url)
-        form = response.forms["besluittype_form"]
-        form["omschrijving"] = "different-test"
-
-        with self.captureOnCommitCallbacks(execute=True):
-            form.submit("_save")
-
-        besluittype_url = reverse(
-            "catalogi:besluittype-detail",
-            kwargs={"uuid": besluittype.uuid, "version": 1},
-        )
-        mock_notif.assert_called_with(
-            {
-                "hoofdObject": f"http://testserver{besluittype_url}",
-                "kanaal": "besluittypen",
-                "aanmaakdatum": "2022-01-01T00:00:00Z",
-                "actie": "update",
-                "resource": "besluittype",
-                "resourceUrl": f"http://testserver{besluittype_url}",
-                "kenmerken": {
-                    "catalogus": f"http://testserver{self.catalogus_url}",
-                },
-            },
-            None,
-        )
-
-    def test_besluit_no_notify_on_no_change(self, mock_notif):
-        besluit = BesluitTypeFactory.create(concept=True, omschrijving="test")
-        url = reverse("admin:catalogi_besluittype_change", args=(besluit.pk,))
-
-        response = self.app.get(url)
-        form = response.forms["besluittype_form"]
-
-        with self.captureOnCommitCallbacks(execute=True):
-            form.submit("_save")
-
-        mock_notif.assert_not_called()
 
     def test_zaaktype_notify_on_create(self, mock_notif):
         url = reverse("admin:catalogi_zaaktype_add")

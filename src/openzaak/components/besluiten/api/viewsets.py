@@ -39,7 +39,10 @@ from openzaak.utils.cloudevents import get_url, process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import CacheQuerysetMixin
-from openzaak.utils.namespacing import replace_namespaces
+from openzaak.utils.namespacing import (
+    replace_namespaces,
+    replace_namespaces_from_config,
+)
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.views import AuditTrailViewSet
@@ -155,10 +158,28 @@ class BesluitViewSet(
         "partial_update": SCOPE_BESLUITEN_BIJWERKEN,
     }
     notifications_kanalen = [
-        {"kanaal": KANAAL_BESLUITEN, "deprecated": True},
-        {"kanaal": KANAAL_ZAKEN},
+        {
+            "kanaal": KANAAL_BESLUITEN,
+            "deprecated": True,
+            "replace_urls_in_kenmerken": [
+                {"field": "besluittype", "namespace": "catalogi"}
+            ],
+        },
+        {
+            "kanaal": KANAAL_ZAKEN,
+        },
     ]
-    audits = [AUDIT_BRC, AUDIT_ZRC]
+    audit_configs = [
+        {
+            "audit": AUDIT_BRC,
+            "replace_urls_for": [{"field": "besluittype", "namespace": "catalogi"}],
+        },
+        {
+            "audit": AUDIT_ZRC,
+            "main_resource_key": "besluit.zaak",
+            "replace_urls_for": [{"field": "besluittype", "namespace": "zaken"}],
+        },
+    ]
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -278,14 +299,33 @@ class BesluitInformatieObjectViewSet(
         "destroy": SCOPE_BESLUITEN_ALLES_VERWIJDEREN,
     }
     notifications_kanalen = [
-        {"kanaal": KANAAL_BESLUITEN, "deprecated": True},
-        {"kanaal": KANAAL_ZAKEN},
+        {
+            "kanaal": KANAAL_BESLUITEN,
+            "deprecated": True,
+            "replace_urls_for": [{"field": "besluit"}],
+            "replace_urls_in_kenmerken": [
+                {"field": "besluittype", "namespace": "catalogi"}
+            ],
+        },
+        {
+            "kanaal": KANAAL_ZAKEN,
+            "main_resource_key": "besluit.zaak",
+            "replace_urls_for": [{"field": "besluit"}],
+        },
     ]
-    notifications_main_resource_keys = {"zaken": "besluit.zaak"}
-    notifications_replace_urls_for = ["besluit"]
-    audits = [AUDIT_BRC, AUDIT_ZRC]
-    audittrail_main_resource_keys = {AUDIT_ZRC.component_name: "besluit.zaak"}
-    audittrail_replace_urls_for = ["besluit"]
+
+    audit_configs = [
+        {
+            "audit": AUDIT_BRC,
+            "deprecated": True,
+            "replace_urls_for": [{"field": "besluit"}],
+        },
+        {
+            "audit": AUDIT_ZRC,
+            "main_resource_key": "besluit.zaak",
+            "replace_urls_for": [{"field": "besluit"}],
+        },
+    ]
 
     @property
     def notifications_wrap_in_atomic_block(self):
@@ -404,19 +444,36 @@ class BesluitVerwerkenViewSet(
     notification_fields = {
         "besluit": {
             "notifications_kanalen": [
-                {"kanaal": KANAAL_BESLUITEN, "deprecated": True},
-                {"kanaal": KANAAL_ZAKEN},
+                {
+                    "kanaal": KANAAL_BESLUITEN,
+                    "deprecated": True,
+                    "replace_urls_in_kenmerken": [
+                        {"field": "besluittype", "namespace": "catalogi"}
+                    ],
+                },
+                {
+                    "kanaal": KANAAL_ZAKEN,
+                },
             ],
             "model": Besluit,
         },
         "besluitinformatieobjecten": {
             "notifications_kanalen": [
-                {"kanaal": KANAAL_BESLUITEN, "deprecated": True},
-                {"kanaal": KANAAL_ZAKEN},
+                {
+                    "kanaal": KANAAL_BESLUITEN,
+                    "deprecated": True,
+                    "replace_urls_for": [{"field": "besluit"}],
+                    "replace_urls_in_kenmerken": [
+                        {"field": "besluittype", "namespace": "catalogi"}
+                    ],
+                },
+                {
+                    "kanaal": KANAAL_ZAKEN,
+                    "main_resource_key": "besluit.zaak",
+                    "replace_urls_for": [{"field": "besluit"}],
+                },
             ],
             "model": BesluitInformatieObject,
-            "notifications_replace_urls_for": ["besluit"],
-            "notifications_main_resource_keys": {"zaken": "besluit.zaak"},
         },
     }
 
@@ -431,7 +488,12 @@ class BesluitVerwerkenViewSet(
 
         response = Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        brc_data = replace_namespaces(serializer.data["besluit"], ["url"], "besluiten")
+        # brc_data = replace_namespaces(serializer.data["besluit"], ["url"], "besluiten")
+        brc_data = replace_namespaces_from_config(
+            serializer.data["besluit"],
+            [{"field": "url"}, {"field": "besluittype", "namespace": "catalogi"}],
+            "besluiten",
+        )
         self.create_audittrail(
             response.status_code,
             CommonResourceAction.create,
@@ -448,7 +510,12 @@ class BesluitVerwerkenViewSet(
         zaak = serializer.data["besluit"]["zaak"]
 
         if zaak:
-            zrc_data = replace_namespaces(serializer.data["besluit"], ["url"], "zaken")
+            # zrc_data = replace_namespaces(serializer.data["besluit"], ["url"], "zaken")
+            zrc_data = replace_namespaces_from_config(
+                serializer.data["besluit"],
+                [{"field": "url"}, {"field": "besluittype", "namespace": "catalogi"}],
+                "zaken",
+            )
             self.create_audittrail(
                 response.status_code,
                 CommonResourceAction.create,
