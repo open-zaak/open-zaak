@@ -512,7 +512,7 @@ class ZaakBesluitForm(forms.ModelForm):
 
 @admin.register(ZaakBesluit)
 class ZaakBesluitAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
-    audittrail_main_object_attr = "zaak"
+    is_nested_action = True
 
     list_display = ("zaak", "besluit")
     list_select_related = ("zaak", "besluit")
