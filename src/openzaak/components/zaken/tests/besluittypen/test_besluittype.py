@@ -10,7 +10,7 @@ from openzaak.components.catalogi.tests.test_besluittype import (
 
 class BesluitTypeAPITests(_BesluitTypeAPITests):
     NAMESPACE = "zaken"
-    IOT_NAMESPACE = "documenten"
+    INFORMATIEOBJECTTYPE_NAMESPACE = "documenten"
 
 
 class BesluitTypeFilterAPITests(_BesluitTypeFilterAPITests):

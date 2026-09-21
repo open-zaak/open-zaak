@@ -56,7 +56,7 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_BESLUITEN_ALLES_LEZEN]
     component = ComponentTypes.brc
     NAMESPACE = "besluiten"
-    BT_NAMESPACE = "catalogi"
+    BESLUITTYPE_NAMESPACE = "catalogi"
 
     @classmethod
     def setUpTestData(cls):
@@ -80,7 +80,7 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(
             results[0]["besluittype"],
-            f"http://testserver{reverse(self.besluittype, namespace=self.BT_NAMESPACE)}",
+            f"http://testserver{reverse(self.besluittype, namespace=self.BESLUITTYPE_NAMESPACE)}",
         )
 
     def test_besluit_list_empty_max_vertrouwelijkheidaanduiding(self):
@@ -103,7 +103,7 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(
             results[0]["besluittype"],
-            f"http://testserver{reverse(self.besluittype, namespace=self.BT_NAMESPACE)}",
+            f"http://testserver{reverse(self.besluittype, namespace=self.BESLUITTYPE_NAMESPACE)}",
         )
 
     def test_besluit_retreive(self):
@@ -173,7 +173,7 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(
             results[0]["besluittype"],
-            f"http://testserver{reverse(self.besluittype, namespace=self.BT_NAMESPACE)}",
+            f"http://testserver{reverse(self.besluittype, namespace=self.BESLUITTYPE_NAMESPACE)}",
         )
 
     @tag("gh-1661")
@@ -218,7 +218,7 @@ class BesluitWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
     ]
     component = ComponentTypes.brc
     NAMESPACE = "besluiten"
-    BT_NAMESPACE = "catalogi"
+    BESLUITTYPE_NAMESPACE = "catalogi"
 
     @classmethod
     def setUpTestData(cls):
@@ -251,7 +251,7 @@ class BesluitWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 url,
                 {
-                    "besluittype": f"http://testserver{reverse(self.besluittype_not_allowed, namespace=self.BT_NAMESPACE)}",
+                    "besluittype": f"http://testserver{reverse(self.besluittype_not_allowed, namespace=self.BESLUITTYPE_NAMESPACE)}",
                     "verantwoordelijkeOrganisatie": "517439943",
                     "ingangsdatum": "2018-12-24",
                     "datum": "2018-12-24",
@@ -266,7 +266,7 @@ class BesluitWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 url,
                 {
-                    "besluittype": f"http://testserver{reverse(self.besluittype, namespace=self.BT_NAMESPACE)}",
+                    "besluittype": f"http://testserver{reverse(self.besluittype, namespace=self.BESLUITTYPE_NAMESPACE)}",
                     "verantwoordelijkeOrganisatie": "517439943",
                     "ingangsdatum": "2018-12-24",
                     "datum": "2018-12-24",
@@ -303,7 +303,7 @@ class BesluitWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
             response = self.client.put(
                 reverse(self.besluit_allowed, namespace=self.NAMESPACE),
                 {
-                    "besluittype": f"http://testserver{reverse(self.besluittype, namespace=self.BT_NAMESPACE)}",
+                    "besluittype": f"http://testserver{reverse(self.besluittype, namespace=self.BESLUITTYPE_NAMESPACE)}",
                     "verantwoordelijkeOrganisatie": self.besluit_allowed.verantwoordelijke_organisatie,
                     "ingangsdatum": self.besluit_allowed.ingangsdatum,
                     "datum": self.besluit_allowed.datum,
@@ -467,7 +467,7 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_BESLUITEN_ALLES_LEZEN]
     component = ComponentTypes.brc
     NAMESPACE = "besluiten"
-    BT_NAMESPACE = "catalogi"
+    BESLUITTYPE_NAMESPACE = "catalogi"
 
     @classmethod
     def setUpTestData(cls):
@@ -490,7 +490,7 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(
             results[0]["besluittype"],
-            f"http://testserver{reverse(self.besluittype, namespace=self.BT_NAMESPACE)}",
+            f"http://testserver{reverse(self.besluittype, namespace=self.BESLUITTYPE_NAMESPACE)}",
         )
 
     def test_besluit_list_multiple_besluittypes_with_filtering(self):
@@ -534,8 +534,8 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             {result["besluittype"] for result in results},
             {
-                f"http://testserver{reverse(self.besluittype, namespace=self.BT_NAMESPACE)}",
-                f"http://testserver{reverse(other_besluittype, namespace=self.BT_NAMESPACE)}",
+                f"http://testserver{reverse(self.besluittype, namespace=self.BESLUITTYPE_NAMESPACE)}",
+                f"http://testserver{reverse(other_besluittype, namespace=self.BESLUITTYPE_NAMESPACE)}",
             },
         )
 

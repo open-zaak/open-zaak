@@ -44,12 +44,12 @@ class BesluitConvenienceCloudEventTest(
 ):
     heeft_alle_autorisaties = True
     NAMESPACE = "besluiten"
-    BT_NAMESPACE = "catalogi"
+    BESLUITTYPE_NAMESPACE = "catalogi"
 
     @patch("notifications_api_common.tasks.send_cloudevent.delay")
     def test_besluiten_verwerken_cloudevent_without_zaak(self, mock_send_cloudevent):
         besluittype = BesluitTypeFactory.create(concept=False)
-        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
+        besluittype_url = reverse(besluittype, namespace=self.BESLUITTYPE_NAMESPACE)
 
         catalogus_url = reverse(besluittype.catalogus, namespace="catalogi")
 
@@ -129,7 +129,7 @@ class BesluitConvenienceCloudEventTest(
     @patch("notifications_api_common.tasks.send_cloudevent.delay")
     def test_besluiten_verwerken_cloudevent_with_zaak(self, mock_send_cloudevent):
         besluittype = BesluitTypeFactory.create(concept=False)
-        besluittype_url = reverse(besluittype, namespace=self.BT_NAMESPACE)
+        besluittype_url = reverse(besluittype, namespace=self.BESLUITTYPE_NAMESPACE)
 
         catalogus_url = reverse(besluittype.catalogus, namespace="catalogi")
 

@@ -470,8 +470,6 @@ class BesluitVerwerkenViewSet(
         self.perform_create(serializer)
 
         response = Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        # brc_data = replace_namespaces(serializer.data["besluit"], ["url"], "besluiten")
         brc_data = replace_namespaces_from_config(
             serializer.data["besluit"],
             [{"field": "url"}, {"field": "besluittype", "namespace": "catalogi"}],
@@ -496,7 +494,7 @@ class BesluitVerwerkenViewSet(
             # zrc_data = replace_namespaces(serializer.data["besluit"], ["url"], "zaken")
             zrc_data = replace_namespaces_from_config(
                 serializer.data["besluit"],
-                [{"field": "url"}, {"field": "besluittype", "namespace": "catalogi"}],
+                [{"field": "url"}, {"field": "besluittype", "namespace": "zaken"}],
                 "zaken",
             )
             self.create_audittrail(

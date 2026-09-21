@@ -19,12 +19,12 @@ class BesluitScopeForbiddenTests(_BesluitScopeForbiddenTests):
 
 class BesluitReadCorrectScopeTests(_BesluitReadCorrectScopeTests):
     NAMESPACE = "zaken"
-    BT_NAMESPACE = "zaken"
+    BESLUITTYPE_NAMESPACE = "zaken"
 
 
 class BesluitWriteCorrectScopeTests(_BesluitWriteCorrectScopeTests):
     NAMESPACE = "zaken"
-    BT_NAMESPACE = "zaken"
+    BESLUITTYPE_NAMESPACE = "zaken"
 
 
 class BioReadTests(_BioReadTests):
@@ -33,4 +33,4 @@ class BioReadTests(_BioReadTests):
 
 class InternalBesluittypeScopeTests(_InternalBesluittypeScopeTests):
     NAMESPACE = "zaken"
-    BT_NAMESPACE = "zaken"
+    BESLUITTYPE_NAMESPACE = "zaken"

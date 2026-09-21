@@ -30,12 +30,12 @@ def replace_namespaces(data: dict, fields: list[str], namespace: str) -> dict:
 
 
 def replace_namespaces_from_config(
-    data, configs: list[ReplaceUrlConfig], namespace: str
+    data, configs: list[ReplaceUrlConfig], default_namespace: str
 ) -> ReplaceUrlConfig:
     new_data = data.copy()
     for config in configs:
         new_data[config["field"]] = replace_namespace(
-            new_data[config["field"]], config.get("namespace", namespace)
+            new_data[config["field"]], config.get("namespace", default_namespace)
         )
 
     return new_data

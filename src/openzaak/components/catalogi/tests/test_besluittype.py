@@ -34,7 +34,7 @@ class BesluitTypeAPITests(APITestCase):
     scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
     NAMESPACE = "catalogi"
-    IOT_NAMESPACE = "catalogi"
+    INFORMATIEOBJECTTYPE_NAMESPACE = "catalogi"
 
     def test_get_list_default_definitief(self):
         BesluitTypeFactory.create(concept=True)
@@ -98,7 +98,7 @@ class BesluitTypeAPITests(APITestCase):
         besluittype.informatieobjecttypen.add(iot1)
 
         besluittype_detail_url = reverse(besluittype, namespace=self.NAMESPACE)
-        iot1_url = reverse(iot1, namespace=self.IOT_NAMESPACE)
+        iot1_url = reverse(iot1, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE)
 
         response = self.client.get(besluittype_detail_url)
 
@@ -136,7 +136,7 @@ class BesluitTypeAPITests(APITestCase):
             catalogus=self.catalogus
         )
         informatieobjecttype_url = reverse(
-            informatieobjecttype, namespace=self.IOT_NAMESPACE
+            informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE
         )
         besluittype_list_url = reverse(BesluitType, namespace=self.NAMESPACE)
         data = {
@@ -171,7 +171,7 @@ class BesluitTypeAPITests(APITestCase):
             concept=False, catalogus=self.catalogus
         )
         informatieobjecttype_url = reverse(
-            informatieobjecttype, namespace=self.IOT_NAMESPACE
+            informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE
         )
         besluittype_list_url = reverse(BesluitType, namespace=self.NAMESPACE)
         data = {
@@ -203,7 +203,7 @@ class BesluitTypeAPITests(APITestCase):
         zaaktype_url = reverse(zaaktype)
         informatieobjecttype = InformatieObjectTypeFactory.create()
         informatieobjecttype_url = reverse(
-            informatieobjecttype, namespace=self.IOT_NAMESPACE
+            informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE
         )
         besluittype_list_url = reverse(BesluitType, namespace=self.NAMESPACE)
         data = {
@@ -423,7 +423,9 @@ class BesluitTypeAPITests(APITestCase):
             "publicatietermijn": None,
             "toelichting": "aangepast",
             "informatieobjecttypen": [
-                reverse(informatieobjecttype, namespace=self.IOT_NAMESPACE)
+                reverse(
+                    informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE
+                )
             ],
             "beginGeldigheid": "2019-01-01",
         }
@@ -453,7 +455,9 @@ class BesluitTypeAPITests(APITestCase):
             "publicatietermijn": None,
             "toelichting": "aangepast",
             "informatieobjecttypen": [
-                reverse(informatieobjecttype, namespace=self.IOT_NAMESPACE)
+                reverse(
+                    informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE
+                )
             ],
             "beginGeldigheid": "2019-01-01",
         }
@@ -483,7 +487,9 @@ class BesluitTypeAPITests(APITestCase):
             "publicatietermijn": None,
             "toelichting": "aangepast",
             "informatieobjecttypen": [
-                reverse(informatieobjecttype, namespace=self.IOT_NAMESPACE)
+                reverse(
+                    informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE
+                )
             ],
             "beginGeldigheid": "2019-01-01",
         }
@@ -539,7 +545,10 @@ class BesluitTypeAPITests(APITestCase):
             besluittype_url,
             {
                 "informatieobjecttypen": [
-                    reverse(informatieobjecttype, namespace=self.IOT_NAMESPACE)
+                    reverse(
+                        informatieobjecttype,
+                        namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE,
+                    )
                 ]
             },
         )

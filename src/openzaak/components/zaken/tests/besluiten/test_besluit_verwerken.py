@@ -12,4 +12,4 @@ class BesluitVerwerkenAuthTests(_BesluitVerwerkenAuthTests):
 
 class BesluitVerwerkenValidationTests(_BesluitVerwerkenValidationTests):
     NAMESPACE = "zaken"
-    BT_NAMESPACE = "zaken"
+    BESLUITTYPE_NAMESPACE = "zaken"
