@@ -780,6 +780,7 @@ POSTPONABLE_AFLEIDINGSWIJZES = {
     Afleidingswijze.vervaldatum_besluit,
     Afleidingswijze.eigenschap,
     Afleidingswijze.ander_datumkenmerk,
+    Afleidingswijze.zaakobject,
 }
 
 

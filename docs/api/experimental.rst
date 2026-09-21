@@ -70,7 +70,15 @@ but currently Open Zaak can emit the following cloud events if configured:
 * ``nl.overheid.zaken.zaak-verlengd``: emitted when the convenience endpoint 'zaak verlengen' is called
 * ``nl.overheid.zaken.zaak-afgesloten`` emitted when the convenience endpoint 'zaak afsluiten' is called
 
-A webhook endpoint ``/events`` has been added where incoming events can be delivered.
+A webhook endpoint ``/events`` has been added where incoming events can be delivered. Currently, Open Zaak reacts to
+the following events:
+
+  * ``nl.overheid.zaken.zaak-gekoppeld``: create a zaakobject which relates the external object to a zaak.
+    The hook expects the following fields to be present in the data: ``zaak``, ``linkObjectType``, ``linkTo``, and ``label``.
+  * ``nl.overheid.zaken.zaak-ontkoppeld``: delete a zaakobject which relates the external object to a zaak.
+    The hook expects the following fields to be present in the data: ``zaak`` and ``linkTo``.
+  * ``nl.overheid.zaken.zaakobject-bijgewerkt``: (re)calculate the archiving date for closed zaken with afleidingswijze ``zaakobject``.
+    The hook expects the following fields to be present in the data: ``zaak``, ``linkTo``, and ``fields``.
 
 .. warning::
 
