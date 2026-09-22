@@ -54,6 +54,7 @@ from vng_api_common.serializers import (
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, UntilNowValidator
 
+from openzaak.components.besluiten.models import Besluit
 from openzaak.components.catalogi.models import (
     Eigenschap,
     ResultaatType,

@@ -216,7 +216,7 @@ class DeprecatedNamespaceHyperlinkedRelatedField(
         "zaken:resultaattype-detail",
         "zaken:zaaktype-informatieobjecttype-detail",
         "zaken:zaakobjecttype-detail",
-        "zaken:catalogi-detail",
+        "zaken:catalogus-detail",
     ]
 
     def fail(self, key, **kwargs):

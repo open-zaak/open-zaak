@@ -516,7 +516,7 @@ class InformatieObjectTypeDeprecationTests(JWTAuthMixin, APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("documenten/api/v1/informatieobjecttype", response.data["url"])
-        self.assertIn("catalogi/api/v1/catalogus", response.data["catalogus"])
+        self.assertIn("zaken/api/v1/catalogus", response.data["catalogus"])
 
     def test_deprecated_paths(self):
         self.assertEqual(
@@ -638,7 +638,7 @@ class BesluitTypeDeprecationTests(JWTAuthMixin, APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("zaken/api/v1/besluittype", response.data["url"])
-        self.assertIn("catalogi/api/v1/catalogus", response.data["catalogus"])
+        self.assertIn("zaken/api/v1/catalogus", response.data["catalogus"])
 
     def test_deprecated_paths(self):
         self.assertEqual(

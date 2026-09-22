@@ -415,6 +415,10 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
                 "de periode van 'Doorlooptijd behandeling'."
             )
 
-    def get_absolute_api_url(self, request=None, **kwargs) -> str:
+    def get_absolute_api_url(
+        self, request=None, namespace: str | None = None, **kwargs
+    ) -> str:
         kwargs["version"] = "1"
-        return super().get_absolute_api_url(request=request, **kwargs)
+        return super().get_absolute_api_url(
+            request=request, namespace=namespace, **kwargs
+        )

@@ -30,6 +30,7 @@ class InformatieObjectTypeAPITests(APITestCase):
     scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
     NAMESPACE = "catalogi"
+    ZAAKTYPE_NAMESPACE = "catalogi"
 
     def test_get_list_default_definitief(self):
         InformatieObjectTypeFactory.create(concept=True)
@@ -68,7 +69,7 @@ class InformatieObjectTypeAPITests(APITestCase):
 
         expected = {
             "catalogus": "http://testserver{}".format(
-                reverse(self.catalogus, namespace=self.NAMESPACE)
+                reverse(self.catalogus, namespace=self.ZAAKTYPE_NAMESPACE)
             ),
             "omschrijving": iotype.omschrijving,
             "url": "http://testserver{}".format(informatieobjecttype_detail_url),

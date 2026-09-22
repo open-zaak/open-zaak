@@ -17,6 +17,9 @@ def _magic_args(
 
     Do some trivial introspection to translate objects/models into common
     used urls.
+
+
+    DEFAULT_NAMESPACES is used for models that were moved in 2.0
     """
 
     DEFAULT_NAMESPACES = {
