@@ -223,7 +223,7 @@ class BesluitTypeFailedNotificationTests(NotificationsConfigMixin, APITestCase):
             "hoofdObject": f"http://testserver{reverse(besluittype, namespace='zaken')}",
             "kanaal": "besluittypen",
             "kenmerken": {
-                "catalogus": f"http://testserver{reverse(besluittype.catalogus, namespace='catalogi')}",
+                "catalogus": f"http://testserver{reverse(besluittype.catalogus)}",
             },
             "resource": "besluittype",
             "resourceUrl": f"http://testserver{reverse(besluittype, namespace='zaken')}",
