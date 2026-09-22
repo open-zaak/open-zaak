@@ -527,18 +527,18 @@ class PerformanceTests(
              20:   Savepoint for zaak creation
          21-22:   Lookup zaaktype and feature flag config for validation
          23-25:   Lookup previous value, update zaakidentificatie, insert zaak
-         26-38:   Query related objects (rollen, status, informatieobjecten,
-                  resultaten, relaties, kenmerken, besluiten etc.) for serialization/audit
-             39:   Insert audit trail
-         40-41:   Notifications config and select created zaak
-             42:   Release savepoint (NotificationsCreateMixin)
-         43-45:   ETag update (savepoint, update, release)
+         26-39:   Query related objects (rollen, status, informatieobjecten,
+                  resultaten, relaties, kenmerken, besluiten, etc.) for serialization/audit
+             40:   Insert audit trail
+         41-42:   Notifications config and select created zaak
+             43:   Release savepoint (NotificationsCreateMixin)
+         44-46:   ETag update (savepoint, update, release)
         """
         # create a random zaak to get some other initial setup queries out of the way
         # (most notable figuring out the PG/postgres version)
         ZaakFactory.create()
 
-        EXPECTED_NUM_QUERIES = 45
+        EXPECTED_NUM_QUERIES = 46
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")
@@ -576,7 +576,7 @@ class PerformanceTests(
 
         # Two additional queries when there are any number of related zaken specified
         # and 9 per specified related zaak
-        EXPECTED_NUM_QUERIES = 45 + 2 + (9 * num_gerelateerde_zaken)
+        EXPECTED_NUM_QUERIES = 46 + 2 + (9 * num_gerelateerde_zaken)
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")
