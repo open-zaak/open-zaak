@@ -1558,17 +1558,16 @@ class ZaakBesluitViewSet(
         return super().get_queryset()
 
     def _get_zaak(self):
-        if not hasattr(self, "_zaak"):
+        if not hasattr(self, "zaak"):
             self._zaak = get_object_or_404(Zaak, uuid=self.kwargs["zaak_uuid"])
         return self._zaak
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
         # DRF introspection
-        if not self.kwargs:
-            return context
+        if getattr(self, "kwargs", None):
+            context["parent_object"] = self._get_zaak()
 
-        context["parent_object"] = self._get_zaak()
         return context
 
     def perform_create(self, serializer):
@@ -1577,17 +1576,6 @@ class ZaakBesluitViewSet(
         """
         besluit = serializer.validated_data["besluit"]
         besluit_url = get_loose_fk_object_url(besluit, self.request)
-
-        # external besluit
-        if isinstance(besluit, ProxyMixin):
-            super().perform_create(serializer)
-            logger.info(
-                "zaakbesluit_created_external",
-                besluit_url=besluit_url,
-                zaak_uuid=self.kwargs["zaak_uuid"],
-                client_id=self.request.jwt_auth.client_id,
-            )
-            return
 
         # for local besluit nothing extra happens here, since the creation is entirely managed via
         # the Besluit resource. We just perform some extra sanity checks in the
@@ -1634,17 +1622,6 @@ class ZaakBesluitViewSet(
         uuid = str(instance.uuid)
         zaak_uuid = str(instance.zaak.uuid)
         besluit_url = get_loose_fk_object_url(instance.besluit, self.request)
-        # external besluit
-        if isinstance(instance.besluit, ProxyMixin):
-            super().perform_destroy(instance)
-            logger.info(
-                "zaakbesluit_deleted_external",
-                uuid=uuid,
-                besluit_url=besluit_url,
-                zaak_uuid=zaak_uuid,
-                client_id=self.request.jwt_auth.client_id,
-            )
-            return
 
         # for local besluit the actual relation information must be updated in the Besluiten API,
         # so this is just a check.
