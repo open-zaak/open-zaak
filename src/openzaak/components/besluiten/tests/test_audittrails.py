@@ -34,12 +34,12 @@ from .factories import BesluitFactory
 class AuditTrailTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     NAMESPACE = "besluiten"
-    maxDiff = None
+    BESLUITTYPE_NAMESPACE = "catalogi"
 
     def _create_besluit(self, zaak: Type[Zaak] | None = None, **headers):
         url = reverse(Besluit, namespace=self.NAMESPACE)
         besluittype = BesluitTypeFactory.create(concept=False)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BESLUITTYPE_NAMESPACE)
 
         if zaak:
             besluittype.zaaktypen.add(zaak.zaaktype)
@@ -82,7 +82,10 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             besluit_create_audittrail.nieuw,
             besluit_response
-            | {"url": f"http://testserver{reverse(besluit, namespace='besluiten')}"},
+            | {
+                "url": f"http://testserver{reverse(besluit, namespace='besluiten')}",
+                "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
+            },
         )
 
     def test_create_besluit_audittrail_with_zaak(self):
@@ -110,7 +113,10 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             besluiten_create_audittrail.nieuw,
             besluit_response
-            | {"url": f"http://testserver{reverse(besluit, namespace='besluiten')}"},
+            | {
+                "url": f"http://testserver{reverse(besluit, namespace='besluiten')}",
+                "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
+            },
         )
 
         zaken_create_audittrail = audittrails.get(bron=AUDIT_ZRC.component_name)
@@ -127,7 +133,10 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             zaken_create_audittrail.nieuw,
             besluit_response
-            | {"url": f"http://testserver{reverse(besluit, namespace='zaken')}"},
+            | {
+                "url": f"http://testserver{reverse(besluit, namespace='zaken')}",
+                "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='zaken')}",
+            },
         )
 
     def test_update_besluit_audittrails(self):
@@ -155,12 +164,18 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             besluit_update_audittrail.oud,
             besluit_data
-            | {"url": f"http://testserver{reverse(besluit, namespace='besluiten')}"},
+            | {
+                "url": f"http://testserver{reverse(besluit, namespace='besluiten')}",
+                "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
+            },
         )
         self.assertEqual(
             besluit_update_audittrail.nieuw,
             besluit_response
-            | {"url": f"http://testserver{reverse(besluit, namespace='besluiten')}"},
+            | {
+                "url": f"http://testserver{reverse(besluit, namespace='besluiten')}",
+                "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
+            },
         )
 
     def test_partial_update_besluit_audittrails(self):
@@ -183,12 +198,18 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             besluit_update_audittrail.oud,
             besluit_data
-            | {"url": f"http://testserver{reverse(besluit, namespace='besluiten')}"},
+            | {
+                "url": f"http://testserver{reverse(besluit, namespace='besluiten')}",
+                "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
+            },
         )
         self.assertEqual(
             besluit_update_audittrail.nieuw,
             besluit_response
-            | {"url": f"http://testserver{reverse(besluit, namespace='besluiten')}"},
+            | {
+                "url": f"http://testserver{reverse(besluit, namespace='besluiten')}",
+                "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
+            },
         )
 
     def test_partial_update_besluit_audittrails_add_zaak(self):
@@ -216,12 +237,18 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             besluit_update_audittrail.oud,
             besluit_data
-            | {"url": f"http://testserver{reverse(besluit, namespace='besluiten')}"},
+            | {
+                "url": f"http://testserver{reverse(besluit, namespace='besluiten')}",
+                "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
+            },
         )
         self.assertEqual(
             besluit_update_audittrail.nieuw,
             response.data
-            | {"url": f"http://testserver{reverse(besluit, namespace='besluiten')}"},
+            | {
+                "url": f"http://testserver{reverse(besluit, namespace='besluiten')}",
+                "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
+            },
         )
         self.assertEqual(
             besluit_update_audittrail.resource_url,
@@ -245,12 +272,18 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             zaken_update_audittrail.oud,
             besluit_data
-            | {"url": f"http://testserver{reverse(besluit, namespace='zaken')}"},
+            | {
+                "url": f"http://testserver{reverse(besluit, namespace='zaken')}",
+                "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='zaken')}",
+            },
         )
         self.assertEqual(
             zaken_update_audittrail.nieuw,
             response.data
-            | {"url": f"http://testserver{reverse(besluit, namespace='zaken')}"},
+            | {
+                "url": f"http://testserver{reverse(besluit, namespace='zaken')}",
+                "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='zaken')}",
+            },
         )
 
     def test_create_besluitinformatieobject_audittrail(self):
@@ -361,7 +394,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
     @tag("convenience-endpoints")
     def test_verwerk_besluit_audittrails(self):
         besluittype = BesluitTypeFactory.create(concept=False)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BESLUITTYPE_NAMESPACE)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=besluittype.catalogus
@@ -411,7 +444,10 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             besluit_audittrail.nieuw,
             response.data["besluit"]
-            | {"url": f"http://testserver{reverse(besluit, namespace='besluiten')}"},
+            | {
+                "url": f"http://testserver{reverse(besluit, namespace='besluiten')}",
+                "besluittype": f"http://testserver{reverse(besluit.besluittype, namespace='catalogi')}",
+            },
         )
         self.assertEqual(
             besluit_audittrail.hoofd_object,
@@ -433,7 +469,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         zaak_url = reverse(zaak)
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype.zaaktypen.add(zaak.zaaktype)
-        besluittype_url = reverse(besluittype)
+        besluittype_url = reverse(besluittype, namespace=self.BESLUITTYPE_NAMESPACE)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=besluittype.catalogus
@@ -450,7 +486,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         )
         informatieobject_url_2 = reverse(informatieobject_2)
 
-        url = reverse("besluiten:verwerkbesluit-list")
+        url = reverse(f"{self.NAMESPACE}:verwerkbesluit-list")
 
         data = {
             "besluit": {
@@ -482,7 +518,14 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(besluit_brc_audittrail.actie, "create")
         self.assertEqual(besluit_brc_audittrail.oud, None)
-        self.assertEqual(besluit_brc_audittrail.nieuw, response.data["besluit"])
+        self.assertEqual(
+            besluit_brc_audittrail.nieuw,
+            response.data["besluit"]
+            | {
+                "url": f"http://testserver{reverse(besluit, namespace='besluiten')}",
+                "besluittype": f"http://testserver{reverse(besluittype, namespace='catalogi')}",
+            },
+        )
         self.assertEqual(
             besluit_brc_audittrail.hoofd_object,
             f"http://testserver{reverse(besluit, namespace='besluiten')}",
@@ -497,7 +540,10 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             besluit_zrc_audittrail.nieuw,
             response.data["besluit"]
-            | {"url": f"http://testserver{reverse(besluit, namespace='zaken')}"},
+            | {
+                "url": f"http://testserver{reverse(besluit, namespace='zaken')}",
+                "besluittype": f"http://testserver{reverse(besluittype, namespace='zaken')}",
+            },
         )
         self.assertEqual(
             besluit_zrc_audittrail.hoofd_object, f"http://testserver{zaak_url}"

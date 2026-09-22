@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2026 Dimpact
-from typing import Type
+from typing import NotRequired, Type, TypedDict
 
 from django.db import models, transaction
 
@@ -16,27 +16,40 @@ from vng_api_common.constants import CommonResourceAction
 from openzaak.components.besluiten.api.audits import AUDIT_BRC
 from openzaak.components.zaken.api.audits import AUDIT_ZRC
 from openzaak.utils.namespacing import (
+    ReplaceUrlConfig,
     get_nested_main_object_url_from_instance,
-    replace_namespaces,
+    replace_namespaces_from_config,
 )
 
 
+class AuditConfig(TypedDict):
+    audit: Audit
+    deprecated: NotRequired[bool]
+    replace_urls_for: NotRequired[list[ReplaceUrlConfig]]
+    replace_urls_in_kenmerken: NotRequired[list[ReplaceUrlConfig]]
+    main_resource_key: NotRequired[str]
+
+
 class MultipleAuditTrailsMixin(AuditTrailMixin):
-    audits: list[Audit]
-    audittrail_main_resource_keys: dict[str, str]
-    audittrail_replace_urls_for: list[str] | None = None
+    audit_configs: list[AuditConfig]
 
     _AUDIT_NAMESPACE_MAPPING = {AUDIT_BRC: "besluiten", AUDIT_ZRC: "zaken"}
 
     def _get_audittrail_main_object_url(
-        self, data: dict, audit: Audit, instance: Type[models.Model], basename: str
+        self,
+        data: dict,
+        audit: Audit,
+        instance: Type[models.Model],
+        basename: str,
+        main_resource_key: str | None = None,
     ) -> str | None:
         if basename == audit.main_resource:
             return data["url"]
 
         if audit.main_resource not in data:
+            assert main_resource_key
             url = get_nested_main_object_url_from_instance(
-                self.audittrail_main_resource_keys[audit.component_name],
+                main_resource_key,
                 instance,
                 self.request,
             )
@@ -49,22 +62,24 @@ class MultipleAuditTrailsMixin(AuditTrailMixin):
 
     def _handle_namespacing(
         self,
-        audit: Audit,
+        audit_config: AuditConfig,
         instance: Type[models.Model],
         version_before_edit: dict | None = None,
         version_after_edit: dict | None = None,
         basename: str | None = None,
     ):
-        fields = ["url"] + (self.audittrail_replace_urls_for or [])
+        fields = [{"field": "url"}] + audit_config.get("replace_urls_for", [])
+        audit = audit_config["audit"]
+
         if version_before_edit:
-            version_before_edit = replace_namespaces(
+            version_before_edit = replace_namespaces_from_config(
                 version_before_edit,
                 fields,
                 self._AUDIT_NAMESPACE_MAPPING[audit],
             )
 
         if version_after_edit:
-            version_after_edit = replace_namespaces(
+            version_after_edit = replace_namespaces_from_config(
                 version_after_edit,
                 fields,
                 self._AUDIT_NAMESPACE_MAPPING[audit],
@@ -76,7 +91,7 @@ class MultipleAuditTrailsMixin(AuditTrailMixin):
             basename = self.basename
 
         main_object = self._get_audittrail_main_object_url(
-            data, audit, instance, basename
+            data, audit, instance, basename, audit_config.get("main_resource_key")
         )
 
         return main_object, version_before_edit, version_after_edit
@@ -88,9 +103,9 @@ class MultipleAuditTrailsCreateMixin(AuditTrailCreateMixin, MultipleAuditTrailsM
         instance = self.get_audittrail_instance(response)
         version_after_edit = response.data
 
-        for audit in self.audits:
+        for audit_config in self.audit_configs:
             main_object, _, version_after_edit = self._handle_namespacing(
-                audit, instance, version_after_edit=version_after_edit
+                audit_config, instance, version_after_edit=version_after_edit
             )
 
             # Do not create audittrail if audit main resource does not exist on the instance
@@ -104,7 +119,7 @@ class MultipleAuditTrailsCreateMixin(AuditTrailCreateMixin, MultipleAuditTrailsM
                 version_before_edit=None,
                 version_after_edit=version_after_edit,
                 unique_representation=instance.unique_representation(),
-                audit=audit,
+                audit=audit_config["audit"],
                 main_object=main_object,
             )
         return response
@@ -126,10 +141,10 @@ class MultipleAuditTrailsUpdateMixin(AuditTrailUpdateMixin, MultipleAuditTrailsM
         response = super(AuditTrailUpdateMixin, self).update(request, *args, **kwargs)  # type: ignore
         version_after_edit = response.data
 
-        for audit in self.audits:
+        for audit_config in self.audit_configs:
             main_object, version_before_edit, version_after_edit = (
                 self._handle_namespacing(
-                    audit,
+                    audit_config,
                     instance,
                     version_before_edit=version_before_edit,
                     version_after_edit=version_after_edit,
@@ -147,7 +162,7 @@ class MultipleAuditTrailsUpdateMixin(AuditTrailUpdateMixin, MultipleAuditTrailsM
                 version_before_edit=version_before_edit,
                 version_after_edit=version_after_edit,
                 unique_representation=instance.unique_representation(),
-                audit=audit,
+                audit=audit_config["audit"],
                 main_object=main_object,
             )
         return response
@@ -164,10 +179,11 @@ class MultipleAuditTrailsDestroyMixin(AuditTrailDestroyMixin, MultipleAuditTrail
             response = super(AuditTrailDestroyMixin, self).destroy(
                 request, *args, **kwargs
             )
-            for audit in self.audits:
+            for audit_config in self.audit_configs:
                 main_object, version_before_edit, _ = self._handle_namespacing(
-                    audit, instance, version_before_edit=version_before_edit
+                    audit_config, instance, version_before_edit=version_before_edit
                 )
+                audit = audit_config["audit"]
 
                 # Do not create audittrail if audit main resource does not exist on the instance
                 # E.g. besluit zaak is not required

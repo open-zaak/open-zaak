@@ -21,8 +21,7 @@ from openzaak.selectielijst.tests import (
     mock_selectielijst_oas_get,
 )
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
-from openzaak.tests.utils import ClearCachesMixin
-from openzaak.tests.utils.admin import AdminTestMixin
+from openzaak.tests.utils import AdminTestMixin, ClearCachesMixin
 
 from ..factories import (
     BesluitTypeFactory,
@@ -138,33 +137,6 @@ class ZaaktypeAdminTests(
             },
             None,
         )
-
-    def test_publish_besluittype(self, m):
-        besluittype = BesluitTypeFactory.create(concept=True)
-        url = reverse("admin:catalogi_besluittype_change", args=(besluittype.pk,))
-
-        response = self.app.get(url)
-
-        # Verify that the publish button is visible and enabled
-        publish_button = response.html.find("input", {"name": "_publish"})
-        self.assertIsNotNone(publish_button)
-        publish_button = response.html.find(
-            "input", {"name": "_publish", "disabled": "disabled"}
-        )
-        self.assertIsNone(publish_button)
-
-        form = response.forms["besluittype_form"]
-
-        response = form.submit("_publish").follow()
-
-        besluittype.refresh_from_db()
-        self.assertFalse(besluittype.concept)
-
-        # Verify that the publish button is disabled
-        publish_button = response.html.find(
-            "input", {"name": "_publish", "disabled": "disabled"}
-        )
-        self.assertIsNotNone(publish_button)
 
     def test_publish_zaaktype_related_to_concept_besluittype_fails(self, m):
         mock_selectielijst_oas_get(m)
@@ -713,18 +685,6 @@ class ReadOnlyUserTests(ClearCachesMixin, WebTest):
 
         detail_page = self.app.get(url)
         form = detail_page.forms["zaaktype_form"]
-
-        self.assertNotIn(_("Publiceren"), form.html)
-
-        # try to submit it anyway
-        form.submit("_publish", status=403)
-
-    def test_besluittype_publish_not_possible(self):
-        besluittype = BesluitTypeFactory.create(concept=True)
-        url = reverse("admin:catalogi_besluittype_change", args=(besluittype.pk,))
-
-        detail_page = self.app.get(url)
-        form = detail_page.forms["besluittype_form"]
 
         self.assertNotIn(_("Publiceren"), form.html)
 

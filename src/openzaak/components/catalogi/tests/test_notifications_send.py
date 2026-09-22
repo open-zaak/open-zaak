@@ -11,7 +11,7 @@ from privates.test import temp_private_root
 from rest_framework import status
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
-from openzaak.components.catalogi.models import InformatieObjectType
+from openzaak.components.catalogi.models import BesluitType, InformatieObjectType
 from openzaak.notifications.tests import mock_notification_send
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.utils.urls import reverse
@@ -144,23 +144,21 @@ class InformatieObjectTypeSendNotifTestCase(NotificationsConfigMixin, APITestCas
 
 
 @tag("notifications")
-@requests_mock.Mocker()
-@override_settings(
-    NOTIFICATIONS_DISABLED=False,
-    LOG_NOTIFICATIONS_IN_DB=True,
-    CELERY_TASK_ALWAYS_EAGER=True,
-)
-@freeze_time("2019-01-01T12:00:00Z")
-class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
+@freeze_time("2018-09-07T00:00:00Z")
+@temp_private_root()
+@override_settings(NOTIFICATIONS_DISABLED=False, LOG_NOTIFICATIONS_IN_DB=False)
+@patch("notifications_api_common.viewsets.send_notification.delay")
+class BesluitTypeSendNotifTestCase(NotificationsConfigMixin, APITestCase):
     heeft_alle_autorisaties = True
-    maxDiff = None
+    NAMESPACE = "catalogi"
 
-    def test_besluittype_create_fail_send_notification_create_db_entry(self, m):
-        url = get_operation_url("besluittype_create")
+    def test_send_notif_create_informatieobjecttype(self, mock_notif):
+        catalogus = CatalogusFactory.create()
+        catalogus_url = reverse(catalogus)
+        url = reverse(BesluitType, namespace=self.NAMESPACE)
 
         data = {
-            "catalogus": f"http://testserver{self.catalogus_detail_url}",
-            "zaaktypen": [],
+            "catalogus": f"http://testserver{catalogus_url}",
             "omschrijving": "test",
             "omschrijvingGeneriek": "",
             "besluitcategorie": "",
@@ -173,56 +171,111 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
             "beginGeldigheid": "2019-01-01",
         }
 
-        mock_notification_send(m, status_code=403)
-
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         data = response.json()
-        message = {
-            "aanmaakdatum": "2019-01-01T12:00:00Z",
-            "actie": "create",
-            "hoofdObject": data["url"],
-            "kanaal": "besluittypen",
-            "kenmerken": {
-                "catalogus": f"http://testserver{self.catalogus_detail_url}",
-            },
-            "resource": "besluittype",
-            "resourceUrl": data["url"],
-        }
+        bt = BesluitType.objects.get()
+        self.assertEqual(
+            data["url"],
+            f"http://testserver{reverse(bt, namespace=self.NAMESPACE)}",
+        )
+        mock_notif.assert_has_calls(
+            [
+                call(
+                    {
+                        "kanaal": "besluittypen",
+                        "hoofdObject": f"http://testserver{reverse(bt, namespace='zaken')}",
+                        "resource": "besluittype",
+                        "resourceUrl": f"http://testserver{reverse(bt, namespace='zaken')}",
+                        "actie": "create",
+                        "aanmaakdatum": "2018-09-07T00:00:00Z",
+                        "kenmerken": {
+                            "catalogus": f"http://testserver{catalogus_url}",
+                        },
+                    },
+                    None,
+                ),
+            ]
+        )
 
-        self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(FailedNotification.objects.count(), 1)
-        self.assertEqual(NotificationResponse.objects.count(), 1)
+    def test_send_notif_update_informatieobjecttype(self, mock_notif):
+        bt = BesluitTypeFactory.create()
+        url = reverse(bt, namespace=self.NAMESPACE)
 
-    def test_besluittype_delete_fail_send_notification_create_db_entry(self, m):
-        besluittype = BesluitTypeFactory.create()
-        url = reverse(besluittype)
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.patch(url, {"omschrijving": "Blabla"})
 
-        mock_notification_send(m, status_code=403)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        data = response.json()
+        self.assertEqual(
+            data["url"],
+            f"http://testserver{reverse(bt, namespace=self.NAMESPACE)}",
+        )
+        mock_notif.assert_has_calls(
+            [
+                call(
+                    {
+                        "kanaal": "besluittypen",
+                        "hoofdObject": f"http://testserver{reverse(bt, namespace='zaken')}",
+                        "resource": "besluittype",
+                        "resourceUrl": f"http://testserver{reverse(bt, namespace='zaken')}",
+                        "actie": "partial_update",
+                        "aanmaakdatum": "2018-09-07T00:00:00Z",
+                        "kenmerken": {
+                            "catalogus": f"http://testserver{reverse(bt.catalogus)}",
+                        },
+                    },
+                    None,
+                ),
+            ]
+        )
+
+    def test_send_notif_delete_informatieobjecttype(self, mock_notif):
+        bt = BesluitTypeFactory.create()
+        url = reverse(bt, namespace=self.NAMESPACE)
 
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.delete(url)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(
+            response.status_code, status.HTTP_204_NO_CONTENT, response.data
+        )
 
-        message = {
-            "aanmaakdatum": "2019-01-01T12:00:00Z",
-            "actie": "destroy",
-            "hoofdObject": f"http://testserver{url}",
-            "kanaal": "besluittypen",
-            "kenmerken": {
-                "catalogus": f"http://testserver{reverse(besluittype.catalogus)}",
-            },
-            "resource": "besluittype",
-            "resourceUrl": f"http://testserver{url}",
-        }
+        mock_notif.assert_has_calls(
+            [
+                call(
+                    {
+                        "kanaal": "besluittypen",
+                        "hoofdObject": f"http://testserver{reverse(bt, namespace='zaken')}",
+                        "resource": "besluittype",
+                        "resourceUrl": f"http://testserver{reverse(bt, namespace='zaken')}",
+                        "actie": "destroy",
+                        "aanmaakdatum": "2018-09-07T00:00:00Z",
+                        "kenmerken": {
+                            "catalogus": f"http://testserver{reverse(bt.catalogus)}",
+                        },
+                    },
+                    None,
+                ),
+            ]
+        )
 
-        self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(FailedNotification.objects.count(), 1)
-        self.assertEqual(NotificationResponse.objects.count(), 1)
+
+@tag("notifications")
+@requests_mock.Mocker()
+@override_settings(
+    NOTIFICATIONS_DISABLED=False,
+    LOG_NOTIFICATIONS_IN_DB=True,
+    CELERY_TASK_ALWAYS_EAGER=True,
+)
+@freeze_time("2019-01-01T12:00:00Z")
+class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    maxDiff = None
 
     def test_zaaktype_create_fail_send_notification_create_db_entry(self, m):
         url = get_operation_url("zaaktype_create")
@@ -304,6 +357,95 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
             },
             "resource": "zaaktype",
             "resourceUrl": f"http://testserver{url}",
+        }
+
+        self.assertEqual(m.last_request.json(), message)
+        self.assertEqual(FailedNotification.objects.count(), 1)
+        self.assertEqual(NotificationResponse.objects.count(), 1)
+
+
+@tag("notifications")
+@requests_mock.Mocker()
+@override_settings(
+    NOTIFICATIONS_DISABLED=False,
+    LOG_NOTIFICATIONS_IN_DB=True,
+    CELERY_TASK_ALWAYS_EAGER=True,
+)
+@freeze_time("2019-01-01T12:00:00Z")
+class BesluitTypeFailedNotificationTests(NotificationsConfigMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    maxDiff = None
+    NAMESPACE = "catalogi"
+
+    def test_besluittype_create_fail_send_notification_create_db_entry(self, m):
+        url = reverse(BesluitType, namespace=self.NAMESPACE)
+
+        data = {
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "zaaktypen": [],
+            "omschrijving": "test",
+            "omschrijvingGeneriek": "",
+            "besluitcategorie": "",
+            "reactietermijn": "P14D",
+            "publicatieIndicatie": True,
+            "publicatietekst": "",
+            "publicatietermijn": None,
+            "toelichting": "",
+            "informatieobjecttypen": [],
+            "beginGeldigheid": "2019-01-01",
+        }
+
+        mock_notification_send(m, status_code=403)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        besluittype = BesluitType.objects.get()
+
+        data = response.json()
+        self.assertEqual(
+            data["url"],
+            f"http://testserver{reverse(besluittype, namespace=self.NAMESPACE)}",
+        )
+        message = {
+            "aanmaakdatum": "2019-01-01T12:00:00Z",
+            "actie": "create",
+            "hoofdObject": f"http://testserver{reverse(besluittype, namespace='zaken')}",
+            "kanaal": "besluittypen",
+            "kenmerken": {
+                "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            },
+            "resource": "besluittype",
+            "resourceUrl": f"http://testserver{reverse(besluittype, namespace='zaken')}",
+        }
+
+        self.assertEqual(m.last_request.json(), message)
+        self.assertEqual(FailedNotification.objects.count(), 1)
+        self.assertEqual(NotificationResponse.objects.count(), 1)
+
+    def test_besluittype_delete_fail_send_notification_create_db_entry(self, m):
+        besluittype = BesluitTypeFactory.create()
+        url = reverse(besluittype, namespace=self.NAMESPACE)
+
+        mock_notification_send(m, status_code=403)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        message = {
+            "aanmaakdatum": "2019-01-01T12:00:00Z",
+            "actie": "destroy",
+            "hoofdObject": f"http://testserver{reverse(besluittype, namespace='zaken')}",
+            "kanaal": "besluittypen",
+            "kenmerken": {
+                "catalogus": f"http://testserver{reverse(besluittype.catalogus, namespace='catalogi')}",
+            },
+            "resource": "besluittype",
+            "resourceUrl": f"http://testserver{reverse(besluittype, namespace='zaken')}",
         }
 
         self.assertEqual(m.last_request.json(), message)

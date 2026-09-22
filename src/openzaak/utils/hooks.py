@@ -62,6 +62,8 @@ def postprocess_mark_moved_apis_as_experimental(result, generator, request, publ
             "/besluiten/{uuid}",
             "/besluitinformatieobjecten",
             "/besluitinformatieobjecten/{uuid}",
+            "/besluittypen",
+            "/besluittypen/{uuid}",
         ],
         "openzaak.components.documenten.api.urls": [
             "/informatieobjecttypen",
