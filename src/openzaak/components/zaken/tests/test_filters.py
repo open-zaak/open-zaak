@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import uuid
 from datetime import datetime
 
 from django.test import override_settings, tag
@@ -44,17 +45,27 @@ class ResultaatFilterTests(JWTAuthMixin, APITestCase):
 
     def test_filter_by_valid_url_object_does_not_exist(self):
         ResultaatFactory.create()
-        for query_param in ["zaak", "resultaattype"]:
-            with self.subTest(query_param=query_param):
-                response = self.client.get(
-                    reverse(Resultaat), {query_param: "https://google.com"}
-                )
+        with self.subTest("zaak"):
+            response = self.client.get(
+                reverse(Resultaat),
+                {"zaak": f"http://openzaak.nl/zaken/api/v1/zaken/{uuid.uuid4()}"},
+                headers={"host": "openzaak.nl"},
+            )
 
-                self.assertEqual(response.status_code, status.HTTP_200_OK)
-                self.assertEqual(
-                    response.data,
-                    {"count": 0, "next": None, "previous": None, "results": []},
-                )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data["count"], 0)
+
+        with self.subTest("resultaattype"):
+            response = self.client.get(
+                reverse(Resultaat),
+                {
+                    "resultaattype": f"http://openzaak.nl/catalogi/api/v1/resultaattypen/{uuid.uuid4()}"
+                },
+                headers={"host": "openzaak.nl"},
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data["count"], 0)
 
 
 class RolFilterTests(JWTAuthMixin, APITestCase):
@@ -72,17 +83,28 @@ class RolFilterTests(JWTAuthMixin, APITestCase):
 
     def test_filter_by_valid_url_object_does_not_exist(self):
         RolFactory.create()
-        for query_param in ["zaak", "roltype", "betrokkene"]:
-            with self.subTest(query_param=query_param):
-                response = self.client.get(
-                    reverse(Rol), {query_param: "https://google.com"}
-                )
 
-                self.assertEqual(response.status_code, status.HTTP_200_OK)
-                self.assertEqual(
-                    response.data,
-                    {"count": 0, "next": None, "previous": None, "results": []},
-                )
+        with self.subTest("zaak"):
+            response = self.client.get(
+                reverse(Rol),
+                {"zaak": f"http://openzaak.nl/zaken/api/v1/zaken/{uuid.uuid4()}"},
+                headers={"host": "openzaak.nl"},
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data["count"], 0)
+
+        with self.subTest("roltype"):
+            response = self.client.get(
+                reverse(Rol),
+                {
+                    "roltype": f"http://openzaak.nl/catalogi/api/v1/roltypen/{uuid.uuid4()}"
+                },
+                headers={"host": "openzaak.nl"},
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data["count"], 0)
 
 
 class StatusFilterTests(JWTAuthMixin, APITestCase):
@@ -100,17 +122,28 @@ class StatusFilterTests(JWTAuthMixin, APITestCase):
 
     def test_filter_by_valid_url_object_does_not_exist(self):
         StatusFactory.create()
-        for query_param in ["zaak", "statustype"]:
-            with self.subTest(query_param=query_param):
-                response = self.client.get(
-                    reverse(Status), {query_param: "https://google.com"}
-                )
 
-                self.assertEqual(response.status_code, status.HTTP_200_OK)
-                self.assertEqual(
-                    response.data,
-                    {"count": 0, "next": None, "previous": None, "results": []},
-                )
+        with self.subTest("zaak"):
+            response = self.client.get(
+                reverse(Status),
+                {"zaak": f"http://openzaak.nl/zaken/api/v1/zaken/{uuid.uuid4()}"},
+                headers={"host": "openzaak.nl"},
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data["count"], 0)
+
+        with self.subTest("statustype"):
+            response = self.client.get(
+                reverse(Status),
+                {
+                    "statustype": f"http://openzaak.nl/catalogi/api/v1/statustypen/{uuid.uuid4()}"
+                },
+                headers={"host": "openzaak.nl"},
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data["count"], 0)
 
 
 class ZaakInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
@@ -130,14 +163,27 @@ class ZaakInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
 
     def test_filter_by_valid_url_object_does_not_exist(self):
         ZaakInformatieObjectFactory.create()
-        for query_param in ["zaak", "informatieobject"]:
-            with self.subTest(query_param=query_param):
-                response = self.client.get(
-                    reverse(ZaakInformatieObject), {query_param: "https://google.com"}
-                )
 
-                self.assertEqual(response.status_code, status.HTTP_200_OK)
-                self.assertEqual(response.data, [])
+        with self.subTest("zaak"):
+            response = self.client.get(
+                reverse(ZaakInformatieObject),
+                {"zaak": f"http://openzaak.nl/zaken/api/v1/zaken/{uuid.uuid4()}"},
+                headers={"host": "openzaak.nl"},
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data, [])
+
+        with self.subTest("informatieobject"):
+            response = self.client.get(
+                reverse(ZaakInformatieObject),
+                {
+                    "informatieobject": f"http://openzaak.nl/documenten/api/v1/enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+                },
+                headers={"host": "openzaak.nl"},
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data, [])
 
 
 class ZaakObjectFilterTests(JWTAuthMixin, APITestCase):
@@ -186,6 +232,18 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
         ZaakFactory.create()
         response = self.client.get(
             reverse(Zaak), {"zaaktype": "https://google.com"}, **ZAAK_READ_KWARGS
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data, {"count": 0, "next": None, "previous": None, "results": []}
+        )
+        ZaakFactory.create()
+        response = self.client.get(
+            reverse(Zaak),
+            {"zaaktype": f"http://openzaak.nl/zaken/api/v1/zaken/{uuid.uuid4()}"},
+            headers={"host": "openzaak.nl"},
+            **ZAAK_READ_KWARGS,
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -478,6 +536,23 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
         response = self.client.get(
             reverse("zaak-list"),
             {"status__statustype": invalid_url},
+            headers={"host": "openzaak.nl"},
+            **ZAAK_READ_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 0)
+
+    def test_filter_statustype_not_found(self):
+        statustype = StatusTypeFactory.create()
+        zaak = ZaakFactory.create()
+        StatusFactory.create(zaak=zaak, statustype=statustype)
+
+        response = self.client.get(
+            reverse("zaak-list"),
+            {
+                "status__statustype": f"http://openzaak.nl/catalogi/api/v1/statustypen/{uuid.uuid4()}"
+            },
             headers={"host": "openzaak.nl"},
             **ZAAK_READ_KWARGS,
         )

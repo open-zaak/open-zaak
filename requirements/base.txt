@@ -201,7 +201,7 @@ django-jsonform==2.22.0
     #   open-api-framework
 django-log-outgoing-requests==0.9.1
     # via open-api-framework
-django-loose-fk==1.1.2
+django-loose-fk @ git+https://github.com/maykinmedia/django-loose-fk.git@cc3ed62cff8f4aad958e639fd189dd3a881d920a
     # via -r requirements/base.in
 django-markup==1.9.1
     # via open-api-framework
@@ -288,6 +288,7 @@ drf-nested-routers==0.94.1
 drf-spectacular==0.27.2
     # via
     #   commonground-api-common
+    #   django-loose-fk
     #   open-api-framework
 drf-spectacular-sidecar==2024.7.1
     # via drf-spectacular
@@ -604,6 +605,7 @@ sqlparse==0.5.5
 structlog==25.4.0
     # via
     #   commonground-api-common
+    #   django-loose-fk
     #   django-structlog
     #   notifications-api-common
     #   open-api-framework

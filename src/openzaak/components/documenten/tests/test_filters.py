@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import uuid
+
 from django.test import override_settings, tag
 
 from privates.test import temp_private_root
@@ -595,6 +597,15 @@ class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
             self.assertEqual(len(data), 1)
             self.assertEqual(data[0]["objectType"], "zaak")
 
+            response = self.client.get(
+                reverse(ObjectInformatieObject),
+                {"object": f"http://openzaak.nl/zaken/api/v1/zaken/{uuid.uuid4()}"},
+                headers={"host": "testserver.com"},
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(len(data), 0)
+
         with self.subTest("besluit"):
             response = self.client.get(
                 reverse(ObjectInformatieObject),
@@ -605,6 +616,17 @@ class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
             data = response.json()
             self.assertEqual(len(data), 1)
             self.assertEqual(data[0]["objectType"], "besluit")
+
+            response = self.client.get(
+                reverse(ObjectInformatieObject),
+                {
+                    "object": f"http://openzaak.nl//besluiten/api/v1/besuiten/{uuid.uuid4()}"
+                },
+                headers={"host": "testserver.com"},
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(len(data), 0)
 
     @tag("external-urls")
     @override_settings(
