@@ -4,6 +4,7 @@ from typing import List, Union
 from urllib.parse import urlparse
 
 from django.db import models
+from django.db.models import QuerySet
 
 from django_loose_fk.loaders import get_loader_class
 from django_loose_fk.utils import get_resource_for_path
@@ -11,9 +12,12 @@ from vng_api_common.authorizations.middleware import (
     AuthMiddleware as _AuthMiddleware,
     JWTAuth as _JWTAuth,
 )
-from vng_api_common.authorizations.models import Autorisatie
 
-from openzaak.components.autorisaties.models import CatalogusAutorisatie
+from openzaak.components.autorisaties.models import (
+    Applicatie,
+    Autorisatie,
+    CatalogusAutorisatie,
+)
 from openzaak.utils.constants import COMPONENT_MAPPING
 
 loader = get_loader_class()()
@@ -21,6 +25,9 @@ loader = get_loader_class()()
 
 class JWTAuth(_JWTAuth):
     component = None
+
+    def _get_auth(self) -> QuerySet[Applicatie]:
+        return Applicatie.objects.filter(client_ids__contains=[self.client_id])
 
     @property
     def applicaties(self) -> Union[models.QuerySet, List, None]:
@@ -107,9 +114,15 @@ class JWTAuth(_JWTAuth):
                         catalogus_autorisaties, field_value
                     )
             else:
-                autorisaties = self.filter_default(
-                    autorisaties, field_name, field_value
-                )
+                # TODO needed to handle external urls for now since they are still allowed in the models
+
+                if not field_value:
+                    continue
+                if not loader.is_local_url(field_value):
+                    return False
+
+                resolved = get_resource_for_path(urlparse(field_value).path)
+                autorisaties = self.filter_default(autorisaties, field_name, resolved)
                 if (
                     has_catalogus_autorisaties
                     and field_value

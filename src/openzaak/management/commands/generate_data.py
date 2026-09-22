@@ -3,7 +3,6 @@
 import random
 from itertools import groupby, islice
 
-from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.core.management.base import BaseCommand, CommandError
 from django.db import models, transaction
@@ -12,7 +11,6 @@ from django.utils import timezone
 
 import factory.fuzzy
 from requests.exceptions import RequestException
-from rest_framework.test import APIRequestFactory
 from vng_api_common.client import Client, ClientError, to_internal_data
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
@@ -105,7 +103,6 @@ from openzaak.components.zaken.tests.factories import (
 )
 from openzaak.selectielijst.api import get_resultaattype_omschrijvingen
 from openzaak.selectielijst.models import ReferentieLijstConfig
-from openzaak.utils import get_openzaak_domain
 
 
 def get_sl_resultaten() -> list[dict]:
@@ -683,10 +680,6 @@ class Command(BaseCommand):
             client_ids=["non_superuser"], heeft_alle_autorisaties=False
         )
 
-        request = APIRequestFactory().get(
-            "/", HTTP_HOST=get_openzaak_domain(), secure=settings.IS_HTTPS
-        )
-
         num_authorized_zaaktypen = min(ZaakType.objects.count(), 15)
         for zaaktype in ZaakType.objects.order_by("pk")[:num_authorized_zaaktypen]:
             AutorisatieFactory.create(
@@ -699,7 +692,7 @@ class Command(BaseCommand):
                     str(SCOPE_ZAKEN_BIJWERKEN),
                 ],
                 max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
-                zaaktype=zaaktype.get_absolute_api_url(request=request),
+                zaaktype=zaaktype,
             )
 
         num_authorized_besluittypen = min(BesluitType.objects.count(), 15)
@@ -715,7 +708,7 @@ class Command(BaseCommand):
                     str(SCOPE_BESLUITEN_ALLES_LEZEN),
                     str(SCOPE_BESLUITEN_ALLES_VERWIJDEREN),
                 ],
-                besluittype=besluittype.get_absolute_api_url(request=request),
+                besluittype=besluittype,
             )
 
         num_authorized_iotypen = min(InformatieObjectType.objects.count(), 15)
@@ -733,7 +726,7 @@ class Command(BaseCommand):
                     str(SCOPE_DOCUMENTEN_LOCK),
                 ],
                 max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
-                informatieobjecttype=iotype.get_absolute_api_url(request=request),
+                informatieobjecttype=iotype,
             )
 
         AutorisatieFactory.create(
@@ -762,7 +755,6 @@ class Command(BaseCommand):
         )
 
         num_authorized_zaaktypen = max(ZaakType.objects.count() - 5, 1)
-        request = APIRequestFactory().get("/", HTTP_HOST=get_openzaak_domain())
         for zaaktype in ZaakType.objects.order_by("pk")[:num_authorized_zaaktypen]:
             AutorisatieFactory.create(
                 applicatie=applicatie,
@@ -774,7 +766,7 @@ class Command(BaseCommand):
                     str(SCOPE_ZAKEN_BIJWERKEN),
                 ],
                 max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
-                zaaktype=zaaktype.get_absolute_api_url(request=request),
+                zaaktype=zaaktype,
             )
 
         num_authorized_besluittypen = max(BesluitType.objects.count() - 5, 1)
@@ -790,7 +782,7 @@ class Command(BaseCommand):
                     str(SCOPE_BESLUITEN_ALLES_LEZEN),
                     str(SCOPE_BESLUITEN_ALLES_VERWIJDEREN),
                 ],
-                besluittype=besluittype.get_absolute_api_url(request=request),
+                besluittype=besluittype,
             )
 
         num_authorized_iotypen = max(InformatieObjectType.objects.count() - 5, 1)
@@ -808,7 +800,7 @@ class Command(BaseCommand):
                     str(SCOPE_DOCUMENTEN_LOCK),
                 ],
                 max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
-                informatieobjecttype=iotype.get_absolute_api_url(request=request),
+                informatieobjecttype=iotype,
             )
 
         AutorisatieFactory.create(

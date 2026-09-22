@@ -9,7 +9,6 @@ from django.utils.translation import gettext_lazy as _
 
 import requests_mock
 from rest_framework import status
-from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import (
     TypeCheckMixin,
@@ -17,9 +16,9 @@ from vng_api_common.tests import (
     reverse_lazy,
 )
 
+from openzaak.components.autorisaties.models import Autorisatie
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
-from openzaak.utils import build_absolute_url
 from openzaak.utils.urls import reverse
 
 from ...autorisaties.tests.factories import ApplicatieFactory, AutorisatieFactory
@@ -2151,11 +2150,10 @@ class ZaaktypeDeleteAutorisatieTests(TestCase):
         zaaktype = ZaakTypeFactory.create()
         AutorisatieFactory.create(
             applicatie=applicatie,
-            zaaktype=build_absolute_url(zaaktype.get_absolute_api_url()),
+            zaaktype=zaaktype,
         )
 
         self.assertEqual(Autorisatie.objects.all().count(), 1)
 
         zaaktype.delete()
-
         self.assertEqual(Autorisatie.objects.all().count(), 0)

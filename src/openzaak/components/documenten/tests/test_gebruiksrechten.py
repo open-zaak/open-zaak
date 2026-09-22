@@ -5,10 +5,10 @@ import datetime
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse_lazy
 
+from openzaak.components.autorisaties.models import Autorisatie
 from openzaak.components.catalogi.api.scopes import SCOPE_CATALOGI_READ
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
@@ -196,7 +196,10 @@ class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
             reverse(gebruiksrechten.get_informatieobject())
         ).json()
         iotype_data = self.client.get(
-            reverse(gebruiksrechten.get_informatieobject().informatieobjecttype)
+            reverse(
+                gebruiksrechten.get_informatieobject().informatieobjecttype,
+                namespace="documenten",
+            )
         ).json()
 
         response = self.client.get(
@@ -229,7 +232,10 @@ class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
             reverse(gebruiksrechten.get_informatieobject())
         ).json()
         iotype_data = self.client.get(
-            reverse(gebruiksrechten.get_informatieobject().informatieobjecttype)
+            reverse(
+                gebruiksrechten.get_informatieobject().informatieobjecttype,
+                namespace="documenten",
+            )
         ).json()
 
         response = self.client.get(
@@ -268,7 +274,7 @@ class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
             applicatie=self.applicatie,
             component=ComponentTypes.drc,
             scopes=[SCOPE_DOCUMENTEN_ALLES_LEZEN],
-            informatieobjecttype=reverse(informatieobjecttype),
+            informatieobjecttype=informatieobjecttype,
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
 
@@ -279,7 +285,7 @@ class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Read informatieobjecttype is NOT allowed with SCOPE_DOCUMENTEN_ALLES_LEZEN
-        response = self.client.get(reverse("catalogi:informatieobjecttype-list"))
+        response = self.client.get(reverse("documenten:informatieobjecttype-list"))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # Read gebruiksrechten with expand informatieobjecttype is NOT allowed with SCOPE_DOCUMENTEN_ALLES_LEZEN

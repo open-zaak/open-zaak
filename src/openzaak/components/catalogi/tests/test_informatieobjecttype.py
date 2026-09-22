@@ -9,7 +9,7 @@ from rest_framework import status
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors
 
-from openzaak.utils.urls import reverse, reverse_lazy
+from openzaak.utils.urls import reverse
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import ConceptUpdateValidator, M2MConceptUpdateValidator
@@ -22,7 +22,6 @@ from .factories import (
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
 )
-from .utils import get_operation_url
 
 
 class InformatieObjectTypeAPITests(APITestCase):
@@ -30,13 +29,16 @@ class InformatieObjectTypeAPITests(APITestCase):
     heeft_alle_autorisaties = False
     scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
+    NAMESPACE = "catalogi"
 
     def test_get_list_default_definitief(self):
         InformatieObjectTypeFactory.create(concept=True)
         informatieobjecttype2 = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
-        informatieobjecttype2_url = get_operation_url(
-            "informatieobjecttype_read", uuid=informatieobjecttype2.uuid
+        informatieobjecttype_list_url = reverse(
+            InformatieObjectType, namespace=self.NAMESPACE
+        )
+        informatieobjecttype2_url = reverse(
+            informatieobjecttype2, namespace=self.NAMESPACE
         )
 
         response = self.client.get(informatieobjecttype_list_url)
@@ -58,9 +60,7 @@ class InformatieObjectTypeAPITests(APITestCase):
             datum_begin_geldigheid="2019-01-01",
             trefwoord=["abc", "def"],
         )
-        informatieobjecttype_detail_url = get_operation_url(
-            "informatieobjecttype_read", uuid=iotype.uuid
-        )
+        informatieobjecttype_detail_url = reverse(iotype, namespace=self.NAMESPACE)
 
         response = self.client.get(informatieobjecttype_detail_url)
 
@@ -98,7 +98,9 @@ class InformatieObjectTypeAPITests(APITestCase):
             "beginGeldigheid": "2019-01-01",
             "informatieobjectcategorie": "main",
         }
-        informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
+        informatieobjecttype_list_url = reverse(
+            InformatieObjectType, namespace=self.NAMESPACE
+        )
 
         response = self.client.post(informatieobjecttype_list_url, data)
 
@@ -126,7 +128,9 @@ class InformatieObjectTypeAPITests(APITestCase):
             "beginGeldigheid": "2019-01-02",
             "informatieobjectcategorie": "main",
         }
-        informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
+        informatieobjecttype_list_url = reverse(
+            InformatieObjectType, namespace=self.NAMESPACE
+        )
 
         response = self.client.post(informatieobjecttype_list_url, data)
 
@@ -157,7 +161,9 @@ class InformatieObjectTypeAPITests(APITestCase):
             "beginGeldigheid": "2019-01-02",
             "informatieobjectcategorie": "main",
         }
-        informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
+        informatieobjecttype_list_url = reverse(
+            InformatieObjectType, namespace=self.NAMESPACE
+        )
 
         response = self.client.post(informatieobjecttype_list_url, data)
 
@@ -178,7 +184,9 @@ class InformatieObjectTypeAPITests(APITestCase):
                 "opmerkingInformatieobjecttypeOmschrijvingGeneriek": "comment",
             },
         }
-        informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
+        informatieobjecttype_list_url = reverse(
+            InformatieObjectType, namespace=self.NAMESPACE
+        )
 
         response = self.client.post(informatieobjecttype_list_url, data)
 
@@ -205,11 +213,11 @@ class InformatieObjectTypeAPITests(APITestCase):
 
     def test_publish_informatieobjecttype(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
-        informatieobjecttypee_url = get_operation_url(
-            "informatieobjecttype_publish", uuid=informatieobjecttype.uuid
+        informatieobjecttype_url = (
+            f"{reverse(informatieobjecttype, namespace=self.NAMESPACE)}/publish"
         )
 
-        response = self.client.post(informatieobjecttypee_url)
+        response = self.client.post(informatieobjecttype_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -231,11 +239,11 @@ class InformatieObjectTypeAPITests(APITestCase):
             datum_begin_geldigheid="2018-10-10",
             concept=True,
         )
-        informatieobjecttypee_url = get_operation_url(
-            "informatieobjecttype_publish", uuid=informatieobjecttype.uuid
+        informatieobjecttype_url = (
+            f"{reverse(informatieobjecttype, namespace=self.NAMESPACE)}/publish"
         )
 
-        response = self.client.post(informatieobjecttypee_url)
+        response = self.client.post(informatieobjecttype_url)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         informatieobjecttype.refresh_from_db()
@@ -253,7 +261,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         old_informatieobjecttype.datum_einde_geldigheid = "2018-01-09"
         old_informatieobjecttype.save()
 
-        response = self.client.post(informatieobjecttypee_url)
+        response = self.client.post(informatieobjecttype_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         informatieobjecttype.refresh_from_db()
@@ -261,11 +269,11 @@ class InformatieObjectTypeAPITests(APITestCase):
 
     def test_delete_informatieobjecttype(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
-        informatieobjecttypee_url = get_operation_url(
-            "informatieobjecttype_read", uuid=informatieobjecttype.uuid
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
         )
 
-        response = self.client.delete(informatieobjecttypee_url)
+        response = self.client.delete(informatieobjecttype_url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(
@@ -274,11 +282,11 @@ class InformatieObjectTypeAPITests(APITestCase):
 
     def test_delete_informatieobjecttype_fail_not_concept(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttypee_url = get_operation_url(
-            "informatieobjecttype_read", uuid=informatieobjecttype.uuid
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
         )
 
-        response = self.client.delete(informatieobjecttypee_url)
+        response = self.client.delete(informatieobjecttype_url)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -287,7 +295,9 @@ class InformatieObjectTypeAPITests(APITestCase):
 
     def test_update_informatieobjecttype(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
@@ -307,7 +317,9 @@ class InformatieObjectTypeAPITests(APITestCase):
 
     def test_update_informatieobjecttype_fail_not_concept(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
@@ -326,7 +338,9 @@ class InformatieObjectTypeAPITests(APITestCase):
 
     def test_partial_update_informatieobjecttype(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         response = self.client.patch(informatieobjecttype_url, {"omschrijving": "ja"})
 
@@ -338,7 +352,9 @@ class InformatieObjectTypeAPITests(APITestCase):
 
     def test_partial_update_informatieobjecttype_fail_not_concept(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         response = self.client.patch(informatieobjecttype_url, {"omschrijving": "same"})
 
@@ -355,7 +371,9 @@ class InformatieObjectTypeAPITests(APITestCase):
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         response = self.client.delete(informatieobjecttype_url)
 
@@ -367,7 +385,9 @@ class InformatieObjectTypeAPITests(APITestCase):
 
         BesluitTypeFactory.create(informatieobjecttypen=[informatieobjecttype])
 
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         response = self.client.delete(informatieobjecttype_url)
 
@@ -382,7 +402,9 @@ class InformatieObjectTypeAPITests(APITestCase):
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         response = self.client.delete(informatieobjecttype_url)
 
@@ -398,7 +420,9 @@ class InformatieObjectTypeAPITests(APITestCase):
             informatieobjecttypen=[informatieobjecttype], concept=False
         )
 
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         response = self.client.delete(informatieobjecttype_url)
 
@@ -416,7 +440,9 @@ class InformatieObjectTypeAPITests(APITestCase):
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
@@ -440,7 +466,9 @@ class InformatieObjectTypeAPITests(APITestCase):
             informatieobjecttypen=[informatieobjecttype], catalogus=catalogus
         )
 
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
@@ -465,7 +493,9 @@ class InformatieObjectTypeAPITests(APITestCase):
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
@@ -493,7 +523,9 @@ class InformatieObjectTypeAPITests(APITestCase):
             catalogus=catalogus,
         )
 
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
@@ -522,7 +554,9 @@ class InformatieObjectTypeAPITests(APITestCase):
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         response = self.client.patch(informatieobjecttype_url, {"omschrijving": "test"})
 
@@ -540,7 +574,9 @@ class InformatieObjectTypeAPITests(APITestCase):
             informatieobjecttypen=[informatieobjecttype], catalogus=catalogus
         )
 
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         response = self.client.patch(informatieobjecttype_url, {"omschrijving": "test"})
 
@@ -558,7 +594,9 @@ class InformatieObjectTypeAPITests(APITestCase):
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         response = self.client.patch(
             informatieobjecttype_url, {"omschrijving": "aangepast"}
@@ -581,7 +619,9 @@ class InformatieObjectTypeAPITests(APITestCase):
             concept=False,
         )
 
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         response = self.client.patch(
             informatieobjecttype_url, {"omschrijving": "aangepast"}
@@ -595,7 +635,9 @@ class InformatieObjectTypeAPITests(APITestCase):
 
     def test_partial_update_non_concept_informatieobjecttype_einde_geldigheid(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         response = self.client.patch(
             informatieobjecttype_url, {"eindeGeldigheid": "2020-01-01"}
@@ -614,7 +656,9 @@ class InformatieObjectTypeAPITests(APITestCase):
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         response = self.client.patch(
             informatieobjecttype_url, {"eindeGeldigheid": "2020-01-01"}
@@ -635,7 +679,9 @@ class InformatieObjectTypeAPITests(APITestCase):
             concept=False,
         )
 
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
 
         response = self.client.patch(
             informatieobjecttype_url, {"eindeGeldigheid": "2020-01-01"}
@@ -648,14 +694,17 @@ class InformatieObjectTypeAPITests(APITestCase):
 
 class InformatieObjectTypeFilterAPITests(APITestCase):
     maxDiff = None
-    url = reverse_lazy("catalogi:informatieobjecttype-list")
+    NAMESPACE = "catalogi"
+
+    @property
+    def url(self):
+        return reverse(InformatieObjectType, namespace=self.NAMESPACE)
 
     def test_filter_informatieobjecttype_status_alles(self):
         InformatieObjectTypeFactory.create(concept=True)
         InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
 
-        response = self.client.get(informatieobjecttype_list_url, {"status": "alles"})
+        response = self.client.get(self.url, {"status": "alles"})
         self.assertEqual(response.status_code, 200)
 
         data = response.json()["results"]
@@ -665,12 +714,11 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
     def test_filter_informatieobjecttype_status_concept(self):
         informatieobjecttype1 = InformatieObjectTypeFactory.create(concept=True)
         InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
-        informatieobjecttype1_url = get_operation_url(
-            "informatieobjecttype_read", uuid=informatieobjecttype1.uuid
+        informatieobjecttype1_url = reverse(
+            informatieobjecttype1, namespace=self.NAMESPACE
         )
 
-        response = self.client.get(informatieobjecttype_list_url, {"status": "concept"})
+        response = self.client.get(self.url, {"status": "concept"})
         self.assertEqual(response.status_code, 200)
 
         data = response.json()["results"]
@@ -683,14 +731,11 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
     def test_filter_informatieobjecttype_status_definitief(self):
         InformatieObjectTypeFactory.create(concept=True)
         informatieobjecttype2 = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
-        informatieobjecttype2_url = get_operation_url(
-            "informatieobjecttype_read", uuid=informatieobjecttype2.uuid
+        informatieobjecttype2_url = reverse(
+            informatieobjecttype2, namespace=self.NAMESPACE
         )
 
-        response = self.client.get(
-            informatieobjecttype_list_url, {"status": "definitief"}
-        )
+        response = self.client.get(self.url, {"status": "definitief"})
         self.assertEqual(response.status_code, 200)
 
         data = response.json()["results"]
@@ -702,7 +747,7 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
 
     def test_validate_unknown_query_params(self):
         InformatieObjectTypeFactory.create_batch(2)
-        url = reverse(InformatieObjectType)
+        url = reverse(InformatieObjectType, namespace=self.NAMESPACE)
 
         response = self.client.get(url, {"someparam": "somevalue"})
 
@@ -722,7 +767,10 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
         data = response.json()["results"]
 
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://testserver{reverse(iotype)}")
+        self.assertEqual(
+            data[0]["url"],
+            f"http://testserver{reverse(iotype, namespace=self.NAMESPACE)}",
+        )
 
     def test_filter_geldigheid(self):
         iotype = InformatieObjectTypeFactory.create(
@@ -740,7 +788,10 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
 
         data = response.json()["results"]
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://testserver{reverse(iotype)}")
+        self.assertEqual(
+            data[0]["url"],
+            f"http://testserver{reverse(iotype, namespace=self.NAMESPACE)}",
+        )
 
     @override_settings(ALLOWED_HOSTS=["openzaak.nl"])
     def test_filter_zaaktype(self):
@@ -762,7 +813,10 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
         data = response.json()["results"]
 
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://openzaak.nl{reverse(iotype)}")
+        self.assertEqual(
+            data[0]["url"],
+            f"http://openzaak.nl{reverse(iotype, namespace=self.NAMESPACE)}",
+        )
 
     @override_settings(ALLOWED_HOSTS=["openzaak.nl"])
     def test_filter_zaaktype_not_exist(self):
@@ -784,10 +838,13 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
 
 class InformatieObjectTypePaginationTestCase(APITestCase):
     maxDiff = None
+    NAMESPACE = "catalogi"
 
     def test_pagination_default(self):
         InformatieObjectTypeFactory.create_batch(2, concept=False)
-        informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
+        informatieobjecttype_list_url = reverse(
+            InformatieObjectType, namespace=self.NAMESPACE
+        )
 
         response = self.client.get(informatieobjecttype_list_url)
 
@@ -800,7 +857,9 @@ class InformatieObjectTypePaginationTestCase(APITestCase):
 
     def test_pagination_page_param(self):
         InformatieObjectTypeFactory.create_batch(2, concept=False)
-        informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
+        informatieobjecttype_list_url = reverse(
+            InformatieObjectType, namespace=self.NAMESPACE
+        )
 
         response = self.client.get(informatieobjecttype_list_url, {"page": 1})
 
@@ -813,7 +872,7 @@ class InformatieObjectTypePaginationTestCase(APITestCase):
 
     def test_pagination_pagesize_param(self):
         InformatieObjectTypeFactory.create_batch(10, concept=False)
-        iotype_list_url = get_operation_url("informatieobjecttype_list")
+        iotype_list_url = reverse(InformatieObjectType, namespace=self.NAMESPACE)
 
         response = self.client.get(iotype_list_url, {"pageSize": 5})
 

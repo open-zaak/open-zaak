@@ -7,10 +7,11 @@ Test that the caching mechanisms are in place.
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
-from vng_api_common.tests import CacheMixin, JWTAuthMixin
+from vng_api_common.tests import CacheMixin
 
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 from openzaak.tests.utils import get_spec
+from openzaak.tests.utils.auth import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
 from ..caching import get_etag_cache_key, set_etag
@@ -176,12 +177,7 @@ class EnkelvoudigInformatieObjectCacheTransactionTests(
 
     def setUp(self):
         super().setUp()
-        self._create_credentials(
-            self.client_id,
-            self.secret,
-            self.heeft_alle_autorisaties,
-            self.max_vertrouwelijkheidaanduiding,
-        )
+        super().setUpTestData()
 
     def test_invalidate_etag_after_change(self):
         """

@@ -4,10 +4,10 @@ from django.urls import reverse
 
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
-from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.models import JWTSecret
 
 from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.components.autorisaties.models import Applicatie
 
 from ..factories import ApplicatieFactory
 
@@ -24,7 +24,7 @@ class ApplicationsTests(WebTest):
         self.app.set_user(self.user)
 
     def test_create_applicatie_inline_credentials(self):
-        url = reverse("admin:authorizations_applicatie_add")
+        url = reverse("admin:autorisaties_applicatie_add")
 
         response = self.app.get(url)
 
@@ -50,7 +50,7 @@ class ApplicationsTests(WebTest):
         JWTSecret.objects.create(identifier="testid", secret="bla")
         applicatie = ApplicatieFactory.create(client_ids=["testid"])
 
-        url = reverse("admin:authorizations_applicatie_delete", args=(applicatie.pk,))
+        url = reverse("admin:autorisaties_applicatie_delete", args=(applicatie.pk,))
         response = self.app.get(url)
         form = response.forms[1]
         response = form.submit().follow()
@@ -63,7 +63,7 @@ class ApplicationsTests(WebTest):
     def test_show_related_jwt_secrets(self):
         application = Applicatie.objects.create(label="test", client_ids=["foo"])
         JWTSecret.objects.create(identifier="foo", secret="bar")
-        url = reverse("admin:authorizations_applicatie_change", args=(application.pk,))
+        url = reverse("admin:autorisaties_applicatie_change", args=(application.pk,))
 
         form = self.app.get(url).forms["applicatie_form"]
 
@@ -83,7 +83,7 @@ class ApplicationsTests(WebTest):
     def test_delete_jwt_secret(self):
         application = Applicatie.objects.create(label="test", client_ids=["foo"])
         JWTSecret.objects.create(identifier="foo", secret="bar")
-        url = reverse("admin:authorizations_applicatie_change", args=(application.pk,))
+        url = reverse("admin:autorisaties_applicatie_change", args=(application.pk,))
 
         form = self.app.get(url).forms["applicatie_form"]
 
@@ -98,7 +98,7 @@ class ApplicationsTests(WebTest):
     def test_change_jwt_secret(self):
         application = Applicatie.objects.create(label="test", client_ids=["foo"])
         JWTSecret.objects.create(identifier="foo", secret="bar")
-        url = reverse("admin:authorizations_applicatie_change", args=(application.pk,))
+        url = reverse("admin:autorisaties_applicatie_change", args=(application.pk,))
 
         form = self.app.get(url).forms["applicatie_form"]
 
@@ -116,7 +116,7 @@ class ApplicationsTests(WebTest):
         self.assertEqual(credential.secret, "quux")
 
     def test_create_applicatie_inline_credentials_without_secret(self):
-        url = reverse("admin:authorizations_applicatie_add")
+        url = reverse("admin:autorisaties_applicatie_add")
 
         response = self.app.get(url)
 
@@ -150,7 +150,7 @@ class ApplicationsTests(WebTest):
         jwt_no_delete = JWTSecret.objects.create(
             identifier="no-delete", secret="no-delete"
         )
-        url = reverse("admin:authorizations_applicatie_changelist")
+        url = reverse("admin:autorisaties_applicatie_changelist")
 
         form = self.app.get(url).forms["changelist-form"]
 

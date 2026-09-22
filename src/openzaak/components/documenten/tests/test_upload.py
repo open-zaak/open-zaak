@@ -44,9 +44,7 @@ class SmallFileUpload(JWTAuthMixin, APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        cls.informatieobjecttype_url = (
-            f"http://testserver{reverse(cls.informatieobjecttype)}"
-        )
+        cls.informatieobjecttype_url = f"http://testserver{reverse(cls.informatieobjecttype, namespace='documenten')}"
 
         super().setUpTestData()
 
@@ -529,9 +527,7 @@ class LargeFileAPITests(JWTAuthMixin, APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        cls.informatieobjecttype_url = (
-            f"http://testserver{reverse(cls.informatieobjecttype)}"
-        )
+        cls.informatieobjecttype_url = f"http://testserver{reverse(cls.informatieobjecttype, namespace='documenten')}"
 
         super().setUpTestData()
 

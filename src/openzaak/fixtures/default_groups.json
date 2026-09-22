@@ -166,22 +166,22 @@
             ],
             [
                 "add_applicatie",
-                "authorizations",
+                "autorisaties",
                 "applicatie"
             ],
             [
                 "change_applicatie",
-                "authorizations",
+                "autorisaties",
                 "applicatie"
             ],
             [
                 "delete_applicatie",
-                "authorizations",
+                "autorisaties",
                 "applicatie"
             ],
             [
                 "view_applicatie",
-                "authorizations",
+                "autorisaties",
                 "applicatie"
             ],
             [
@@ -206,22 +206,22 @@
             ],
             [
                 "add_autorisatie",
-                "authorizations",
+                "autorisaties",
                 "autorisatie"
             ],
             [
                 "change_autorisatie",
-                "authorizations",
+                "autorisaties",
                 "autorisatie"
             ],
             [
                 "delete_autorisatie",
-                "authorizations",
+                "autorisaties",
                 "autorisatie"
             ],
             [
                 "view_autorisatie",
-                "authorizations",
+                "autorisaties",
                 "autorisatie"
             ],
             [

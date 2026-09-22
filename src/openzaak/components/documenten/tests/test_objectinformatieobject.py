@@ -9,10 +9,7 @@ from furl import furl
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import (
-    JWTAuthMixin,
-    get_validation_errors,
-)
+from vng_api_common.tests import get_validation_errors
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -37,6 +34,7 @@ from openzaak.contrib.verzoeken.tests.utils import (
     get_verzoekinformatieobject_response,
 )
 from openzaak.tests.utils import mock_brc_oas_get, mock_vrc_oas_get, mock_zrc_oas_get
+from openzaak.tests.utils.auth import JWTAuthMixin
 from openzaak.utils.urls import reverse, reverse_lazy
 
 from ..constants import ObjectInformatieObjectTypes
