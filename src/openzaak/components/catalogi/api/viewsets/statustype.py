@@ -79,7 +79,15 @@ class StatusTypeViewSet(
     queryset = (
         StatusType.objects.select_related("zaaktype", "zaaktype__catalogus")
         .prefetch_related(
+            "zaaktype__informatieobjecttypen",
             "zaaktype__statustypen",
+            "zaaktype__resultaattypen",
+            "zaaktype__eigenschap_set",
+            "zaaktype__roltype_set",
+            "zaaktype__besluittypen",
+            "zaaktype__zaakobjecttype_set",
+            "zaaktype__zaaktypenrelaties",
+            "zaaktype__deelzaaktypen",
             "eigenschappen",
             "zaakobjecttypen",
             "checklistitem_set",

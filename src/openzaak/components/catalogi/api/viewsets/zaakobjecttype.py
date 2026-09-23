@@ -67,7 +67,18 @@ class ZaakObjectTypeViewSet(
         ZaakObjectType.objects.select_related(
             "zaaktype", "zaaktype__catalogus", "statustype"
         )
-        .prefetch_related("resultaattypen")
+        .prefetch_related(
+            "resultaattypen",
+            "zaaktype__informatieobjecttypen",
+            "zaaktype__statustypen",
+            "zaaktype__resultaattypen",
+            "zaaktype__eigenschap_set",
+            "zaaktype__roltype_set",
+            "zaaktype__besluittypen",
+            "zaaktype__zaakobjecttype_set",
+            "zaaktype__zaaktypenrelaties",
+            "zaaktype__deelzaaktypen",
+        )
         .order_by("-pk")
         .all()
     )

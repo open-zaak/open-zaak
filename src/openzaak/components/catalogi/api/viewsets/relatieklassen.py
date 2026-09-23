@@ -100,7 +100,26 @@ class ZaakTypeInformatieObjectTypeViewSet(
 
     queryset = (
         ZaakTypeInformatieObjectType.objects.all()
-        .select_related("zaaktype", "informatieobjecttype", "zaaktype__catalogus")
+        .select_related(
+            "zaaktype",
+            "informatieobjecttype",
+            "zaaktype__catalogus",
+            "informatieobjecttype__catalogus",
+            "statustype",
+        )
+        .prefetch_related(
+            "zaaktype__informatieobjecttypen",
+            "zaaktype__statustypen",
+            "zaaktype__resultaattypen",
+            "zaaktype__eigenschap_set",
+            "zaaktype__roltype_set",
+            "zaaktype__besluittypen",
+            "zaaktype__zaakobjecttype_set",
+            "zaaktype__zaaktypenrelaties",
+            "zaaktype__deelzaaktypen",
+            "informatieobjecttype__zaaktypen",
+            "informatieobjecttype__besluittypen",
+        )
         .order_by("-pk")
     )
     serializer_class = ZaakTypeInformatieObjectTypeSerializer

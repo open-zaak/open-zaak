@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from django.db import DatabaseError, transaction
+from django.db.models import Prefetch
 
 import structlog
 from drf_spectacular.utils import (
@@ -22,7 +23,7 @@ from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, VALIDATION_ERROR_RESPONSES
 
-from ...models import InformatieObjectType
+from ...models import BesluitType, InformatieObjectType, ZaakType
 from ..filters import InformatieObjectDetailTypeFilter, InformatieObjectTypeFilter
 from ..kanalen import KANAAL_INFORMATIEOBJECTTYPEN
 from ..scopes import (
@@ -115,7 +116,34 @@ class InformatieObjectTypeViewSet(
     queryset = (
         InformatieObjectType.objects.all()
         .select_related("catalogus")
-        .prefetch_related("zaaktypen", "besluittypen")
+        .prefetch_related(
+            Prefetch(
+                "zaaktypen",
+                queryset=(
+                    ZaakType.objects.select_related("catalogus").prefetch_related(
+                        "informatieobjecttypen",
+                        "statustypen",
+                        "resultaattypen",
+                        "eigenschap_set",
+                        "roltype_set",
+                        "besluittypen",
+                        "zaakobjecttype_set",
+                        "zaaktypenrelaties",
+                        "deelzaaktypen",
+                    )
+                ),
+            ),
+            Prefetch(
+                "besluittypen",
+                queryset=(
+                    BesluitType.objects.select_related("catalogus").prefetch_related(
+                        "resultaattype_set",
+                        "zaaktypen",
+                        "informatieobjecttypen",
+                    )
+                ),
+            ),
+        )
         .with_dates()
         .order_by("-pk")
     )

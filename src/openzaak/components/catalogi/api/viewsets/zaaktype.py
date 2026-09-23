@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.db.models import Prefetch
+
 import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from notifications_api_common.viewsets import NotificationViewSetMixin
@@ -13,7 +15,14 @@ from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, VALIDATION_ERROR_RESPONSES
 
-from ...models import ZaakType
+from ...models import (
+    BesluitType,
+    InformatieObjectType,
+    ResultaatType,
+    StatusType,
+    ZaakObjectType,
+    ZaakType,
+)
 from ..filters import ZaakTypeDetailFilter, ZaakTypeFilter
 from ..kanalen import KANAAL_ZAAKTYPEN
 from ..scopes import (
@@ -99,17 +108,66 @@ class ZaakTypeViewSet(
     """
 
     queryset = (
-        ZaakType.objects.prefetch_related(
+        ZaakType.objects.select_related(
             "catalogus",
-            "statustypen",
+        )
+        .prefetch_related(
             "zaaktypenrelaties",
-            "informatieobjecttypen",
-            "resultaattypen",
             "eigenschap_set",
             "roltype_set",
             "deelzaaktypen",
-            "besluittypen",
-            "zaakobjecttype_set",
+            Prefetch(
+                "besluittypen",
+                queryset=(
+                    BesluitType.objects.select_related("catalogus").prefetch_related(
+                        "resultaattype_set",
+                        "zaaktypen",
+                        "informatieobjecttypen",
+                    )
+                ),
+            ),
+            Prefetch(
+                "statustypen",
+                queryset=(
+                    StatusType.objects.prefetch_related(
+                        "eigenschappen",
+                        "zaakobjecttypen",
+                        "checklistitem_set",
+                    )
+                ),
+            ),
+            Prefetch(
+                "resultaattypen",
+                queryset=(
+                    ResultaatType.objects.prefetch_related(
+                        "besluittypen",
+                        "informatieobjecttypen",
+                    )
+                ),
+            ),
+            Prefetch(
+                "informatieobjecttypen",
+                queryset=(
+                    InformatieObjectType.objects.select_related(
+                        "catalogus"
+                    ).prefetch_related(
+                        "zaaktypen",
+                        "besluittypen",
+                    )
+                ),
+            ),
+            Prefetch(
+                "zaakobjecttype_set",
+                queryset=(
+                    ZaakObjectType.objects.select_related(
+                        "zaaktype",
+                        "zaaktype__catalogus",
+                        "statustype",
+                    ).prefetch_related(
+                        "resultaattypen",
+                    )
+                ),
+            ),
         )
         .with_dates("identificatie")
         .order_by("-pk")

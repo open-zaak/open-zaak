@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.db.models import Prefetch
+
 import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import viewsets
@@ -10,7 +12,11 @@ from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 
-from ...models import ResultaatType
+from ...models import (
+    BesluitType,
+    InformatieObjectType,
+    ResultaatType,
+)
 from ..filters import ResultaatTypeDetailFilter, ResultaatTypeFilter
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_DELETE,
@@ -78,9 +84,40 @@ class ResultaatTypeViewSet(
     """
 
     queryset = (
-        ResultaatType.objects.all()
-        .select_related("zaaktype", "zaaktype__catalogus")
-        .prefetch_related("besluittypen", "informatieobjecttypen")
+        ResultaatType.objects.select_related(
+            "zaaktype",
+            "zaaktype__catalogus",
+        )
+        .prefetch_related(
+            Prefetch(
+                "besluittypen",
+                queryset=BesluitType.objects.select_related(
+                    "catalogus"
+                ).prefetch_related(
+                    "resultaattype_set",
+                    "informatieobjecttypen",
+                    "zaaktypen",
+                ),
+            ),
+            Prefetch(
+                "informatieobjecttypen",
+                queryset=InformatieObjectType.objects.select_related(
+                    "catalogus"
+                ).prefetch_related(
+                    "zaaktypen",
+                    "besluittypen",
+                ),
+            ),
+            "zaaktype__informatieobjecttypen",
+            "zaaktype__statustypen",
+            "zaaktype__resultaattypen",
+            "zaaktype__eigenschap_set",
+            "zaaktype__roltype_set",
+            "zaaktype__besluittypen",
+            "zaaktype__zaakobjecttype_set",
+            "zaaktype__zaaktypenrelaties",
+            "zaaktype__deelzaaktypen",
+        )
         .order_by("-pk")
     )
     serializer_class = ResultaatTypeSerializer

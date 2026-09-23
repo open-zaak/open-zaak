@@ -77,9 +77,24 @@ class RolTypeViewSet(
     uitoefenen in ZAAKen van een ZAAKTYPE.
     """
 
-    queryset = RolType.objects.select_related(
-        "zaaktype", "zaaktype__catalogus"
-    ).order_by("-pk")
+    queryset = (
+        RolType.objects.select_related(
+            "zaaktype",
+            "zaaktype__catalogus",
+        )
+        .prefetch_related(
+            "zaaktype__informatieobjecttypen",
+            "zaaktype__statustypen",
+            "zaaktype__resultaattypen",
+            "zaaktype__eigenschap_set",
+            "zaaktype__roltype_set",
+            "zaaktype__besluittypen",
+            "zaaktype__zaakobjecttype_set",
+            "zaaktype__zaaktypenrelaties",
+            "zaaktype__deelzaaktypen",
+        )
+        .order_by("-pk")
+    )
     serializer_class = RolTypeSerializer
     lookup_field = "uuid"
     pagination_class = ExactPagination

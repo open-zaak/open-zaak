@@ -80,9 +80,22 @@ class EigenschapViewSet(
     """
 
     queryset = (
-        Eigenschap.objects.all()
-        .select_related(
-            "specificatie_van_eigenschap", "zaaktype", "zaaktype__catalogus"
+        Eigenschap.objects.select_related(
+            "specificatie_van_eigenschap",
+            "zaaktype",
+            "zaaktype__catalogus",
+            "statustype",
+        )
+        .prefetch_related(
+            "zaaktype__informatieobjecttypen",
+            "zaaktype__statustypen",
+            "zaaktype__resultaattypen",
+            "zaaktype__eigenschap_set",
+            "zaaktype__roltype_set",
+            "zaaktype__besluittypen",
+            "zaaktype__zaakobjecttype_set",
+            "zaaktype__zaaktypenrelaties",
+            "zaaktype__deelzaaktypen",
         )
         .order_by("-pk")
     )

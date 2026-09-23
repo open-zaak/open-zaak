@@ -47,7 +47,7 @@ class ExpandFilter(filters.BaseInFilter, filters.ChoiceFilter):
         )
 
         help_text = _(
-            "Sluit de gespecifieerde gerelateerde resources in in het antwoord. "
+            "Sluit de gespecificeerde gerelateerde resources aan in het antwoord. "
         )
         if experimental_options:
             options = ", ".join(f"`{option}`" for option in experimental_options)

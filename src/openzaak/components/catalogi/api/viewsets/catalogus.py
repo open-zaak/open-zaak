@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.db.models import Prefetch
+
 import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, viewsets
@@ -10,7 +12,7 @@ from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 
-from ...models import Catalogus
+from ...models import BesluitType, Catalogus, InformatieObjectType, ZaakType
 from ..filters import CatalogusDetailFilter, CatalogusFilter
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_WRITE,
@@ -58,7 +60,45 @@ class CatalogusViewSet(
 
     queryset = (
         Catalogus.objects.all()
-        .prefetch_related("besluittype_set", "zaaktype_set", "informatieobjecttype_set")
+        .prefetch_related(
+            Prefetch(
+                "zaaktype_set",
+                queryset=(
+                    ZaakType.objects.select_related("catalogus").prefetch_related(
+                        "informatieobjecttypen",
+                        "statustypen",
+                        "resultaattypen",
+                        "eigenschap_set",
+                        "roltype_set",
+                        "besluittypen",
+                        "zaakobjecttype_set",
+                        "zaaktypenrelaties",
+                        "deelzaaktypen",
+                    )
+                ),
+            ),
+            Prefetch(
+                "besluittype_set",
+                queryset=(
+                    BesluitType.objects.select_related("catalogus").prefetch_related(
+                        "resultaattype_set",
+                        "zaaktypen",
+                        "informatieobjecttypen",
+                    )
+                ),
+            ),
+            Prefetch(
+                "informatieobjecttype_set",
+                queryset=(
+                    InformatieObjectType.objects.select_related(
+                        "catalogus"
+                    ).prefetch_related(
+                        "zaaktypen",
+                        "besluittypen",
+                    )
+                ),
+            ),
+        )
         .order_by("-pk")
     )
     serializer_class = CatalogusSerializer

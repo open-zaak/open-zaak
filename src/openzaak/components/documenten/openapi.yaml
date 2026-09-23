@@ -2773,7 +2773,7 @@ paths:
             enum:
             - informatieobject
             - informatieobject.informatieobjecttype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n**EXPERIMENTEEL** Het uitbreiden naar `informatieobject.informatieobjecttype`\
           \ maakt nog geen onderdeel uit van de landelijke API-standaard.\n\n"
         explode: false
@@ -3139,7 +3139,7 @@ paths:
             enum:
             - informatieobject
             - informatieobject.informatieobjecttype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n**EXPERIMENTEEL** Het uitbreiden naar `informatieobject.informatieobjecttype`\
           \ maakt nog geen onderdeel uit van de landelijke API-standaard.\n\n"
         explode: false
@@ -4532,7 +4532,7 @@ paths:
             enum:
             - informatieobject
             - informatieobject.informatieobjecttype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n**EXPERIMENTEEL** Het uitbreiden naar `informatieobject.informatieobjecttype`\
           \ maakt nog geen onderdeel uit van de landelijke API-standaard.\n\n"
         explode: false
@@ -4866,7 +4866,7 @@ paths:
             enum:
             - informatieobject
             - informatieobject.informatieobjecttype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n**EXPERIMENTEEL** Het uitbreiden naar `informatieobject.informatieobjecttype`\
           \ maakt nog geen onderdeel uit van de landelijke API-standaard.\n\n"
         explode: false
@@ -5226,7 +5226,7 @@ paths:
             enum:
             - informatieobject
             - informatieobject.informatieobjecttype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n**EXPERIMENTEEL** Het uitbreiden naar `informatieobject.informatieobjecttype`\
           \ maakt nog geen onderdeel uit van de landelijke API-standaard.\n\n"
         explode: false
@@ -5558,7 +5558,7 @@ paths:
             enum:
             - informatieobject
             - informatieobject.informatieobjecttype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n**EXPERIMENTEEL** Het uitbreiden naar `informatieobject.informatieobjecttype`\
           \ maakt nog geen onderdeel uit van de landelijke API-standaard.\n\n"
         explode: false
