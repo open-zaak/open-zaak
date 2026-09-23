@@ -8814,7 +8814,7 @@ paths:
             - zaakobjecten
             - zaaktype
             - zaaktype.catalogus
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
         style: form
@@ -9565,7 +9565,7 @@ paths:
             - zaakobjecten
             - zaaktype
             - zaaktype.catalogus
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
         style: form
@@ -12414,7 +12414,7 @@ paths:
             - zaakobjecten
             - zaaktype
             - zaaktype.catalogus
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n (samengevoegd met evt. expand in body). Voor gerelateerde resources\
           \ uit de Catalogi API is `catalogi.lezen` nodig; voor informatieobjecten\
           \ uit de Documenten API is `documenten.lezen` nodig."
@@ -12869,7 +12869,7 @@ paths:
                     - zaakobjecten
                     - zaaktype
                     - zaaktype.catalogus
-                  description: "Sluit de gespecifieerde gerelateerde resources in\
+                  description: "Sluit de gespecificeerde gerelateerde resources aan\
                     \ in het antwoord. \n\n"
       security:
       - JWT-Claims:
