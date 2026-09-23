@@ -2557,7 +2557,9 @@ paths:
             enum:
             - informatieobjecttype
         description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
-          \ \n\n (samengevoegd met evt. expand in body)"
+          \ \n\n (samengevoegd met evt. expand in body). Voor gerelateerde resources\
+          \ uit de Catalogi API is `catalogi.lezen` nodig; voor informatieobjecten\
+          \ uit de Documenten API is `documenten.lezen` nodig."
         explode: false
         style: form
       - name: page
