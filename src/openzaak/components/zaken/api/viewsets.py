@@ -41,7 +41,7 @@ from vng_api_common.audittrails.viewsets import (
 )
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.client import to_internal_data
-from vng_api_common.constants import CommonResourceAction
+from vng_api_common.constants import CommonResourceAction, ComponentTypes
 from vng_api_common.filters_backend import Backend
 from vng_api_common.geo import GeoMixin
 from vng_api_common.notes.api.viewsets import NotitieViewSetMixin
@@ -50,6 +50,7 @@ from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 
 from openzaak.client import get_client
+from openzaak.components.besluiten.api.permissions import BesluitAuthRequired
 from openzaak.components.besluiten.api.scopes import SCOPE_BESLUITEN_ALLES_LEZEN
 from openzaak.components.besluiten.models import Besluit
 from openzaak.components.catalogi.api.scopes import SCOPE_CATALOGI_READ
@@ -2571,10 +2572,18 @@ class ZaakInzageViewSet(
     serializer_class = ZaakInzageSerializer
     lookup_field = "uuid"
     permission_classes = (ZaakInzageAuthRequired,)
-    required_scopes = {
-        "retrieve": SCOPE_ZAKEN_ALLES_LEZEN
-        & SCOPE_CATALOGI_READ
-        & SCOPE_BESLUITEN_ALLES_LEZEN
+    required_scopes = {"retrieve": SCOPE_ZAKEN_ALLES_LEZEN}
+    required_component_type_scopes = {
+        ComponentTypes.zrc: SCOPE_ZAKEN_ALLES_LEZEN,
+        ComponentTypes.ztc: SCOPE_CATALOGI_READ,
+        ComponentTypes.brc: SCOPE_BESLUITEN_ALLES_LEZEN,
+    }
+    # Map components with object restrictions to a relation and its permission
+    # class. An empty relation selects the zaak itself; unlisted components
+    # only require their configured scopes.
+    component_permission_resources = {
+        ComponentTypes.zrc: ("", ZaakAuthRequired),
+        ComponentTypes.brc: ("besluit_set", BesluitAuthRequired),
     }
     permission_main_object = "zaak"
     queryset = Zaak.objects.select_related("resultaat__resultaattype").prefetch_related(

@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
 from rest_framework.request import Request
-from vng_api_common.constants import ComponentTypes
 from vng_api_common.permissions import bypass_permissions, get_required_scopes
 
-from openzaak.components.besluiten.api.scopes import SCOPE_BESLUITEN_ALLES_LEZEN
-from openzaak.components.catalogi.api.scopes import SCOPE_CATALOGI_READ
-from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
-from openzaak.utils.permissions import AuthRequired, MultipleObjectsAuthRequired
+from openzaak.utils.permissions import (
+    AuthComponentTypeScopesRequired,
+    AuthRequired,
+    MultipleObjectsAuthRequired,
+)
 
 
 class ZaakAuthRequired(AuthRequired):
@@ -50,12 +50,35 @@ class ZaakActionAuthRequired(MultipleObjectsAuthRequired):
     }
 
 
-class ZaakInzageAuthRequired(ZaakNestedAuthRequired):
+class ZaakInzageAuthRequired(ZaakAuthRequired, AuthComponentTypeScopesRequired):
+    """Require zaak, besluit and catalogi access for the included resources."""
+
     def has_permission(self, request: Request, view) -> bool:
-        return (
-            request.jwt_auth.has_auth(SCOPE_ZAKEN_ALLES_LEZEN, ComponentTypes.zrc)
-            and request.jwt_auth.has_auth(SCOPE_CATALOGI_READ, ComponentTypes.ztc)
-            and request.jwt_auth.has_auth(
-                SCOPE_BESLUITEN_ALLES_LEZEN, ComponentTypes.brc
+        self.has_handler(request, view)
+
+        if bypass_permissions(request):
+            return True
+
+        return AuthComponentTypeScopesRequired.has_permission(self, request, view)
+
+    def get_component_permission_fields(self, request, view, component) -> list[dict]:
+        resource_config = view.component_permission_resources.get(component)
+        if resource_config is None:
+            return super().get_component_permission_fields(request, view, component)
+
+        relation, permission_class = resource_config
+        zaak = view._get_zaak()
+        objects = getattr(zaak, relation).all() if relation else [zaak]
+        permission = permission_class()
+        resource = permission.get_main_resource(permission.main_resource)
+        return [
+            permission.get_fields(
+                permission.format_data(obj, request, resource),
+                permission.permission_fields,
             )
-        )
+            for obj in objects
+        ]
+
+    def has_object_permission(self, request: Request, view, obj) -> bool:
+        # all checks are made in has_permission stage
+        return True

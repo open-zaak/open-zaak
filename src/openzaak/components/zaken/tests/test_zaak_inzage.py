@@ -1,10 +1,16 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2026 Dimpact
 import uuid
+from types import SimpleNamespace
+from unittest.mock import Mock, call
 from urllib.parse import urljoin
 
+from django.test import SimpleTestCase, override_settings
+
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.renderers import BrowsableAPIRenderer
+from rest_framework.request import Request
+from rest_framework.test import APIRequestFactory, APITestCase
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
     ComponentTypes,
@@ -29,8 +35,11 @@ from openzaak.components.catalogi.tests.factories import (
 )
 from openzaak.components.catalogi.tests.factories.besluittype import BesluitTypeFactory
 from openzaak.components.catalogi.tests.factories.catalogus import CatalogusFactory
+from openzaak.components.zaken.api.permissions import ZaakInzageAuthRequired
 from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
+from openzaak.components.zaken.api.viewsets import ZaakInzageViewSet
 from openzaak.tests.utils.auth import JWTAuthMixin
+from openzaak.utils.permissions import AuthComponentTypeScopesRequired
 from openzaak.utils.urls import reverse
 
 from ..models import OrganisatorischeEenheid
@@ -67,7 +76,7 @@ class ZaakInzageAuthTests(JWTAuthMixin, APITestCase):
         cls.besluittype = BesluitTypeFactory.create(catalogus=cls.catalogus)
         cls.url = reverse("zaken:zaakinzage", kwargs={"uuid": cls.zaak.uuid})
 
-        cls.autorisatie.zaaktype = cls.check_for_instance(cls.zaaktype)
+        cls.autorisatie.zaaktype = cls.zaaktype
         cls.autorisatie.save()
 
         cls.catalogi_autorisatie = AutorisatieFactory.create(
@@ -78,7 +87,7 @@ class ZaakInzageAuthTests(JWTAuthMixin, APITestCase):
         cls.besluiten_autorisatie = AutorisatieFactory.create(
             applicatie=cls.applicatie,
             component=ComponentTypes.brc,
-            besluittype=urljoin(cls.host_prefix, reverse(cls.besluittype)),
+            besluittype=cls.besluittype,
             scopes=[str(SCOPE_BESLUITEN_ALLES_LEZEN)],
         )
 
@@ -87,11 +96,70 @@ class ZaakInzageAuthTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_retrieve_with_authorized_besluit(self):
+        BesluitFactory.create(zaak=self.zaak, besluittype=self.besluittype)
+
+        response = self.client.get(self.url, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_besluit_scope_on_another_type_does_not_grant_access(self):
+        self.besluiten_autorisatie.scopes = []
+        self.besluiten_autorisatie.save()
+        AutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.brc,
+            besluittype=BesluitTypeFactory.create(),
+            scopes=[str(SCOPE_BESLUITEN_ALLES_LEZEN)],
+        )
+        BesluitFactory.create(zaak=self.zaak, besluittype=self.besluittype)
+
+        response = self.client.get(self.url, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_retrieve_unknown_uuid_returns_not_found(self):
         url = reverse("zaken:zaakinzage", kwargs={"uuid": uuid.uuid4()})
         response = self.client.get(url, **ZAAK_READ_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_retrieve_with_unauthorized_zaaktype(self):
+        self.autorisatie.zaaktype = ZaakTypeFactory.create()
+        self.autorisatie.save()
+
+        response = self.client.get(self.url, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_retrieve_above_maximum_confidentiality(self):
+        self.zaak.vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.geheim
+        self.zaak.save()
+
+        response = self.client.get(self.url, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_scopes_must_belong_to_the_required_component(self):
+        self.catalogi_autorisatie.scopes = [str(SCOPE_BESLUITEN_ALLES_LEZEN)]
+        self.catalogi_autorisatie.save()
+        self.besluiten_autorisatie.scopes = [str(SCOPE_CATALOGI_READ)]
+        self.besluiten_autorisatie.save()
+
+        response = self.client.get(self.url, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_authorization_of_another_application_does_not_grant_access(self):
+        self.catalogi_autorisatie.delete()
+        AutorisatieFactory.create(
+            component=ComponentTypes.ztc,
+            scopes=[str(SCOPE_CATALOGI_READ)],
+        )
+
+        response = self.client.get(self.url, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_retrieve_without_authorization(self):
         self.autorisatie.delete()
@@ -377,7 +445,10 @@ class ZaakInzageTests(JWTAuthMixin, APITestCase):
                         "zaaktype": self._format_url(reverse(zaaktype)),
                         "zaaktypeIdentificatie": zaaktype.identificatie,
                         "informatieobjecttype": self._format_url(
-                            reverse(zaaktypeinformatieobjecttype.informatieobjecttype)
+                            reverse(
+                                zaaktypeinformatieobjecttype.informatieobjecttype,
+                                namespace="documenten",
+                            )
                         ),
                         "volgnummer": zaaktypeinformatieobjecttype.volgnummer,
                         "richting": zaaktypeinformatieobjecttype.richting.value,
@@ -583,7 +654,7 @@ class ZaakInzageTests(JWTAuthMixin, APITestCase):
                     "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
                     "besluittype": self._format_url(
                         reverse(
-                            "catalogi:besluittype-detail",
+                            "zaken:besluittype-detail",
                             kwargs={"uuid": besluit.besluittype.uuid},
                         )
                     ),
@@ -841,3 +912,58 @@ class ZaakInzageTests(JWTAuthMixin, APITestCase):
         response = self.client.get(url, {})
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class ZaakInzageAuthRequiredTests(SimpleTestCase):
+    @override_settings(DEBUG=True)
+    def test_browsable_api_bypasses_authorization(self):
+        request = Request(APIRequestFactory().get("/some-url/"))
+        request.accepted_renderer = BrowsableAPIRenderer()
+        view = ZaakInzageViewSet()
+        view.get = view.retrieve
+        permission = ZaakInzageAuthRequired()
+
+        self.assertTrue(permission.has_permission(request, view))
+        self.assertTrue(permission.has_object_permission(request, view, None))
+
+    def test_object_permissions_follow_dynamic_component_configuration(self):
+        request = SimpleNamespace(jwt_auth=Mock())
+        request.jwt_auth.has_auth.side_effect = [True, False]
+        objects = [object(), object()]
+        related = Mock()
+        related.all.return_value = objects
+        zaak = SimpleNamespace(documents=related)
+        object_permission = Mock()
+        object_permission.get_fields.side_effect = [
+            {"informatieobjecttype": "http://testserver/types/1"},
+            {"informatieobjecttype": "http://testserver/types/2"},
+        ]
+        permission_class = Mock(return_value=object_permission)
+        view = SimpleNamespace(
+            required_component_type_scopes={ComponentTypes.drc: "document-scope"},
+            component_permission_resources={
+                ComponentTypes.drc: ("documents", permission_class),
+            },
+            _get_zaak=Mock(return_value=zaak),
+        )
+        permission = ZaakInzageAuthRequired()
+
+        # Exercise the shared component loop without HTTP handler/bypass checks.
+        self.assertFalse(
+            AuthComponentTypeScopesRequired.has_permission(permission, request, view)
+        )
+        self.assertEqual(
+            request.jwt_auth.has_auth.call_args_list,
+            [
+                call(
+                    "document-scope",
+                    ComponentTypes.drc,
+                    informatieobjecttype="http://testserver/types/1",
+                ),
+                call(
+                    "document-scope",
+                    ComponentTypes.drc,
+                    informatieobjecttype="http://testserver/types/2",
+                ),
+            ],
+        )
