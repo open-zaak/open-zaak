@@ -50,6 +50,7 @@ from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 
 from openzaak.client import get_client
+from openzaak.components.catalogi.models import ZaakType
 from openzaak.components.zaken.metrics import (
     zaken_create_counter,
     zaken_delete_counter,
@@ -68,6 +69,7 @@ from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import (
     CacheQuerysetMixin,
     ExpandMixin,
+    FieldsMixin,
 )
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
@@ -279,6 +281,7 @@ ZAAK_UUID_PARAMETER = OpenApiParameter(
 @conditional_retrieve(extra_depends_on={"status"})
 class ZaakViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    FieldsMixin,
     ExpandMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
@@ -300,7 +303,9 @@ class ZaakViewSet(
         Zaak.objects.prefetch_related(
             # Prefetch _zaaktype instead of using `.select_related`, because using the latter
             # causes the main Zaak query to contain a lot of duplicate data, increasing overhead
-            "_zaaktype",
+            models.Prefetch(
+                "_zaaktype", queryset=ZaakType.objects.with_dates("identificatie")
+            ),
             "deelzaken",
             models.Prefetch(
                 "relevante_andere_zaken",
@@ -399,6 +404,17 @@ class ZaakViewSet(
             )
             raise serializers.ValidationError({api_settings.NON_FIELD_ERRORS_KEY: err})
 
+        elif self.has_expand(request) and self.has_fields(request):
+            # Het gebruik van het "fields" en "expand" element is mutual exclusive.
+            # Of je gebruikt de één of de ander maar nooit te gelijk.
+            err = serializers.ErrorDetail(
+                _(
+                    "Het gebruik van het `fields` en `expand` element is mutual exclusive."
+                ),
+                code="invalid_field",
+            )
+            raise serializers.ValidationError({api_settings.NON_FIELD_ERRORS_KEY: err})
+
         search_input = self.get_search_input()
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -407,6 +423,8 @@ class ZaakViewSet(
                 queryset = queryset.filter(zaakgeometrie__within=value["within"])
             else:
                 queryset = queryset.filter(**{name: value})
+
+        queryset = self.add_zoek_fields_prefetch(queryset)
 
         return self.get_search_output(queryset)
 
@@ -542,13 +560,6 @@ class ZaakViewSet(
             vertrouwelijkheidaanduiding=instance.vertrouwelijkheidaanduiding,
             zaaktype=str(instance.zaaktype),
         )
-
-    def get_search_input(self):
-        serializer = self.get_search_input_serializer_class()(
-            data=self.request.data, context={"request": self.request}
-        )
-        serializer.is_valid(raise_exception=True)
-        return serializer.validated_data
 
 
 @extend_schema_view(
