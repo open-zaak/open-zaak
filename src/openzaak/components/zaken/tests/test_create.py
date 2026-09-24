@@ -9,7 +9,7 @@ from unittest.mock import patch
 from django.db import close_old_connections, transaction
 from django.test import override_settings, tag
 
-from freezegun import freeze_time
+import time_machine
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, APITestCase, APITransactionTestCase
 from vng_api_common.constants import (
@@ -270,7 +270,7 @@ class CreateZaakTests(JWTAuthMixin, APITestCase):
             },
         )
 
-    @freeze_time("2018-01-01")
+    @time_machine.travel("2018-01-01", tick=False)
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     def test_zet_verantwoordelijk(self):
         url = get_operation_url("rol_create")

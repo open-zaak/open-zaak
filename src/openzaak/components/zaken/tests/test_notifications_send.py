@@ -8,7 +8,7 @@ from django.test import override_settings, tag
 from django.utils.timezone import now
 
 import requests_mock
-from freezegun import freeze_time
+import time_machine
 from notifications_api_common.models import (
     FailedNotification,
     NotificationResponse,
@@ -72,7 +72,7 @@ VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 
 @tag("notifications")
-@freeze_time("2012-01-14")
+@time_machine.travel("2012-01-14", tick=False)
 @temp_private_root()
 @override_settings(NOTIFICATIONS_DISABLED=False, LOG_NOTIFICATIONS_IN_DB=False)
 @patch("notifications_api_common.viewsets.send_notification.delay")
@@ -1164,7 +1164,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
     LOG_NOTIFICATIONS_IN_DB=True,
     CELERY_TASK_ALWAYS_EAGER=True,
 )
-@freeze_time("2019-01-01T12:00:00Z")
+@time_machine.travel("2019-01-01T12:00:00Z", tick=False)
 class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None

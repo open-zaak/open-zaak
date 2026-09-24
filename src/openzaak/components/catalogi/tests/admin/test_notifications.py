@@ -5,8 +5,8 @@ from unittest.mock import patch
 from django.test import override_settings, tag
 from django.urls import reverse
 
+import time_machine
 from django_webtest import WebTest
-from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
 
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
@@ -27,7 +27,7 @@ from ..factories import (
 @tag("notifications")
 @disable_admin_mfa()
 @override_settings(NOTIFICATIONS_DISABLED=False, LOG_NOTIFICATIONS_IN_DB=False)
-@freeze_time("2022-01-01")
+@time_machine.travel("2022-01-01", tick=False)
 @patch("notifications_api_common.viewsets.send_notification.delay")
 class NotificationAdminTests(
     NotificationsConfigMixin,

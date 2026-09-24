@@ -5,7 +5,7 @@ from django.test import override_settings
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from freezegun import freeze_time
+import time_machine
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
@@ -26,7 +26,7 @@ from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.tests.utils import JWTAuthMixin
 
 
-@freeze_time("2025-01-01T12:00:00")
+@time_machine.travel("2025-01-01T12:00:00", tick=False)
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class BesluitClosedZaakTests(JWTAuthMixin, APITestCase):
     url = reverse_lazy("besluit-list")

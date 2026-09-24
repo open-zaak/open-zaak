@@ -8,7 +8,7 @@ from django.test import override_settings, tag
 from django.utils import timezone
 
 import requests_mock
-from freezegun.api import freeze_time
+import time_machine
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.constants import (
@@ -57,7 +57,7 @@ from .utils import (
 
 
 @tag("convenience-endpoints", "cloudevents")
-@freeze_time("2025-10-10")
+@time_machine.travel("2025-10-10", tick=False)
 @patch("notifications_api_common.tasks.send_cloudevent.delay")
 @patch(
     "notifications_api_common.cloudevents.uuid.uuid4",
@@ -109,7 +109,7 @@ class ZaakConvenienceCloudEventTest(
         )
         self.resultaattype_url = self.check_for_instance(resultaattype)
 
-        with freeze_time("2026-01-02T12:00:00Z"):
+        with time_machine.travel("2026-01-02T12:00:00Z", tick=False):
             self.zaak = ZaakFactory.create(
                 zaaktype=self.zaaktype,
                 bronorganisatie=517439943,
@@ -730,7 +730,7 @@ class ZaakConvenienceCloudEventTest(
 
 
 @tag("convenience-endpoints", "cloudevents")
-@freeze_time("2025-10-10T00:00:00Z")
+@time_machine.travel("2025-10-10T00:00:00Z", tick=False)
 @patch("notifications_api_common.tasks.send_cloudevent.delay")
 @override_settings(
     NOTIFICATIONS_SOURCE="oz-test", ENABLE_CLOUD_EVENTS=True, SITE_DOMAIN="testserver"
@@ -766,7 +766,7 @@ class CloudEventTransactionTests(_JWTAuthMixin, APITransactionTestCase):
 
         StatusTypeFactory.create(zaaktype=zaaktype)
 
-        with freeze_time("2025-10-10T00:00:00Z"):
+        with time_machine.travel("2025-10-10T00:00:00Z", tick=False):
             zaak = ZaakFactory.create(
                 zaaktype=zaaktype,
                 bronorganisatie=517439943,
@@ -805,7 +805,7 @@ class CloudEventTransactionTests(_JWTAuthMixin, APITransactionTestCase):
             "openzaak.components.zaken.models.zaken.Rol.save",
             side_effect=Exception("foo"),
         ):
-            with freeze_time("2025-10-10T00:15:00Z"):
+            with time_machine.travel("2025-10-10T00:15:00Z", tick=False):
                 response = self.client.post(url, data)
 
         self.assertEqual(

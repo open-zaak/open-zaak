@@ -7,7 +7,7 @@ from unittest.mock import patch
 from django.db import IntegrityError, OperationalError
 from django.test import RequestFactory, TestCase, override_settings, tag
 
-from freezegun import freeze_time
+import time_machine
 from maykin_common.vcr import VCRMixin
 from privates.storages import private_media_storage
 from privates.test import temp_private_root
@@ -42,7 +42,7 @@ def _get_test_dir() -> Path:
     return import_test_dir / "files"
 
 
-@freeze_time("2025-12-01T12:00:00")
+@time_machine.travel("2025-12-01T12:00:00", tick=False)
 @tag("gh-2217", "azure-storage")
 @temp_private_root()
 @override_settings(ALLOWED_HOSTS=["testserver"], IMPORT_DOCUMENTEN_BATCH_SIZE=2)

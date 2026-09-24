@@ -42,13 +42,14 @@ asn1crypto==1.5.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   webauthn
-attrs==21.4.0
+attrs==26.1.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   cattrs
     #   glom
     #   jsonschema
+    #   referencing
     #   requests-cache
 autopep8==2.3.2
     # via django-silk
@@ -429,7 +430,7 @@ django-sessionprofile==3.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-django-setup-configuration==0.11.0
+django-setup-configuration==0.13.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -579,10 +580,6 @@ flower==2.0.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-freezegun==1.2.1
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
 furl==2.1.3
     # via
     #   -c requirements/ci.txt
@@ -687,20 +684,30 @@ jmespath==1.0.1
     #   -r requirements/ci.txt
     #   boto3
     #   botocore
-jq==1.7.0
+jq==1.12.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-jsonschema==4.7.2
+jsonschema==4.26.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   drf-spectacular
+jsonschema-specifications==2025.9.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   jsonschema
 kombu==5.5.4
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   celery
+legacy-cgi==2.6.4
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   webob
 lxml==6.1.1
     # via
     #   -c requirements/ci.txt
@@ -956,12 +963,12 @@ protobuf==6.33.5
     #   -r requirements/ci.txt
     #   googleapis-common-protos
     #   opentelemetry-proto
-psycopg==3.2.9
+psycopg==3.3.5
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-psycopg-binary==3.2.9
+psycopg-binary==3.3.5
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -982,14 +989,14 @@ pycparser==2.21
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   cffi
-pydantic==2.10.4
+pydantic==2.13.5
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   bump-my-version
     #   django-setup-configuration
     #   pydantic-settings
-pydantic-core==2.27.2
+pydantic-core==2.46.5
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -1046,11 +1053,6 @@ pyquery==2.0.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-pyrsistent==0.18.1
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   jsonschema
 pytest==9.0.3
     # via
     #   -c requirements/ci.txt
@@ -1080,7 +1082,6 @@ python-dateutil==2.8.2
     #   celery
     #   django-relativedelta
     #   faker
-    #   freezegun
     #   python-crontab
 python-decouple==3.8
     # via
@@ -1129,6 +1130,12 @@ redis==6.2.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-redis
+referencing==0.37.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   jsonschema
+    #   jsonschema-specifications
 regex==2024.11.6
     # via
     #   -c requirements/ci.txt
@@ -1180,16 +1187,17 @@ roman-numerals==4.1.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   sphinx
-ruamel-yaml==0.18.10
+rpds-py==2026.6.3
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   jsonschema
+    #   referencing
+ruamel-yaml==0.19.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-setup-configuration
-ruamel-yaml-clib==0.2.12
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   ruamel-yaml
 ruff==0.11.10
     # via
     #   -c requirements/ci.txt
@@ -1313,6 +1321,10 @@ sqlparse==0.5.5
     #   django
     #   django-debug-toolbar
     #   django-silk
+standard-imghdr==3.13.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 structlog==25.4.0
     # via
     #   -c requirements/ci.txt
@@ -1329,6 +1341,10 @@ textile==4.0.3
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-markup
+time-machine==3.5.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 tomlkit==0.13.2
     # via bump-my-version
 tornado==6.5.8
@@ -1340,11 +1356,10 @@ typer==0.27.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-typing-extensions==4.12.2
+typing-extensions==4.16.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-    #   anyio
     #   azure-core
     #   azure-identity
     #   azure-storage-blob
@@ -1357,16 +1372,20 @@ typing-extensions==4.12.2
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-    #   psycopg
     #   psycopg-pool
     #   pydantic
     #   pydantic-core
     #   pyee
-    #   pyopenssl
     #   qrcode
     #   rich-click
+    #   typing-inspection
     #   zgw-consumers
     #   zgw-consumers-oas
+typing-inspection==0.4.4
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   pydantic
 tzdata==2025.2
     # via
     #   -c requirements/ci.txt

@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from django.test import override_settings, tag
 
-from freezegun import freeze_time
+import time_machine
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
@@ -293,7 +293,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
             validation_error = get_validation_errors(response, "laatsteBetaaldatum")
             self.assertEqual(validation_error["code"], "betaling-nvt")
 
-    @freeze_time("2019-07-22T12:00:00")
+    @time_machine.travel("2019-07-22T12:00:00", tick=False)
     def test_laatste_betaaldatum_cannot_be_in_future(self):
         url = reverse("zaak-list")
 
@@ -317,7 +317,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
         validation_error = get_validation_errors(response, "laatsteBetaaldatum")
         self.assertEqual(validation_error["code"], "future_not_allowed")
 
-    @freeze_time("2019-07-22T12:00:00")
+    @time_machine.travel("2019-07-22T12:00:00", tick=False)
     @override_settings(TIME_LEEWAY=5)
     def test_laatste_betaaldatum_cannot_be_in_future_with_leeway(self):
         url = reverse("zaak-list")
@@ -473,7 +473,7 @@ class ZaakUpdateValidation(SelectieLijstMixin, JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    @freeze_time("2025-01-01T12:00:00Z")
+    @time_machine.travel("2025-01-01T12:00:00Z", tick=False)
     @tag("gh-2179")
     def test_validate_laatst_geopend_can_not_be_in_future(self):
         zaak = ZaakFactory.create()

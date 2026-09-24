@@ -4,7 +4,7 @@
 
 from django.utils.translation import gettext as _
 
-from freezegun import freeze_time
+import time_machine
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.notes.constants import NotitieStatus, NotitieType
@@ -19,7 +19,7 @@ from .factories import ZaakFactory, ZaakNotitieFactory
 class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    @freeze_time("2025-01-01")
+    @time_machine.travel("2025-01-01", tick=False)
     def test_list(self):
         self.assertEqual(ZaakNotitie.objects.count(), 0)
 
@@ -52,7 +52,7 @@ class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
             ],
         )
 
-    @freeze_time("2025-01-01")
+    @time_machine.travel("2025-01-01", tick=False)
     def test_detail(self):
         detail_url = reverse("zaaknotitie-detail", kwargs={"uuid": "123456"})
         response = self.client.get(detail_url)
@@ -81,7 +81,7 @@ class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
             },
         )
 
-    @freeze_time("2025-01-01")
+    @time_machine.travel("2025-01-01", tick=False)
     def test_create(self):
         self.assertEqual(ZaakNotitie.objects.count(), 0)
         list_url = reverse("zaaknotitie-list")
@@ -159,7 +159,7 @@ class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ZaakNotitie.objects.count(), 0)
 
-    @freeze_time("2025-01-01")
+    @time_machine.travel("2025-01-01", tick=False)
     def test_filters(self):
         ZaakNotitieFactory.create(
             onderwerp="test_onderwerp",

@@ -1,5 +1,5 @@
 [project]
-requires-python = "~= 3.12.12"
+requires-python = "~= 3.14.12"
 version = "1.30.0"
 name = "open-zaak"
 

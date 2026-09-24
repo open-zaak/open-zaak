@@ -5,14 +5,14 @@ from datetime import datetime
 from django.test import TestCase
 
 import pytz
-from freezegun import freeze_time
+import time_machine
 
 from openzaak.import_data.models import Import, ImportStatusChoices
 from openzaak.import_data.tasks import remove_imports
 from openzaak.import_data.tests.factories import ImportFactory
 
 
-@freeze_time("2024-01-01 08:00")
+@time_machine.travel("2024-01-01 08:00", tick=False)
 class RemoveImportsTests(TestCase):
     def test_simple(self):
         marked_for_removal = (
