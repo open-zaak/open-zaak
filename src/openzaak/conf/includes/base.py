@@ -39,6 +39,11 @@ if SENTRY_DSN:
 # DATABASE and CACHING setup
 #
 
+# Python 3.14 changed the default start method for multiprocessing from fork to forkserver
+# Django 6+ supports this, but it won't be backported to 5.x
+# https://code.djangoproject.com/ticket/36531
+TEST_RUNNER = "openzaak.utils.tests.runners.ForkTestRunner"
+
 DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = config(
     "DB_DISABLE_SERVER_SIDE_CURSORS",
     default=False,
