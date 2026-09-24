@@ -42,13 +42,14 @@ asn1crypto==1.5.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   webauthn
-attrs==21.4.0
+attrs==26.1.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   cattrs
     #   glom
     #   jsonschema
+    #   referencing
     #   requests-cache
 autopep8==2.3.2
     # via django-silk
@@ -691,11 +692,16 @@ jq==1.12.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-jsonschema==4.7.2
+jsonschema==4.26.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   drf-spectacular
+jsonschema-specifications==2025.9.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   jsonschema
 kombu==5.5.4
     # via
     #   -c requirements/ci.txt
@@ -1051,11 +1057,6 @@ pyquery==2.0.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-pyrsistent==0.18.1
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   jsonschema
 pytest==9.0.3
     # via
     #   -c requirements/ci.txt
@@ -1134,6 +1135,12 @@ redis==6.2.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-redis
+referencing==0.37.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   jsonschema
+    #   jsonschema-specifications
 regex==2024.11.6
     # via
     #   -c requirements/ci.txt
@@ -1185,6 +1192,12 @@ roman-numerals==4.1.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   sphinx
+rpds-py==2026.6.3
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   jsonschema
+    #   referencing
 ruamel-yaml==0.19.1
     # via
     #   -c requirements/ci.txt
