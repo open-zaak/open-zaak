@@ -4,7 +4,7 @@ from django.conf import settings
 from django.test import SimpleTestCase, TestCase, override_settings, tag
 
 import requests_mock
-from freezegun import freeze_time
+import time_machine
 from maykin_common.vcr import VCRMixin
 
 from ...storage import documenten_storage
@@ -45,7 +45,7 @@ class AzureStorageOverrideAPIVersionTests(AzureBlobStorageMixin, SimpleTestCase)
         self.assertEqual(request.headers["x-ms-version"], "2025-07-05")
 
 
-@freeze_time("2025-12-01T12:00:00")
+@time_machine.travel("2025-12-01T12:00:00", tick=False)
 @tag("gh-2217", "azure-storage")
 class AzureStorageTests(VCRMixin, AzureBlobStorageMixin, TestCase):
     # maykin-common by default filters out authorization headers, but all requests
@@ -76,7 +76,7 @@ class AzureStorageTests(VCRMixin, AzureBlobStorageMixin, TestCase):
         self.assertTrue(documenten_storage.exists(eio.inhoud.file.name))
 
 
-@freeze_time("2025-12-01T12:00:00")
+@time_machine.travel("2025-12-01T12:00:00", tick=False)
 @tag("gh-2217", "azure-storage")
 class AzureStorageServicePrincipalAuthenticationTests(AzureBlobStorageMixin, TestCase):
     @override_settings(

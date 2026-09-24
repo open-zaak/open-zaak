@@ -7,7 +7,7 @@ from django.conf import settings
 from django.test import override_settings, tag
 from django.utils import timezone
 
-from freezegun.api import freeze_time
+import time_machine
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import reverse
@@ -28,7 +28,7 @@ from ..models import Besluit
 
 
 @tag("convenience-endpoints", "cloudevents")
-@freeze_time("2025-10-10")
+@time_machine.travel("2025-10-10", tick=False)
 @patch(
     "notifications_api_common.cloudevents.uuid.uuid4",
     lambda: "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
@@ -173,7 +173,7 @@ class BesluitConvenienceCloudEventTest(
             ],
         }
 
-        with freeze_time("2025-10-10T00:10:00Z"):
+        with time_machine.travel("2025-10-10T00:10:00Z", tick=False):
             with self.captureOnCommitCallbacks(execute=True):
                 response = self.client.post(url, data)
 

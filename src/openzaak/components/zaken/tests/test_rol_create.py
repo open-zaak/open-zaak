@@ -9,7 +9,7 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/45
 
 import uuid
 
-from freezegun import freeze_time
+import time_machine
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RolOmschrijving, RolTypes
@@ -27,7 +27,7 @@ WATERNET = f"https://waternet.nl/api/organisatorische-eenheid/{uuid.uuid4().hex}
 class US45TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    @freeze_time("2018-01-01")
+    @time_machine.travel("2018-01-01", tick=False)
     def test_zet_behandelaar(self):
         zaak = ZaakFactory.create()
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)

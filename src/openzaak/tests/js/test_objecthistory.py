@@ -3,7 +3,7 @@
 from django.test import override_settings, tag
 from django.utils.translation import gettext as _
 
-from freezegun import freeze_time
+import time_machine
 from maykin_2fa.test import disable_admin_mfa
 from playwright.sync_api import expect
 
@@ -43,7 +43,7 @@ class ObjectHistoryTests(PlaywrightSyncLiveServerTestCase):
         ).to_be_visible()
 
     def test_object_history_page_with_trails(self):
-        with freeze_time("2025-01-01T12:00:00Z"):
+        with time_machine.travel("2025-01-01T12:00:00Z", tick=False):
             zaak = ZaakFactory.create()
 
         context = self.browser.new_context(storage_state=self.login_state)
@@ -52,7 +52,7 @@ class ObjectHistoryTests(PlaywrightSyncLiveServerTestCase):
 
         # create 5 audittrails
         for i in range(5):
-            with freeze_time(f"2025-01-01T14:12:0{i}Z"):
+            with time_machine.travel(f"2025-01-01T14:12:0{i}Z", tick=False):
                 page.fill("#id_toelichting", f"test {i}")
                 page.get_by_role("button", name=_("Save and continue editing")).click()
                 page.wait_for_url(
