@@ -7,7 +7,7 @@ from django.test import override_settings
 from django.utils.timezone import make_aware
 
 import requests_mock
-from freezegun import freeze_time
+import time_machine
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -264,7 +264,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "zaaktype-mismatch")
 
-    @freeze_time("2019-07-22T12:00:00")
+    @time_machine.travel("2019-07-22T12:00:00", tick=False)
     def test_status_datum_status_gezet_cannot_be_in_future(self):
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
@@ -284,7 +284,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
         validation_error = get_validation_errors(response, "datumStatusGezet")
         self.assertEqual(validation_error["code"], "date-in-future")
 
-    @freeze_time("2019-07-22T12:00:00")
+    @time_machine.travel("2019-07-22T12:00:00", tick=False)
     @override_settings(TIME_LEEWAY=5)
     def test_status_datum_status_gezet_cannot_be_in_future_with_leeway(self):
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
@@ -499,7 +499,7 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
 class KlantContactValidationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    @freeze_time("2019-07-22T12:00:00")
+    @time_machine.travel("2019-07-22T12:00:00", tick=False)
     def test_klantcontact_datumtijd_not_in_future(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
@@ -515,7 +515,7 @@ class KlantContactValidationTests(JWTAuthMixin, APITestCase):
         validation_error = get_validation_errors(response, "datumtijd")
         self.assertEqual(validation_error["code"], "date-in-future")
 
-    @freeze_time("2019-07-22T12:00:00")
+    @time_machine.travel("2019-07-22T12:00:00", tick=False)
     @override_settings(TIME_LEEWAY=5)
     def test_klantcontact_datumtijd_not_in_future_with_leeway(self):
         zaak = ZaakFactory.create()

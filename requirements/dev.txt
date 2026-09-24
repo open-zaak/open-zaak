@@ -580,10 +580,6 @@ flower==2.0.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-freezegun==1.2.1
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
 furl==2.1.3
     # via
     #   -c requirements/ci.txt
@@ -1086,7 +1082,6 @@ python-dateutil==2.8.2
     #   celery
     #   django-relativedelta
     #   faker
-    #   freezegun
     #   python-crontab
 python-decouple==3.8
     # via
@@ -1346,6 +1341,10 @@ textile==4.0.3
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-markup
+time-machine==3.5.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 tomlkit==0.13.2
     # via bump-my-version
 tornado==6.5.8

@@ -4,8 +4,8 @@ from django.test import tag
 from django.urls import reverse
 
 import requests
+import time_machine
 from django_webtest import WebTest
-from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
 from maykin_common.vcr import VCRMixin
 
@@ -16,7 +16,7 @@ from ..mixins import AzureBlobStorageMixin
 
 
 @disable_admin_mfa()
-@freeze_time("2030-01-01T12:00:00")
+@time_machine.travel("2030-01-01T12:00:00", tick=False)
 @tag("gh-2217", "azure-storage")
 class EnkelvoudigInformatieObjectDownloadAdminTests(
     VCRMixin, AzureBlobStorageMixin, AdminTestMixin, WebTest

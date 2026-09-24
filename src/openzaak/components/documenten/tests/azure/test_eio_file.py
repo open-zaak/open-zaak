@@ -15,7 +15,7 @@ from uuid import UUID
 from django.core.files import File
 from django.test import tag
 
-from freezegun import freeze_time
+import time_machine
 from maykin_common.vcr import VCRMixin
 from privates.test import temp_private_root
 from requests.exceptions import RequestException
@@ -36,7 +36,7 @@ from ..utils import get_operation_url
 from .mixins import AzureBlobStorageMixin
 
 
-@freeze_time("2025-12-01T12:00:00")
+@time_machine.travel("2025-12-01T12:00:00", tick=False)
 @tag("gh-2217", "azure-storage")
 @temp_private_root()
 class EnkelvoudigInformatieObjectFileAzureBlobStorageTests(

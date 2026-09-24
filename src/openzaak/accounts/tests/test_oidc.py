@@ -25,7 +25,7 @@ Example:
     }
 
 For instance:
-    @freeze_time("2026-03-24 13:52:00")
+    @time_machine.travel("2026-03-24 13:52:00", tick=False)
 
 The required condition is:
     iat < freeze_time < exp
@@ -34,8 +34,8 @@ The required condition is:
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+import time_machine
 from django_webtest import WebTest
-from freezegun import freeze_time
 from maykin_common.vcr import VCRMixin
 from mozilla_django_oidc_db.models import OIDCClient
 from mozilla_django_oidc_db.tests.mixins import OIDCMixin
@@ -96,7 +96,7 @@ class OIDCLoginButtonTestCase(OIDCMixin, WebTest):
         self.assertIsNone(oidc_login_link)
 
 
-@freeze_time("2026-03-24 13:52:00")
+@time_machine.travel("2026-03-24 13:52:00", tick=False)
 class OIDCFlowTests(OIDCMixin, VCRMixin, WebTest):
     def test_duplicate_email_unique_constraint_violated(self):
         OIDCClientFactory.create(

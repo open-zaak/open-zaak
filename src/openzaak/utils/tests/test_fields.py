@@ -5,7 +5,7 @@ from pathlib import Path
 from django.conf import settings
 from django.test import SimpleTestCase, override_settings
 
-from freezegun import freeze_time
+import time_machine
 
 from openzaak.components.documenten.constants import DocumentenBackendTypes
 from openzaak.components.documenten.exceptions import DocumentBackendNotImplementedError
@@ -14,7 +14,7 @@ from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from ..fields import get_default_path
 
 
-@freeze_time("2026-01-01T12:00:00")
+@time_machine.travel("2026-01-01T12:00:00", tick=False)
 class TestFieldUtils(SimpleTestCase):
     def test_get_default_path(self):
         with self.subTest("test AzureStorage"):
