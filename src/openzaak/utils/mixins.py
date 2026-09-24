@@ -4,13 +4,18 @@
 from django.utils.module_loading import import_string
 
 from dictdiffer import diff
+from rest_framework.exceptions import ValidationError
 from rest_framework_inclusions.renderer import (
     get_allowed_paths,
 )
 from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.models import APIMixin as _APIMixin
 
-from .expansion import EXPAND_QUERY_PARAM, ExpandJSONRenderer
+from .expansion import (
+    EXPAND_QUERY_PARAM,
+    ExpandJSONRenderer,
+    SelectedFieldsExpansion,
+)
 from .permissions import ExpandAuthRequired
 
 
@@ -54,21 +59,33 @@ class ExpandMixin:
     def include_allowed(self):
         return self.action in ["list", "_zoek", "retrieve"]
 
+    def has_expand(self, request) -> bool:
+        return (
+            self.expand_param in request.data
+            or self.expand_param in request.query_params
+        )
+
+    def get_selected_inclusions(self, request):
+        """Optional field-selected expansion paths supplied by FieldsMixin."""
+        return ()
+
     def get_requested_inclusions(self, request):
-        # Pull expand parameter from request body and/or query_param in case of _zoek operation
-        if request.method == "POST":
-            if isinstance(request.data, dict):
-                return ",".join(
-                    request.data.get(self.expand_param, [])
-                    + [request.query_params.get(self.expand_param, "")]
-                )
-        return request.GET.get(self.expand_param)
+        """Combine expansion sources for rendering and authorization."""
+        if request.method == "POST" and isinstance(request.data, dict):
+            requested = ",".join(
+                request.data.get(self.expand_param, [])
+                + [request.query_params.get(self.expand_param, "")]
+            )
+        else:
+            requested = request.GET.get(self.expand_param)
+        selected = self.get_selected_inclusions(request)
+        return ",".join(filter(None, [requested, *selected])) if selected else requested
 
     def get_permissions(self):
         permissions = [permission() for permission in self.permission_classes]
 
         inclusion_serializers = getattr(
-            self.get_serializer(), "inclusion_serializers", {}
+            self.get_serializer_class(), "inclusion_serializers", {}
         )
         inclusions = get_allowed_paths(self.request, view=self)
 
@@ -84,6 +101,84 @@ class ExpandMixin:
             permissions.append(ExpandAuthRequired(expand_serializers))
 
         return permissions
+
+
+class FieldsMixin:
+    """Validate search fields and expose their serialization dependencies."""
+
+    _selected_fields: dict | None = None
+    _selected_inclusions: tuple[str, ...] | None = None
+
+    def has_fields(self, request) -> bool:
+        """Check whether the zoek request includes a fields selection"""
+        return self.action == "_zoek" and "fields" in request.data
+
+    def get_search_input(self):
+        """Validate search filters while reusing the already validated fields."""
+        serializer = self.get_search_input_serializer_class()(
+            data=self.request.data, context=self.get_serializer_context()
+        )
+        if self._selected_fields is not None:
+            del serializer.fields["fields"]
+        serializer.is_valid(raise_exception=True)
+        search_input = serializer.validated_data.copy()
+        self._selected_fields = search_input.pop("fields", self._selected_fields)
+        return search_input
+
+    def get_selected_inclusions(self, request):
+        """Expose selected paths, ExpandMixin handles their authorization."""
+        if not self.has_fields(request):
+            return ()
+
+        if self._selected_fields is None:
+            field = self.get_search_input_serializer_class()().fields["fields"]
+            try:
+                self._selected_fields = field.run_validation(request.data["fields"])
+            except ValidationError as exc:
+                raise ValidationError({"fields": exc.detail}) from exc
+        if self._selected_inclusions is None:
+            self._selected_inclusions = tuple(
+                path
+                for path in self.get_serializer_class().inclusion_serializers
+                if SelectedFieldsExpansion.fields_at_path(
+                    self._selected_fields, path.split(".")
+                )
+                is not None
+            )
+        return self._selected_inclusions
+
+    def add_zoek_fields_prefetch(self, queryset):
+        """Load dependencies for selected fields or full requested expansions."""
+        selected_fields = self._selected_fields
+        if selected_fields is None and self.has_expand(self.request):
+            # Legacy expand returns all fields at each requested level. Build a
+            # planning selection without changing response field selection.
+            selected_fields = {"*": None}
+            paths = get_allowed_paths(self.request, view=self)
+            if paths is None:
+                paths = (
+                    path.split(".")
+                    for path in self.get_serializer_class().inclusion_serializers
+                )
+            for path in paths:
+                children = selected_fields
+                for name in path:
+                    children = children.setdefault(name, {"*": None})
+        if selected_fields is not None:
+            return queryset.prefetch_related(None).prefetch_related(
+                *SelectedFieldsExpansion.selected_prefetches(
+                    self.get_serializer_class()(), selected_fields
+                )
+            )
+        return queryset
+
+    def get_serializer(self, *args, **kwargs):
+        serializer = super().get_serializer(*args, **kwargs)
+        if self._selected_fields is not None:
+            SelectedFieldsExpansion.limit_serializer_fields(
+                serializer, self._selected_fields
+            )
+        return serializer
 
 
 class CacheQuerysetMixin:

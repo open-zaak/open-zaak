@@ -27,6 +27,19 @@ Notifications
 
 For ``zaken`` notification channel a new "kenmerk" ``zaaktype.catalogus`` is added.
 
+Zoek fields
+------------------------
+
+The ``fields`` parameter of ``/api/v1/zaken/_zoek`` accepts nested field selections,
+including ``*`` for all fields at a selected level. Open Zaak validates selected
+fields against its response serializers and supports nested expansion only for
+registered expansion paths. This limits the depth and available relations compared
+with arbitrary nested selections.
+
+Selecting fields from Catalogi API resources requires the ``catalogi.lezen`` scope.
+Selecting information objects from the Documenten API requires ``documenten.lezen``.
+The same scopes apply when using ``expand`` for those resources.
+
 .. _cloud_events:
 
 Cloud events
