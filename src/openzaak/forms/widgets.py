@@ -38,7 +38,7 @@ class SplitRelativeDeltaWidget(forms.Widget):
             id_ += "_0"
         return id_
 
-    def value_from_datadict(self, data, files, name) -> str:
+    def value_from_datadict(self, data, files, name) -> str | None:
         # In case the value was directly injected into the form data, e.g. if validation
         # happens on the backend, simply take that value
         if name in data and isinstance(data[name], relativedelta):
@@ -53,6 +53,12 @@ class SplitRelativeDeltaWidget(forms.Widget):
             minutes = value_from_datadict(data, files, f"{name}_minutes")
             seconds = value_from_datadict(data, files, f"{name}_seconds")
             microseconds = value_from_datadict(data, files, f"{name}_microseconds")
+
+            # NULL != relativedelta(), so if none of the duration fields are specified,
+            # we consider the value to be NULL
+            if not any([years, months, days, hours, minutes, seconds, microseconds]):
+                return None
+
             duration = relativedelta(
                 years=int(years or 0),
                 months=int(months or 0),
