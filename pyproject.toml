@@ -178,14 +178,10 @@ section-order = [
     "local-folder",
 ]
 
-[tool.ruff.lint.flake8-tidy-imports.banned-api.logging]
-msg = "Use `structlog.stdlib.get_logger(__name__)` instead."
-
-[tool.ruff.lint.flake8-tidy-imports.banned-api."typing.cast"]
-msg = "Casting is an anti-pattern, use `assert isinstance(...)` instead, or suppress the error."
-
-[tool.ruff.lint.flake8-tidy-imports.banned-api."typing.Any"]
-msg = "Any is an anti-pattern, use a real type instead, or if that's not possible, use 'object'."
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"logging".msg = "Use `structlog.stdlib.get_logger(__name__)` instead."
+"typing.cast".msg = "Casting is an anti-pattern, use `assert isinstance(...)` instead, or suppress the error."
+"typing.Any".msg = "Any is an anti-pattern, use a real type instead, or if that's not possible, use 'object'."
 
 [tool.ruff.format]
 line-ending = "lf"

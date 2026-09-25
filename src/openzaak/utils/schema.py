@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import typing
 from typing import Dict, List, Mapping, Optional, Type
 
 from django.conf import settings
@@ -8,15 +7,22 @@ from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
 import structlog
-from drf_spectacular.openapi import (
-    AutoSchema as _AutoSchema,
+from drf_spectacular.openapi import AutoSchema as _AutoSchema
+from drf_spectacular.plumbing import (
     ResolvedComponent,
     append_meta,
     build_array_type,
     build_object_type,
     is_list_serializer,
 )
-from drf_spectacular.utils import OpenApiExample, OpenApiParameter, OpenApiTypes
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import (
+    Direction,
+    OpenApiExample,
+    OpenApiParameter,
+    _ListSerializerType,
+    _SerializerType,
+)
 from furl import furl
 from rest_framework import exceptions, serializers, status
 from vng_api_common.caching.introspection import has_cache_header
@@ -49,20 +55,24 @@ FILE_ERROR_RESPONSES = {status.HTTP_413_REQUEST_ENTITY_TOO_LARGE: FoutSerializer
 PRECONDITION_ERROR_RESPONSES = {status.HTTP_412_PRECONDITION_FAILED: FoutSerializer}
 
 
-def get_component_from_serializer(serializer: serializers.Serializer) -> str:
-    return serializer.Meta.model._meta.app_label
+def get_component_from_serializer(
+    serializer: serializers.BaseSerializer | type[serializers.BaseSerializer],
+) -> str:
+    return getattr(serializer, "Meta").model._meta.app_label
 
 
-def get_external_schema_ref(serializer: serializers.Serializer) -> str:
+def get_external_schema_ref(
+    serializer: serializers.BaseSerializer | type[serializers.BaseSerializer],
+) -> str:
     """
     Constructs the schema references for external resource
     """
     component = get_component_from_serializer(serializer)
     oas_url = settings.EXTERNAL_API_MAPPING[component].oas_url
-    resource_name = serializer.Meta.model._meta.object_name
+    resource_name = getattr(serializer, "Meta").model._meta.object_name
 
     f = furl(oas_url)
-    f.fragment.path = f"/components/schemas/{resource_name}"
+    f.fragment.path = f"/components/schemas/{resource_name}"  # pyright: ignore[reportAttributeAccessIssue]
     return f.url
 
 
@@ -88,13 +98,13 @@ class AutoSchema(_AutoSchema):
 
         return [{settings.SECURITY_DEFINITION_NAME: [str(scopes)]}]
 
-    def get_operation_id(self):
+    def get_operation_id(self) -> str:
         """
         Use view basename as a base for operation_id
         """
         if hasattr(self.view, "basename"):
-            basename = self.view.basename
-            action = "head" if self.method == "HEAD" else self.view.action
+            basename = getattr(self.view, "basename")
+            action = "head" if self.method == "HEAD" else getattr(self.view, "action")
             # make compatible with old OAS
             if action == "destroy":
                 action = "delete"
@@ -148,7 +158,7 @@ class AutoSchema(_AutoSchema):
 
         return responses
 
-    def get_response_serializers(
+    def get_response_serializers(  # pyright: ignore[reportIncompatibleMethodOverride]
         self,
     ) -> Dict[int, Optional[Type[serializers.Serializer]]]:
         """append error serializers"""
@@ -174,7 +184,11 @@ class AutoSchema(_AutoSchema):
         return responses
 
     def _get_response_for_code(
-        self, serializer, status_code, media_types=None, direction="response"
+        self,
+        serializer,
+        status_code,
+        media_types=None,
+        direction="response",
     ):
         """
         choose media types and set descriptions
@@ -191,14 +205,16 @@ class AutoSchema(_AutoSchema):
         )
 
         if 200 <= int(status_code) < 300 and isinstance(self.view, ExpandMixin):
-            response = self.get_expand_response(serializer, response, direction)
+            response = self.get_expand_response(serializer, response, direction)  # pyright: ignore[reportArgumentType]
 
         # add description based on the status code
         if not response.get("description"):
             response["description"] = HTTP_STATUS_CODE_TITLES.get(int(status_code), "")
         return response
 
-    def get_request_serializer(self) -> typing.Any:
+    def get_request_serializer(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self,
+    ) -> object:
         """Build custom request serializer for Search endpoints"""
         request_serializer = super().get_request_serializer()
 
@@ -210,7 +226,7 @@ class AutoSchema(_AutoSchema):
             return request_serializer
 
         filter_params = self._get_filter_parameters()
-        search_input_serializer = self.view.search_input_serializer_class
+        search_input_serializer = getattr(self.view, "search_input_serializer_class")
         schema = self._map_serializer(search_input_serializer, "request")
         # add query params to request body schema
         for filter_param in filter_params:
@@ -225,18 +241,23 @@ class AutoSchema(_AutoSchema):
         support dynamic pagination_class in view.paginator method
         """
         if hasattr(self.view, "paginator"):
-            return self.view.paginator
+            return getattr(self.view, "paginator")
 
         return super()._get_paginator()
 
-    def get_expand_response(self, serializer, base_response, direction):
+    def get_expand_response(
+        self,
+        serializer: _SerializerType | _ListSerializerType,
+        base_response: dict,
+        direction: Direction,
+    ):
         """
         add '_expand' into response schema
         """
 
         include_allowed = getattr(self.view, "include_allowed", lambda: False)()
-        base_serializer = (
-            serializer.child if is_list_serializer(serializer) else serializer
+        base_serializer: serializers.Serializer = (
+            serializer.child if is_list_serializer(serializer) else serializer  # pyright: ignore[reportAssignmentType]
         )
         inclusion_serializers = getattr(base_serializer, "inclusion_serializers", {})
 
@@ -277,7 +298,7 @@ class AutoSchema(_AutoSchema):
             properties=expand_properties,
             description=_(
                 "Display details of the linked resources requested in the `expand` parameter"
-            ),
+            ),  # pyright: ignore[reportArgumentType]
         )
         base_component = self.resolve_serializer(base_serializer, direction)
         expand_component_name = f"Expand{base_component.name}"
@@ -296,7 +317,7 @@ class AutoSchema(_AutoSchema):
         expand_schema = expand_component.ref
 
         # paginate if needed
-        if self._is_list_view(serializer):
+        if self._is_list_view(serializer):  # pyright: ignore[reportArgumentType]
             expand_schema = build_array_type(expand_schema)
 
             paginator = self._get_paginator()
@@ -411,7 +432,7 @@ class AutoSchema(_AutoSchema):
         """
         support ETag headers
         """
-        if not has_cache_header(self.view):
+        if not has_cache_header(self.view):  # pyright: ignore[reportArgumentType]
             return []
 
         return [
@@ -456,7 +477,7 @@ class AutoSchema(_AutoSchema):
         ]
 
     def get_log_headers(self) -> List[OpenApiParameter]:
-        if not _view_supports_audittrail(self.view):
+        if not _view_supports_audittrail(self.view):  # pyright: ignore[reportArgumentType]
             return []
 
         return [
@@ -547,11 +568,11 @@ class AutoSchema(_AutoSchema):
     def get_summary(self):
         if self.method == "HEAD":
             return _("De headers voor een specifiek(e) %(model)s opvragen ") % {
-                "model": self.view.queryset.model._meta.verbose_name.upper()
+                "model": getattr(self.view, "queryset").model._meta.verbose_name.upper()
             }
         return super().get_summary()
 
-    def get_description(self):
+    def get_description(self):  # pyright: ignore[reportIncompatibleMethodOverride]
         if self.method == "HEAD":
             return _("Vraag de headers op die je bij een GET request zou krijgen.")
         return super().get_description()

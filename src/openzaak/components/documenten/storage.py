@@ -2,7 +2,6 @@
 # Copyright (C) 2020 Dimpact
 
 import os
-from typing import cast
 
 from django.conf import settings
 from django.core.files.storage import Storage, storages
@@ -171,4 +170,4 @@ def get_private_media_storage() -> Storage:
     return storages[PRIVATE_MEDIA_STORAGE_ALIAS]
 
 
-documenten_storage = cast(Storage, DocumentenStorage())
+documenten_storage: Storage = DocumentenStorage()  # pyright: ignore[reportAssignmentType]

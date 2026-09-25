@@ -3,7 +3,7 @@
 from typing import Tuple
 
 from django.core.exceptions import EmptyResultSet
-from django.db.models.lookups import Exact as _Exact, In as _In
+from django.db.models.lookups import Exact as _Exact, In as _In, Lookup
 
 from django_loose_fk.lookups import get_normalized_value
 from django_loose_fk.virtual_models import ProxyMixin
@@ -12,7 +12,7 @@ from zgw_consumers.models.lookups import decompose_value
 from .fields import FkOrServiceUrlField
 
 
-class FkOrServiceUrlFieldMixin:
+class FkOrServiceUrlFieldMixin(Lookup):
     def get_cols(self) -> tuple:
         """return tuple of cols for local fk, remote base url and remote relative url"""
         target = self.lhs.target
@@ -52,7 +52,9 @@ class FkOrServiceUrlFieldMixin:
 
         fk_lhs, base_url_lhs, relative_url_lhs = self.get_cols()
         rhs_values = (
-            self.rhs if self.get_db_prep_lookup_value_is_iterable else [self.rhs]
+            self.rhs
+            if self.get_db_prep_lookup_value_is_iterable  # pyright: ignore[reportAttributeAccessIssue]
+            else [self.rhs]
         )
 
         prepared_values = []
@@ -78,7 +80,7 @@ class FkOrServiceUrlFieldMixin:
 
         return (
             prepared_values[0]
-            if not self.get_db_prep_lookup_value_is_iterable
+            if not self.get_db_prep_lookup_value_is_iterable  # pyright: ignore[reportAttributeAccessIssue]
             else prepared_values
         )
 
@@ -89,7 +91,9 @@ class Exact(FkOrServiceUrlFieldMixin, _Exact):
     combine Exact lookups for FkOrUrlField and ServiceUrlField
     """
 
-    def get_db_prep_lookup(self, value, connection):
+    def get_db_prep_lookup(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, value, connection
+    ):
         # composite field
         if isinstance(value, list) and len(value) == 2:
             target = self.lhs.target
@@ -151,7 +155,9 @@ class In(FkOrServiceUrlFieldMixin, _In):
     lookup_name = "in"
     _connective = "OR"  # the connective used to connect the URL field query and the FK field query
 
-    def process_rhs(self, compiler, connection):
+    def process_rhs(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, compiler, connection
+    ):
         """
         separate list of values into two lists because we will use different expressions for them
         """
@@ -198,7 +204,9 @@ class In(FkOrServiceUrlFieldMixin, _In):
     ):
         return url_sql, url_params
 
-    def as_sql(self, compiler, connection):
+    def as_sql(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, compiler, connection
+    ):
         # process lhs
         (
             fk_lhs_sql,
@@ -241,7 +249,7 @@ class In(FkOrServiceUrlFieldMixin, _In):
         if not url_sql:
             return self.build_fk_sql_if_url_sql_empty(fk_sql, fk_params, fk_lhs_sql)
 
-        params = url_params + list(fk_params)
+        params = url_params + list(fk_params)  # pyright: ignore[reportOperatorIssue]
         sql = "({} {} {})".format(url_sql, self._connective, fk_sql)
 
         return sql, params
