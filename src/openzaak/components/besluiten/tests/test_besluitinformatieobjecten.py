@@ -524,6 +524,10 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         )
 
     def test_besluittype_internal_iotype_external(self):
+        """
+        Besluittypen are always local, but the informatieobjecttype of an external
+        document can be external.
+        """
         besluit = BesluitFactory.create()
         besluit_url = (
             f"http://openbesluit.nl{reverse(besluit, namespace=self.NAMESPACE)}"
@@ -546,6 +550,11 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                     self.document, informatieobjecttype=informatieobjecttype
                 ),
             )
+            m.post(
+                f"{self.base}objectinformatieobjecten",
+                json=get_oio_response(self.document, besluit_url, "besluit"),
+                status_code=201,
+            )
 
             response = self.client.post(
                 self.list_url,
@@ -553,13 +562,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                 headers={"host": "openbesluit.nl"},
             )
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        assert error
-        self.assertEqual(
-            error["code"], "missing-besluittype-informatieobjecttype-relation"
-        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
 
 @tag("external-urls")
