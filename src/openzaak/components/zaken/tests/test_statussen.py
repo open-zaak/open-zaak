@@ -9,6 +9,7 @@ import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
@@ -16,10 +17,23 @@ from zgw_consumers.test.factories import ServiceFactory
 from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
 )
+from openzaak.components.catalogi.tests.factories.catalogus import CatalogusFactory
+from openzaak.components.catalogi.tests.factories.roltype import RolTypeFactory
+from openzaak.components.catalogi.tests.factories.zaaktype import ZaakTypeFactory
+from openzaak.components.documenten.tests.factories import (
+    EnkelvoudigInformatieObjectFactory,
+)
+from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
 from ..models import Status
-from .factories import ResultaatFactory, RolFactory, StatusFactory, ZaakFactory
+from .factories import (
+    ResultaatFactory,
+    RolFactory,
+    StatusFactory,
+    ZaakFactory,
+    ZaakInformatieObjectFactory,
+)
 from .utils import (
     ZAAK_READ_KWARGS,
     get_operation_url,
@@ -411,3 +425,275 @@ class IsLastStatusTests(JWTAuthMixin, APITestCase):
             self.assertEqual(
                 response.json()["results"][1]["uuid"], str(self.status11.uuid)
             )
+
+
+@tag("expand")
+class StatussenExpandTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
+    maxDiff = None
+    url = reverse_lazy("status-list")
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.catalogus = CatalogusFactory.create()
+        cls.zaaktype = ZaakTypeFactory.create(concept=False, catalogus=cls.catalogus)
+        cls.roltype = RolTypeFactory.create(zaaktype=cls.zaaktype)
+        cls.statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
+        cls.zaak = ZaakFactory.create(
+            zaaktype=cls.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        cls.rol = RolFactory.create(zaak=cls.zaak, roltype=cls.roltype)
+        cls.zio = ZaakInformatieObjectFactory.create(
+            zaak=cls.zaak,
+            with_status=True,
+            status__statustype=cls.statustype,
+            status__gezetdoor=cls.rol,
+        )
+        cls.status = cls.zio.status
+
+    def test_status_list_include_all_resources(self):
+        zaak_data = self.client.get(reverse(self.zaak), **ZAAK_READ_KWARGS).json()
+        zaaktype_data = self.client.get(reverse(self.zaaktype)).json()
+        statustype_data = self.client.get(reverse(self.statustype)).json()
+        gezetdoor_data = self.client.get(reverse(self.rol)).json()
+        gezetdoor_roltype_data = self.client.get(reverse(self.roltype)).json()
+
+        zio_data = self.client.get(reverse(self.zio)).json()
+        informatieobject_data = self.client.get(zio_data["informatieobject"]).json()
+        informatieobject_data.pop("_expand", None)
+        status_data = self.client.get(reverse(self.status)).json()
+
+        response = self.client.get(
+            self.url,
+            {
+                "expand": "zaak,zaak.zaaktype,statustype,gezetdoor,gezetdoor.roltype,"
+                "zaakinformatieobjecten,zaakinformatieobjecten.informatieobject"
+            },
+            **ZAAK_READ_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # The detail responses also include the _expand attribute, but the list response
+        # only has a _expand attribute at the root level (no _expand nested inside _expand)
+        del zaak_data["_expand"]
+
+        data = response.json()["results"]
+        expected_results = [
+            {
+                **status_data,
+                "_expand": {
+                    "zaak": {
+                        **zaak_data,
+                        "_expand": {"zaaktype": zaaktype_data},
+                    },
+                    "statustype": statustype_data,
+                    "gezetdoor": {
+                        **gezetdoor_data,
+                        "_expand": {
+                            "roltype": gezetdoor_roltype_data,
+                        },
+                    },
+                    "zaakinformatieobjecten": [
+                        {
+                            **zio_data,
+                            "_expand": {"informatieobject": informatieobject_data},
+                        }
+                    ],
+                },
+            },
+        ]
+
+        self.assertEqual(data, expected_results)
+
+    def test_status_retrieve_zaakinformatieobjecten(self):
+        response = self.client.get(reverse(self.status), **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.json()["zaakinformatieobjecten"],
+            [f"http://testserver{reverse(self.zio)}"],
+        )
+        self.assertEqual(self.zio.zaak, self.status.zaak)
+        self.assertEqual(self.status.statustype.zaaktype, self.zio.zaak.zaaktype)
+
+    def test_status_list_expand_zaakinformatieobjecten(self):
+        second_zio = ZaakInformatieObjectFactory.create(
+            zaak=self.zaak, status=self.status
+        )
+        # Relations on the same zaak without this status must not be included.
+        ZaakInformatieObjectFactory.create(zaak=self.zaak)
+        ZaakInformatieObjectFactory.create(zaak=self.zaak, with_status=True)
+        expected = [
+            self.client.get(reverse(zio)).json() for zio in (self.zio, second_zio)
+        ]
+
+        response = self.client.get(
+            self.url, {"expand": "zaakinformatieobjecten"}, **ZAAK_READ_KWARGS
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = next(
+            item
+            for item in response.json()["results"]
+            if item["uuid"] == str(self.status.uuid)
+        )
+        self.assertCountEqual(result["_expand"]["zaakinformatieobjecten"], expected)
+
+    def test_status_list_expand_zaakinformatieobjecten_empty(self):
+        self.zio.status = None
+        self.zio.save(update_fields=["status"])
+
+        response = self.client.get(
+            self.url, {"expand": "zaakinformatieobjecten"}, **ZAAK_READ_KWARGS
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["results"][0]["_expand"], {})
+
+    def test_status_list_expand_only_first_level(self):
+        status_data = self.client.get(reverse(self.status)).json()
+        resources = (
+            ("zaak", self.zaak),
+            ("statustype", self.statustype),
+            ("gezetdoor", self.rol),
+            ("zaakinformatieobjecten", self.zio),
+        )
+
+        for expand, resource in resources:
+            with self.subTest(expand=expand):
+                resource_response = self.client.get(
+                    reverse(resource), **ZAAK_READ_KWARGS
+                )
+                self.assertEqual(resource_response.status_code, status.HTTP_200_OK)
+                resource_data = resource_response.json()
+                resource_data.pop("_expand", None)
+                expected = (
+                    [resource_data]
+                    if expand == "zaakinformatieobjecten"
+                    else resource_data
+                )
+
+                response = self.client.get(
+                    self.url, {"expand": expand}, **ZAAK_READ_KWARGS
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual(
+                    response.json()["results"],
+                    [{**status_data, "_expand": {expand: expected}}],
+                )
+
+    def test_status_list_expand_informatieobject_latest_version(self):
+        status_data = self.client.get(reverse(self.status)).json()
+        zio_data = self.client.get(reverse(self.zio)).json()
+
+        previous = self.zio.informatieobject.latest_version
+        latest = EnkelvoudigInformatieObjectFactory.create(
+            canonical=self.zio.informatieobject,
+            uuid=previous.uuid,
+            identificatie=previous.identificatie,
+            bronorganisatie=previous.bronorganisatie,
+            informatieobjecttype=previous.informatieobjecttype,
+            versie=2,
+            titel="Updated document",
+        )
+        document_response = self.client.get(reverse(latest))
+        self.assertEqual(document_response.status_code, status.HTTP_200_OK)
+        document_data = document_response.json()
+        document_data.pop("_expand", None)
+
+        response = self.client.get(
+            self.url,
+            {
+                "expand": "zaakinformatieobjecten,zaakinformatieobjecten.informatieobject"
+            },
+            **ZAAK_READ_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()["results"]
+        expected_results = [
+            {
+                **status_data,
+                "_expand": {
+                    "zaakinformatieobjecten": [
+                        {
+                            **zio_data,
+                            "_expand": {"informatieobject": document_data},
+                        }
+                    ],
+                },
+            }
+        ]
+        self.assertEqual(data, expected_results)
+
+    def test_status_list_expand_only_zaak(self):
+        zaak_data = self.client.get(reverse(self.zaak), **ZAAK_READ_KWARGS).json()
+        status_data = self.client.get(reverse(self.status)).json()
+
+        response = self.client.get(
+            self.url,
+            {"expand": "zaak"},
+            **ZAAK_READ_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # The detail responses also include the _expand attribute, but the list response
+        # only has a _expand attribute at the root level (no _expand nested inside _expand)
+        del zaak_data["_expand"]
+
+        data = response.json()["results"]
+        expected_results = [
+            {
+                **status_data,
+                "_expand": {
+                    "zaak": zaak_data,
+                },
+            },
+        ]
+        self.assertEqual(data, expected_results)
+
+    def test_invalid_expansion(self):
+        for expand in (
+            "unknown",
+            "zaak.unknown",
+            "statussen.unknown",
+            "zaak,unknown",
+            "zaakinformatieobjecten.unknown",
+            "gezetdoor.zaak",
+            "gezetdoor.statussen",
+        ):
+            with self.subTest(expand=expand):
+                response = self.client.get(
+                    self.url, {"expand": expand}, **ZAAK_READ_KWARGS
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                error = get_validation_errors(response, "expand")
+                self.assertEqual(error["code"], "invalid_choice")
+
+    def test_status_list_nested_expansion_requires_parent(self):
+        """A nested path only adds data when its parent is also requested."""
+        status_data = self.client.get(reverse(self.status)).json()
+
+        for expand in (
+            "zaak.zaaktype",
+            "gezetdoor.roltype",
+            "zaakinformatieobjecten.informatieobject",
+        ):
+            with self.subTest(expand=expand):
+                response = self.client.get(
+                    self.url, {"expand": expand}, **ZAAK_READ_KWARGS
+                )
+                response_data = response.json()
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                # Return an empty _expand because parent is not present
+                self.assertEqual(
+                    response_data["results"], [{**status_data, "_expand": {}}]
+                )
