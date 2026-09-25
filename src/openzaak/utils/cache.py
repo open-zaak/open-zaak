@@ -115,7 +115,9 @@ def requests_cache_enabled(*args, **kwargs):
                 **kwargs,
             )
 
-    class CustomOpenZaakClient(original_client, CustomCachedSession):
+    class CustomOpenZaakClient(  # pyright: ignore[reportIncompatibleMethodOverride]
+        original_client, CustomCachedSession
+    ):
         pass
 
     vng_api_common.client.Client = CustomOpenZaakClient

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2023 Dimpact
-from typing import Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union
+from typing import Iterable, Iterator, Optional, Type
 
 from django.db import models
 from django.utils.module_loading import import_string
@@ -40,7 +40,7 @@ class InclusionNode:
         value: dict,
         label: str,
         many: bool,
-        parent: "InclusionNode" = None,
+        parent: "InclusionNode | None" = None,
     ):
         self.id = id
         self.value = value
@@ -91,7 +91,12 @@ class InclusionTree:
         self._nodes = []
 
     def add_node(
-        self, id: str, value: dict, label: str, many: bool, parent_id: str = None
+        self,
+        id: str,
+        value: dict,
+        label: str,
+        many: bool,
+        parent_id: str | None = None,
     ) -> None:
         if not parent_id:
             node = InclusionNode(id, value, label, many)
@@ -129,7 +134,7 @@ class ExpandLoader(InclusionLoader):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._seen_external: Dict[str, ProxyMixin] = {}
+        self._seen_external: dict[str, ProxyMixin] = {}
         self._seen_local: dict[tuple[type[Serializer], int], models.Model] = {}
         self._serialized: dict[tuple[type[Serializer], int, str], dict] = {}
 
@@ -164,6 +169,7 @@ class ExpandLoader(InclusionLoader):
             else [serializer.instance]
         )
         for instance in instances:
+            assert instance is not None
             tree.add_node(
                 id=instance.get_absolute_api_url(request=request),
                 label="",
@@ -209,15 +215,15 @@ class ExpandLoader(InclusionLoader):
 
     def _instance_inclusions(
         self,
-        path: Tuple[str, ...],
+        path: tuple[str, ...],
         serializer: Serializer,
-        instance: models.Model,
+        instance: models.Model | ProxyMixin,
         inclusion_serializers: Optional[dict] = None,
     ):
         """
         add parameter 'inclusion_serializers'
         """
-        inclusion_serializers = inclusion_serializers or getattr(
+        serializers_map = inclusion_serializers or getattr(
             serializer, "inclusion_serializers", {}
         )
 
@@ -228,18 +234,24 @@ class ExpandLoader(InclusionLoader):
 
         for name, field in serializer.fields.items():
             yield from self._field_inclusions(
-                path, field, instance, name, inclusion_serializers
+                path, field, instance, name, serializers_map
             )
 
-    def _field_inclusions(
+    def _field_inclusions(  # pyright: ignore[reportIncompatibleMethodOverride]
         self,
-        path: Tuple[str, ...],
+        path: tuple[str, ...],
         field: Field,
-        instance: models.Model,
+        instance: models.Model | ProxyMixin,
         name: str,
-        inclusion_serializers: Dict[str, Union[str, Type[Serializer]]],
+        inclusion_serializers: dict[str, str | Type[Serializer]],
     ) -> Iterator[
-        Tuple[models.Model, Type[Serializer], models.Model, Tuple[str, ...], bool]
+        tuple[
+            models.Model | ProxyMixin,
+            Type[Serializer],
+            models.Model | ProxyMixin,
+            tuple[str, ...],
+            bool,
+        ]
     ]:
         """
         change return of this generator from (obj, serializer_class) to
@@ -273,13 +285,13 @@ class ExpandLoader(InclusionLoader):
                 inclusion_serializers,
             )
 
-    def _some_related_field_inclusions(
+    def _some_related_field_inclusions(  # pyright: ignore[reportIncompatibleMethodOverride]
         self,
-        path: Tuple[str, ...],
+        path: tuple[str, ...],
         field: Field,
-        instance: models.Model,
+        instance: models.Model | ProxyMixin,
         inclusion_serializer: Type[Serializer],
-    ) -> Iterator[models.Model]:
+    ) -> Iterable[models.Model | ProxyMixin]:
         """
         add handler for FKOrServiceUrlField fields
         """
@@ -298,11 +310,11 @@ class ExpandLoader(InclusionLoader):
 
     def _loose_fk_field_inclusions(
         self,
-        path: Tuple[str, ...],
+        path: tuple[str, ...],
         field: Field,
-        instance: models.Model,
+        instance: models.Model | ProxyMixin,
         inclusion_serializer: Type[Serializer],
-    ) -> Iterator[models.Model]:
+    ) -> Iterator[models.Model | ProxyMixin]:
         """
         handler for loose-fk-field
 
@@ -312,7 +324,7 @@ class ExpandLoader(InclusionLoader):
         existing ``_seen_external`` cache below, which only covers external
         (URL-based) targets.
         """
-        model_field = field._get_model_and_field()[1]
+        model_field = field._get_model_and_field()[1]  # pyright: ignore[reportAttributeAccessIssue]
         url_value = getattr(instance, model_field.url_field)
 
         if not url_value:
@@ -342,12 +354,13 @@ class ExpandLoader(InclusionLoader):
             else:
                 try:
                     # model field descriptor uses loader for external urls
-                    instance = getattr(instance, field.field_name)
+                    assert field.field_name is not None
+                    external = getattr(instance, field.field_name)
                 except FetchError:
                     return
                 else:
-                    self._seen_external[obj] = instance
-                    yield instance
+                    self._seen_external[obj] = external
+                    yield external
 
         # local
         else:
@@ -526,8 +539,8 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
 
 def get_expand_options_for_serializer(
     serializer_class: Type[Serializer],
-) -> List[tuple]:
-    choices = [(opt, opt) for opt in serializer_class.inclusion_serializers]
+) -> list[tuple]:
+    choices = [(opt, opt) for opt in getattr(serializer_class, "inclusion_serializers")]
     return choices
 
 

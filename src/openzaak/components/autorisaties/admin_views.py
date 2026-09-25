@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from collections import defaultdict
-from typing import Any, Dict, List, Tuple, Union
 
 from django import forms
 from django.core.exceptions import PermissionDenied
@@ -29,7 +28,7 @@ from .models import CatalogusAutorisatie
 from .utils import get_related_object
 
 
-def get_form_data(form: forms.Form) -> Dict[str, Dict]:
+def get_form_data(form: forms.Form) -> dict[str, dict]:
     """
     Serialize the form data and errors for the frontend.
     """
@@ -62,8 +61,8 @@ def is_local_url(autorisatie):
 
 def get_initial_for_component(
     component: str,
-    autorisaties: List[Autorisatie],
-) -> List[Dict[str, Any]]:
+    autorisaties: list[Autorisatie],
+) -> list[dict[str, object]]:
     _related_objs = {}
     _related_objs_external = {}
 
@@ -162,7 +161,7 @@ def get_initial_for_component(
 def get_initial_for_component_for_catalogus_autorisaties(
     component: str,
     catalogus_autorisaties: list[CatalogusAutorisatie],
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, object]]:
     initial = []
 
     match component:
@@ -201,12 +200,12 @@ def get_initial_for_component_for_catalogus_autorisaties(
 
 
 def _get_group_key(
-    spec: Union[Autorisatie, CatalogusAutorisatie],
-) -> Tuple[str, Tuple[str]]:
+    spec: Autorisatie | CatalogusAutorisatie,
+) -> tuple[str, tuple[str]]:
     return (spec.component, tuple(sorted(spec.scopes)))
 
 
-def get_initial(applicatie: Applicatie) -> List[Dict[str, Any]]:
+def get_initial(applicatie: Applicatie) -> list[dict[str, object]]:
     """
     Figure out the initial data for the formset, showing existing config.
 

@@ -34,7 +34,8 @@ uv pip compile \
     requirements/test-tools.in \
     requirements/performance-tests.in
 
-# Type checking deps - CI + stub packages
+
+# Type checking stubs
 uv pip compile \
     --output-file requirements/type-checking.txt \
     "$@" \

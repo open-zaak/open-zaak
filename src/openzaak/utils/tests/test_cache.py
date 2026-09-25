@@ -17,9 +17,9 @@ class DjangoRequestsCacheTests(APITestCase):
             selectielijst_procestype="https://example.com/procestypen/1234",
         )
         with requests_cache_enabled():
-            self.client = get_client(
+            client = get_client(
                 zaak_type.selectielijst_procestype,
                 raise_exceptions=True,
             )
-            backend = getattr(self.client, "cache", None)
+            backend = getattr(client, "cache", None)
             assert isinstance(backend, DjangoRequestsCache)

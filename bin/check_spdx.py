@@ -6,7 +6,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Generator, List, Set
+from typing import Generator
 
 import click
 
@@ -38,7 +38,7 @@ FILE_TYPES = {
 )
 def main(src):
     root = os.path.abspath(os.curdir)
-    sources: Set[Path] = set()
+    sources: set[Path] = set()
 
     gitignore_files = get_gitignore_files()
 
@@ -69,8 +69,8 @@ def get_gitignore_files():
 
 
 def get_files_in_dir(
-    path: Path, root: Path, gitignore_files: List[str]
-) -> Generator[Any, Any, Any]:
+    path: Path, root: Path, gitignore_files: list[str]
+) -> Generator[Path, None, None]:
     assert os.path.isabs(root), f"INTERNAL ERROR: `root` must be absolute but is {root}"
 
     for child in path.iterdir():

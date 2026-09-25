@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from typing import Optional, Union
+from typing import Optional
 
 from django import forms
 from django.utils.translation import gettext_lazy as _
@@ -64,7 +64,7 @@ class SplitRelativeDeltaWidget(forms.Widget):
             )
         return format_relativedelta(duration)
 
-    def get_context(self, name, value: Union[relativedelta, str], attrs=None):
+    def get_context(self, name, value: relativedelta | str, attrs=None):
         attrs = {} if attrs is None else attrs
         context = super().get_context(name, value, attrs)
 
