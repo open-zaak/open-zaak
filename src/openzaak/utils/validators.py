@@ -39,6 +39,7 @@ class PublishValidator(FKOrServiceUrlValidator):
         # check the feature flag to allow unpublished types. if that's enabled,
         # there's no point in checking anything beyond this as "everything goes"
         feature_flags = FeatureFlags.get_solo()
+        assert isinstance(feature_flags, FeatureFlags)
         if feature_flags.allow_unpublished_typen:
             return
 
@@ -93,8 +94,8 @@ class LooseFkIsImmutableValidator(FKOrServiceUrlValidator):
         if isinstance(current_value, EnkelvoudigInformatieObject) and isinstance(
             new_value, EnkelvoudigInformatieObject
         ):
-            new_value_url = new_value._initial_data["url"]
-            current_value_url = current_value._initial_data["url"]
+            new_value_url = getattr(new_value, "_initial_data")["url"]
+            current_value_url = getattr(current_value, "_initial_data")["url"]
 
             if new_value_url != current_value_url:
                 raise serializers.ValidationError(
@@ -128,7 +129,9 @@ class LooseFkResourceValidator(ResourceValidatorMixin, FKOrServiceUrlValidator):
     )
     resource_code = "invalid-resource"
 
-    def __call__(self, value: str, serializer_field):
+    def __call__(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, value: str, serializer_field
+    ):
         # not to double FKOrURLValidator
         try:
             super().__call__(value, serializer_field)
@@ -182,7 +185,7 @@ class ObjecttypeInformatieobjecttypeRelationValidator:
         elif isinstance(informatieobject, str):
             io_path = urlparse(informatieobject).path
             io = get_resource_for_path(io_path)
-            io_type = io.informatieobjecttype
+            io_type = getattr(io, "informatieobjecttype")
         else:
             io_type = informatieobject.latest_version.informatieobjecttype
 

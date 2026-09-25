@@ -19,6 +19,7 @@ def check_openzaak_domain(app_configs, **kwargs):
 
     errors = []
 
+    parsed = None
     try:
         parsed = furl(netloc=domain)
     except ValueError:
@@ -39,6 +40,7 @@ def check_openzaak_domain(app_configs, **kwargs):
         )
 
     else:  # check against ALLOWED_HOSTS
+        assert parsed is not None and parsed.host is not None
         host = parsed.host.lower()
         if settings.OPENZAAK_REWRITE_HOST and not validate_host(
             host, settings.ALLOWED_HOSTS

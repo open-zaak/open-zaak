@@ -13,8 +13,10 @@ class ExactPaginator(DjangoPaginator):
         """
         ⚡ restricts values to PK to remove implicit join from SQL query
         """
-        return self.object_list.values("pk").count()
+        return self.object_list.values("pk").count()  # pyright: ignore[reportAttributeAccessIssue]
 
 
-class ExactPagination(DynamicPageSizeMixin, PageNumberPagination):
+class ExactPagination(  # pyright: ignore[reportIncompatibleVariableOverride]
+    DynamicPageSizeMixin, PageNumberPagination
+):
     django_paginator_class = ExactPaginator

@@ -275,6 +275,8 @@ django==5.2.17
     #   django-solo
     #   django-storages
     #   django-structlog
+    #   django-stubs
+    #   django-stubs-ext
     #   django-timezone-field
     #   django-two-factor-auth
     #   django-upgrade-check
@@ -462,6 +464,16 @@ django-structlog==9.1.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+django-stubs==6.1.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   djangorestframework-stubs
+django-stubs-ext==6.1.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   django-stubs
 django-timezone-field==7.0
     # via
     #   -c requirements/ci.txt
@@ -505,6 +517,10 @@ djangorestframework-gis==1.2.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
 djangorestframework-inclusions==1.2.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+djangorestframework-stubs==3.18.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -1017,8 +1033,11 @@ pygments==2.20.0
     #   sphinx-tabs
 pygraphviz==2.0.1
     # via -r requirements/dev.in
-pyinstrument==5.0.1
-    # via -r requirements/dev.in
+pyinstrument==5.1.3
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   -r requirements/dev.in
 pyjwt==2.13.0
     # via
     #   -c requirements/ci.txt
@@ -1340,6 +1359,12 @@ typer==0.27.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+types-pyyaml==6.0.12.20260906
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   django-stubs
+    #   djangorestframework-stubs
 typing-extensions==4.12.2
     # via
     #   -c requirements/ci.txt
@@ -1349,6 +1374,9 @@ typing-extensions==4.12.2
     #   azure-identity
     #   azure-storage-blob
     #   django-log-outgoing-requests
+    #   django-stubs
+    #   django-stubs-ext
+    #   djangorestframework-stubs
     #   faker
     #   grpcio
     #   mozilla-django-oidc-db

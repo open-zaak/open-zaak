@@ -1,26 +1,35 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from typing import Optional, Tuple
+from __future__ import annotations
+
+from collections.abc import Mapping, Sequence
 from urllib.parse import urlencode
 
 from django.contrib import admin
+from django.contrib.admin import AdminSite
+from django.contrib.admin.options import InlineModelAdmin
 from django.db import transaction
+from django.db.models import QuerySet
 from django.db.models.base import Model, ModelBase
-from django.http import HttpRequest
+from django.forms import BaseForm, ModelForm
+from django.forms.models import BaseModelFormSet
+from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from django.views.generic.base import ContextMixin
 
 from rest_framework.settings import api_settings
+from rest_framework.viewsets import GenericViewSet
 from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.constants import CommonResourceAction
 
 
 def link_to_related_objects(
-    model: ModelBase, obj: Model, rel_field_name: Optional[str] = None
-) -> Tuple[str, str]:
+    model: ModelBase, obj: Model, rel_field_name: str | None = None
+) -> tuple[str, str]:
     """
     Link to the admin list of ``model`` objects related to ``obj``.
 
@@ -51,17 +60,27 @@ def link_to_related_objects(
     )
 
 
-class ObjectActionsAdminMixin:
-    def _build_changelist_url(self, model, query=None):
+class ObjectActionsAdminMixin(admin.ModelAdmin):
+    def _build_changelist_url(
+        self, model: ModelBase, query: Mapping[str, object] | None = None
+    ) -> str:
         return self._build_object_action_url(model, view_name="changelist", query=query)
 
-    def _build_add_url(self, model, args=None):
+    def _build_add_url(
+        self, model: ModelBase, args: Mapping[str, object] | None = None
+    ) -> str:
         return self._build_object_action_url(model, view_name="add", args=args)
 
-    def _build_change_url(self, model, pk):
+    def _build_change_url(self, model: ModelBase, pk: object) -> str:
         return self._build_object_action_url(model, view_name="change", args={"pk": pk})
 
-    def _build_object_action_url(self, model, view_name=None, args=None, query=None):
+    def _build_object_action_url(
+        self,
+        model: ModelBase,
+        view_name: str | None = None,
+        args: Mapping[str, object] | None = None,
+        query: Mapping[str, object] | None = None,
+    ) -> str:
         """
         https://docs.djangoproject.com/en/dev/ref/contrib/admin/#reversing-admin-urls
 
@@ -89,16 +108,16 @@ class ObjectActionsAdminMixin:
                 "admin:{}_{}_{}".format(
                     model._meta.app_label, model._meta.model_name, view_name
                 ),
-                args=args,
+                args=args,  # pyright: ignore[reportArgumentType]
             ),
             "?{}".format(urlencode(query)) if query else "",
         )
         return url
 
-    def get_object_actions(self, obj):
+    def get_object_actions(self, obj: Model) -> Sequence[tuple[str, str]]:
         return ()
 
-    def _get_object_actions(self, obj):
+    def _get_object_actions(self, obj: Model) -> str:
         return mark_safe(
             " | ".join(
                 [
@@ -108,34 +127,36 @@ class ObjectActionsAdminMixin:
             )
         )
 
-    _get_object_actions.allow_tags = True
-    _get_object_actions.short_description = _("Acties")
+    _get_object_actions.allow_tags = True  # pyright: ignore[reportFunctionMemberAccess]
+    _get_object_actions.short_description = _("Acties")  # pyright: ignore[reportFunctionMemberAccess]
 
 
 class ListObjectActionsAdminMixin(ObjectActionsAdminMixin):
-    def get_list_display(self, request):
+    def get_list_display(self, request: HttpRequest):
         list_display = super().get_list_display(request)
         return tuple(list_display) + ("_get_object_actions",)
 
 
-class EditInlineAdminMixin:
+class EditInlineAdminMixin(InlineModelAdmin):
     template = "admin/edit_inline/tabular_add_and_edit.html"
     extra = 0
     can_delete = False
     show_change_link = True
     show_add_link = True
 
-    def has_add_permission(self, request, obj):
+    def has_add_permission(self, request: HttpRequest, obj: Model | None) -> bool:
         return False
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, request: HttpRequest, obj: Model | None = None
+    ):
         return super().get_fields(request, obj)
 
 
-class AuditTrailAdminMixin:
-    viewset = None
+class AuditTrailAdminMixin(admin.ModelAdmin):
+    viewset: type[GenericViewSet] | str | None = None
 
-    def get_viewset(self, request):
+    def get_viewset(self, request: HttpRequest):
         if not self.viewset:
             raise NotImplementedError(
                 "'viewset' property should be included to the Admin class"
@@ -148,23 +169,37 @@ class AuditTrailAdminMixin:
 
         return viewset(request=request, format_kwarg=None)
 
-    def add_version_to_request(self, request, viewset, uuid):
+    def add_version_to_request(
+        self, request: HttpRequest, viewset, uuid: object
+    ) -> None:
         # add versioning to request
         version, scheme = viewset.determine_version(
             request, version=api_settings.DEFAULT_VERSION, uuid=uuid
         )
-        request.version, request.versioning_scheme = version, scheme
+        request.version, request.versioning_scheme = version, scheme  # pyright: ignore[reportAttributeAccessIssue]
 
-    def get_serializer_data(self, request, viewset, obj):
+    def get_serializer_data(
+        self, request: HttpRequest, viewset, obj: Model
+    ) -> Mapping[str, object]:
         self.add_version_to_request(request, viewset, obj)
 
         serializer = viewset.get_serializer(obj)
         return serializer.data
 
-    def trail(self, obj, viewset, request, action, data_before, data_after):
+    def trail(
+        self,
+        obj: Model,
+        viewset,
+        request: HttpRequest,
+        action: str,
+        data_before: Mapping[str, object] | None,
+        data_after: Mapping[str, object] | None,
+    ) -> None:
         model = obj.__class__
+        assert model._meta.object_name
         basename = model._meta.object_name.lower()
         data = data_after or data_before
+        assert data is not None
 
         if basename == viewset.audit.main_resource:
             main_object = data["url"]
@@ -181,31 +216,32 @@ class AuditTrailAdminMixin:
             applicatie_weergave="admin",
             actie=action,
             actie_weergave=action_labels.get(action, ""),
-            gebruikers_id=request.user.id,
-            gebruikers_weergave=request.user.get_full_name(),
+            gebruikers_id=request.user.id,  # pyright: ignore[reportAttributeAccessIssue]
+            gebruikers_weergave=request.user.get_full_name(),  # pyright: ignore[reportAttributeAccessIssue]
             resultaat=0,
             hoofd_object=main_object,
             resource=basename,
             resource_url=data["url"],
-            resource_weergave=obj.unique_representation(),
+            resource_weergave=obj.unique_representation(),  # pyright: ignore[reportAttributeAccessIssue]
             oud=data_before,
             nieuw=data_after,
         )
         trail.save()
 
-    def save_model(self, request, obj, form, change):
+    def save_model(
+        self, request: HttpRequest, obj: Model, form: BaseForm, change: bool
+    ) -> None:
         viewset = self.get_viewset(request)
         if not viewset:
             super().save_model(request, obj, form, change)
             return
 
-        model = obj.__class__
         action = CommonResourceAction.update if change else CommonResourceAction.create
 
         # data before
         data_before = None
         if change:
-            obj_before = model.objects.filter(pk=obj.pk).get()
+            obj_before = obj.__class__.objects.filter(pk=obj.pk).get()
             data_before = self.get_serializer_data(request, viewset, obj_before)
 
         super().save_model(request, obj, form, change)
@@ -216,19 +252,20 @@ class AuditTrailAdminMixin:
         if data_before != data:
             self.trail(obj, viewset, request, action, data_before, data)
 
-    def delete_model(self, request, obj):
+    def delete_model(self, request: HttpRequest, obj: Model) -> None:
         viewset = self.get_viewset(request)
         if not viewset:
             super().delete_model(request, obj)
             return
 
         model = obj.__class__
+        assert model._meta.object_name
         basename = model._meta.object_name.lower()
         action = CommonResourceAction.destroy
 
         data = self.get_serializer_data(request, viewset, obj)
 
-        if basename == viewset.audit.main_resource:
+        if basename == viewset.audit.main_resource:  # pyright: ignore[reportAttributeAccessIssue]
             with transaction.atomic():
                 super().delete_model(request, obj)
                 AuditTrail.objects.filter(hoofd_object=data["url"]).delete()
@@ -238,12 +275,18 @@ class AuditTrailAdminMixin:
 
         self.trail(obj, viewset, request, action, data, None)
 
-    def delete_queryset(self, request, queryset):
+    def delete_queryset(self, request: HttpRequest, queryset: QuerySet[Model]) -> None:
         # data before
         for obj in queryset:
             self.delete_model(request, obj)
 
-    def save_formset(self, request, form, formset, change):
+    def save_formset(
+        self,
+        request: HttpRequest,
+        form: BaseForm,
+        formset: BaseModelFormSet[Model, ModelForm[Model]],
+        change: bool,
+    ) -> None:
         """
         Given an inline formset save it to the database.
         """
@@ -251,7 +294,7 @@ class AuditTrailAdminMixin:
             super().save_formset(request, form, formset, change)
             return
 
-        viewset = formset.viewset
+        viewset = formset.viewset  # pyright: ignore[reportAttributeAccessIssue]
 
         # we need to save data before update/delete
         obj_before_data = {}
@@ -262,13 +305,13 @@ class AuditTrailAdminMixin:
 
             obj_before = obj.__class__.objects.get(pk=obj.pk)
             data = self.get_serializer_data(request, viewset, obj_before)
-            obj_before_data.update({obj.uuid: data})
+            obj_before_data.update({obj.uuid: data})  # pyright: ignore[reportAttributeAccessIssue]
 
         super().save_formset(request, form, formset, change)
 
         # delete existing
         for obj in formset.deleted_objects:
-            data_before = obj_before_data[obj.uuid]
+            data_before = obj_before_data[obj.uuid]  # pyright: ignore[reportAttributeAccessIssue]
 
             self.trail(
                 obj, viewset, request, CommonResourceAction.destroy, data_before, None
@@ -276,7 +319,7 @@ class AuditTrailAdminMixin:
 
         # change existing
         for obj, changed_data in formset.changed_objects:
-            data_before = obj_before_data[obj.uuid]
+            data_before = obj_before_data[obj.uuid]  # pyright: ignore[reportAttributeAccessIssue]
             data_after = self.get_serializer_data(request, viewset, obj)
 
             self.trail(
@@ -296,21 +339,24 @@ class AuditTrailAdminMixin:
             )
 
 
-class AuditTrailInlineAdminMixin:
-    viewset = None
+class AuditTrailInlineAdminMixin(InlineModelAdmin):
+    viewset: type[GenericViewSet] | str | None = None
 
-    def get_formset(self, request, obj=None, **kwargs):
+    def get_formset(
+        self, request: HttpRequest, obj: Model | None = None, **kwargs: object
+    ):
         formset = super().get_formset(request, obj, **kwargs)
 
         viewset = self.viewset
         if isinstance(viewset, str):
             viewset = import_string(viewset)
+        assert viewset is not None
 
-        formset.viewset = viewset(request=request, format_kwarg=None)
+        formset.viewset = viewset(request=request, format_kwarg=None)  # pyright: ignore[reportAttributeAccessIssue]
         return formset
 
 
-class ExtraContextAdminMixin:
+class ExtraContextAdminMixin(admin.ModelAdmin):
     """
     Add this mixin to your admin class to make use of the new function
     `self.get_extra_context` that allows you to add variables to all admin
@@ -319,7 +365,9 @@ class ExtraContextAdminMixin:
     By default, it adds no extra context.
     """
 
-    def get_extra_context(self, request, object_id=None):
+    def get_extra_context(
+        self, request: HttpRequest, object_id: str | None = None
+    ) -> dict[str, object]:
         """
         Override this function to add addition context via the `extra_context`
         parameter. Be arare that `extra_context` can be `None`.
@@ -330,38 +378,66 @@ class ExtraContextAdminMixin:
         """
         return {}
 
-    def _get_extra_context(self, request, extra_context, object_id=None):
+    def _get_extra_context(
+        self,
+        request: HttpRequest,
+        extra_context: dict[str, object] | None,
+        object_id: str | None = None,
+    ) -> dict[str, object]:
         extra_context = extra_context or {}
         extra_context.update(self.get_extra_context(request, object_id))
         return extra_context
 
-    def changelist_view(self, request, extra_context=None):
+    def changelist_view(
+        self, request: HttpRequest, extra_context: dict[str, object] | None = None
+    ) -> HttpResponse:
         return super().changelist_view(
             request, extra_context=self._get_extra_context(request, extra_context)
         )
 
-    def add_view(self, request, form_url="", extra_context=None):
+    def add_view(
+        self,
+        request: HttpRequest,
+        form_url: str = "",
+        extra_context: dict[str, object] | None = None,
+    ) -> HttpResponse:
         return super().add_view(
             request,
             form_url=form_url,
             extra_context=self._get_extra_context(request, extra_context),
         )
 
-    def history_view(self, request, object_id, extra_context=None):
+    def history_view(
+        self,
+        request: HttpRequest,
+        object_id: str,
+        extra_context: dict[str, object] | None = None,
+    ) -> HttpResponse:
         return super().history_view(
             request,
             object_id,
             extra_context=self._get_extra_context(request, extra_context, object_id),
         )
 
-    def delete_view(self, request, object_id, extra_context=None):
+    def delete_view(
+        self,
+        request: HttpRequest,
+        object_id: str,
+        extra_context: dict[str, object] | None = None,
+    ) -> HttpResponse:
         return super().delete_view(
             request,
             object_id,
             extra_context=self._get_extra_context(request, extra_context, object_id),
         )
 
-    def change_view(self, request, object_id, form_url="", extra_context=None):
+    def change_view(
+        self,
+        request: HttpRequest,
+        object_id: str,
+        form_url: str = "",
+        extra_context: dict[str, object] | None = None,
+    ) -> HttpResponse:
         return super().change_view(
             request,
             object_id,
@@ -370,47 +446,50 @@ class ExtraContextAdminMixin:
         )
 
 
-class UUIDAdminMixin:
-    def get_list_display(self, request):
+class UUIDAdminMixin(admin.ModelAdmin):
+    def get_list_display(self, request: HttpRequest):
         list_display = super().get_list_display(request)
         return tuple(list_display) + ("_get_uuid_display",)
 
-    def _get_uuid_display(self, obj):
+    def _get_uuid_display(self, obj: Model) -> str:
         return format_html(
             '<code class="copy-action" data-copy-value="{val}" title="{val}">{shortval}</span>'.format(
-                val=str(obj.uuid), shortval=str(obj.uuid)[:6]
+                val=str(obj.uuid),  # pyright: ignore[reportAttributeAccessIssue]
+                shortval=str(obj.uuid)[:6],  # pyright: ignore[reportAttributeAccessIssue]
             )
         )
 
-    _get_uuid_display.short_description = "UUID"
-    _get_uuid_display.allow_tags = True
+    _get_uuid_display.short_description = "UUID"  # pyright: ignore[reportFunctionMemberAccess]
+    _get_uuid_display.allow_tags = True  # pyright: ignore[reportFunctionMemberAccess]
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request: HttpRequest, obj: Model | None = None):
         readonly_fields = super().get_readonly_fields(request, obj)
         return ("uuid",) + tuple(readonly_fields)
 
-    def get_fieldsets(self, request, obj=None):
+    def get_fieldsets(self, request: HttpRequest, obj: Model | None = None):
         fieldsets = super().get_fieldsets(request, obj)
 
         # put uuid first in the first fieldset
-        fields_general = list(fieldsets[0][1]["fields"])
+        fields_general = list(fieldsets[0][1]["fields"])  # pyright: ignore[reportGeneralTypeIssues]
         if "uuid" in fields_general:
             fields_general.remove("uuid")
         fields_general.insert(0, "uuid")
-        fieldsets[0][1]["fields"] = tuple(fields_general)
+        fieldsets[0][1]["fields"] = tuple(fields_general)  # pyright: ignore[reportGeneralTypeIssues]
 
         return fieldsets
 
 
-class AdminContextMixin:
+class AdminContextMixin(ContextMixin):
     """
     Update custom admin views with all the context info
     """
 
-    admin_site = None
+    admin_site: AdminSite | None = None
+    request: HttpRequest
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: object) -> dict[str, object]:
         context = super().get_context_data(**kwargs)
+        assert self.admin_site is not None
         context.update(self.admin_site.each_context(self.request))
         return context
 
