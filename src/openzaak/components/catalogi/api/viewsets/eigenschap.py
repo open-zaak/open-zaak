@@ -9,11 +9,11 @@ from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.components.catalogi.models import Eigenschap
-from openzaak.utils.mixins import CacheQuerysetMixin
+from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 
-from ..filters import EigenschapFilter
+from ..filters import EigenschapDetailFilter, EigenschapFilter
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_DELETE,
     SCOPE_CATALOGI_FORCED_WRITE,
@@ -68,6 +68,7 @@ logger = structlog.stdlib.get_logger(__name__)
 class EigenschapViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
+    ExpandMixin,
     ZaakTypeConceptMixin,
     viewsets.ModelViewSet,
 ):
@@ -78,15 +79,44 @@ class EigenschapViewSet(
     geregistreerd moet kunnen worden en geen standaard kenmerk is van een zaak.
     """
 
-    queryset = (
-        Eigenschap.objects.all()
-        .select_related(
-            "specificatie_van_eigenschap", "zaaktype", "zaaktype__catalogus"
-        )
-        .order_by("-pk")
-    )
+    queryset = Eigenschap.objects.select_related(
+        "specificatie_van_eigenschap",
+        "zaaktype",
+        "zaaktype__catalogus",
+        "statustype",
+    ).order_by("-pk")
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        request = getattr(self, "request", None)
+
+        if request is not None and hasattr(request, "data"):
+            inclusions = self.get_requested_inclusions(request)
+        else:
+            inclusions = None
+
+        # Prefetch the expanded resource only when inclusions are requested.
+        if inclusions:
+            qs = qs.prefetch_related(
+                "zaaktype__informatieobjecttypen",
+                "zaaktype__statustypen",
+                "zaaktype__resultaattypen",
+                "zaaktype__eigenschap_set",
+                "zaaktype__roltype_set",
+                "zaaktype__besluittypen",
+                "zaaktype__zaakobjecttype_set",
+                "zaaktype__zaaktypenrelaties",
+                "zaaktype__deelzaaktypen",
+                "statustype__zaaktype__statustypen",
+                "statustype__eigenschappen",
+                "statustype__zaakobjecttypen",
+                "statustype__checklistitem_set",
+            )
+
+        return qs
+
     serializer_class = EigenschapSerializer
-    filterset_class = EigenschapFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
     permission_classes = (AuthRequired,)
@@ -98,6 +128,15 @@ class EigenschapViewSet(
         "partial_update": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_WRITE,
         "destroy": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_DELETE,
     }
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return EigenschapDetailFilter
+        return EigenschapFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)

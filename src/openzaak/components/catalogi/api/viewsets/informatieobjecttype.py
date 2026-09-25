@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from django.db import DatabaseError, transaction
+from django.db.models import Prefetch
 
 import structlog
 from drf_spectacular.utils import (
@@ -17,13 +18,13 @@ from vng_api_common.utils import get_help_text
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.help_text import mark_experimental
-from openzaak.utils.mixins import CacheQuerysetMixin
+from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, VALIDATION_ERROR_RESPONSES
 
-from ...models import InformatieObjectType
-from ..filters import InformatieObjectTypeFilter
+from ...models import BesluitType, InformatieObjectType, ZaakType
+from ..filters import InformatieObjectDetailTypeFilter, InformatieObjectTypeFilter
 from ..kanalen import KANAAL_INFORMATIEOBJECTTYPEN
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_DELETE,
@@ -90,6 +91,7 @@ logger = structlog.stdlib.get_logger(__name__)
 class InformatieObjectTypeViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
+    ExpandMixin,
     ConceptMixin,
     M2MConceptDestroyMixin,
     NotificationViewSetMixin,
@@ -114,13 +116,62 @@ class InformatieObjectTypeViewSet(
     queryset = (
         InformatieObjectType.objects.all()
         .select_related("catalogus")
-        .prefetch_related("zaaktypen", "besluittypen")
         .with_dates()
         .order_by("-pk")
     )
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        request = getattr(self, "request", None)
+
+        if request is not None and hasattr(request, "data"):
+            inclusions = self.get_requested_inclusions(request)
+        else:
+            inclusions = None
+
+        # Prefetch the expanded resource only when inclusions are requested.
+        if inclusions:
+            qs = qs.prefetch_related(
+                Prefetch(
+                    "zaaktypen",
+                    queryset=(
+                        ZaakType.objects.select_related("catalogus").prefetch_related(
+                            "informatieobjecttypen",
+                            "statustypen",
+                            "resultaattypen",
+                            "eigenschap_set",
+                            "roltype_set",
+                            "besluittypen",
+                            "zaakobjecttype_set",
+                            "zaaktypenrelaties",
+                            "deelzaaktypen",
+                        )
+                    ),
+                ),
+                Prefetch(
+                    "besluittypen",
+                    queryset=(
+                        BesluitType.objects.select_related(
+                            "catalogus"
+                        ).prefetch_related(
+                            "resultaattype_set",
+                            "zaaktypen",
+                            "informatieobjecttypen",
+                        )
+                    ),
+                ),
+            )
+        else:
+            qs = qs.prefetch_related(
+                "zaaktypen",
+                "besluittypen",
+            )
+
+        return qs
+
     serializer_class = InformatieObjectTypeSerializer
     publish_serializer = InformatieObjectTypePublishSerializer
-    filterset_class = InformatieObjectTypeFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
     permission_classes = (AuthRequired,)
@@ -135,6 +186,15 @@ class InformatieObjectTypeViewSet(
     }
     notifications_kanaal = KANAAL_INFORMATIEOBJECTTYPEN
     concept_related_fields = ["besluittypen", "zaaktypen"]
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return InformatieObjectDetailTypeFilter
+        return InformatieObjectTypeFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)

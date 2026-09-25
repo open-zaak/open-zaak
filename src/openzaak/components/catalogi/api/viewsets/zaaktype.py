@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.db.models import Prefetch
+
 import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from notifications_api_common.viewsets import NotificationViewSetMixin
@@ -8,13 +10,20 @@ from rest_framework.decorators import action
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
-from openzaak.utils.mixins import CacheQuerysetMixin
+from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, VALIDATION_ERROR_RESPONSES
 
-from ...models import ZaakType
-from ..filters import ZaakTypeFilter
+from ...models import (
+    BesluitType,
+    InformatieObjectType,
+    ResultaatType,
+    StatusType,
+    ZaakObjectType,
+    ZaakType,
+)
+from ..filters import ZaakTypeDetailFilter, ZaakTypeFilter
 from ..kanalen import KANAAL_ZAAKTYPEN
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_DELETE,
@@ -83,6 +92,7 @@ logger = structlog.stdlib.get_logger(__name__)
 class ZaakTypeViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
+    ExpandMixin,
     ConceptPublishMixin,
     ConceptDestroyMixin,
     ConceptFilterMixin,
@@ -98,25 +108,109 @@ class ZaakTypeViewSet(
     """
 
     queryset = (
-        ZaakType.objects.prefetch_related(
+        ZaakType.objects.select_related(
             "catalogus",
-            "statustypen",
+        )
+        .prefetch_related(
             "zaaktypenrelaties",
-            "informatieobjecttypen",
-            "resultaattypen",
             "eigenschap_set",
             "roltype_set",
             "deelzaaktypen",
-            "besluittypen",
-            "zaakobjecttype_set",
         )
         .with_dates("identificatie")
         .order_by("-pk")
     )
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        # codepath via the get_viewset_for_path utilities in various libraries
+        # does not always initialize a request, which causes self.action to not be set.
+        # FIXME: extract that utility into a separate library to unify it
+        action = getattr(self, "action", None)
+
+        # When this queryset is used for an actual list request, add the
+        # expensive prefetches needed by expanded resources.
+        if action == "list":
+            inclusions = self.get_requested_inclusions(self.request) or ""
+
+            if inclusions:
+                qs = qs.prefetch_related(
+                    Prefetch(
+                        "besluittypen",
+                        queryset=(
+                            BesluitType.objects.select_related(
+                                "catalogus",
+                            ).prefetch_related(
+                                "resultaattype_set",
+                                "zaaktypen",
+                                "informatieobjecttypen",
+                            )
+                        ),
+                    ),
+                    Prefetch(
+                        "statustypen",
+                        queryset=(
+                            StatusType.objects.prefetch_related(
+                                "eigenschappen",
+                                "zaakobjecttypen",
+                                "checklistitem_set",
+                            )
+                        ),
+                    ),
+                    Prefetch(
+                        "resultaattypen",
+                        queryset=(
+                            ResultaatType.objects.prefetch_related(
+                                "besluittypen",
+                                "informatieobjecttypen",
+                            )
+                        ),
+                    ),
+                    Prefetch(
+                        "informatieobjecttypen",
+                        queryset=(
+                            InformatieObjectType.objects.select_related(
+                                "catalogus",
+                            ).prefetch_related(
+                                "zaaktypen",
+                                "besluittypen",
+                            )
+                        ),
+                    ),
+                    Prefetch(
+                        "zaakobjecttype_set",
+                        queryset=(
+                            ZaakObjectType.objects.select_related(
+                                "zaaktype",
+                                "zaaktype__catalogus",
+                                "statustype",
+                            ).prefetch_related(
+                                "resultaattypen",
+                            )
+                        ),
+                    ),
+                )
+            else:
+                qs = qs.prefetch_related(
+                    "besluittypen",
+                    "statustypen",
+                    "resultaattypen",
+                    "informatieobjecttypen",
+                    "zaakobjecttype_set",
+                )
+
+        elif action != "list":
+            # ⚡️ drop the prefetches when only selecting a single record. If the data
+            # is needed, the queries will be done during serialization and the amount
+            # of queries will be the same.
+            qs = qs.prefetch_related(None)
+
+        return qs
+
     serializer_class = ZaakTypeSerializer
     publish_serializer = ZaakTypePublishSerializer
     lookup_field = "uuid"
-    filterset_class = ZaakTypeFilter
     pagination_class = ExactPagination
     permission_classes = (AuthRequired,)
     required_scopes = {
@@ -131,19 +225,14 @@ class ZaakTypeViewSet(
     notifications_kanaal = KANAAL_ZAAKTYPEN
     concept_related_fields = ["besluittypen", "informatieobjecttypen"]
 
-    def get_queryset(self):
-        qs = super().get_queryset()
-
-        # codepath via the the `get_viewset_for_path` utilities in various libraries
-        # does not always initialize a request, which causes self.action to not be set.
-        # FIXME: extract that utility into a separate library to unify it
-        action = getattr(self, "action", None)
-        if action != "list":
-            # ⚡️ drop the prefetches when only selecting a single record. If the data
-            # is needed, the queries will be done during serialization and the amount
-            # of queries will be the same.
-            qs = qs.prefetch_related(None)
-        return qs
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return ZaakTypeDetailFilter
+        return ZaakTypeFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)

@@ -180,6 +180,17 @@ class ZaakTypeSerializer(
         read_only=True,
         help_text=_("De datum van de aller laatste versie van het object."),
     )
+    inclusion_serializers = {
+        "zaakobjecttypen": "openzaak.components.catalogi.api.serializers.ZaakObjectTypeSerializer",
+        "catalogus": "openzaak.components.catalogi.api.serializers.CatalogusSerializer",
+        "statustypen": "openzaak.components.catalogi.api.serializers.StatusTypeSerializer",
+        "resultaattypen": "openzaak.components.catalogi.api.serializers.ResultaatTypeSerializer",
+        "eigenschappen": "openzaak.components.catalogi.api.serializers.EigenschapSerializer",
+        "informatieobjecttypen": "openzaak.components.catalogi.api.serializers.InformatieObjectTypeSerializer",
+        "roltypen": "openzaak.components.catalogi.api.serializers.RolTypeSerializer",
+        "besluittypen": "openzaak.components.catalogi.api.serializers.BesluitTypeSerializer",
+        "deelzaaktypen": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+    }
 
     class Meta:
         model = ZaakType
