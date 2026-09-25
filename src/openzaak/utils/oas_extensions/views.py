@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2025 Dimpact
-from django.views.generic import RedirectView
+
+from django.views.generic import RedirectView, View
 
 import structlog
 from drf_spectacular.views import (
@@ -11,7 +12,7 @@ from drf_spectacular.views import (
 logger = structlog.stdlib.get_logger(__name__)
 
 
-class AllowAllOriginsMixin:
+class AllowAllOriginsMixin(View):
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
         response["Access-Control-Allow-Origin"] = "*"

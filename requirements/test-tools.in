@@ -1,5 +1,6 @@
 -c base.txt
 -r base.txt
+-r type-checking.txt
 
 # Dependencies only relevant for (unit) testing
 coverage

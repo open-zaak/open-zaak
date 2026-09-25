@@ -3,3 +3,4 @@
 
 django-stubs
 djangorestframework-stubs
+pyinstrument

@@ -13,7 +13,7 @@ class GegevensGroepTypeWithReadOnlyFields(GegevensGroepType):
     This subclass adds read only fields that will be set to their current value when __set__ is called.
     """
 
-    def __init__(self, read_only: tuple = None, **kwargs):
+    def __init__(self, read_only: tuple = None, **kwargs):  # pyright: ignore[reportArgumentType]
         super().__init__(**kwargs)
 
         self.read_only = read_only

@@ -1,10 +1,13 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from __future__ import annotations
 
 from django.db.models import Prefetch, QuerySet
 from django.utils.module_loading import import_string
 
 from dictdiffer import diff
+from rest_framework.renderers import BaseRenderer
+from rest_framework.viewsets import GenericViewSet
 from rest_framework_inclusions.renderer import (
     get_allowed_paths,
 )
@@ -33,7 +36,7 @@ def format_dict_diff(changes):
     return res
 
 
-class AuditTrailMixin:
+class AuditTrailMixin(_APIMixin):
     @property
     def audittrail(self):
         qs = AuditTrail.objects.filter(
@@ -55,9 +58,9 @@ class APIMixin(_APIMixin):
         return super().get_absolute_api_url(request=request, **kwargs)
 
 
-class ExpandMixin:
+class ExpandMixin(GenericViewSet):
     expand_param = EXPAND_QUERY_PARAM
-    inclusion_viewsets = None
+    inclusion_viewsets: dict[str, str | tuple[str, str]] | None = None
 
     def _remove_select_related(self, qs, lookup):
         """
@@ -174,10 +177,11 @@ class ExpandMixin:
 
         return qs
 
-    def get_renderers(self):
+    def get_renderers(self) -> list[BaseRenderer]:
         # Only use the expand renderer for actions that support expansion.
         if self.action in EXPAND_SUPPORTED_ACTIONS:
-            return [ExpandJSONRenderer()]
+            renderers: list[BaseRenderer] = [ExpandJSONRenderer()]
+            return renderers
         return super().get_renderers()
 
     def include_allowed(self):
@@ -206,6 +210,7 @@ class ExpandMixin:
             self.get_serializer(), "inclusion_serializers", {}
         )
         inclusions = get_allowed_paths(self.request, view=self)
+        assert inclusions is not None
 
         expand_serializers = set()
 

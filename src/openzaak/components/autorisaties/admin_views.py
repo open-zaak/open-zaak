@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from collections import defaultdict
-from typing import Any, Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 from django import forms
 from django.core.exceptions import PermissionDenied
@@ -63,7 +63,7 @@ def is_local_url(autorisatie):
 def get_initial_for_component(
     component: str,
     autorisaties: List[Autorisatie],
-) -> List[Dict[str, Any]]:
+) -> List[Dict[str, object]]:
     _related_objs = {}
     _related_objs_external = {}
 
@@ -162,7 +162,7 @@ def get_initial_for_component(
 def get_initial_for_component_for_catalogus_autorisaties(
     component: str,
     catalogus_autorisaties: list[CatalogusAutorisatie],
-) -> List[Dict[str, Any]]:
+) -> List[Dict[str, object]]:
     initial = []
 
     match component:
@@ -206,7 +206,7 @@ def _get_group_key(
     return (spec.component, tuple(sorted(spec.scopes)))
 
 
-def get_initial(applicatie: Applicatie) -> List[Dict[str, Any]]:
+def get_initial(applicatie: Applicatie) -> List[Dict[str, object]]:
     """
     Figure out the initial data for the formset, showing existing config.
 
