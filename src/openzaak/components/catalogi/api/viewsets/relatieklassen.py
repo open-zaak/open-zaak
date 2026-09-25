@@ -96,7 +96,7 @@ class ZaakTypeInformatieObjectTypeViewSet(
 
     queryset = (
         ZaakTypeInformatieObjectType.objects.all()
-        .select_related("zaaktype", "informatieobjecttype", "zaaktype__catalogus")
+        .select_related("zaaktype", "_informatieobjecttype", "zaaktype__catalogus")
         .order_by("-pk")
     )
     serializer_class = ZaakTypeInformatieObjectTypeSerializer
@@ -122,7 +122,7 @@ class ZaakTypeInformatieObjectTypeViewSet(
         return zaaktype.concept or informatieobjecttype.concept
 
     def get_concept_filter(self):
-        return ~(Q(zaaktype__concept=True) | Q(informatieobjecttype__concept=True))
+        return ~(Q(zaaktype__concept=True) | Q(_informatieobjecttype__concept=True))
 
     def perform_create(self, serializer):
         super().perform_create(serializer)

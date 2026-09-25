@@ -135,7 +135,7 @@ class CatalogusAdmin(
         resources["ZaakTypeInformatieObjectType"] = list(
             ZaakTypeInformatieObjectType.objects.filter(
                 zaaktype__in=resources["ZaakType"],
-                informatieobjecttype__in=resources["InformatieObjectType"],
+                _informatieobjecttype__in=resources["InformatieObjectType"],
             ).values_list("pk", flat=True)
         )
 
