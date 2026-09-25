@@ -747,6 +747,10 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         )
 
     def test_zaaktype_internal_iotype_external(self):
+        """
+        Zaaktypen are always local, but the informatieobjecttype of an external
+        document can be external.
+        """
         zaak = ZaakFactory.create()
         zaak_url = f"http://openzaak.nl{reverse(zaak)}"
         informatieobjecttype = f"{self.base}informatieobjecttypen/{uuid.uuid4()}"
@@ -767,6 +771,11 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                     self.document, informatieobjecttype=informatieobjecttype
                 ),
             )
+            m.post(
+                f"{self.base}objectinformatieobjecten",
+                json=get_oio_response(self.document, zaak_url),
+                status_code=201,
+            )
 
             response = self.client.post(
                 self.list_url,
@@ -774,12 +783,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                 headers={"host": "openzaak.nl"},
             )
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(
-            error["code"], "missing-zaaktype-informatieobjecttype-relation"
-        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
 
 @tag("external-urls")

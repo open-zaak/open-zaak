@@ -186,30 +186,16 @@ class ObjecttypeInformatieobjecttypeRelationValidator:
         else:
             io_type = informatieobject.latest_version.informatieobjecttype
 
-        # zaaktype/besluittype and informatieobjecttype should be both internal or external
-        if bool(objecttype.pk) != bool(io_type.pk):
-            msg_diff = _(
-                "Het informatieobjecttype en het {objecttype_field} van de/het "
-                "{object_field} moeten tot dezelfde catalogus behoren."
-            ).format(
-                objecttype_field=self.objecttype_field, object_field=self.object_field
-            )
-            raise serializers.ValidationError(msg_diff, code=code)
+        # zaaktype/besluittype are always local, the informatieobjecttype can be
+        # either local or external.
+        # TODO: external informatieobjecttypen cannot be linked to a
+        # zaaktype/besluittype yet (their relation is a m2m to the local
+        # InformatieObjectType), so there is nothing to validate them against.
+        if not io_type.pk:
+            return
 
-        # local zaaktype/besluittype
-        if objecttype.pk:
-            if not objecttype.informatieobjecttypen.filter(uuid=io_type.uuid).exists():
-                raise serializers.ValidationError(message, code=code)
-
-        # external zaaktype/besluittype - workaround since loose-fk field doesn't support m2m relations
-        else:
-            objecttype_url = objecttype._loose_fk_data["url"]
-            iotype_url = io_type._loose_fk_data["url"]
-            objecttype_data = AuthorizedRequestsLoader.fetch_object(
-                objecttype_url, do_underscoreize=False
-            )
-            if iotype_url not in objecttype_data.get("informatieobjecttypen", []):
-                raise serializers.ValidationError(message, code=code)
+        if not objecttype.informatieobjecttypen.filter(uuid=io_type.uuid).exists():
+            raise serializers.ValidationError(message, code=code)
 
 
 class UniqueTogetherValidator(_UniqueTogetherValidator):
