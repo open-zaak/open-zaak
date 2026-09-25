@@ -58,13 +58,26 @@ class CatalogusViewSet(
     Opvragen en bewerken van CATALOGUSsen.
     """
 
-    queryset = (
-        Catalogus.objects.all()
-        .prefetch_related(
-            Prefetch(
-                "zaaktype_set",
-                queryset=(
-                    ZaakType.objects.select_related("catalogus").prefetch_related(
+    queryset = Catalogus.objects.all().order_by("-pk")
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        request = getattr(self, "request", None)
+
+        if request is not None and hasattr(request, "data"):
+            inclusions = self.get_requested_inclusions(request)
+        else:
+            inclusions = None
+
+        # Prefetch the expanded resource only when inclusions are requested.
+        if inclusions:
+            qs = qs.prefetch_related(
+                Prefetch(
+                    "zaaktype_set",
+                    queryset=ZaakType.objects.select_related(
+                        "catalogus",
+                    ).prefetch_related(
                         "informatieobjecttypen",
                         "statustypen",
                         "resultaattypen",
@@ -74,33 +87,37 @@ class CatalogusViewSet(
                         "zaakobjecttype_set",
                         "zaaktypenrelaties",
                         "deelzaaktypen",
-                    )
+                    ),
                 ),
-            ),
-            Prefetch(
-                "besluittype_set",
-                queryset=(
-                    BesluitType.objects.select_related("catalogus").prefetch_related(
+                Prefetch(
+                    "besluittype_set",
+                    queryset=BesluitType.objects.select_related(
+                        "catalogus",
+                    ).prefetch_related(
                         "resultaattype_set",
                         "zaaktypen",
                         "informatieobjecttypen",
-                    )
+                    ),
                 ),
-            ),
-            Prefetch(
-                "informatieobjecttype_set",
-                queryset=(
-                    InformatieObjectType.objects.select_related(
-                        "catalogus"
+                Prefetch(
+                    "informatieobjecttype_set",
+                    queryset=InformatieObjectType.objects.select_related(
+                        "catalogus",
                     ).prefetch_related(
                         "zaaktypen",
                         "besluittypen",
-                    )
+                    ),
                 ),
-            ),
-        )
-        .order_by("-pk")
-    )
+            )
+        else:
+            qs = qs.prefetch_related(
+                "zaaktype_set",
+                "besluittype_set",
+                "informatieobjecttype_set",
+            )
+
+        return qs
+
     serializer_class = CatalogusSerializer
     lookup_field = "uuid"
     pagination_class = ExactPagination

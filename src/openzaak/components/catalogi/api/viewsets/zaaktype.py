@@ -116,62 +116,98 @@ class ZaakTypeViewSet(
             "eigenschap_set",
             "roltype_set",
             "deelzaaktypen",
-            Prefetch(
-                "besluittypen",
-                queryset=(
-                    BesluitType.objects.select_related("catalogus").prefetch_related(
-                        "resultaattype_set",
-                        "zaaktypen",
-                        "informatieobjecttypen",
-                    )
-                ),
-            ),
-            Prefetch(
-                "statustypen",
-                queryset=(
-                    StatusType.objects.prefetch_related(
-                        "eigenschappen",
-                        "zaakobjecttypen",
-                        "checklistitem_set",
-                    )
-                ),
-            ),
-            Prefetch(
-                "resultaattypen",
-                queryset=(
-                    ResultaatType.objects.prefetch_related(
-                        "besluittypen",
-                        "informatieobjecttypen",
-                    )
-                ),
-            ),
-            Prefetch(
-                "informatieobjecttypen",
-                queryset=(
-                    InformatieObjectType.objects.select_related(
-                        "catalogus"
-                    ).prefetch_related(
-                        "zaaktypen",
-                        "besluittypen",
-                    )
-                ),
-            ),
-            Prefetch(
-                "zaakobjecttype_set",
-                queryset=(
-                    ZaakObjectType.objects.select_related(
-                        "zaaktype",
-                        "zaaktype__catalogus",
-                        "statustype",
-                    ).prefetch_related(
-                        "resultaattypen",
-                    )
-                ),
-            ),
         )
         .with_dates("identificatie")
         .order_by("-pk")
     )
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        # codepath via the get_viewset_for_path utilities in various libraries
+        # does not always initialize a request, which causes self.action to not be set.
+        # FIXME: extract that utility into a separate library to unify it
+        action = getattr(self, "action", None)
+
+        # When this queryset is used for an actual list request, add the
+        # expensive prefetches needed by expanded resources.
+        if action == "list":
+            inclusions = self.get_requested_inclusions(self.request) or ""
+
+            if inclusions:
+                qs = qs.prefetch_related(
+                    Prefetch(
+                        "besluittypen",
+                        queryset=(
+                            BesluitType.objects.select_related(
+                                "catalogus",
+                            ).prefetch_related(
+                                "resultaattype_set",
+                                "zaaktypen",
+                                "informatieobjecttypen",
+                            )
+                        ),
+                    ),
+                    Prefetch(
+                        "statustypen",
+                        queryset=(
+                            StatusType.objects.prefetch_related(
+                                "eigenschappen",
+                                "zaakobjecttypen",
+                                "checklistitem_set",
+                            )
+                        ),
+                    ),
+                    Prefetch(
+                        "resultaattypen",
+                        queryset=(
+                            ResultaatType.objects.prefetch_related(
+                                "besluittypen",
+                                "informatieobjecttypen",
+                            )
+                        ),
+                    ),
+                    Prefetch(
+                        "informatieobjecttypen",
+                        queryset=(
+                            InformatieObjectType.objects.select_related(
+                                "catalogus",
+                            ).prefetch_related(
+                                "zaaktypen",
+                                "besluittypen",
+                            )
+                        ),
+                    ),
+                    Prefetch(
+                        "zaakobjecttype_set",
+                        queryset=(
+                            ZaakObjectType.objects.select_related(
+                                "zaaktype",
+                                "zaaktype__catalogus",
+                                "statustype",
+                            ).prefetch_related(
+                                "resultaattypen",
+                            )
+                        ),
+                    ),
+                )
+            else:
+                qs = qs.prefetch_related(
+                    "besluittypen",
+                    "statustypen",
+                    "resultaattypen",
+                    "informatieobjecttypen",
+                    "zaakobjecttype_set",
+                )
+
+        elif action != "list":
+            # ⚡️ drop the prefetches when only selecting a single record. If the data
+            # is needed, the queries will be done during serialization and the amount
+            # of queries will be the same.
+            qs = qs.prefetch_related(None)
+
+        return qs
+
     serializer_class = ZaakTypeSerializer
     publish_serializer = ZaakTypePublishSerializer
     lookup_field = "uuid"
@@ -197,20 +233,6 @@ class ZaakTypeViewSet(
         if self.detail:
             return ZaakTypeDetailFilter
         return ZaakTypeFilter
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-
-        # codepath via the the `get_viewset_for_path` utilities in various libraries
-        # does not always initialize a request, which causes self.action to not be set.
-        # FIXME: extract that utility into a separate library to unify it
-        action = getattr(self, "action", None)
-        if action != "list":
-            # ⚡️ drop the prefetches when only selecting a single record. If the data
-            # is needed, the queries will be done during serialization and the amount
-            # of queries will be the same.
-            qs = qs.prefetch_related(None)
-        return qs
 
     def perform_create(self, serializer):
         super().perform_create(serializer)

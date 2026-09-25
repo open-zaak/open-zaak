@@ -107,21 +107,41 @@ class ZaakTypeInformatieObjectTypeViewSet(
             "informatieobjecttype__catalogus",
             "statustype",
         )
-        .prefetch_related(
-            "zaaktype__informatieobjecttypen",
-            "zaaktype__statustypen",
-            "zaaktype__resultaattypen",
-            "zaaktype__eigenschap_set",
-            "zaaktype__roltype_set",
-            "zaaktype__besluittypen",
-            "zaaktype__zaakobjecttype_set",
-            "zaaktype__zaaktypenrelaties",
-            "zaaktype__deelzaaktypen",
-            "informatieobjecttype__zaaktypen",
-            "informatieobjecttype__besluittypen",
-        )
         .order_by("-pk")
     )
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        request = getattr(self, "request", None)
+
+        if request is not None and hasattr(request, "data"):
+            inclusions = self.get_requested_inclusions(request)
+        else:
+            inclusions = None
+
+        # Prefetch the expanded resource only when inclusions are requested.
+        if inclusions:
+            qs = qs.prefetch_related(
+                "zaaktype__informatieobjecttypen",
+                "zaaktype__statustypen",
+                "zaaktype__resultaattypen",
+                "zaaktype__eigenschap_set",
+                "zaaktype__roltype_set",
+                "zaaktype__besluittypen",
+                "zaaktype__zaakobjecttype_set",
+                "zaaktype__zaaktypenrelaties",
+                "zaaktype__deelzaaktypen",
+                "informatieobjecttype__zaaktypen",
+                "informatieobjecttype__besluittypen",
+                "statustype__zaaktype__statustypen",
+                "statustype__eigenschappen",
+                "statustype__zaakobjecttypen",
+                "statustype__checklistitem_set",
+            )
+
+        return qs
+
     serializer_class = ZaakTypeInformatieObjectTypeSerializer
     lookup_field = "uuid"
     pagination_class = ExactPagination

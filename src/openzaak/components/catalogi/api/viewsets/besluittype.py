@@ -88,37 +88,58 @@ class BesluitTypeViewSet(
     queryset = (
         BesluitType.objects.all()
         .select_related("catalogus")
-        .prefetch_related(
-            "resultaattype_set",
-            Prefetch(
-                "zaaktypen",
-                queryset=ZaakType.objects.select_related(
-                    "catalogus",
-                ).prefetch_related(
-                    "informatieobjecttypen",
-                    "statustypen",
-                    "resultaattypen",
-                    "eigenschap_set",
-                    "roltype_set",
-                    "besluittypen",
-                    "zaakobjecttype_set",
-                    "zaaktypenrelaties",
-                    "deelzaaktypen",
-                ),
-            ),
-            Prefetch(
-                "informatieobjecttypen",
-                queryset=InformatieObjectType.objects.select_related(
-                    "catalogus"
-                ).prefetch_related(
-                    "zaaktypen",
-                    "besluittypen",
-                ),
-            ),
-        )
+        .prefetch_related("resultaattype_set")
         .with_dates()
         .order_by("-pk")
     )
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        request = getattr(self, "request", None)
+
+        if request is not None and hasattr(request, "data"):
+            inclusions = self.get_requested_inclusions(request)
+        else:
+            inclusions = None
+
+        # Prefetch the expanded resource only when inclusions are requested.
+        if inclusions:
+            qs = qs.prefetch_related(
+                Prefetch(
+                    "zaaktypen",
+                    queryset=ZaakType.objects.select_related(
+                        "catalogus",
+                    ).prefetch_related(
+                        "informatieobjecttypen",
+                        "statustypen",
+                        "resultaattypen",
+                        "eigenschap_set",
+                        "roltype_set",
+                        "besluittypen",
+                        "zaakobjecttype_set",
+                        "zaaktypenrelaties",
+                        "deelzaaktypen",
+                    ),
+                ),
+                Prefetch(
+                    "informatieobjecttypen",
+                    queryset=InformatieObjectType.objects.select_related(
+                        "catalogus",
+                    ).prefetch_related(
+                        "zaaktypen",
+                        "besluittypen",
+                    ),
+                ),
+            )
+        else:
+            qs = qs.prefetch_related(
+                "informatieobjecttypen",
+                "zaaktypen",
+            )
+
+        return qs
+
     serializer_class = BesluitTypeSerializer
     publish_serializer = BesluitTypePublishSerializer
     lookup_field = "uuid"
