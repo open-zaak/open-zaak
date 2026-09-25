@@ -584,6 +584,7 @@ class ZaakViewSet(
 @conditional_retrieve()
 class StatusViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
@@ -596,11 +597,40 @@ class StatusViewSet(
     """
 
     queryset = (
-        Status.objects.select_related("_statustype", "zaak", "gezetdoor")
+        Status.objects.select_related(
+            "_statustype",
+            "zaak",
+            "gezetdoor",
+        )
         .prefetch_related("zaakinformatieobjecten")
         .annotate_with_max_datum_status_gezet()
         .order_by("-datum_status_gezet", "-pk")
     )
+    inclusion_viewsets = {
+        "zaak": ("zaak", "openzaak.components.zaken.api.viewsets.ZaakViewSet"),
+        "zaak.zaaktype": (
+            "zaak___zaaktype",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "statustype": (
+            "_statustype",
+            "openzaak.components.catalogi.api.viewsets.statustype.StatusTypeViewSet",
+        ),
+        "gezetdoor": ("gezetdoor", "openzaak.components.zaken.api.viewsets.RolViewSet"),
+        "gezetdoor.roltype": (
+            "gezetdoor___roltype",
+            "openzaak.components.catalogi.api.viewsets.roltype.RolTypeViewSet",
+        ),
+        "zaakinformatieobjecten": (
+            "zaakinformatieobjecten",
+            "openzaak.components.zaken.api.viewsets.ZaakInformatieObjectViewSet",
+        ),
+        "zaakinformatieobjecten.informatieobject": (
+            "zaakinformatieobjecten___informatieobject__latest_version",
+            "openzaak.components.documenten.api.viewsets.EnkelvoudigInformatieObjectViewSet",
+        ),
+    }
+
     serializer_class = StatusSerializer
     filterset_class = StatusFilter
     lookup_field = "uuid"

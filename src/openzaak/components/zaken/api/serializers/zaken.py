@@ -785,6 +785,16 @@ POSTPONABLE_AFLEIDINGSWIJZES = {
 
 
 class StatusSerializer(serializers.HyperlinkedModelSerializer):
+    inclusion_serializers = {
+        "zaak": "openzaak.components.zaken.api.serializers.ZaakSerializer",
+        "zaak.zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "statustype": "openzaak.components.catalogi.api.serializers.StatusTypeSerializer",
+        "gezetdoor": "openzaak.components.zaken.api.serializers.RolSerializer",
+        "gezetdoor.roltype": "openzaak.components.catalogi.api.serializers.RolTypeSerializer",
+        "zaakinformatieobjecten": "openzaak.components.zaken.api.serializers.ZaakInformatieObjectSerializer",
+        "zaakinformatieobjecten.informatieobject": "openzaak.components.documenten.api.serializers.EnkelvoudigInformatieObjectSerializer",
+    }
+
     class Meta:
         model = Status
         fields = (
