@@ -15,7 +15,12 @@ from django_loose_fk.utils import get_resource_for_path
 from drf_spectacular.plumbing import build_choice_description_list
 from vng_api_common.utils import get_field_attribute, get_help_text
 
-from openzaak.components.zaken.api.serializers.zaken import ZaakSerializer
+from openzaak.components.zaken.api.serializers.zaken import (
+    ResultaatSerializer,
+    RolSerializer,
+    StatusSerializer,
+    ZaakSerializer,
+)
 from openzaak.utils.filters import (
     ExpandFilter,
     KeyValueFilter,
@@ -362,6 +367,8 @@ class ZaakDetailFilter(FilterSet):
 
 
 class RolFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=RolSerializer)
+
     betrokkene_identificatie__natuurlijk_persoon__inp_bsn = filters.CharFilter(
         field_name="natuurlijkpersoon__inp_bsn",
         help_text=get_help_text("zaken.NatuurlijkPersoon", "inp_bsn"),
@@ -460,6 +467,8 @@ class RolFilter(FilterSet):
 
 
 class StatusFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=StatusSerializer)
+
     indicatie_laatst_gezette_status = filters.BooleanFilter(
         method="filter_is_last_status",
         help_text=_(
@@ -487,6 +496,8 @@ class StatusFilter(FilterSet):
 
 
 class ResultaatFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=ResultaatSerializer)
+
     class Meta:
         model = Resultaat
         fields = ("zaak", "resultaattype")

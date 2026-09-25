@@ -584,6 +584,7 @@ class ZaakViewSet(
 @conditional_retrieve()
 class StatusViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
@@ -596,8 +597,12 @@ class StatusViewSet(
     """
 
     queryset = (
-        Status.objects.select_related("_statustype", "zaak", "gezetdoor")
-        .prefetch_related("zaakinformatieobjecten")
+        Status.objects.select_related(
+            "_statustype",
+            "zaak",
+            "gezetdoor",
+        )
+        .prefetch_related("zaakinformatieobjecten___informatieobject__latest_version")
         .annotate_with_max_datum_status_gezet()
         .order_by("-datum_status_gezet", "-pk")
     )
@@ -1273,6 +1278,7 @@ class KlantContactViewSet(
 @conditional_retrieve()
 class RolViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -1288,7 +1294,7 @@ class RolViewSet(
     """
 
     queryset = (
-        Rol.objects.select_related("_roltype", "zaak")
+        Rol.objects.select_related("_roltype", "zaak", "zaak___zaaktype")
         .prefetch_related(
             "natuurlijkpersoon",
             "nietnatuurlijkpersoon",
@@ -1296,6 +1302,7 @@ class RolViewSet(
             "organisatorischeeenheid",
             "medewerker",
             "statussen",
+            "statussen___statustype",
         )
         .order_by("-pk")
     )
@@ -1396,6 +1403,7 @@ class RolViewSet(
 @conditional_retrieve()
 class ResultaatViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,

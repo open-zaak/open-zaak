@@ -785,6 +785,16 @@ POSTPONABLE_AFLEIDINGSWIJZES = {
 
 
 class StatusSerializer(serializers.HyperlinkedModelSerializer):
+    inclusion_serializers = {
+        "zaak": "openzaak.components.zaken.api.serializers.ZaakSerializer",
+        "zaak.zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "statustype": "openzaak.components.catalogi.api.serializers.StatusTypeSerializer",
+        "gezetdoor": "openzaak.components.zaken.api.serializers.RolSerializer",
+        "gezetdoor.roltype": "openzaak.components.catalogi.api.serializers.RolTypeSerializer",
+        "zaakinformatieobjecten": "openzaak.components.zaken.api.serializers.ZaakInformatieObjectSerializer",
+        "zaakinformatieobjecten.informatieobject": "openzaak.components.documenten.api.serializers.EnkelvoudigInformatieObjectSerializer",
+    }
+
     class Meta:
         model = Status
         fields = (
@@ -1346,6 +1356,14 @@ class ContactPersoonRolSerializer(GegevensGroepSerializer):
 
 
 class RolSerializer(PolymorphicSerializer):
+    inclusion_serializers = {
+        "zaak": "openzaak.components.zaken.api.serializers.ZaakSerializer",
+        "zaak.zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "roltype": "openzaak.components.catalogi.api.serializers.RolTypeSerializer",
+        "statussen": "openzaak.components.zaken.api.serializers.StatusSerializer",
+        "statussen.statustype": "openzaak.components.catalogi.api.serializers.StatusTypeSerializer",
+    }
+
     discriminator = Discriminator(
         discriminator_field="betrokkene_type",
         mapping={
@@ -1535,6 +1553,12 @@ class RolUpdateSubSerializer(RolSubSerializer):
 
 
 class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
+    inclusion_serializers = {
+        "zaak": "openzaak.components.zaken.api.serializers.ZaakSerializer",
+        "zaak.zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "resultaattype": "openzaak.components.catalogi.api.serializers.ResultaatTypeSerializer",
+    }
+
     class Meta:
         model = Resultaat
         fields = ("url", "uuid", "zaak", "resultaattype", "toelichting")

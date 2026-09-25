@@ -7,11 +7,19 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RolTypes
-from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
+from vng_api_common.tests import (
+    TypeCheckMixin,
+    get_validation_errors,
+    reverse,
+    reverse_lazy,
+)
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import RolTypeFactory
+from openzaak.components.catalogi.tests.factories.statustype import StatusTypeFactory
+from openzaak.components.catalogi.tests.factories.zaaktype import ZaakTypeFactory
+from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
 from ..constants import IndicatieMachtiging
@@ -25,7 +33,7 @@ from ..models import (
     Vestiging,
 )
 from .factories import RolFactory, StatusFactory, ZaakFactory
-from .utils import get_roltype_response, get_zaaktype_response
+from .utils import ZAAK_READ_KWARGS, get_roltype_response, get_zaaktype_response
 
 BETROKKENE = (
     "http://www.zamora-silva.org/api/betrokkene/8768c581-2817-4fe5-933d-37af92d819dd"
@@ -136,6 +144,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 "authenticatieContext": None,
                 "beginGeldigheid": None,
                 "eindeGeldigheid": None,
+                "_expand": {},
             },
         )
 
@@ -228,6 +237,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 "statussen": [],
                 "beginGeldigheid": None,
                 "eindeGeldigheid": None,
+                "_expand": {},
             },
         )
 
@@ -316,6 +326,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 "statussen": [],
                 "beginGeldigheid": None,
                 "eindeGeldigheid": None,
+                "_expand": {},
             },
         )
 
@@ -865,3 +876,129 @@ class RolCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "roltype")
         self.assertEqual(error["code"], "unknown-service")
+
+
+@tag("expand")
+class RollenExpandTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    scopes = [str(SCOPE_ZAKEN_ALLES_LEZEN)]
+    maxDiff = None
+    url = reverse_lazy("rol-list")
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create(concept=False)
+        cls.roltype = RolTypeFactory.create(zaaktype=cls.zaaktype)
+        cls.statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
+        cls.zaak = ZaakFactory.create(zaaktype=cls.zaaktype)
+        cls.rol = RolFactory.create(zaak=cls.zaak, roltype=cls.roltype)
+        cls.status = StatusFactory.create(
+            zaak=cls.zaak, statustype=cls.statustype, gezetdoor=cls.rol
+        )
+
+        super().setUpTestData()
+
+    def test_rol_include_all_resources(self):
+        """Return zaak, zaaktype, roltype, statussen and statustype together."""
+    
+        rol_data = self.client.get(reverse(self.rol)).json()
+        zaak_data = self.client.get(reverse(self.zaak), **ZAAK_READ_KWARGS).json()
+        zaaktype_data = self.client.get(reverse(self.zaaktype)).json()
+        roltype_data = self.client.get(reverse(self.roltype)).json()
+        status_data = self.client.get(reverse(self.status)).json()
+        statustype_data = self.client.get(reverse(self.statustype)).json()
+
+        # The detail responses also include the _expand attribute, but the list response
+        # only has a _expand attribute at the root level (no _expand nested inside _expand)
+        del zaak_data["_expand"]
+
+        expected = {
+            **rol_data,
+            "_expand": {
+                "zaak": {**zaak_data, "_expand": {"zaaktype": zaaktype_data}},
+                "roltype": roltype_data,
+                "statussen": [
+                    {**status_data, "_expand": {"statustype": statustype_data}}
+                ],
+            },
+        }
+        response = self.client.get(
+            self.url,
+            {"expand": "zaak,zaak.zaaktype,roltype,statussen,statussen.statustype"},
+            **ZAAK_READ_KWARGS,
+        )
+        data = response.json()["results"]
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(data, [expected])
+
+    def test_rol_include_each_resource(self):
+        """Request each direct relation without including the others."""
+        rol_data = self.client.get(reverse(self.rol)).json()
+        zaak_data = self.client.get(reverse(self.zaak), **ZAAK_READ_KWARGS).json()
+        roltype_data = self.client.get(reverse(self.roltype)).json()
+        status_data = self.client.get(reverse(self.status)).json()
+
+        # The detail responses also include the _expand attribute, but the list response
+        # only has a _expand attribute at the root level (no _expand nested inside _expand unless)
+        del zaak_data["_expand"]
+        del status_data["_expand"]
+        
+        expected_expansions = {
+            "zaak": {"zaak": zaak_data},
+            "roltype": {"roltype": roltype_data},
+            "statussen": {"statussen": [status_data]},
+        }
+        for expand, expected_expand in expected_expansions.items():
+            with self.subTest(expand=expand):
+                response = self.client.get(
+                    self.url, {"expand": expand}, **ZAAK_READ_KWARGS
+                )
+                data = response.json()["results"]
+
+                self.assertEqual(
+                    response.status_code, status.HTTP_200_OK, response.data
+                )
+                expected = [{**rol_data, "_expand": expected_expand}]
+                self.assertEqual(data, expected)
+
+    def test_rol_list_no_expand(self):
+        """Keep an empty _expand when the parameter is absent or empty."""
+        rol_data = self.client.get(reverse(self.rol)).json()
+
+        response = self.client.get(self.url, {"expand": ""}, **ZAAK_READ_KWARGS)
+        data = response.json()["results"]
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data, [{**rol_data, "_expand": {}}])
+
+    def test_invalid_expansion(self):
+        for expand in ("unknown", "zaak.unknown", "statussen.unknown", "zaak,unknown"):
+            with self.subTest(expand=expand):
+                response = self.client.get(
+                    self.url, {"expand": expand}, **ZAAK_READ_KWARGS
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                error = get_validation_errors(response, "expand")
+                self.assertEqual(error["code"], "invalid_choice")
+
+    def test_rol_list_nested_expansion_requires_parent(self):
+        """A nested path only adds data when its parent is also requested."""
+        StatusFactory.create(
+            zaak=self.zaak, statustype=self.statustype, gezetdoor=self.rol
+        )
+        rol_data = self.client.get(reverse(self.rol)).json()
+
+        for expand in ("zaak.zaaktype", "statussen.statustype"):
+            with self.subTest(expand=expand):
+                response = self.client.get(
+                    self.url, {"expand": expand}, **ZAAK_READ_KWARGS
+                )
+                response_data = response.json()
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                 # Return an empty _expand because parent is not present
+                self.assertEqual(
+                    response_data["results"], [{**rol_data, "_expand": {}}]
+                )
