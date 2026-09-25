@@ -4,7 +4,11 @@ import factory
 import factory.fuzzy
 
 from ...constants import AardRelatieChoices, RichtingChoices
-from ...models import ZaakTypeInformatieObjectType, ZaakTypenRelatie
+from ...models import (
+    BesluitTypeInformatieObjectType,
+    ZaakTypeInformatieObjectType,
+    ZaakTypenRelatie,
+)
 
 
 class ZaakTypeInformatieObjectTypeFactory(factory.django.DjangoModelFactory):
@@ -36,3 +40,15 @@ class ZaakTypenRelatieFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = ZaakTypenRelatie
+
+
+class BesluitTypeInformatieObjectTypeFactory(factory.django.DjangoModelFactory):
+    besluittype = factory.SubFactory(
+        "openzaak.components.catalogi.tests.factories.BesluitTypeFactory"
+    )
+    informatieobjecttype = factory.SubFactory(
+        "openzaak.components.catalogi.tests.factories.InformatieObjectTypeFactory",
+    )
+
+    class Meta:
+        model = BesluitTypeInformatieObjectType

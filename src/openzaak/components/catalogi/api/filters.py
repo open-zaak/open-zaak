@@ -8,6 +8,9 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from django_filters import rest_framework as filters
+from django_loose_fk.filters import FkOrUrlFieldFilter
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from vng_api_common.utils import get_help_text, get_resource_for_path
 
 from openzaak.utils.filters import CharArrayFilter
@@ -108,7 +111,20 @@ class RolTypeFilter(FilterSet):
         )
 
 
+@extend_schema_field(OpenApiTypes.URI)
+class InformatieObjectTypeUrlFilter(FkOrUrlFieldFilter):
+    """
+    Filter on the URL of a informatieobjecttype.
+    """
+
+
 class ZaakTypeInformatieObjectTypeFilter(FilterSet):
+    informatieobjecttype = InformatieObjectTypeUrlFilter(
+        queryset=ZaakTypeInformatieObjectType.objects.all(),
+        help_text=get_help_text(
+            "catalogi.ZaakTypeInformatieObjectType", "informatieobjecttype"
+        ),
+    )
     status = filters.CharFilter(
         field_name="zaaktype__concept",
         method="status_filter_m2m",
@@ -123,11 +139,12 @@ class ZaakTypeInformatieObjectTypeFilter(FilterSet):
         if value == "concept":
             return queryset.filter(
                 models.Q(zaaktype__concept=True)
-                | models.Q(informatieobjecttype__concept=True)
+                | models.Q(_informatieobjecttype__concept=True)
             )
         elif value == "definitief":
-            return queryset.filter(
-                zaaktype__concept=False, informatieobjecttype__concept=False
+            return queryset.filter(zaaktype__concept=False).filter(
+                models.Q(_informatieobjecttype__isnull=True)
+                | models.Q(_informatieobjecttype__concept=False)
             )
         elif value == "alles":
             return queryset

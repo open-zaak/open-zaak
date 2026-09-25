@@ -7,6 +7,9 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from vng_api_common.caching import ETagMixin
+from zgw_consumers.models import ServiceUrlField
+
+from openzaak.utils.fields import FkOrServiceUrlField, RelativeURLField, ServiceFkField
 
 from ..constants import AardRelatieChoices, RichtingChoices
 
@@ -28,9 +31,33 @@ class ZaakTypeInformatieObjectType(ETagMixin, models.Model):
         on_delete=models.CASCADE,
         help_text=_("URL-referentie naar het ZAAKTYPE."),
     )
-    informatieobjecttype = models.ForeignKey(
+    _iotype_base_url = ServiceFkField(
+        help_text=_("Basis deel van URL-referentie naar de externe API"),
+    )
+    _iotype_relative_url = RelativeURLField(
+        _("informatieobjecttype relative url"),
+        blank=True,
+        null=True,
+        help_text=_("Relatief deel van URL-referentie naar de externe API"),
+    )
+    _iotype_url = ServiceUrlField(
+        base_field="_iotype_base_url",
+        relative_field="_iotype_relative_url",
+        blank=True,
+        null=True,
+        max_length=1000,
+        help_text=_("URL to the informatieobjecttype in an external API"),
+    )
+    _informatieobjecttype = models.ForeignKey(
         "catalogi.InformatieObjectType",
         on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        help_text=_("URL-referentie naar het INFORMATIEOBJECTTYPE."),
+    )
+    informatieobjecttype = FkOrServiceUrlField(
+        fk_field="_informatieobjecttype",
+        url_field="_iotype_url",
         verbose_name=_("informatie object type"),
         help_text=_("URL-referentie naar het INFORMATIEOBJECTTYPE."),
     )
@@ -84,6 +111,67 @@ class ZaakTypeInformatieObjectType(ETagMixin, models.Model):
 
     def __str__(self):
         return "{} - {}".format(self.zaaktype, self.volgnummer)
+
+
+class BesluitTypeInformatieObjectType(models.Model):
+    besluittype = models.ForeignKey(
+        "catalogi.BesluitType",
+        verbose_name=_("besluittype"),
+        on_delete=models.CASCADE,
+        help_text=_("URL-referentie naar het BESLUITTYPE."),
+    )
+
+    _iotype_base_url = ServiceFkField(
+        help_text=_("Basis deel van URL-referentie naar de externe API"),
+    )
+    _iotype_relative_url = RelativeURLField(
+        _("informatieobjecttype relative url"),
+        blank=True,
+        null=True,
+        help_text=_("Relatief deel van URL-referentie naar de externe API"),
+    )
+    _iotype_url = ServiceUrlField(
+        base_field="_iotype_base_url",
+        relative_field="_iotype_relative_url",
+        blank=True,
+        null=True,
+        max_length=1000,
+        help_text=_("URL to the informatieobjecttype in an external API"),
+    )
+    _informatieobjecttype = models.ForeignKey(
+        "catalogi.InformatieObjectType",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        help_text=_("URL-referentie naar het INFORMATIEOBJECTTYPE."),
+    )
+    informatieobjecttype = FkOrServiceUrlField(
+        fk_field="_informatieobjecttype",
+        url_field="_iotype_url",
+        help_text=_("URL-referentie naar het INFORMATIEOBJECTTYPE."),
+    )
+
+    class Meta:
+        verbose_name = _("Besluit-Informatieobject-Type")
+        verbose_name_plural = _("Besluit-Informatieobject-Typen")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["besluittype", "_informatieobjecttype"],
+                name="unique_besluittype_and_local_informatieobjecttype",
+            ),
+            models.UniqueConstraint(
+                fields=[
+                    "besluittype",
+                    "_iotype_base_url",
+                    "_iotype_relative_url",
+                ],
+                condition=models.Q(_iotype_relative_url__isnull=False),
+                name="unique_besluittype_and_external_informatieobjecttype",
+            ),
+        ]
+
+    def __str__(self):
+        return "{} - {}".format(self.besluittype, self.informatieobjecttype)
 
 
 class ZaakTypenRelatie(models.Model):

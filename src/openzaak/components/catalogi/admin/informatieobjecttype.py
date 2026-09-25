@@ -37,19 +37,26 @@ class ZaakTypeInformatieObjectTypeAdmin(
     form = ZaakTypeInformatieObjectTypeAdminForm
 
     # List
-    list_display = ("zaaktype", "informatieobjecttype", "statustype", "volgnummer")
+    list_display = (
+        "zaaktype",
+        "_informatieobjecttype",
+        "_iotype_base_url",
+        "_iotype_relative_url",
+        "statustype",
+        "volgnummer",
+    )
     list_filter = (
         "zaaktype",
-        "informatieobjecttype",
+        "_informatieobjecttype",
         "richting",
     )
     search_fields = (
         "uuid",
         "volgnummer",
         "zaaktype__uuid",
-        "informatieobjecttype__uuid",
+        "_informatieobjecttype__uuid",
     )
-    ordering = ("zaaktype", "informatieobjecttype", "volgnummer")
+    ordering = ("zaaktype", "_informatieobjecttype", "volgnummer")
 
     # Detail
     fieldsets = (
@@ -62,27 +69,45 @@ class ZaakTypeInformatieObjectTypeAdmin(
                 )
             },
         ),
-        (_("Relaties"), {"fields": ("zaaktype", "informatieobjecttype", "statustype")}),
+        (
+            _("Relaties"),
+            {
+                "fields": (
+                    "zaaktype",
+                    "_informatieobjecttype",
+                    "_iotype_base_url",
+                    "_iotype_relative_url",
+                    "statustype",
+                )
+            },
+        ),
     )
-    raw_id_fields = ("zaaktype", "informatieobjecttype", "statustype")
+    raw_id_fields = (
+        "zaaktype",
+        "_informatieobjecttype",
+        "_iotype_base_url",
+        "statustype",
+    )
 
     def get_concept(self, obj):
         if not obj:
             return True
-        return obj.zaaktype.concept or obj.informatieobjecttype.concept
+        return obj.zaaktype.concept or (
+            obj._informatieobjecttype is not None and obj._informatieobjecttype.concept
+        )
 
     def has_delete_permission(self, request, obj=None):
         # Instead of checking whether or not the zaaktype/informatieobjecttype is a
         # concept, we check if any relations between Zaken and InformatieObjecten exist
         # that depend on this relationship. If they do, the relationship cannot be
         # deleted
-        if obj:
+        if obj and obj._informatieobjecttype is not None:
             # Only allow deletion if no relations exist between zaken and documenten
             # of the types linked by this ZaakTypeInformatieObjectType object
             if ZaakInformatieObject.objects.filter(
                 zaak__zaaktype=obj.zaaktype,
                 _informatieobject__pk__in=EnkelvoudigInformatieObject.objects.filter(
-                    informatieobjecttype=obj.informatieobjecttype
+                    informatieobjecttype=obj._informatieobjecttype
                 ).values_list("canonical", flat=True),
             ).exists():
                 return False
