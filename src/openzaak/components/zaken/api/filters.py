@@ -18,6 +18,7 @@ from vng_api_common.utils import get_field_attribute, get_help_text
 from openzaak.components.zaken.api.serializers.zaken import (
     ResultaatSerializer,
     RolSerializer,
+    StatusSerializer,
     ZaakSerializer,
 )
 from openzaak.utils.filters import (
@@ -466,6 +467,8 @@ class RolFilter(FilterSet):
 
 
 class StatusFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=StatusSerializer)
+
     indicatie_laatst_gezette_status = filters.BooleanFilter(
         method="filter_is_last_status",
         help_text=_(

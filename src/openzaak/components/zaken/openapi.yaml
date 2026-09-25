@@ -2993,6 +2993,24 @@ paths:
       summary: Alle STATUSsen van ZAAKen opvragen.
       parameters:
       - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - gezetdoor
+            - gezetdoor.roltype
+            - statustype
+            - zaak
+            - zaak.zaaktype
+            - zaakinformatieobjecten
+            - zaakinformatieobjecten.informatieobject
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
+      - in: query
         name: indicatieLaatstGezetteStatus
         schema:
           type: boolean
@@ -3038,7 +3056,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedStatusList'
+                $ref: '#/components/schemas/PaginatedExpandStatusList'
           description: OK
         '400':
           headers:
@@ -3340,6 +3358,35 @@ paths:
           MultipleValues:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
             summary: Meerdere ETag-waardes
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - gezetdoor
+            - gezetdoor.roltype
+            - statustype
+            - zaak
+            - zaak.zaaktype
+            - zaakinformatieobjecten
+            - zaakinformatieobjecten.informatieobject
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
+      - in: query
+        name: indicatieLaatstGezetteStatus
+        schema:
+          type: boolean
+        description: Het gegeven is afleidbaar uit de historie van de attribuutsoort
+          Datum status gezet van van alle statussen bij de desbetreffende zaak.
+      - in: query
+        name: statustype
+        schema:
+          type: string
+        description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
       - in: path
         name: uuid
         schema:
@@ -3347,6 +3394,12 @@ paths:
           format: uuid
           description: Unieke resource identifier (UUID4)
         required: true
+      - in: query
+        name: zaak
+        schema:
+          type: string
+          format: uri
+        description: URL-referentie naar de ZAAK.
       tags:
       - statussen
       security:
@@ -3369,7 +3422,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Status'
+                $ref: '#/components/schemas/ExpandStatus'
           description: OK
         '401':
           headers:
@@ -14657,6 +14710,37 @@ components:
                 readOnly: true
                 description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft
                   geregistreerd dat STATUSsen in die ZAAK bereikt zijn.
+    ExpandStatus:
+      allOf:
+      - $ref: '#/components/schemas/Status'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              zaak:
+                allOf:
+                - $ref: '#/components/schemas/Zaak'
+                description: URL-referentie naar de ZAAK.
+              statustype:
+                allOf:
+                - $ref: https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.2.0/src/openapi.yaml#/components/schemas/StatusType
+                description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
+              gezetdoor:
+                allOf:
+                - $ref: '#/components/schemas/Rol'
+                nullable: true
+                title: Gezet door
+                description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft
+                  geregistreerd dat STATUSsen in die ZAAK bereikt zijn.
+              zaakinformatieobjecten:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZaakInformatieObject'
+                readOnly: true
+                description: URL-referenties naar ZAAKINFORMATIEOBJECTen.
     ExpandZaak:
       allOf:
       - $ref: '#/components/schemas/Zaak'
@@ -16444,6 +16528,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ExpandRol'
+    PaginatedExpandStatusList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpandStatus'
     PaginatedExpandZaakList:
       type: object
       required:
