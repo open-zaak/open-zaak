@@ -1,0 +1,6 @@
+-c ci.txt
+-r ci.txt
+
+django-stubs
+djangorestframework-stubs
+pyinstrument

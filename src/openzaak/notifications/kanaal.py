@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2025 Dimpact
-from typing import Dict, cast
+from typing import Dict
 
 from django.db.models import Field, Model
 
@@ -25,7 +25,7 @@ class Kanaal(_Kanaal):
                 if fk_field := getattr(model_field, "fk_field", None):
                     model_field = model._meta.get_field(fk_field)
                 if i != len(bits):
-                    model = cast(Model, model_field.related_model)
+                    model = model_field.related_model  # pyright: ignore[reportAssignmentType]
             assert model_field, "Could not find field on model"
             return model_field
         return model._meta.get_field(field)

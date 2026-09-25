@@ -6,11 +6,15 @@ from vng_api_common.client import get_client, to_internal_data
 
 def delete_remote_resource(resource: str, resource_url: str) -> None:
     client = get_client(resource_url, raise_exceptions=True)
+    assert client is not None
     to_internal_data(client.delete(resource_url))
 
 
-def create_remote_oio(io_url: str, object_url: str, object_type: str = "zaak") -> dict:
+def create_remote_oio(
+    io_url: str, object_url: str, object_type: str = "zaak"
+) -> dict | list | None:
     client = get_client(io_url, raise_exceptions=True)
+    assert client is not None
 
     body = {
         "informatieobject": io_url,
@@ -28,8 +32,9 @@ def delete_remote_oio(oio_url: str) -> None:
 
 def create_remote_objectcontactmoment(
     contactmoment_url: str, object_url: str, object_type: str = "zaak"
-) -> dict:
+) -> dict | list | None:
     client = get_client(contactmoment_url, raise_exceptions=True)
+    assert client is not None
 
     body = {
         "contactmoment": contactmoment_url,
@@ -47,8 +52,9 @@ def delete_remote_objectcontactmoment(objectcontactmoment_url: str) -> None:
 
 def create_remote_objectverzoek(
     verzoek_url: str, object_url: str, object_type: str = "zaak"
-) -> dict:
+) -> dict | list | None:
     client = get_client(verzoek_url, raise_exceptions=True)
+    assert client is not None
 
     body = {
         "verzoek": verzoek_url,

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from typing import Any, Optional, Union
+from typing import Optional, Union
 
 from django.contrib.admin.widgets import AdminFileWidget as _AdminFileWidget
 from django.core.files.uploadedfile import InMemoryUploadedFile, UploadedFile
@@ -38,7 +38,7 @@ class AdminFileWidget(_AdminFileWidget):
         self,
         name: str,
         value: FieldFile | UploadedFile | None,
-        attrs: dict[str, Any] | None,
+        attrs: dict[str, object] | None,
     ):
         """
         Return value-related substitutions.

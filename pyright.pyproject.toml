@@ -1,0 +1,7 @@
+[tool.pyright]
+pythonVersion = "3.12"
+pythonPlatform = "Linux"
+reportUnnecessaryTypeIgnoreComment = "error"
+include = [
+    "src/openzaak/utils",
+]

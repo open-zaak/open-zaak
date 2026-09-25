@@ -5,6 +5,7 @@ from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from django_filters import filters
+from django_filters.constants import EMPTY_VALUES
 from rest_framework.exceptions import ParseError
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
@@ -27,8 +28,10 @@ class MaximaleVertrouwelijkheidaanduidingFilter(filters.ChoiceFilter):
         self.field_name = f"_{self._field_name}_order"
 
     def filter(self, qs, value):
-        if value in filters.EMPTY_VALUES:
+        if value in EMPTY_VALUES:
             return qs
+        assert self._field_name is not None
+        assert self.field_name is not None
         order_expression = VertrouwelijkheidsAanduiding.get_order_expression(
             self._field_name
         )
@@ -85,7 +88,7 @@ class KeyValueFilter(filters.CharFilter):
         self.value_field_name = value_field_name
 
     def filter(self, qs, value):
-        if value in filters.EMPTY_VALUES:
+        if value in EMPTY_VALUES:
             return qs
 
         value_list = value.split(":")

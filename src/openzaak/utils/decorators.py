@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from collections.abc import Callable
 from functools import wraps
 
 from django.core.cache import caches
 
 
 def cache(key: str, alias: str = "default", **set_options):
-    def decorator(func: callable):
+    def decorator(func: Callable[..., object]):
         @wraps(func)
         def wrapped(*args, **kwargs):
             _cache = caches[alias]
@@ -24,7 +25,7 @@ def cache(key: str, alias: str = "default", **set_options):
 
 
 def cache_uuid(key, timeout):
-    def decorator(func: callable):
+    def decorator(func: Callable[..., object]):
         @wraps(func)
         def wrapped(*args, **kwargs):
             # use first argument of function to extract uuid

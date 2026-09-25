@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+
 from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.drf import FKOrURLField, FKOrURLValidator
@@ -8,7 +9,7 @@ from rest_framework.exceptions import ValidationError
 from vng_api_common.validators import URLValidator
 
 
-class LengthValidationMixin:
+class LengthValidationMixin(serializers.HyperlinkedRelatedField):
     default_error_messages = {
         "max_length": _("Ensure this field has no more than {max_length} characters."),
         "min_length": _("Ensure this field has at least {min_length} characters."),
@@ -22,7 +23,7 @@ class LengthValidationMixin:
 
         super().__init__(**kwargs)
 
-    def to_internal_value(self, data):
+    def to_internal_value(self, data: str):
         if self.max_length and len(data) > self.max_length:
             self.fail("max_length", max_length=self.max_length, length=len(data))
 
@@ -109,10 +110,11 @@ class FKOrServiceUrlField(FKOrURLField):
         ):
             parent = parent.parent
 
-        model_class = parent.Meta.model
+        model_class = getattr(parent, "Meta").model
 
         source = self.source or self.parent.source
         # remove filters if present
+        assert source is not None
         source = source.split("__")[0]
         model_field = model_class._meta.get_field(source)
         return model_class, model_field

@@ -2,7 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import json
 from inspect import getmembers
-from typing import Any, Dict
+from typing import Dict
 
 from django.db import models
 from django.db.models.base import ModelBase
@@ -58,7 +58,7 @@ class AuthorizedRequestsLoader(BaseLoader):
 
 
 def get_model_instance_with_gegevensgroeps(
-    model: ModelBase, data: Dict[str, Any], loader
+    model: ModelBase, data: Dict[str, object], loader
 ) -> models.Model:
     field_names = [
         field.name for field in model._meta.get_fields() if not field.auto_created

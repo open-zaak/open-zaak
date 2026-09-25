@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from typing import Any
 
 from rest_framework import fields as drf_fields, serializers
 from rest_framework.exceptions import ValidationError
@@ -8,7 +7,7 @@ from rest_framework.fields import empty
 from rest_framework.serializers import Serializer
 
 
-class ConvertNoneMixin:
+class ConvertNoneMixin(serializers.Serializer):
     """
     Convert None values to the empty-value field type.
 
@@ -24,21 +23,23 @@ class ConvertNoneMixin:
         fields = self._readable_fields
 
         for field in fields:
-            if representation[field.field_name] is not None:
+            field_name = field.field_name
+            assert field_name is not None
+            if representation[field_name] is not None:
                 continue
 
             if field.allow_null:
                 continue
 
             if isinstance(field, drf_fields.CharField):
-                representation[field.field_name] = ""
+                representation[field_name] = ""
 
         return representation
 
 
 def get_from_serializer_data_or_instance(
     field: str, data: dict, serializer: Serializer
-) -> Any:
+) -> object:
     serializer_field = serializer.fields[field]
     # TODO: this won't work with source="*" or nested references
     data_value = data.get(serializer_field.source, drf_fields.empty)
@@ -52,7 +53,7 @@ def get_from_serializer_data_or_instance(
     return serializer_field.get_attribute(instance)
 
 
-class SubSerializerMixin:
+class SubSerializerMixin(drf_fields.Field):
     """
     Sub serializers should only validate if they themselves have a value if required, further sub serializer field validation is done later.
     """
@@ -62,7 +63,7 @@ class SubSerializerMixin:
         return data
 
 
-class ReadOnlyMixin:
+class ReadOnlyMixin(serializers.Serializer):
     """
     All fields not in `writable_fields` will be set to read only.
     """
@@ -76,7 +77,7 @@ class ReadOnlyMixin:
             if name not in self.writable_fields:
                 field.read_only = True
                 if hasattr(field, "queryset"):
-                    field.queryset = None
+                    field.queryset = None  # pyright: ignore[reportAttributeAccessIssue]
 
         return fields
 
