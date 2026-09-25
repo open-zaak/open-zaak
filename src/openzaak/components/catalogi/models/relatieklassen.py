@@ -31,9 +31,33 @@ class ZaakTypeInformatieObjectType(ETagMixin, models.Model):
         on_delete=models.CASCADE,
         help_text=_("URL-referentie naar het ZAAKTYPE."),
     )
-    informatieobjecttype = models.ForeignKey(
+    _iotype_base_url = ServiceFkField(
+        help_text=_("Basis deel van URL-referentie naar de externe API"),
+    )
+    _iotype_relative_url = RelativeURLField(
+        _("informatieobjecttype relative url"),
+        blank=True,
+        null=True,
+        help_text=_("Relatief deel van URL-referentie naar de externe API"),
+    )
+    _iotype_url = ServiceUrlField(
+        base_field="_iotype_base_url",
+        relative_field="_iotype_relative_url",
+        blank=True,
+        null=True,
+        max_length=1000,
+        help_text=_("URL to the informatieobjecttype in an external API"),
+    )
+    _informatieobjecttype = models.ForeignKey(
         "catalogi.InformatieObjectType",
         on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        help_text=_("URL-referentie naar het INFORMATIEOBJECTTYPE."),
+    )
+    informatieobjecttype = FkOrServiceUrlField(
+        fk_field="_informatieobjecttype",
+        url_field="_iotype_url",
         verbose_name=_("informatie object type"),
         help_text=_("URL-referentie naar het INFORMATIEOBJECTTYPE."),
     )

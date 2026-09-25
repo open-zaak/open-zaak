@@ -540,14 +540,31 @@ class ZaakTypeInformatieObjectTypeAdminForm(forms.ModelForm):
         model = ZaakTypeInformatieObjectType
         fields = "__all__"
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get("_informatieobjecttype") and not cleaned_data.get(
+            "_iotype_base_url"
+        ):
+            raise forms.ValidationError(
+                _(
+                    "Je moet een informatieobjecttype opgeven: "
+                    "selecteer een informatieobjecttype of vul een externe URL in."
+                )
+            )
+
+        return cleaned_data
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        catalogus_pk = (
-            kwargs["instance"].informatieobjecttype.catalogus.pk
-            if kwargs.get("instance")
-            else kwargs.get("initial", {}).get("catalogus")
-        )
+        instance = kwargs.get("instance")
+        if instance and instance._informatieobjecttype is not None:
+            catalogus_pk = instance._informatieobjecttype.catalogus.pk
+        elif instance:
+            catalogus_pk = None
+        else:
+            catalogus_pk = kwargs.get("initial", {}).get("catalogus")
 
         if "zaaktype" in self.fields:
             self.fields["zaaktype"].widget = CatalogusFilterFKRawIdWidget(
