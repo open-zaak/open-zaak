@@ -36,7 +36,6 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
 
     resultaattypen = CachedHyperlinkedRelatedField(
         many=True,
-        source="resultaattype_set",
         view_name="resultaattype-detail",
         lookup_field="uuid",
         read_only=True,
@@ -47,7 +46,7 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
     )
     resultaattypen_omschrijving = serializers.SlugRelatedField(
         many=True,
-        source="resultaattype_set",
+        source="resultaattypen",
         read_only=True,
         slug_field="omschrijving",
         help_text=_("Omschrijving van de aard van resultaten van het RESULTAATTYPE."),

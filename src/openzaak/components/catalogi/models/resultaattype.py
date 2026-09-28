@@ -273,6 +273,7 @@ class ResultaatType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
             "Het BESLUITTYPE van besluiten die gepaard gaan "
             "met resultaten van het RESULTAATTYPE."
         ),
+        related_name="resultaattypen",
     )
     zaakobjecttypen = models.ManyToManyField(
         "ZaakObjectType",

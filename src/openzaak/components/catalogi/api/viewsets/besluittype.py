@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.db import DatabaseError, transaction
 from django.db.models import Prefetch
+from django.utils.module_loading import import_string
 
 import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
@@ -16,7 +17,7 @@ from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, VALIDATION_ERROR_RESPONSES
 
-from ...models import BesluitType, InformatieObjectType, ZaakType
+from ...models import BesluitType
 from ..filters import BesluitTypeDetailFilter, BesluitTypeFilter
 from ..kanalen import KANAAL_BESLUITTYPEN
 from ..scopes import (
@@ -88,57 +89,17 @@ class BesluitTypeViewSet(
     queryset = (
         BesluitType.objects.all()
         .select_related("catalogus")
-        .prefetch_related("resultaattype_set")
+        .prefetch_related("informatieobjecttypen", "zaaktypen", "resultaattypen")
         .with_dates()
         .order_by("-pk")
     )
 
-    def get_queryset(self):
-        qs = super().get_queryset()
-
-        request = getattr(self, "request", None)
-
-        if request is not None and hasattr(request, "data"):
-            inclusions = self.get_requested_inclusions(request)
-        else:
-            inclusions = None
-
-        # Prefetch the expanded resource only when inclusions are requested.
-        if inclusions:
-            qs = qs.prefetch_related(
-                Prefetch(
-                    "zaaktypen",
-                    queryset=ZaakType.objects.select_related(
-                        "catalogus",
-                    ).prefetch_related(
-                        "informatieobjecttypen",
-                        "statustypen",
-                        "resultaattypen",
-                        "eigenschap_set",
-                        "roltype_set",
-                        "besluittypen",
-                        "zaakobjecttype_set",
-                        "zaaktypenrelaties",
-                        "deelzaaktypen",
-                    ),
-                ),
-                Prefetch(
-                    "informatieobjecttypen",
-                    queryset=InformatieObjectType.objects.select_related(
-                        "catalogus",
-                    ).prefetch_related(
-                        "zaaktypen",
-                        "besluittypen",
-                    ),
-                ),
-            )
-        else:
-            qs = qs.prefetch_related(
-                "informatieobjecttypen",
-                "zaaktypen",
-            )
-
-        return qs
+    inclusion_viewsets = {
+        "catalogus": "openzaak.components.catalogi.api.viewsets.catalogus.CatalogusViewSet",
+        "zaaktypen": "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        "informatieobjecttypen": "openzaak.components.catalogi.api.viewsets.informatieobjecttype.InformatieObjectTypeViewSet",
+        "resultaattypen": "openzaak.components.catalogi.api.viewsets.resultaattype.ResultaatTypeViewSet",
+    }
 
     serializer_class = BesluitTypeSerializer
     publish_serializer = BesluitTypePublishSerializer

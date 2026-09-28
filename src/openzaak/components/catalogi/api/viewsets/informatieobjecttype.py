@@ -116,6 +116,10 @@ class InformatieObjectTypeViewSet(
     queryset = (
         InformatieObjectType.objects.all()
         .select_related("catalogus")
+        .prefetch_related(
+            "zaaktypen",
+            "besluittypen",
+        )
         .with_dates()
         .order_by("-pk")
     )

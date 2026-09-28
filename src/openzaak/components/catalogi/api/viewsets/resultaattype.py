@@ -83,10 +83,18 @@ class ResultaatTypeViewSet(
     ZAAKTYPE naar hun aard, zoals 'verleend', 'geweigerd', 'verwerkt', etc.
     """
 
-    queryset = ResultaatType.objects.select_related(
-        "zaaktype",
-        "zaaktype__catalogus",
-    ).order_by("-pk")
+    queryset = (
+        ResultaatType.objects.select_related(
+            "zaaktype",
+            "zaaktype__catalogus",
+        )
+        .prefetch_related(
+            "besluittypen",
+            "informatieobjecttypen",
+            "zaaktype__informatieobjecttypen",
+        )
+        .order_by("-pk")
+    )
 
     def get_queryset(self):
         qs = super().get_queryset()

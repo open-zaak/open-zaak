@@ -58,7 +58,11 @@ class CatalogusViewSet(
     Opvragen en bewerken van CATALOGUSsen.
     """
 
-    queryset = Catalogus.objects.all().order_by("-pk")
+    queryset = Catalogus.objects.prefetch_related(
+        "zaaktype_set",
+        "besluittype_set",
+        "informatieobjecttype_set",
+    ).order_by("-pk")
 
     def get_queryset(self):
         qs = super().get_queryset()

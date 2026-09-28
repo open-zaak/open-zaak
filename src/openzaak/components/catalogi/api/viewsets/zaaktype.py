@@ -116,6 +116,11 @@ class ZaakTypeViewSet(
             "eigenschap_set",
             "roltype_set",
             "deelzaaktypen",
+            "besluittypen",
+            "statustypen",
+            "resultaattypen",
+            "informatieobjecttypen",
+            "zaakobjecttype_set",
         )
         .with_dates("identificatie")
         .order_by("-pk")

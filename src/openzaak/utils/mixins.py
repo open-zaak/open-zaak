@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 
 from django.utils.module_loading import import_string
+from django.db.models import Prefetch
 
 from dictdiffer import diff
 from rest_framework_inclusions.renderer import (
@@ -49,6 +50,34 @@ class APIMixin(_APIMixin):
 
 class ExpandMixin:
     expand_param = EXPAND_QUERY_PARAM
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        request = getattr(self, "request", None)
+
+        if request is not None and hasattr(request, "data"):
+            inclusions = self.get_requested_inclusions(request)
+        else:
+            inclusions = None
+
+        inclusion_viewsets = getattr(self, "inclusion_viewsets", None)
+
+        if inclusions and inclusion_viewsets:
+            # clear prefetches because we're going to override them
+            qs = qs.prefetch_related(None)
+            for inclusion in inclusions.split(","):
+                related_viewset = inclusion_viewsets.get(inclusion)
+                if not related_viewset:
+                    continue
+
+                related_viewset = import_string(related_viewset)
+                # TODO handles Prefetch objects?
+                # TODO if contains ., replace with __?
+                qs = qs.prefetch_related(
+                    Prefetch(inclusion, queryset=related_viewset.queryset.order_by())
+                )
+        return qs
 
     def get_renderers(self):
         # Only use the expand renderer for actions that support expansion.
