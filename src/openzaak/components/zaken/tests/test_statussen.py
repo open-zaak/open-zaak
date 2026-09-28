@@ -530,6 +530,8 @@ class StatussenExpandTests(JWTAuthMixin, APITestCase):
         expected = [
             self.client.get(reverse(zio)).json() for zio in (self.zio, second_zio)
         ]
+        for resource in expected:
+            resource.pop("_expand", None)
 
         response = self.client.get(
             self.url, {"expand": "zaakinformatieobjecten"}, **ZAAK_READ_KWARGS
