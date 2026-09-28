@@ -84,6 +84,14 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         )
 
         data = response.json()["results"]
+
+        # The detail responses also include the _expand attribute, but the list response
+        # only has a _expand attribute at the root level (no _expand nested inside _expand)
+        del zaak_data["_expand"]
+        del hoofdzaak_data["_expand"]
+        del status_data["_expand"]
+        del resultaat_data["_expand"]
+
         expected_results = [
             {
                 **zaak_data,
@@ -173,6 +181,8 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         # only has a _expand attribute at the root level (no _expand nested inside _expand)
         del zaak_data["_expand"]
         del hoofdzaak_data["_expand"]
+        del status_data["_expand"]
+        del resultaat_data["_expand"]
 
         response = self.client.post(
             reverse("zaak--zoek"),
@@ -197,6 +207,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()["results"]
+
         expected_results = [
             {
                 **zaak_data,
@@ -307,6 +318,8 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         # only has a _expand attribute at the root level (no _expand nested inside _expand)
         del zaak_data["_expand"]
         del hoofdzaak_data["_expand"]
+        del status_data["_expand"]
+        del resultaat_data["_expand"]
 
         response = self.client.get(
             zaak_url,
