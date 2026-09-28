@@ -247,7 +247,9 @@ class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
         super().setUp()
 
         besluittype = BesluitTypeFactory.create(concept=False)
-        self.besluittype_url = f"http://testserver{reverse(besluittype)}"
+        self.besluittype_url = (
+            f"http://testserver{reverse(besluittype, namespace='catalogi')}"
+        )
         self.data = {
             "besluittype": self.besluittype_url,
             "verantwoordelijke_organisatie": "517439943",
@@ -264,7 +266,7 @@ class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
 
         audittrail = AuditTrail.objects.get()
         besluit = Besluit.objects.get()
-        besluit_url = reverse(besluit)
+        besluit_url = reverse(besluit, namespace="besluiten")
 
         with self.subTest("audittrail model"):
             self.assertEqual(audittrail.bron, AUDIT_BRC.component_name)
@@ -514,7 +516,7 @@ class InformatieObjectTypeDeprecationTests(JWTAuthMixin, APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("documenten/api/v1/informatieobjecttype", response.data["url"])
-        self.assertIn("catalogi/api/v1/catalogus", response.data["catalogus"])
+        self.assertIn("zaken/api/v1/catalogus", response.data["catalogus"])
 
     def test_deprecated_paths(self):
         self.assertEqual(
@@ -636,7 +638,7 @@ class BesluitTypeDeprecationTests(JWTAuthMixin, APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("zaken/api/v1/besluittype", response.data["url"])
-        self.assertIn("catalogi/api/v1/catalogus", response.data["catalogus"])
+        self.assertIn("zaken/api/v1/catalogus", response.data["catalogus"])
 
     def test_deprecated_paths(self):
         self.assertEqual(

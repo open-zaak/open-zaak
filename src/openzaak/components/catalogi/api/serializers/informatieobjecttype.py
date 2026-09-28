@@ -87,14 +87,14 @@ class InformatieObjectTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializ
             },
             "catalogus": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:catalogus-detail",
+                "view_name": "zaken:catalogus-detail",
             },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
             "concept": {"read_only": True},
             "zaaktypen": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:zaaktype-detail",
+                "view_name": "zaken:zaaktype-detail",
                 "read_only": True,
                 "many": True,
                 "help_text": _("URL-referenties naar de ZAAKTYPEN"),

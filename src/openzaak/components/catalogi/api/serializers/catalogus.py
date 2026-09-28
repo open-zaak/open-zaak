@@ -2,22 +2,20 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.utils.translation import gettext_lazy as _
 
-from rest_framework import serializers
-from vng_api_common.serializers import CachedHyperlinkedRelatedField
-
 from openzaak.utils.serializer_fields import (
     DeprecatedNamespaceCachedHyperlinkedRelatedField,
 )
+from openzaak.utils.serializers import DeprecatedNamespaceHyperlinkedModelSerializer
 
 from ...models import Catalogus
 
 
-class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
-    zaaktypen = CachedHyperlinkedRelatedField(
+class CatalogusSerializer(DeprecatedNamespaceHyperlinkedModelSerializer):
+    zaaktypen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         source="zaaktype_set",
-        view_name="catalogi:zaaktype-detail",
+        view_name="zaken:zaaktype-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar ZAAKTYPEn die in deze CATALOGUS worden ontsloten."
@@ -63,5 +61,5 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
             "begindatum_versie",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid", "view_name": "catalogi:catalogus-detail"}
+            "url": {"lookup_field": "uuid", "view_name": "zaken:catalogus-detail"}
         }

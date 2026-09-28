@@ -57,24 +57,38 @@ from .factories import (
 
 
 class ReadTests(AuthCheckMixin, _APITestCase):
+    NAMESPACE = "catalogi"
+
     def test_cannot_read_without_correct_scope(self):
         dummy_uuid = str(uuid.uuid4())
         urls = [
-            # root
-            reverse("catalogi:catalogus-list"),
-            reverse("catalogi:catalogus-detail", kwargs={"uuid": dummy_uuid}),
-            # nested one level
-            reverse("catalogi:zaaktype-list"),
-            reverse("catalogi:zaaktype-detail", kwargs={"uuid": dummy_uuid}),
-            # nested two levels
-            reverse("catalogi:statustype-list"),
-            reverse("catalogi:statustype-detail", kwargs={"uuid": dummy_uuid}),
-            reverse("catalogi:eigenschap-list"),
-            reverse("catalogi:eigenschap-detail", kwargs={"uuid": dummy_uuid}),
-            reverse("catalogi:roltype-list"),
-            reverse("catalogi:roltype-detail", kwargs={"uuid": dummy_uuid}),
-            reverse("catalogi:zaakobjecttype-list"),
-            reverse("catalogi:zaakobjecttype-detail", kwargs={"uuid": dummy_uuid}),
+            reverse(f"{self.NAMESPACE}:catalogus-list"),
+            reverse(f"{self.NAMESPACE}:catalogus-detail", kwargs={"uuid": dummy_uuid}),
+        ]
+
+        for url in urls:
+            with self.subTest(url=url):
+                self.assertForbidden(url, method="get")
+
+
+class ZaakTypeReadTests(AuthCheckMixin, _APITestCase):
+    NAMESPACE = "catalogi"
+
+    def test_cannot_read_without_correct_scope(self):
+        dummy_uuid = str(uuid.uuid4())
+        urls = [
+            reverse(f"{self.NAMESPACE}:zaaktype-list"),
+            reverse(f"{self.NAMESPACE}:zaaktype-detail", kwargs={"uuid": dummy_uuid}),
+            reverse(f"{self.NAMESPACE}:statustype-list"),
+            reverse(f"{self.NAMESPACE}:statustype-detail", kwargs={"uuid": dummy_uuid}),
+            reverse(f"{self.NAMESPACE}:eigenschap-list"),
+            reverse(f"{self.NAMESPACE}:eigenschap-detail", kwargs={"uuid": dummy_uuid}),
+            reverse(f"{self.NAMESPACE}:roltype-list"),
+            reverse(f"{self.NAMESPACE}:roltype-detail", kwargs={"uuid": dummy_uuid}),
+            reverse(f"{self.NAMESPACE}:zaakobjecttype-list"),
+            reverse(
+                f"{self.NAMESPACE}:zaakobjecttype-detail", kwargs={"uuid": dummy_uuid}
+            ),
         ]
 
         for url in urls:
@@ -121,10 +135,11 @@ class PublishedTypesForcedDeletionTests(APITestCase):
     heeft_alle_autorisaties = False
     scopes = [SCOPE_CATALOGI_FORCED_DELETE]
     component = ComponentTypes.ztc
+    NAMESPACE = "catalogi"
 
     def test_force_delete_eigenschap_not_concept_zaaktype(self):
         eigenschap = EigenschapFactory.create(zaaktype__concept=False)
-        eigenschap_url = reverse(eigenschap)
+        eigenschap_url = reverse(eigenschap, namespace=self.NAMESPACE)
 
         response = self.client.delete(eigenschap_url)
 
@@ -133,7 +148,7 @@ class PublishedTypesForcedDeletionTests(APITestCase):
 
     def test_force_delete_ziot_not_concept_zaaktype(self):
         ziot = ZaakTypeInformatieObjectTypeFactory.create(zaaktype__concept=False)
-        ziot_url = reverse(ziot)
+        ziot_url = reverse(ziot, namespace=self.NAMESPACE)
 
         response = self.client.delete(ziot_url)
 
@@ -144,7 +159,7 @@ class PublishedTypesForcedDeletionTests(APITestCase):
         ziot = ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype__concept=False
         )
-        ziot_url = reverse(ziot)
+        ziot_url = reverse(ziot, namespace=self.NAMESPACE)
 
         response = self.client.delete(ziot_url)
 
@@ -153,7 +168,7 @@ class PublishedTypesForcedDeletionTests(APITestCase):
 
     def test_force_delete_resultaattype_not_concept_zaaktype(self):
         resultaattype = ResultaatTypeFactory.create(zaaktype__concept=False)
-        resultaattype_url = reverse(resultaattype)
+        resultaattype_url = reverse(resultaattype, namespace=self.NAMESPACE)
 
         response = self.client.delete(resultaattype_url)
 
@@ -162,7 +177,7 @@ class PublishedTypesForcedDeletionTests(APITestCase):
 
     def test_force_delete_roltype_not_concept_zaaktype(self):
         roltype = RolTypeFactory.create(zaaktype__concept=False)
-        roltype_url = reverse(roltype)
+        roltype_url = reverse(roltype, namespace=self.NAMESPACE)
 
         response = self.client.delete(roltype_url)
 
@@ -171,7 +186,7 @@ class PublishedTypesForcedDeletionTests(APITestCase):
 
     def test_force_delete_statustype_not_concept_zaaktype(self):
         statustype = StatusTypeFactory.create(zaaktype__concept=False)
-        statustype_url = reverse(statustype)
+        statustype_url = reverse(statustype, namespace=self.NAMESPACE)
 
         response = self.client.delete(statustype_url)
 
@@ -180,7 +195,7 @@ class PublishedTypesForcedDeletionTests(APITestCase):
 
     def test_delete_zaaktype_fail_not_concept(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         response = self.client.delete(zaaktype_url)
 
@@ -191,7 +206,7 @@ class PublishedTypesForcedDeletionTests(APITestCase):
         catalogus = CatalogusFactory.create()
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         BesluitTypeFactory.create(
             catalogus=catalogus, zaaktypen=[zaaktype], concept=False
@@ -206,7 +221,7 @@ class PublishedTypesForcedDeletionTests(APITestCase):
         catalogus = CatalogusFactory.create()
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus, concept=False, zaaktypen=[]
@@ -306,15 +321,16 @@ class PublishedTypesForcedWriteTests(APITestCase):
     heeft_alle_autorisaties = False
     scopes = [SCOPE_CATALOGI_FORCED_WRITE]
     component = ComponentTypes.ztc
+    NAMESPACE = "catalogi"
 
     def test_create_eigenschap_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        eigenschap_list_url = reverse("catalogi:eigenschap-list")
+        eigenschap_list_url = reverse(Eigenschap, namespace=self.NAMESPACE)
         data = {
             "naam": "Beoogd product",
             "definitie": "test",
             "toelichting": "",
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "specificatie": {
                 "groep": "test",
                 "formaat": "tekst",
@@ -332,12 +348,12 @@ class PublishedTypesForcedWriteTests(APITestCase):
     def test_update_eigenschap_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype)
-        eigenschap_url = reverse(eigenschap)
+        eigenschap_url = reverse(eigenschap, namespace=self.NAMESPACE)
         data = {
             "naam": "aangepast",
             "definitie": "test",
             "toelichting": "",
-            "zaaktype": reverse(zaaktype),
+            "zaaktype": reverse(zaaktype, namespace=self.NAMESPACE),
             "specificatie": {
                 "groep": "test",
                 "formaat": "tekst",
@@ -356,7 +372,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
     def test_partial_update_eigenschap_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype)
-        eigenschap_url = reverse(eigenschap)
+        eigenschap_url = reverse(eigenschap, namespace=self.NAMESPACE)
 
         response = self.client.patch(eigenschap_url, {"naam": "aangepast"})
 
@@ -370,12 +386,12 @@ class PublishedTypesForcedWriteTests(APITestCase):
             concept=False, catalogus=zaaktype.catalogus, zaaktypen=[]
         )
         data = {
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "informatieobjecttype": f"http://testserver{reverse(informatieobjecttype, namespace='catalogi')}",
             "volgnummer": 13,
             "richting": RichtingChoices.inkomend,
         }
-        url = reverse(ZaakTypeInformatieObjectType)
+        url = reverse(ZaakTypeInformatieObjectType, namespace=self.NAMESPACE)
 
         response = self.client.post(url, data)
 
@@ -390,10 +406,10 @@ class PublishedTypesForcedWriteTests(APITestCase):
         ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
-        ziot_url = reverse(ziot)
+        ziot_url = reverse(ziot, namespace=self.NAMESPACE)
 
         data = {
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "informatieobjecttype": f"http://testserver{reverse(informatieobjecttype, namespace='catalogi')}",
             "volgnummer": 13,
             "richting": RichtingChoices.inkomend,
@@ -413,7 +429,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
         ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
-        ziot_url = reverse(ziot)
+        ziot_url = reverse(ziot, namespace=self.NAMESPACE)
 
         response = self.client.patch(ziot_url, {"volgnummer": 13})
 
@@ -441,7 +457,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
             selectielijst_procestype=procestype_url, concept=False
         )
         data = {
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "omschrijving": "illum",
             "resultaattypeomschrijving": resultaattypeomschrijving_url,
             "selectielijstklasse": selectielijstklasse_url,
@@ -466,7 +482,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
             },
         )
         m.get(resultaattypeomschrijving_url, json={"omschrijving": "test"})
-        url = reverse(ResultaatType)
+        url = reverse(ResultaatType, namespace=self.NAMESPACE)
 
         response = self.client.post(url, data)
 
@@ -492,9 +508,9 @@ class PublishedTypesForcedWriteTests(APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=procestype_url, concept=False
         )
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         resultaattype = ResultaatTypeFactory.create(zaaktype=zaaktype)
-        resultaattype_url = reverse(resultaattype)
+        resultaattype_url = reverse(resultaattype, namespace=self.NAMESPACE)
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "aangepast",
@@ -541,7 +557,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
             archiefnominatie="blijvend_bewaren",
             resultaattypeomschrijving=resultaattypeomschrijving_url,
         )
-        resultaattype_url = reverse(resultaattype)
+        resultaattype_url = reverse(resultaattype, namespace=self.NAMESPACE)
 
         response = self.client.patch(resultaattype_url, {"omschrijving": "aangepast"})
 
@@ -551,9 +567,9 @@ class PublishedTypesForcedWriteTests(APITestCase):
 
     def test_create_roltype_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        rol_type_list_url = reverse("catalogi:roltype-list")
+        rol_type_list_url = reverse(RolType, namespace=self.NAMESPACE)
         data = {
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "omschrijving": "Vergunningaanvrager",
             "omschrijvingGeneriek": RolOmschrijving.initiator,
         }
@@ -566,9 +582,9 @@ class PublishedTypesForcedWriteTests(APITestCase):
     def test_update_roltype_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
         roltype = RolTypeFactory.create(zaaktype=zaaktype)
-        roltype_url = reverse(roltype)
+        roltype_url = reverse(roltype, namespace=self.NAMESPACE)
         data = {
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "omschrijving": "aangepast",
             "omschrijvingGeneriek": RolOmschrijving.initiator,
         }
@@ -582,7 +598,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
     def test_partial_update_roltype_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
         roltype = RolTypeFactory.create(zaaktype=zaaktype)
-        roltype_url = reverse(roltype)
+        roltype_url = reverse(roltype, namespace=self.NAMESPACE)
 
         response = self.client.patch(roltype_url, {"omschrijving": "aangepast"})
 
@@ -592,12 +608,12 @@ class PublishedTypesForcedWriteTests(APITestCase):
 
     def test_create_statustype_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        statustype_list_url = reverse("catalogi:statustype-list")
+        statustype_list_url = reverse(StatusType, namespace=self.NAMESPACE)
         data = {
             "omschrijving": "Besluit genomen",
             "omschrijvingGeneriek": "",
             "statustekst": "",
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "volgnummer": 2,
         }
         response = self.client.post(statustype_list_url, data)
@@ -608,12 +624,12 @@ class PublishedTypesForcedWriteTests(APITestCase):
     def test_update_statustype_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
         statustype = StatusTypeFactory.create(zaaktype=zaaktype)
-        statustype_url = reverse(statustype)
+        statustype_url = reverse(statustype, namespace=self.NAMESPACE)
         data = {
             "omschrijving": "aangepast",
             "omschrijvingGeneriek": "",
             "statustekst": "",
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "volgnummer": 2,
         }
 
@@ -625,7 +641,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
 
     def test_partial_update_statustype_not_concept_zaaktype(self):
         statustype = StatusTypeFactory.create(zaaktype__concept=False)
-        statustype_url = reverse(statustype)
+        statustype_url = reverse(statustype, namespace=self.NAMESPACE)
 
         response = self.client.patch(statustype_url, {"omschrijving": "aangepast"})
 
@@ -635,7 +651,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
 
     def test_update_zaaktype_not_concept(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         data = {
             "identificatie": 0,
             "doel": "some test",
@@ -670,7 +686,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
 
     def test_partial_update_zaaktype_not_concept(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         response = self.client.patch(zaaktype_url, {"aanleiding": "same"})
 
@@ -680,7 +696,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
 
     def test_update_zaaktype_related_to_non_concept_besluittype(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         BesluitTypeFactory.create(
             catalogus=self.catalogus, zaaktypen=[zaaktype], concept=False
         )
@@ -718,7 +734,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
 
     def test_partial_update_zaaktype_related_to_non_concept_besluittype(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         BesluitTypeFactory.create(
             catalogus=self.catalogus, zaaktypen=[zaaktype], concept=False
         )
@@ -783,7 +799,9 @@ class BesluitTypePublishedTypesForcedWriteTests(APITestCase):
         besluittype_url = reverse(besluittype, namespace=self.NAMESPACE)
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
-            "zaaktypen": [f"http://testserver{reverse(zaaktype)}"],
+            "zaaktypen": [
+                f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}"
+            ],
             "omschrijving": "test",
             "omschrijvingGeneriek": "",
             "besluitcategorie": "",

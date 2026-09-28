@@ -58,14 +58,11 @@ class BesluitConvenienceCloudEventTest(
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype, namespace=self.BESLUITTYPE_NAMESPACE)
 
-        catalogus_url = reverse(besluittype.catalogus, namespace="catalogi")
-
         zaak = ZaakFactory.create()
 
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=besluittype.catalogus
         )
-        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
 
         besluittype.informatieobjecttypen.add(informatieobjecttype)
         besluittype.zaaktypen.add(zaak.zaaktype)
@@ -107,7 +104,7 @@ class BesluitConvenienceCloudEventTest(
         self.assertEqual(mock_send_cloudevent.call_count, 1)
 
         besluit = Besluit.objects.get()
-        besluit_url = reverse(besluit, namespace=self.NAMESPACE)
+        besluit_url = reverse(besluit, namespace="zaken")
 
         mock_send_cloudevent.assert_called_once_with(
             {
@@ -121,12 +118,16 @@ class BesluitConvenienceCloudEventTest(
                 "datacontenttype": "application/json",
                 "data": {
                     "verantwoordelijkeOrganisatie": "517439943",
-                    "besluittype": f"http://testserver{besluittype_url}",
-                    "besluittype.catalogus": f"http://testserver{catalogus_url}",
+                    "besluittype": f"http://testserver{reverse(besluittype, namespace='zaken')}",
+                    "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus, namespace='zaken')}",
                     "zaak.zaaktype": None,
                     "informatieobjecten.iotype": [  # TODO duplicates?
-                        f"http://testserver{informatieobjecttype_url}",
-                        f"http://testserver{informatieobjecttype_url}",
+                        f"http://testserver{
+                            reverse(informatieobjecttype, namespace='documenten')
+                        }",
+                        f"http://testserver{
+                            reverse(informatieobjecttype, namespace='documenten')
+                        }",
                     ],
                 },
             },
@@ -138,16 +139,12 @@ class BesluitConvenienceCloudEventTest(
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype, namespace=self.BESLUITTYPE_NAMESPACE)
 
-        catalogus_url = reverse(besluittype.catalogus, namespace="catalogi")
-
         zaak = ZaakFactory.create(bronorganisatie="517439943")
         zaak_url = reverse(zaak)
-        zaaktype_url = reverse(zaak.zaaktype)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=besluittype.catalogus
         )
-        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
 
         besluittype.informatieobjecttypen.add(informatieobjecttype)
         besluittype.zaaktypen.add(zaak.zaaktype)
@@ -155,12 +152,12 @@ class BesluitConvenienceCloudEventTest(
         informatieobject_1 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=informatieobjecttype
         )
-        informatieobject_url_1 = reverse(informatieobject_1)
+        informatieobject_url_1 = reverse(informatieobject_1, namespace="documenten")
 
         informatieobject_2 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=informatieobjecttype
         )
-        informatieobject_url_2 = reverse(informatieobject_2)
+        informatieobject_url_2 = reverse(informatieobject_2, namespace="documenten")
 
         url = reverse(f"{self.NAMESPACE}:verwerkbesluit-list")
 
@@ -191,7 +188,7 @@ class BesluitConvenienceCloudEventTest(
         self.assertEqual(mock_send_cloudevent.call_count, 2)
 
         besluit = Besluit.objects.get()
-        besluit_url = reverse(besluit, namespace=self.NAMESPACE)
+        besluit_url = reverse(besluit, namespace="zaken")
 
         mock_send_cloudevent.assert_has_calls(
             [
@@ -208,8 +205,8 @@ class BesluitConvenienceCloudEventTest(
                         "data": {
                             "bronorganisatie": "517439943",
                             "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
-                            "zaaktype": f"http://testserver{zaaktype_url}",
-                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus, namespace='catalogi')}",
+                            "zaaktype": f"http://testserver{reverse(zaak.zaaktype, namespace='zaken')}",
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus, namespace='zaken')}",
                         },
                     },
                     None,
@@ -226,12 +223,12 @@ class BesluitConvenienceCloudEventTest(
                         "datacontenttype": "application/json",
                         "data": {
                             "verantwoordelijkeOrganisatie": "517439943",
-                            "besluittype": f"http://testserver{besluittype_url}",
-                            "besluittype.catalogus": f"http://testserver{catalogus_url}",
-                            "zaak.zaaktype": f"http://testserver{zaaktype_url}",
+                            "besluittype": f"http://testserver{reverse(besluittype, namespace='zaken')}",
+                            "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus, namespace='zaken')}",
+                            "zaak.zaaktype": f"http://testserver{reverse(zaak.zaaktype, namespace='zaken')}",
                             "informatieobjecten.iotype": [  # TODO duplicates?
-                                f"http://testserver{informatieobjecttype_url}",
-                                f"http://testserver{informatieobjecttype_url}",
+                                f"http://testserver{reverse(informatieobjecttype, namespace='documenten')}",
+                                f"http://testserver{reverse(informatieobjecttype, namespace='documenten')}",
                             ],
                         },
                     },

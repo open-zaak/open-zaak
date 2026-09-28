@@ -3,9 +3,10 @@
 from rest_framework.test import APITestCase as _APITestCase
 
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse
 
+from ..models import Catalogus
 from .factories import CatalogusFactory
-from .utils import get_operation_url
 
 
 class CatalogusAPITestMixin:
@@ -17,10 +18,8 @@ class CatalogusAPITestMixin:
 
         cls.catalogus = CatalogusFactory.create(domein="ABCDE", rsin="000000001")
 
-        cls.catalogus_list_url = get_operation_url("catalogus_list")
-        cls.catalogus_detail_url = get_operation_url(
-            "catalogus_read", uuid=cls.catalogus.uuid
-        )
+        cls.catalogus_list_url = reverse(Catalogus)
+        cls.catalogus_detail_url = reverse(cls.catalogus)
 
 
 class APITestCase(CatalogusAPITestMixin, JWTAuthMixin, _APITestCase):

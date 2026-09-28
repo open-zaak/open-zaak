@@ -18,7 +18,18 @@ from openzaak.utils.oas_extensions.views import (
     SpectacularYAMLAPIView,
 )
 
-from ...catalogi.api.viewsets import BesluitTypeViewSet
+from ...catalogi.api.viewsets import (
+    BesluitTypeViewSet,
+    CatalogusViewSet,
+    EigenschapViewSet,
+    InformatieObjectTypeViewSet,
+    ResultaatTypeViewSet,
+    RolTypeViewSet,
+    StatusTypeViewSet,
+    ZaakObjectTypeViewSet,
+    ZaakTypeInformatieObjectTypeViewSet,
+    ZaakTypeViewSet,
+)
 from ..api.schema import custom_settings
 from .viewsets import (
     DeprecatedReserveerZaakNummerViewSet,
@@ -77,7 +88,16 @@ router.register(
 )
 router.register("besluitinformatieobjecten", BesluitInformatieObjectViewSet)
 router.register("besluit_verwerken", BesluitVerwerkenViewSet, basename="verwerkbesluit")
+router.register(r"catalogussen", CatalogusViewSet)
+router.register(r"zaaktypen", ZaakTypeViewSet)
+router.register(r"statustypen", StatusTypeViewSet)
+router.register(r"eigenschappen", EigenschapViewSet)
+router.register(r"roltypen", RolTypeViewSet)
+router.register(r"informatieobjecttypen", InformatieObjectTypeViewSet)
 router.register(r"besluittypen", BesluitTypeViewSet)
+router.register(r"resultaattypen", ResultaatTypeViewSet)
+router.register(r"zaaktype-informatieobjecttypen", ZaakTypeInformatieObjectTypeViewSet)
+router.register(r"zaakobjecttypen", ZaakObjectTypeViewSet)
 
 # XXX: alias for this endpoint, will be removed in 2.0
 router.register(

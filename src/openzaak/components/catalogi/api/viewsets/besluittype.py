@@ -106,7 +106,13 @@ class BesluitTypeViewSet(
         "publish": SCOPE_CATALOGI_WRITE,
     }
     notifications_kanalen = [
-        {"kanaal": KANAAL_BESLUITTYPEN, "namespace": "zaken"},
+        {
+            "kanaal": KANAAL_BESLUITTYPEN,
+            "namespace": "zaken",
+            "replace_urls_in_kenmerken": [
+                {"field": "catalogus", "namespace": "zaken"},
+            ],
+        },
     ]
     concept_related_fields = ["informatieobjecttypen", "zaaktypen"]
 

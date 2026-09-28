@@ -30,6 +30,7 @@ class InformatieObjectTypeAPITests(APITestCase):
     scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
     NAMESPACE = "catalogi"
+    ZAAKTYPE_NAMESPACE = "catalogi"
 
     def test_get_list_default_definitief(self):
         InformatieObjectTypeFactory.create(concept=True)
@@ -67,7 +68,9 @@ class InformatieObjectTypeAPITests(APITestCase):
         self.assertEqual(response.status_code, 200)
 
         expected = {
-            "catalogus": "http://testserver{}".format(self.catalogus_detail_url),
+            "catalogus": "http://testserver{}".format(
+                reverse(self.catalogus, namespace=self.ZAAKTYPE_NAMESPACE)
+            ),
             "omschrijving": iotype.omschrijving,
             "url": "http://testserver{}".format(informatieobjecttype_detail_url),
             "vertrouwelijkheidaanduiding": "openbaar",
@@ -695,6 +698,7 @@ class InformatieObjectTypeAPITests(APITestCase):
 class InformatieObjectTypeFilterAPITests(APITestCase):
     maxDiff = None
     NAMESPACE = "catalogi"
+    ZT_NAMESPACE = "catalogi"
 
     @property
     def url(self):
@@ -802,7 +806,9 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
             zaaktype=zaaktype, informatieobjecttype=iotype
         )
         ZaakTypeInformatieObjectTypeFactory(informatieobjecttype=iotype)
-        zaaktype_url = f"http://openzaak.nl{reverse(zaaktype)}"
+        zaaktype_url = (
+            f"http://openzaak.nl{reverse(zaaktype, namespace=self.ZT_NAMESPACE)}"
+        )
 
         response = self.client.get(
             self.url, {"zaaktype": zaaktype_url}, headers={"host": "openzaak.nl"}
@@ -822,7 +828,7 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
     def test_filter_zaaktype_not_exist(self):
         InformatieObjectTypeFactory.create(omschrijving="some", concept=False)
         zaaktype_url = reverse(
-            "catalogi:zaaktype-detail",
+            f"{self.ZT_NAMESPACE}:zaaktype-detail",
             kwargs={"uuid": "221e7626-a556-4eb5-9714-e7693f82c2dd"},
         )
 

@@ -3,9 +3,12 @@
 from django.utils.translation import gettext as _
 
 from rest_framework import serializers
-from rest_framework.serializers import HyperlinkedModelSerializer
-from vng_api_common.serializers import CachedHyperlinkedRelatedField
 from vng_api_common.utils import get_help_text
+
+from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceCachedHyperlinkedRelatedField,
+)
+from openzaak.utils.serializers import DeprecatedNamespaceHyperlinkedModelSerializer
 
 from ...models import ZaakObjectType
 from ..validators import (
@@ -15,7 +18,7 @@ from ..validators import (
 )
 
 
-class ZaakObjectTypeSerializer(HyperlinkedModelSerializer):
+class ZaakObjectTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializer):
     zaaktype_identificatie = serializers.SlugRelatedField(
         source="zaaktype",
         read_only=True,
@@ -24,8 +27,8 @@ class ZaakObjectTypeSerializer(HyperlinkedModelSerializer):
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
         ),
     )
-    catalogus = CachedHyperlinkedRelatedField(
-        view_name="catalogi:catalogus-detail",
+    catalogus = DeprecatedNamespaceCachedHyperlinkedRelatedField(
+        view_name="zaken:catalogus-detail",
         source="zaaktype.catalogus",
         read_only=True,
         lookup_field="uuid",
@@ -62,22 +65,22 @@ class ZaakObjectTypeSerializer(HyperlinkedModelSerializer):
         extra_kwargs = {
             "url": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:zaakobjecttype-detail",
+                "view_name": "zaken:zaakobjecttype-detail",
             },
             "zaaktype": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:zaaktype-detail",
+                "view_name": "zaken:zaaktype-detail",
             },
             "resultaattypen": {
                 "lookup_field": "uuid",
                 "read_only": True,
                 "many": True,
                 "help_text": _("URL-referenties naar de RESULTAATTYPEN."),
-                "view_name": "catalogi:resultaattype-detail",
+                "view_name": "zaken:resultaattype-detail",
             },
             "statustype": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:statustype-detail",
+                "view_name": "zaken:statustype-detail",
             },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},

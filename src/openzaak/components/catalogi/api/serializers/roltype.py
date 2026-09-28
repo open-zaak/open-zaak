@@ -6,18 +6,24 @@ from drf_writable_nested import NestedCreateMixin
 from rest_framework import serializers
 from vng_api_common.constants import RolOmschrijving
 from vng_api_common.serializers import (
-    CachedHyperlinkedRelatedField,
     add_choice_values_help_text,
 )
 from vng_api_common.utils import get_help_text
+
+from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceCachedHyperlinkedRelatedField,
+)
+from openzaak.utils.serializers import DeprecatedNamespaceHyperlinkedModelSerializer
 
 from ...models import RolType
 from ..validators import StartBeforeEndValidator, ZaakTypeConceptValidator
 
 
-class RolTypeSerializer(NestedCreateMixin, serializers.HyperlinkedModelSerializer):
-    catalogus = CachedHyperlinkedRelatedField(
-        view_name="catalogi:catalogus-detail",
+class RolTypeSerializer(
+    NestedCreateMixin, DeprecatedNamespaceHyperlinkedModelSerializer
+):
+    catalogus = DeprecatedNamespaceCachedHyperlinkedRelatedField(
+        view_name="zaken:catalogus-detail",
         source="zaaktype.catalogus",
         read_only=True,
         lookup_field="uuid",
@@ -57,10 +63,10 @@ class RolTypeSerializer(NestedCreateMixin, serializers.HyperlinkedModelSerialize
             "einde_object",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid", "view_name": "catalogi:roltype-detail"},
+            "url": {"lookup_field": "uuid", "view_name": "zaken:roltype-detail"},
             "zaaktype": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:zaaktype-detail",
+                "view_name": "zaken:zaaktype-detail",
             },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},

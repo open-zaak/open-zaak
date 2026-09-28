@@ -257,7 +257,7 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
         ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
 
         zaak_url = f"http://testserver{reverse('zaken:zaak-detail', kwargs={'uuid': zaak.uuid})}"
-        statustype_url = f"http://testserver{reverse('catalogi:statustype-detail', kwargs={'uuid': statustype.uuid})}"
+        statustype_url = f"http://testserver{reverse('zaken:statustype-detail', kwargs={'uuid': statustype.uuid})}"
 
         status_request_data = {
             "zaak": zaak_url,
@@ -339,7 +339,7 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
 
         status_url = get_operation_url("status_create")
         zaak_url = f"http://testserver{reverse('zaken:zaak-detail', kwargs={'uuid': zaak.uuid})}"
-        statustype_url = f"http://testserver{reverse('catalogi:statustype-detail', kwargs={'uuid': statustype.uuid})}"
+        statustype_url = f"http://testserver{reverse('zaken:statustype-detail', kwargs={'uuid': statustype.uuid})}"
 
         status_request_data = {
             "zaak": zaak_url,

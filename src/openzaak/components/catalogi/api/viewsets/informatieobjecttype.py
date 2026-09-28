@@ -136,7 +136,13 @@ class InformatieObjectTypeViewSet(
         "publish": SCOPE_CATALOGI_WRITE,
     }
     notifications_kanalen = [
-        {"kanaal": KANAAL_INFORMATIEOBJECTTYPEN, "namespace": "documenten"},
+        {
+            "kanaal": KANAAL_INFORMATIEOBJECTTYPEN,
+            "namespace": "documenten",
+            "replace_urls_in_kenmerken": [
+                {"field": "catalogus", "namespace": "zaken"},
+            ],
+        },
     ]
     concept_related_fields = ["besluittypen", "zaaktypen"]
 

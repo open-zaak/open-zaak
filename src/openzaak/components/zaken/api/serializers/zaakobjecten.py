@@ -9,8 +9,12 @@ from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
 from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.validators import IsImmutableValidator, URLValidator
 
+from openzaak.components.catalogi.models import ZaakObjectType
 from openzaak.components.zaken.validators import CorrectZaaktypeValidator
 from openzaak.utils.auth import get_auth
+from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceLengthHyperlinkedRelatedField,
+)
 from openzaak.utils.serializers import SubSerializerMixin
 from openzaak.utils.validators import JQExpressionValidator
 
@@ -150,6 +154,18 @@ class ZaakObjectSerializer(PolymorphicSerializer):
         ),
     )
 
+    zaakobjecttype = DeprecatedNamespaceLengthHyperlinkedRelatedField(
+        allow_null=True,
+        help_text="URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).",
+        lookup_field="uuid",
+        max_length=1000,
+        min_length=0,
+        queryset=ZaakObjectType.objects.all(),
+        required=False,
+        validators=[IsImmutableValidator()],
+        view_name="zaken:zaakobjecttype-detail",
+    )
+
     class Meta:
         model = ZaakObject
         fields = (
@@ -176,14 +192,6 @@ class ZaakObjectSerializer(PolymorphicSerializer):
                 "validators": [URLValidator(get_auth=get_auth), IsImmutableValidator()],
             },
             "object_type": {
-                "validators": [IsImmutableValidator()],
-            },
-            "zaakobjecttype": {
-                "lookup_field": "uuid",
-                "view_name": "catalogi:zaakobjecttype-detail",
-                "max_length": 1000,
-                "min_length": 0,
-                "allow_null": True,
                 "validators": [IsImmutableValidator()],
             },
         }

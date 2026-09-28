@@ -46,7 +46,7 @@ class NotificationAdminTests(
 
         cls.catalogus = CatalogusFactory.create()
         cls.catalogus_url = reverse(
-            "catalogi:catalogus-detail",
+            "zaken:catalogus-detail",
             kwargs={"uuid": cls.catalogus.uuid, "version": 1},
         )
 

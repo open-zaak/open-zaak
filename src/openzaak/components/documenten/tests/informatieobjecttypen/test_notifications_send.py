@@ -29,11 +29,12 @@ from openzaak.utils.urls import reverse
 @patch("notifications_api_common.viewsets.send_notification.delay")
 class InformatieObjectTypeSendNotifTestCase(NotificationsConfigMixin, APITestCase):
     heeft_alle_autorisaties = True
-    NAMESPACE = "documenten"
+    NAMESPACE = "catalogi"
+    CATALOGUS_NAMESPACE = "catalogi"
 
     def test_send_notif_create_informatieobjecttype(self, mock_notif):
         catalogus = CatalogusFactory.create()
-        catalogus_url = reverse(catalogus)
+        catalogus_url = reverse(catalogus, namespace=self.CATALOGUS_NAMESPACE)
         url = reverse(InformatieObjectType, namespace=self.NAMESPACE)
 
         data = {
@@ -66,7 +67,7 @@ class InformatieObjectTypeSendNotifTestCase(NotificationsConfigMixin, APITestCas
                         "actie": "create",
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
-                            "catalogus": f"http://testserver{catalogus_url}",
+                            "catalogus": f"http://testserver{reverse(iot.catalogus, namespace='zaken')}",
                         },
                     },
                     None,
@@ -99,7 +100,7 @@ class InformatieObjectTypeSendNotifTestCase(NotificationsConfigMixin, APITestCas
                         "actie": "partial_update",
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
-                            "catalogus": f"http://testserver{reverse(iot.catalogus)}",
+                            "catalogus": f"http://testserver{reverse(iot.catalogus, namespace='zaken')}",
                         },
                     },
                     None,
@@ -129,7 +130,7 @@ class InformatieObjectTypeSendNotifTestCase(NotificationsConfigMixin, APITestCas
                         "actie": "destroy",
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
-                            "catalogus": f"http://testserver{reverse(iot.catalogus)}",
+                            "catalogus": f"http://testserver{reverse(iot.catalogus, namespace='zaken')}",
                         },
                     },
                     None,
@@ -151,7 +152,8 @@ class InformatieObjectTypeFailedNotificationTests(
 ):
     heeft_alle_autorisaties = True
     maxDiff = None
-    NAMESPACE = "documenten"
+    NAMESPACE = "catalogi"
+    CATALOGUS_NAMESPACE = "catalogi"
 
     def test_informatieobjecttype_create_fail_send_notification_create_db_entry(
         self, m
@@ -159,7 +161,7 @@ class InformatieObjectTypeFailedNotificationTests(
         url = reverse(InformatieObjectType, namespace=self.NAMESPACE)
 
         data = {
-            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "catalogus": f"http://testserver{reverse(self.catalogus, namespace=self.CATALOGUS_NAMESPACE)}",
             "omschrijving": "test",
             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             "beginGeldigheid": "2019-01-01",
@@ -185,7 +187,7 @@ class InformatieObjectTypeFailedNotificationTests(
             "hoofdObject": f"http://testserver{reverse(iot, namespace='documenten')}",
             "kanaal": "informatieobjecttypen",
             "kenmerken": {
-                "catalogus": f"http://testserver{self.catalogus_detail_url}",
+                "catalogus": f"http://testserver{reverse(self.catalogus, namespace='zaken')}",
             },
             "resource": "informatieobjecttype",
             "resourceUrl": f"http://testserver{reverse(iot, namespace='documenten')}",
@@ -214,7 +216,7 @@ class InformatieObjectTypeFailedNotificationTests(
             "hoofdObject": f"http://testserver{reverse(iotype, namespace='documenten')}",
             "kanaal": "informatieobjecttypen",
             "kenmerken": {
-                "catalogus": f"http://testserver{reverse(iotype.catalogus, namespace='catalogi')}",
+                "catalogus": f"http://testserver{reverse(iotype.catalogus, namespace='zaken')}",
             },
             "resource": "informatieobjecttype",
             "resourceUrl": f"http://testserver{reverse(iotype, namespace='documenten')}",
