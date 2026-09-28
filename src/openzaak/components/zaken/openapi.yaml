@@ -5113,6 +5113,23 @@ paths:
       summary: Alle ZAAK-INFORMATIEOBJECT relaties opvragen.
       parameters:
       - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - informatieobject
+            - status
+            - status.gezetdoor
+            - status.statustype
+            - zaak
+            - zaak.zaaktype
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
+      - in: query
         name: informatieobject
         schema:
           type: string
@@ -5142,7 +5159,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ZaakInformatieObject'
+                  $ref: '#/components/schemas/ExpandZaakInformatieObject'
           description: OK
         '400':
           headers:
@@ -5450,6 +5467,29 @@ paths:
           MultipleValues:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
             summary: Meerdere ETag-waardes
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - informatieobject
+            - status
+            - status.gezetdoor
+            - status.statustype
+            - zaak
+            - zaak.zaaktype
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
+      - in: query
+        name: informatieobject
+        schema:
+          type: string
+        description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten API),
+          waar ook de relatieinformatie opgevraagd kan worden.
       - in: path
         name: uuid
         schema:
@@ -5457,6 +5497,12 @@ paths:
           format: uuid
           description: Unieke resource identifier (UUID4)
         required: true
+      - in: query
+        name: zaak
+        schema:
+          type: string
+          format: uri
+        description: URL-referentie naar de ZAAK.
       tags:
       - zaakinformatieobjecten
       security:
@@ -5479,7 +5525,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ZaakInformatieObject'
+                $ref: '#/components/schemas/ExpandZaakInformatieObject'
           description: OK
         '401':
           headers:
@@ -14806,6 +14852,32 @@ components:
                   $ref: '#/components/schemas/ZaakObject'
                 readOnly: true
                 description: URL-referenties naar ZAAKOBJECTen.
+    ExpandZaakInformatieObject:
+      allOf:
+      - $ref: '#/components/schemas/ZaakInformatieObject'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              zaak:
+                allOf:
+                - $ref: '#/components/schemas/Zaak'
+                description: URL-referentie naar de ZAAK.
+              status:
+                allOf:
+                - $ref: '#/components/schemas/Status'
+                nullable: true
+                description: De bij de desbetreffende ZAAK behorende STATUS waarvoor
+                  het ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het
+                  bereiken van die STATUS en/of de communicatie daarover.
+              informatieobject:
+                allOf:
+                - $ref: https://raw.githubusercontent.com/vng-Realisatie/documenten-api/1.0.1.post1/src/openapi.yaml#/components/schemas/EnkelvoudigInformatieObject
+                description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
+                  API), waar ook de relatieinformatie opgevraagd kan worden.
     FieldValidationError:
       type: object
       description: Formaat van validatiefouten.
