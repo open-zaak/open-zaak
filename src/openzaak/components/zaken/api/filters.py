@@ -19,6 +19,7 @@ from openzaak.components.zaken.api.serializers.zaken import (
     ResultaatSerializer,
     RolSerializer,
     StatusSerializer,
+    ZaakBesluitSerializer,
     ZaakInformatieObjectSerializer,
     ZaakSerializer,
 )
@@ -36,6 +37,7 @@ from ..models import (
     Rol,
     Status,
     Zaak,
+    ZaakBesluit,
     ZaakContactMoment,
     ZaakInformatieObject,
     ZaakObject,
@@ -525,6 +527,14 @@ class ZaakObjectFilter(FilterSet):
     class Meta:
         model = ZaakObject
         fields = ("zaak", "object", "object_type")
+
+
+class ZaakBesluitFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=ZaakBesluitSerializer)
+
+    class Meta:
+        model = ZaakBesluit
+        fields = ("zaak", "besluit")
 
 
 class KlantContactFilter(FilterSet):

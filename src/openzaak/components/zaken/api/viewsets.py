@@ -111,6 +111,7 @@ from .filters import (
     ResultaatFilter,
     RolFilter,
     StatusFilter,
+    ZaakBesluitFilter,
     ZaakContactMomentFilter,
     ZaakDetailFilter,
     ZaakFilter,
@@ -1615,6 +1616,8 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
 )
 class ZaakBesluitViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
+    CheckQueryParamsMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
@@ -1628,8 +1631,15 @@ class ZaakBesluitViewSet(
     Opvragen en beheren van zaak-besluiten.
     """
 
-    queryset = ZaakBesluit.objects.order_by("-pk")
+    queryset = ZaakBesluit.objects.select_related("zaak", "_besluit").order_by("-pk")
+    inclusion_viewsets = {
+        "besluit": (
+            "_besluit",
+            "openzaak.components.besluiten.api.viewsets.BesluitViewSet",
+        ),
+    }
     serializer_class = ZaakBesluitSerializer
+    filterset_class = ZaakBesluitFilter
     lookup_field = "uuid"
     parent_retrieve_kwargs = {"zaak_uuid": "uuid"}
     permission_classes = (ZaakNestedAuthRequired,)
@@ -1643,7 +1653,9 @@ class ZaakBesluitViewSet(
     audit = AUDIT_ZRC
 
     def get_queryset(self):
-        if not self.kwargs:  # this happens during schema generation, and causes crashes
+        if (
+            "zaak_uuid" not in self.kwargs
+        ):  # this happens during schema generation, and causes crashes
             return self.queryset.none()
         return super().get_queryset()
 
@@ -1655,7 +1667,7 @@ class ZaakBesluitViewSet(
     def get_serializer_context(self):
         context = super().get_serializer_context()
         # DRF introspection
-        if not self.kwargs:
+        if "zaak_uuid" not in self.kwargs:
             return context
 
         context["parent_object"] = self._get_zaak()
