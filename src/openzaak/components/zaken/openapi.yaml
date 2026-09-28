@@ -11109,6 +11109,29 @@ paths:
       description: Alle ZAAKBESLUITen opvragen.
       summary: Alle ZAAKBESLUITen opvragen.
       parameters:
+      - in: query
+        name: besluit
+        schema:
+          type: string
+        description: URL-referentie naar het BESLUIT (in de Besluiten API).
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - besluit
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
+      - in: query
+        name: zaak
+        schema:
+          type: string
+          format: uri
+        description: URL-referentie naar de ZAAK.
       - in: path
         name: zaak_uuid
         schema:
@@ -11134,7 +11157,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ZaakBesluit'
+                  $ref: '#/components/schemas/ExpandZaakBesluit'
           description: OK
         '400':
           headers:
@@ -11423,6 +11446,23 @@ paths:
       description: Een specifiek ZAAKBESLUIT opvragen.
       summary: Een specifiek ZAAKBESLUIT opvragen.
       parameters:
+      - in: query
+        name: besluit
+        schema:
+          type: string
+        description: URL-referentie naar het BESLUIT (in de Besluiten API).
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - besluit
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
       - in: path
         name: uuid
         schema:
@@ -11430,6 +11470,12 @@ paths:
           format: uuid
           description: Unieke resource identifier (UUID4)
         required: true
+      - in: query
+        name: zaak
+        schema:
+          type: string
+          format: uri
+        description: URL-referentie naar de ZAAK.
       - in: path
         name: zaak_uuid
         schema:
@@ -11453,7 +11499,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ZaakBesluit'
+                $ref: '#/components/schemas/ExpandZaakBesluit'
           description: OK
         '401':
           headers:
@@ -14931,6 +14977,20 @@ components:
                   $ref: '#/components/schemas/ZaakObject'
                 readOnly: true
                 description: URL-referenties naar ZAAKOBJECTen.
+    ExpandZaakBesluit:
+      allOf:
+      - $ref: '#/components/schemas/ZaakBesluit'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              besluit:
+                allOf:
+                - $ref: https://raw.githubusercontent.com/vng-Realisatie/besluiten-api/1.0.1.post0/src/openapi.yaml#/components/schemas/Besluit
+                description: URL-referentie naar het BESLUIT (in de Besluiten API).
     ExpandZaakInformatieObject:
       allOf:
       - $ref: '#/components/schemas/ZaakInformatieObject'

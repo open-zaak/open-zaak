@@ -13,6 +13,7 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.besluiten.tests.utils import get_besluit_response
+from openzaak.components.zaken.tests.utils import ZAAK_READ_KWARGS
 from openzaak.tests.utils import JWTAuthMixin, mock_brc_oas_get
 
 from ..models import ZaakBesluit
@@ -131,9 +132,10 @@ class InternalZaakBesluitTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data,
+            response.json(),
             [
                 {
+                    "_expand": {},
                     "url": f"http://testserver{zaakbesluit_url}",
                     "uuid": str(zaakbesluit.uuid),
                     "besluit": f"http://testserver{reverse(besluit)}",
@@ -156,8 +158,9 @@ class InternalZaakBesluitTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data,
+            response.json(),
             {
+                "_expand": {},
                 "url": f"http://testserver{url}",
                 "uuid": str(zaakbesluit.uuid),
                 "besluit": f"http://testserver{reverse(besluit)}",
@@ -322,3 +325,65 @@ class ZaakBesluitenJWTExpiryTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data["code"], "jwt-expired")
+
+
+@tag("expand")
+class ZaakInformatieObjectenExpandTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    maxDiff = None
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.besluit = BesluitFactory.create(for_zaak=True)
+        cls.zaakbesluit = ZaakBesluit.objects.get(
+            besluit=cls.besluit, zaak=cls.besluit.zaak
+        )
+
+        cls.url = reverse(
+            "zaakbesluit-list",
+            kwargs={"zaak_uuid": cls.besluit.zaak.uuid},
+        )
+
+    def get_resource(self, resource):
+        """Resource without `_expand`"""
+        response = self.client.get(reverse(resource), **ZAAK_READ_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        # The detail responses also include the _expand attribute, but the list response
+        # only has a _expand attribute at the root level (no _expand nested inside _expand)
+        data.pop("_expand", None)
+        return data
+
+    def test_besluit_list_expand_include_all_resources(self):
+        response = self.client.get(
+            self.url,
+            {"expand": "besluit"},
+            **ZAAK_READ_KWARGS,
+        )
+        data = response.json()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        zaakbesluit_url = f"{self.host_prefix}{self.url}/{self.zaakbesluit.uuid}"
+        expected_result = [
+            {
+                "url": zaakbesluit_url,
+                "uuid": str(self.zaakbesluit.uuid),
+                "besluit": self.check_for_instance(self.besluit),
+                "_expand": {
+                    "besluit": self.get_resource(self.besluit),
+                },
+            }
+        ]
+        self.assertEqual(data, expected_result)
+
+    def test_invalid_expansion(self):
+        for expand in ("unknown", "besluit.unknown", "zaak"):
+            with self.subTest(expand=expand):
+                response = self.client.get(
+                    self.url, {"expand": expand}, **ZAAK_READ_KWARGS
+                )
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertEqual(
+                    get_validation_errors(response, "expand")["code"],
+                    "invalid_choice",
+                )

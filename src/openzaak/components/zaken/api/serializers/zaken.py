@@ -1603,6 +1603,10 @@ class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
     Serializer the reverse relation between Besluit-Zaak.
     """
 
+    inclusion_serializers = {
+        "besluit": "openzaak.components.besluiten.api.serializers.BesluitSerializer",
+    }
+
     parent_lookup_kwargs = {"zaak_uuid": "zaak__uuid"}
 
     class Meta:
