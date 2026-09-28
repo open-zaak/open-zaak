@@ -1171,6 +1171,15 @@ class SubStatusSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
+    inclusion_serializers = {
+        "zaak": "openzaak.components.zaken.api.serializers.ZaakSerializer",
+        "zaak.zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "status": "openzaak.components.zaken.api.serializers.StatusSerializer",
+        "status.statustype": "openzaak.components.catalogi.api.serializers.StatusTypeSerializer",
+        "status.gezetdoor": "openzaak.components.zaken.api.serializers.RolSerializer",
+        "informatieobject": "openzaak.components.documenten.api.serializers.EnkelvoudigInformatieObjectSerializer",
+    }
+
     aard_relatie_weergave = serializers.ChoiceField(
         source="get_aard_relatie_display",
         read_only=True,

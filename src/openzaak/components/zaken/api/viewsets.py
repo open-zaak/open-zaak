@@ -961,6 +961,7 @@ class ZaakObjectViewSet(
 @conditional_retrieve()
 class ZaakInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationCreateMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -973,10 +974,32 @@ class ZaakInformatieObjectViewSet(
     """
 
     queryset = (
-        ZaakInformatieObject.objects.select_related("zaak", "_informatieobject")
+        ZaakInformatieObject.objects.select_related(
+            "zaak", "status", "_informatieobject"
+        )
         .prefetch_related("_informatieobject__enkelvoudiginformatieobject_set")
         .order_by("-pk")
     )
+    inclusion_viewsets = {
+        "zaak": ("zaak", "openzaak.components.zaken.api.viewsets.ZaakViewSet"),
+        "zaak.zaaktype": (
+            "zaak___zaaktype",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "status": ("status", "openzaak.components.zaken.api.viewsets.StatusViewSet"),
+        "status.statustype": (
+            "status___statustype",
+            "openzaak.components.catalogi.api.viewsets.statustype.StatusTypeViewSet",
+        ),
+        "status.gezetdoor": (
+            "status__gezetdoor",
+            "openzaak.components.zaken.api.viewsets.RolViewSet",
+        ),
+        "informatieobject": (
+            "_informatieobject__latest_version",
+            "openzaak.components.documenten.api.viewsets.EnkelvoudigInformatieObjectViewSet",
+        ),
+    }
     filterset_class = ZaakInformatieObjectFilter
     serializer_class = ZaakInformatieObjectSerializer
     lookup_field = "uuid"
