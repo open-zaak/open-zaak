@@ -45,6 +45,7 @@ from .serializers.authentication_context import (
     DigiDLevelOfAssurance,
     eHerkenningLevelOfAssurance,
 )
+from .serializers.zaakobjecten import ZaakObjectSerializer
 
 # custom filter to show cases for authorizee and representee
 MACHTIGING_HELP_TEXT = mark_experimental(
@@ -519,6 +520,8 @@ class ZaakInformatieObjectFilter(FilterSet):
 
 
 class ZaakObjectFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=ZaakObjectSerializer)
+
     class Meta:
         model = ZaakObject
         fields = ("zaak", "object", "object_type")

@@ -7,11 +7,15 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from simple_certmanager.test.factories import CertificateFactory
 from vng_api_common.constants import ZaakobjectTypes
-from vng_api_common.tests import get_validation_errors
+from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.bag.tests import mock_pand_get
+from openzaak.components.catalogi.tests.factories.zaakobjecttype import (
+    ZaakObjectTypeFactory,
+)
+from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
 from openzaak.tests.utils import JWTAuthMixin
 
 from ..models import (
@@ -31,7 +35,7 @@ from ..models import (
     ZakelijkRechtHeeftAlsGerechtigde,
 )
 from .factories import ZaakFactory, ZaakObjectFactory
-from .utils import get_operation_url
+from .utils import ZAAK_READ_KWARGS, get_operation_url
 
 OBJECT = "http://example.org/api/zaakobjecten/8768c581-2817-4fe5-933d-37af92d819dd"
 
@@ -60,6 +64,7 @@ class ZaakObjectBaseTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
+                "_expand": {},
                 "url": f"http://testserver{url}",
                 "uuid": str(zaakobject.uuid),
                 "zaak": f"http://testserver{zaak_url}",
@@ -199,6 +204,7 @@ class ZaakObjectAdresTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
+                "_expand": {},
                 "url": f"http://testserver{url}",
                 "uuid": str(zaakobject.uuid),
                 "zaak": f"http://testserver{zaak_url}",
@@ -346,6 +352,7 @@ class ZaakObjectHuishoudenTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
+                "_expand": {},
                 "url": f"http://testserver{url}",
                 "uuid": str(zaakobject.uuid),
                 "zaak": f"http://testserver{zaak_url}",
@@ -475,6 +482,7 @@ class ZaakObjectMedewerkerTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
+                "_expand": {},
                 "url": f"http://testserver{url}",
                 "uuid": str(zaakobject.uuid),
                 "zaak": f"http://testserver{zaak_url}",
@@ -560,6 +568,7 @@ class ZaakObjectTerreinGebouwdObjectTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
+                "_expand": {},
                 "url": f"http://testserver{url}",
                 "uuid": str(zaakobject.uuid),
                 "zaak": f"http://testserver{zaak_url}",
@@ -703,6 +712,7 @@ class ZaakObjectWozObjectTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
+                "_expand": {},
                 "url": f"http://testserver{url}",
                 "uuid": str(zaakobject.uuid),
                 "zaak": f"http://testserver{zaak_url}",
@@ -809,6 +819,7 @@ class ZaakObjectWozDeelobjectTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
+                "_expand": {},
                 "url": f"http://testserver{url}",
                 "uuid": str(zaakobject.uuid),
                 "zaak": f"http://testserver{zaak_url}",
@@ -961,6 +972,7 @@ class ZaakObjectWozWaardeTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
+                "_expand": {},
                 "url": f"http://testserver{url}",
                 "uuid": str(zaakobject.uuid),
                 "zaak": f"http://testserver{zaak_url}",
@@ -1080,6 +1092,7 @@ class ZaakObjectZakelijkRechtTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
+                "_expand": {},
                 "url": f"http://testserver{url}",
                 "uuid": str(zaakobject.uuid),
                 "zaak": f"http://testserver{zaak_url}",
@@ -1208,6 +1221,7 @@ class ZaakObjectOverigeTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
+                "_expand": {},
                 "url": f"http://testserver{url}",
                 "uuid": str(zaakobject.uuid),
                 "zaak": f"http://testserver{zaak_url}",
@@ -1491,6 +1505,7 @@ class ZaakObjectProductTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
+                "_expand": {},
                 "url": f"http://testserver{url}",
                 "uuid": str(zaakobject.uuid),
                 "zaak": f"http://testserver{zaak_url}",
@@ -1534,3 +1549,79 @@ class ZaakObjectProductTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ZaakObject.objects.count(), 0)
+
+
+@tag("expand")
+class ZaakObjectExpandTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    scopes = [str(SCOPE_ZAKEN_ALLES_LEZEN)]
+    maxDiff = None
+    url = reverse_lazy("zaakobject-list")
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.zaak = ZaakFactory.create()
+        cls.objecttype = ZaakObjectTypeFactory.create()
+        cls.zaakobject = ZaakObjectFactory.create(
+            zaak=cls.zaak,
+            zaakobjecttype=cls.objecttype,
+            zaak__zaaktype=cls.objecttype.zaaktype,
+        )
+
+    def get_resource(self, resource):
+        """Resource without `_expand`"""
+        response = self.client.get(reverse(resource), **ZAAK_READ_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        # The detail responses also include the _expand attribute, but the list response
+        # only has a _expand attribute at the root level (no _expand nested inside _expand)
+        data.pop("_expand", None)
+        return data
+
+    def test_zaakobject_list_expand_include_all_resources(self):
+        response = self.client.get(
+            self.url,
+            {"expand": "zaak,zaak.zaaktype,zaakobjecttype"},
+        )
+        data = response.json()["results"]
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        expected_result = [
+            {
+                **self.get_resource(self.zaakobject),
+                "_expand": {
+                    "zaak": {
+                        **self.get_resource(self.zaak),
+                        "_expand": {
+                            "zaaktype": self.get_resource(self.zaakobject.zaak.zaaktype)
+                        },
+                    },
+                    "zaakobjecttype": self.get_resource(self.objecttype),
+                },
+            }
+        ]
+        self.assertEqual(data, expected_result)
+
+    def test_invalid_expansion(self):
+        for expand in (
+            "unknown",
+            "zaakobject.unknown",
+            "zaak.zaaktype.catalogus",
+        ):
+            with self.subTest(expand=expand):
+                response = self.client.get(
+                    self.url,
+                    {"expand": expand},
+                )
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertEqual(
+                    get_validation_errors(response, "expand")["code"],
+                    "invalid_choice",
+                )
+
+    def test_nested_expansion_requires_parent(self):
+        response = self.client.get(self.url, {"expand": "zaak.zaaktype"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()["results"]
+        expected_result = [{**self.get_resource(self.zaakobject), "_expand": {}}]
+        self.assertEqual(data, expected_result)

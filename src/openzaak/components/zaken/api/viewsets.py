@@ -799,6 +799,7 @@ class SubStatusViewSet(
 )
 class ZaakObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     CheckQueryParamsMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
@@ -811,8 +812,38 @@ class ZaakObjectViewSet(
     Opvragen en bewerken van ZAAKOBJECTen.
     """
 
-    queryset = ZaakObject.objects.select_related("zaak", "_zaakobjecttype").order_by(
-        "-pk"
+    queryset = (
+        ZaakObject.objects.select_related(
+            "zaak",
+            "_zaakobjecttype",
+            "zaak__resultaat",
+        )
+        .prefetch_related(
+            # Zaak
+            "zaak__deelzaken",
+            "zaak__zaakobject_set",
+            "zaak__zaakkenmerk_set",
+            "zaak__status_set",
+            "zaak__rol_set",
+            "zaak__zaakeigenschap_set",
+            "zaak__zaakbesluit_set",
+            "zaak__relevante_andere_zaken",
+            "zaak__gerelateerde_zaken",
+            "zaak__zaakinformatieobject_set",
+            # Zaaktype
+            "zaak___zaaktype__eigenschap_set",
+            "zaak___zaaktype__resultaattypen__besluittypen",
+            "zaak___zaaktype__resultaattypen__informatieobjecttypen",
+            "zaak___zaaktype__roltype_set",
+            "zaak___zaaktype__statustypen__checklistitem_set",
+            "zaak___zaaktype__statustypen__eigenschappen",
+            "zaak___zaaktype__statustypen__zaakobjecttypen",
+            "zaak___zaaktype__zaakobjecttype_set__resultaattypen",
+            "zaak___zaaktype__deelzaaktypen",
+            "zaak___zaaktype__zaaktypenrelaties",
+            "zaak___zaaktype__catalogus",
+        )
+        .order_by("-pk")
     )
     serializer_class = ZaakObjectSerializer
     filterset_class = ZaakObjectFilter
