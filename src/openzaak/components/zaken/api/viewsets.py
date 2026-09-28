@@ -824,6 +824,7 @@ class SubStatusViewSet(
 )
 class ZaakObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     CheckQueryParamsMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
@@ -839,6 +840,17 @@ class ZaakObjectViewSet(
     queryset = ZaakObject.objects.select_related("zaak", "_zaakobjecttype").order_by(
         "-pk"
     )
+    inclusion_viewsets = {
+        "zaak": ("zaak", "openzaak.components.zaken.api.viewsets.ZaakViewSet"),
+        "zaak.zaaktype": (
+            "zaak___zaaktype",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "zaakobjecttype": (
+            "_zaakobjecttype",
+            "openzaak.components.catalogi.api.viewsets.zaakobjecttype.ZaakObjectTypeViewSet",
+        ),
+    }
     serializer_class = ZaakObjectSerializer
     filterset_class = ZaakObjectFilter
     lookup_field = "uuid"
