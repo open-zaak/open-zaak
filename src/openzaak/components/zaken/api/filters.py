@@ -19,6 +19,7 @@ from openzaak.components.zaken.api.serializers.zaken import (
     ResultaatSerializer,
     RolSerializer,
     StatusSerializer,
+    ZaakInformatieObjectSerializer,
     ZaakSerializer,
 )
 from openzaak.utils.filters import (
@@ -504,6 +505,8 @@ class ResultaatFilter(FilterSet):
 
 
 class ZaakInformatieObjectFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=ZaakInformatieObjectSerializer)
+
     informatieobject = FkOrUrlFieldFilter(
         queryset=ZaakInformatieObject.objects.all(),
         instance_path="canonical",
