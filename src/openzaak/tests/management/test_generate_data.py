@@ -632,6 +632,18 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
         self.assertEqual(Zaak.objects.all().count(), 13)
         self.assertEqual(EnkelvoudigInformatieObject.objects.all().count(), 9)
 
+    def test_generate_zaak_inzage_data_without_generate_zaken(self):
+        with patch("builtins.input", lambda *args: "yes"):
+            with self.assertRaises(CommandError):
+                call_command(
+                    "generate_data",
+                    partition=1,
+                    zaaktypen=1,
+                    zaken=1,
+                    resources=["besluiten"],
+                    generate_zaak_inzage_data=True,
+                )
+
 
 @disable_admin_mfa()
 @override_settings(SITE_DOMAIN="testserver")

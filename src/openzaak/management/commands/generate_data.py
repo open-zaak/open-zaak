@@ -339,6 +339,7 @@ class Command(BaseCommand):
 
         self.get_sl_data()
         self.generate_catalogi()
+
         if generate_zaken:
             self.generate_zaken()
         if generate_besluiten:
@@ -350,9 +351,9 @@ class Command(BaseCommand):
             self.generate_relations()
 
         if generate_zaak_inzage_data:
-            if not generate_zaken:
+            if not generate_zaken and self.zaken_amount > 0:
                 raise CommandError(
-                    "--generate-zaak-inzage-data requires 'zaken' in --resources"
+                    "--generate-zaak-inzage-data requires 'zaken' in --resources and at least 1 --zaken"
                 )
             self.generate_zaak_inzage_data()
 
