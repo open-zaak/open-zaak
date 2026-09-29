@@ -190,6 +190,8 @@ class VerzendingAdmin(UUIDAdminMixin, admin.ModelAdmin):
     search_fields = (
         "contactpersoonnaam",
         "uuid",
+        "informatieobject__enkelvoudiginformatieobject__uuid",
+        "informatieobject__enkelvoudiginformatieobject__identificatie",
     )
 
     raw_id_fields = ("informatieobject",)
