@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from django.db.models import Prefetch
 
 import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
@@ -12,7 +11,7 @@ from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 
-from ...models import BesluitType, Catalogus, InformatieObjectType, ZaakType
+from ...models import Catalogus
 from ..filters import CatalogusDetailFilter, CatalogusFilter
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_WRITE,
@@ -64,63 +63,20 @@ class CatalogusViewSet(
         "informatieobjecttype_set",
     ).order_by("-pk")
 
-    def get_queryset(self):
-        qs = super().get_queryset()
-
-        request = getattr(self, "request", None)
-
-        if request is not None and hasattr(request, "data"):
-            inclusions = self.get_requested_inclusions(request)
-        else:
-            inclusions = None
-
-        # Prefetch the expanded resource only when inclusions are requested.
-        if inclusions:
-            qs = qs.prefetch_related(
-                Prefetch(
-                    "zaaktype_set",
-                    queryset=ZaakType.objects.select_related(
-                        "catalogus",
-                    ).prefetch_related(
-                        "informatieobjecttypen",
-                        "statustypen",
-                        "resultaattypen",
-                        "eigenschap_set",
-                        "roltype_set",
-                        "besluittypen",
-                        "zaakobjecttype_set",
-                        "zaaktypenrelaties",
-                        "deelzaaktypen",
-                    ),
-                ),
-                Prefetch(
-                    "besluittype_set",
-                    queryset=BesluitType.objects.select_related(
-                        "catalogus",
-                    ).prefetch_related(
-                        "resultaattype_set",
-                        "zaaktypen",
-                        "informatieobjecttypen",
-                    ),
-                ),
-                Prefetch(
-                    "informatieobjecttype_set",
-                    queryset=InformatieObjectType.objects.select_related(
-                        "catalogus",
-                    ).prefetch_related(
-                        "zaaktypen",
-                        "besluittypen",
-                    ),
-                ),
-            )
-        else:
-            qs = qs.prefetch_related(
-                "zaaktype_set",
-                "besluittype_set",
-                "informatieobjecttype_set",
-            )
-
-        return qs
+    inclusion_viewsets = {
+        "zaaktypen": (
+            "zaaktype_set",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "besluittypen": (
+            "besluittype_set",
+            "openzaak.components.catalogi.api.viewsets.besluittype.BesluitTypeViewSet",
+        ),
+        "informatieobjecttypen": (
+            "informatieobjecttype_set",
+            "openzaak.components.catalogi.api.viewsets.informatieobjecttype.InformatieObjectTypeViewSet",
+        ),
+    }
 
     serializer_class = CatalogusSerializer
     lookup_field = "uuid"

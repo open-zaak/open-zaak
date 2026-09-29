@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from django.db import DatabaseError, transaction
-from django.db.models import Prefetch
-from django.utils.module_loading import import_string
 
 import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view

@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 
-from django.utils.module_loading import import_string
 from django.db.models import Prefetch
+from django.utils.module_loading import import_string
 
 from dictdiffer import diff
 from rest_framework_inclusions.renderer import (
@@ -51,6 +51,23 @@ class APIMixin(_APIMixin):
 class ExpandMixin:
     expand_param = EXPAND_QUERY_PARAM
 
+    def _remove_select_related(self, qs, lookup):
+        select_related = qs.query.select_related
+
+        if not select_related or select_related is True:
+            return qs
+
+        parts = lookup.split("__")
+        current = select_related
+
+        for part in parts[:-1]:
+            current = current.get(part)
+            if current is None:
+                return qs
+
+        current.pop(parts[-1], None)
+        return qs
+
     def get_queryset(self):
         qs = super().get_queryset()
 
@@ -64,19 +81,57 @@ class ExpandMixin:
         inclusion_viewsets = getattr(self, "inclusion_viewsets", None)
 
         if inclusions and inclusion_viewsets:
-            # clear prefetches because we're going to override them
-            qs = qs.prefetch_related(None)
-            for inclusion in inclusions.split(","):
+            prefetches = list(qs._prefetch_related_lookups)
+
+            inclusions = [inclusion.strip() for inclusion in inclusions.split(",")]
+            # Sort parent lookups before nested lookups
+            inclusions.sort(
+                key=lambda inclusion: "__"
+                in (
+                    inclusion_viewsets[inclusion][0]
+                    if isinstance(inclusion_viewsets[inclusion], tuple)
+                    else inclusion
+                )
+            )
+
+            for inclusion in inclusions:
                 related_viewset = inclusion_viewsets.get(inclusion)
                 if not related_viewset:
                     continue
 
-                related_viewset = import_string(related_viewset)
-                # TODO handles Prefetch objects?
+                # The API expand name can differ from the lookup for reverse relations
+                if isinstance(related_viewset, tuple):
+                    lookup, viewset_path = related_viewset
+                else:
+                    lookup = inclusion
+                    viewset_path = related_viewset
+
+                # If the inclusion replaces a select_related lookup, remove that lookup
+                qs = self._remove_select_related(qs, lookup)
+
+                related_viewset = import_string(viewset_path)
+
+                prefetches = [
+                    prefetch
+                    for prefetch in prefetches
+                    if not (
+                        prefetch == lookup
+                        or getattr(prefetch, "prefetch_to", prefetch).startswith(
+                            f"{lookup}__"
+                        )
+                    )
+                ]
+
                 # TODO if contains ., replace with __?
-                qs = qs.prefetch_related(
-                    Prefetch(inclusion, queryset=related_viewset.queryset.order_by())
+                prefetches.append(
+                    Prefetch(
+                        lookup,
+                        queryset=related_viewset.queryset.order_by(),
+                    )
                 )
+            # Clear the existing prefetches so the modified prefetch list can replace them
+            qs = qs.prefetch_related(None).prefetch_related(*prefetches)
+
         return qs
 
     def get_renderers(self):
