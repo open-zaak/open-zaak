@@ -182,10 +182,7 @@ class VerzendingAdmin(UUIDAdminMixin, admin.ModelAdmin):
         "verzenddatum",
         "ontvangstdatum",
     )
-    list_filter = (
-        "aard_relatie",
-        "informatieobject",
-    )
+    list_filter = ("aard_relatie",)
     ordering = (
         "-verzenddatum",
         "-ontvangstdatum",
@@ -194,6 +191,7 @@ class VerzendingAdmin(UUIDAdminMixin, admin.ModelAdmin):
         "contactpersoonnaam",
         "uuid",
     )
+
     raw_id_fields = ("informatieobject",)
     form = VerzendingForm
     readonly_fields = ("uuid",)
