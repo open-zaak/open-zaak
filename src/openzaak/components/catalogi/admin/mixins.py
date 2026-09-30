@@ -55,6 +55,18 @@ class ConceptAdminMixin:
 
 
 class PublishAdminMixin:
+    actions = ["publish_selected"]
+
+    def __init_subclass__(cls, **kwargs) -> None:
+        super().__init_subclass__(**kwargs)
+        match cls.actions:
+            case None:
+                # actions explicitly turned off
+                pass
+            case [*actions] if "publish_selected" not in actions:
+                # assign new list, not modifying ambiguous classvar/instance var
+                cls.actions = [*actions, "publish_selected"]
+
     def _publish_validation_errors(self, obj):
         return []
 
@@ -88,7 +100,10 @@ class PublishAdminMixin:
         else:
             return super().response_post_save_change(request, obj)
 
-    @admin.action(description=_("Publish selected %(verbose_name_plural)s"))
+    @admin.action(
+        permissions=["change"],
+        description=_("Publish selected %(verbose_name_plural)s"),
+    )
     def publish_selected(self, request, queryset):
         published = 0
         already_published = queryset.filter(concept=False).count()
@@ -135,11 +150,6 @@ class PublishAdminMixin:
                 % published
             )
             self.message_user(request, msg, level=messages.SUCCESS)
-
-    def get_actions(self, request):
-        actions = super().get_actions(request)
-        actions["publish_selected"] = self.get_action("publish_selected")
-        return actions
 
 
 class GeldigheidPublishAdminMixin(PublishAdminMixin):
