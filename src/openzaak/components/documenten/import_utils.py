@@ -45,6 +45,7 @@ class DocumentRow:
     _trefwoorden: str
     _inhoud_is_vervallen: str
     _tonen_aan_initiator: str
+    _is_gereed_voor_publicatie: str
 
     row_index: int
 
@@ -89,6 +90,7 @@ class DocumentRow:
             "trefwoorden",
             "inhoudIsVervallen",
             "tonenAanInitiator",
+            "isGereedVoorPublicatie",
         ]
 
     @classproperty
@@ -216,6 +218,10 @@ class DocumentRow:
         return self._tonen_aan_initiator.lower() == "true"
 
     @property
+    def is_gereed_voor_publicatie(self) -> bool | None:
+        return self._is_gereed_voor_publicatie.lower() == "true"
+
+    @property
     def processed(self) -> bool:
         return self._processed
 
@@ -271,6 +277,7 @@ class DocumentRow:
             "trefwoorden": self.trefwoorden,
             "inhoud_is_vervallen": self.inhoud_is_vervallen,
             "tonen_aan_initiator": self.tonen_aan_initiator,
+            "is_gereed_voor_publicatie": self.is_gereed_voor_publicatie,
         }
 
     def as_original(self):
@@ -304,6 +311,7 @@ class DocumentRow:
             "trefwoorden": self._trefwoorden,
             "inhoudIsVervallen": self._inhoud_is_vervallen,
             "tonenAanInitiator": self._tonen_aan_initiator,
+            "isGereedVoorPublicatie": self._is_gereed_voor_publicatie,
         }
 
     def as_export_data(self):

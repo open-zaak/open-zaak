@@ -234,6 +234,15 @@ class InformatieObject(models.Model):
             "initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen."
         ),
     )
+    is_gereed_voor_publicatie = models.BooleanField(
+        _("Is gereed voor publicatie"),
+        null=True,
+        default=False,
+        help_text=_(
+            "Geeft aan of het INFORMATIEOBJECT gereed is voor publicatie. "
+            "Dit veld mag `null` zijn om aan te geven dat de gereedheid voor publicatie nog niet bekend is."
+        ),
+    )
 
     objects = InformatieobjectQuerySet.as_manager()
 
