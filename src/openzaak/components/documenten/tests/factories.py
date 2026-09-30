@@ -228,6 +228,7 @@ class DocumentRowFactory(factory.ListFactory):
     trefwoorden = ""
     inhoud_is_vervallen = ""
     tonen_aan_initiator = ""
+    is_gereed_voor_publicatie = ""
 
     @classmethod
     def _create_file(cls, model_class, *args, **kwargs):
@@ -308,6 +309,7 @@ class DocumentRowFactory(factory.ListFactory):
             trefwoorden='"foo,bar"',
             inhoud_is_vervallen=None,
             tonen_aan_initiator="true",
+            is_gereed_voor_publicatie="true",
         )
 
 
