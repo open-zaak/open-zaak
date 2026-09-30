@@ -178,6 +178,7 @@ class VerzendingAdmin(UUIDAdminMixin, admin.ModelAdmin):
     list_display = (
         "uuid",
         "aard_relatie",
+        "informatieobject",
         "contactpersoonnaam",
         "verzenddatum",
         "ontvangstdatum",
