@@ -5,6 +5,7 @@ from django.db.models import Prefetch
 from django.utils.module_loading import import_string
 
 from dictdiffer import diff
+from rest_framework.exceptions import ValidationError
 from rest_framework_inclusions.renderer import (
     get_allowed_paths,
 )
@@ -84,6 +85,17 @@ class ExpandMixin:
             prefetches = list(qs._prefetch_related_lookups)
 
             inclusions = [inclusion.strip() for inclusion in inclusions.split(",")]
+
+            unsupported = [
+                inclusion
+                for inclusion in inclusions
+                if inclusion not in inclusion_viewsets
+            ]
+
+            if unsupported:
+                raise ValidationError(
+                    {"expand": f"Expansion '{unsupported[0]}' is not supported."}
+                )
             # Sort parent lookups before nested lookups
             inclusions.sort(
                 key=lambda inclusion: "__"
