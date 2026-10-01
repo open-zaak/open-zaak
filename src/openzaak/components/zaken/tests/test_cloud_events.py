@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
+from contextlib import contextmanager
 from datetime import date, datetime
-from unittest import TestCase, skip
+from unittest import TestCase, mock, skip
 from unittest.mock import Mock, patch
 from uuid import UUID, uuid4
 
@@ -15,6 +16,7 @@ from celery.exceptions import Retry
 from cloudevents.conversion import to_dict
 from cloudevents.http import CloudEvent
 from freezegun import freeze_time
+from kombu.utils.json import dumps
 from notifications_api_common.models import NotificationsConfig
 from notifications_api_common.tasks import send_cloudevent
 from requests.exceptions import Timeout
@@ -33,6 +35,7 @@ from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
+from openzaak.celery import app
 from openzaak.components.catalogi.tests.factories import (
     ResultaatTypeFactory,
     RolTypeFactory,
@@ -1527,6 +1530,59 @@ class IncomingZaakCloudEventTests(JWTAuthMixin, APITestCase):
         )
         self.assertFalse(self.zaak.zaakobject_set.exists())
         self.assertNotIn("traceback", response.text.lower())
+
+    @tag("gh-2586")
+    @override_settings(
+        NOTIFICATIONS_SOURCE="oz-test",
+        ENABLE_CLOUD_EVENTS=True,
+        SITE_DOMAIN="testserver",
+        LOG_NOTIFICATIONS_IN_DB=False,
+    )
+    def test_with_outgoing_zaak_gemuteerd_cloudevent(self):
+        zaak = ZaakFactory.create()
+        event = CloudEvent(
+            {"type": ZAAK_GEKOPPELD, "source": "https://example.com/event-producer"},
+            {
+                "zaak": f"http://testserver{reverse(zaak)}",
+                "linkTo": "https://example.com",
+                "linkObjectType": "example",
+                "label": "Een voorbeeld-URL",
+            },
+        )
+        errors = []
+
+        def check_message(sender=None, headers=None, body=None, **kwargs):
+            try:
+                dumps(headers)
+                dumps(body)
+            except (
+                Exception
+            ) as exc:  # Celery swallows receiver exceptions, so record instead
+                errors.append(f"{sender}: {exc!r}")
+
+        fake_producer = mock.MagicMock()
+        fake_producer.publish.side_effect = check_message
+
+        @contextmanager
+        def fake_producer_or_acquire(producer=None):
+            yield fake_producer
+
+        # Verify that the cloudevent task args are JSON serializable, without actually
+        # making use of redis
+        # Unfortunately patching CELERY_BROKER_URL and CELERY_RESULT_BACKEND on a per
+        # test basis doesn't work, because the celery settings are cached
+        with mock.patch.object(app, "producer_or_acquire", fake_producer_or_acquire):
+            with mock.patch.object(app.backend, "on_task_call"):
+                with self.captureOnCommitCallbacks(execute=True):
+                    response = self.client.post(
+                        self.endpoint,
+                        to_dict(event),
+                        headers={"content-type": "application/cloudevents+json"},
+                    )
+        fake_producer.publish.assert_called_once()
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED, response.data)
+        self.assertEqual(errors, [], "Unserializable Celery task message(s)")
 
 
 @tag("cloudevents")
