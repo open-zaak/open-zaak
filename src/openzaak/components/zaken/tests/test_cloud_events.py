@@ -11,10 +11,10 @@ from django.test import override_settings, tag
 from django.utils import timezone
 
 import requests_mock
+import time_machine
 from celery.exceptions import Retry
 from cloudevents.conversion import to_dict
 from cloudevents.http import CloudEvent
-from freezegun import freeze_time
 from notifications_api_common.models import NotificationsConfig
 from notifications_api_common.tasks import send_cloudevent
 from requests.exceptions import Timeout
@@ -118,7 +118,7 @@ class CloudEventSettingMixin(TestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls._freezer = freeze_time(cls.CLOUD_EVENT_TIME)
+        cls._freezer = time_machine.travel(cls.CLOUD_EVENT_TIME, tick=False)
         cls._freezer.start()
 
         cls._override = override_settings(
@@ -209,7 +209,7 @@ class CloudEventSettingMixin(TestCase):
 
 @tag("gh-2228", "cloudevents")
 @requests_mock.Mocker()
-@freeze_time("2012-01-14")
+@time_machine.travel("2012-01-14", tick=False)
 @patch(
     "notifications_api_common.cloudevents.uuid.uuid4",
     return_value=UUID("627a7fd2-6b9a-4963-8723-6ce7650f37c0"),
@@ -433,7 +433,7 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
 
     @tag("gh-2179")
     def test_patch_zaak_with_only_laatst_geopend_sends_zaak_geopend_event(self):
-        with freeze_time("2025-09-23T12:15:00Z"):
+        with time_machine.travel("2025-09-23T12:15:00Z", tick=False):
             zaak = ZaakFactory.create()
 
         with patch(
@@ -497,7 +497,7 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             "notifications_api_common.tasks.send_cloudevent.delay",
             autospec=True,
         ) as mock_send:
-            with freeze_time("2025-01-01T12:00:01"):
+            with time_machine.travel("2025-01-01T12:00:01", tick=False):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.patch(
                         reverse(zaak),
@@ -664,7 +664,7 @@ class ResultaatCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase
     def test_resultaat_create_sends_gemuteerd_cloud_event(self):
         with patch_send_cloud_event() as mock_send:
             with self.captureOnCommitCallbacks(execute=True):
-                with freeze_time("2025-09-23T12:15:00Z"):
+                with time_machine.travel("2025-09-23T12:15:00Z", tick=False):
                     response = self.client.post(reverse(Resultaat), self.data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -681,7 +681,7 @@ class ResultaatCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase
         )
         with patch_send_cloud_event() as mock_send:
             with self.captureOnCommitCallbacks(execute=True):
-                with freeze_time("2025-09-23T12:15:00Z"):
+                with time_machine.travel("2025-09-23T12:15:00Z", tick=False):
                     response = self.client.put(reverse(resultaat), self.data)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -695,7 +695,7 @@ class ResultaatCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase
             mock_send.reset_mock()
 
             with self.captureOnCommitCallbacks(execute=True):
-                with freeze_time("2025-09-23T12:16:00Z"):
+                with time_machine.travel("2025-09-23T12:16:00Z", tick=False):
                     response = self.client.patch(reverse(resultaat), self.data)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -712,7 +712,7 @@ class ResultaatCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase
         )
         with patch_send_cloud_event() as mock_send:
             with self.captureOnCommitCallbacks(execute=True):
-                with freeze_time("2025-09-23T12:15:00Z"):
+                with time_machine.travel("2025-09-23T12:15:00Z", tick=False):
                     response = self.client.delete(reverse(resultaat))
 
         self.assertEqual(
@@ -743,7 +743,7 @@ class StatusCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
 
     def test_status_create_sends_gemuteerd_cloud_event(self):
         with patch_send_cloud_event() as mock_send:
-            with freeze_time("2025-09-23T12:15:00Z"):
+            with time_machine.travel("2025-09-23T12:15:00Z", tick=False):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.post(
                         reverse(Status),
@@ -882,7 +882,7 @@ class ZaakContactMomentCloudEventTests(
 
 @tag("cloudevents")
 @override_settings(SITE_DOMAIN="testserver")
-@freeze_time("2026-01-02T11:45:00Z")
+@time_machine.travel("2026-01-02T11:45:00Z", tick=False)
 class ZaakInformatieObjectCloudEventTests(
     CloudEventSettingMixin, JWTAuthMixin, APITestCase
 ):
@@ -909,7 +909,7 @@ class ZaakInformatieObjectCloudEventTests(
 
     def test_zaak_informatie_object_create_sends_gemuteerd_cloud_event(self):
         with patch_send_cloud_event() as mock_send:
-            with freeze_time("2025-09-23T12:15:00Z"):
+            with time_machine.travel("2025-09-23T12:15:00Z", tick=False):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.post(
                         reverse(ZaakInformatieObject), self.data
@@ -933,7 +933,7 @@ class ZaakInformatieObjectCloudEventTests(
         )
 
         with patch_send_cloud_event() as mock_send:
-            with freeze_time("2025-09-23T12:15:00Z"):
+            with time_machine.travel("2025-09-23T12:15:00Z", tick=False):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.put(reverse(zio), self.data)
 
@@ -949,7 +949,7 @@ class ZaakInformatieObjectCloudEventTests(
 
             mock_send.reset_mock()
 
-            with freeze_time("2025-09-23T12:16:00Z"):
+            with time_machine.travel("2025-09-23T12:16:00Z", tick=False):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.patch(reverse(zio), self.data)
 
@@ -969,7 +969,7 @@ class ZaakInformatieObjectCloudEventTests(
         )
 
         with patch_send_cloud_event() as mock_send:
-            with freeze_time("2025-09-23T12:15:00Z"):
+            with time_machine.travel("2025-09-23T12:15:00Z", tick=False):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.delete(reverse(zio))
 
@@ -1011,7 +1011,7 @@ class ZaakObjectCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCas
 
     def test_zaak_object_create_sends_gemuteerd_cloud_event(self):
         with patch_send_cloud_event() as mock_send:
-            with freeze_time("2025-09-23T12:15:00Z"):
+            with time_machine.travel("2025-09-23T12:15:00Z", tick=False):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.post(reverse(ZaakObject), self.data)
 
@@ -1034,7 +1034,7 @@ class ZaakObjectCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCas
         )
 
         with patch_send_cloud_event() as mock_send:
-            with freeze_time("2025-09-23T12:15:00Z"):
+            with time_machine.travel("2025-09-23T12:15:00Z", tick=False):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.put(reverse(zaakobject), self.data)
 
@@ -1050,7 +1050,7 @@ class ZaakObjectCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCas
 
             mock_send.reset_mock()
 
-            with freeze_time("2025-09-23T12:16:00Z"):
+            with time_machine.travel("2025-09-23T12:16:00Z", tick=False):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.patch(reverse(zaakobject), self.data)
 
@@ -1070,7 +1070,7 @@ class ZaakObjectCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCas
         )
 
         with patch_send_cloud_event() as mock_send:
-            with freeze_time("2025-09-23T12:15:00Z"):
+            with time_machine.travel("2025-09-23T12:15:00Z", tick=False):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.delete(reverse(zaakobject))
 
@@ -1219,7 +1219,7 @@ class SubStatusCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase
     def test_substatus_create_sends_gemuteerd_cloud_event(self):
         with patch_send_cloud_event() as mock_send:
             with self.captureOnCommitCallbacks(execute=True):
-                with freeze_time("2025-09-23T12:15:00Z"):
+                with time_machine.travel("2025-09-23T12:15:00Z", tick=False):
                     response = self.client.post(reverse(SubStatus), self.data)
 
             self.assertEqual(

@@ -8,8 +8,8 @@ from django.urls import reverse
 from django.utils.translation import gettext as _, ngettext_lazy
 
 import requests_mock
+import time_machine
 from django_webtest import WebTest
-from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
@@ -60,7 +60,7 @@ class ZaaktypeAdminTests(
 
     @tag("notifications")
     @override_settings(NOTIFICATIONS_DISABLED=False, LOG_NOTIFICATIONS_IN_DB=False)
-    @freeze_time("2022-01-01")
+    @time_machine.travel("2022-01-01", tick=False)
     @patch("notifications_api_common.viewsets.send_notification.delay")
     def test_publish_zaaktype(self, m, mock_notif):
         procestype_url = (

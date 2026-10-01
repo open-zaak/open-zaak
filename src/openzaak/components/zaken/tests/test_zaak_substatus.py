@@ -3,7 +3,7 @@
 from django.test import override_settings
 from django.utils import timezone
 
-from freezegun import freeze_time
+import time_machine
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
@@ -163,7 +163,7 @@ class SubStatusTests(JWTAuthMixin, APITestCase):
         status_url = reverse(status_obj)
         list_url = reverse(SubStatus)
 
-        with freeze_time("2020-01-01T12:00:00"):
+        with time_machine.travel("2020-01-01T12:00:00", tick=False):
             response = self.client.post(
                 list_url,
                 {

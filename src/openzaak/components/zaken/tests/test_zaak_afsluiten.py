@@ -8,8 +8,8 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 
 import requests_mock
+import time_machine
 from dateutil.relativedelta import relativedelta
-from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
@@ -50,7 +50,7 @@ from .utils import ZAAK_READ_KWARGS
 
 
 @tag("convenience-endpoints")
-@freeze_time("2025-01-01T12:00:00")
+@time_machine.travel("2025-01-01T12:00:00", tick=False)
 @override_settings(
     OPENZAAK_DOMAIN="testserver", LINK_FETCHER="vng_api_common.mocks.link_fetcher_200"
 )
@@ -248,7 +248,7 @@ class ZaakAfsluitenAuthTests(JWTAuthMixin, APITestCase):
 
 
 @tag("convenience-endpoints")
-@freeze_time("2025-01-01T12:00:00")
+@time_machine.travel("2025-01-01T12:00:00", tick=False)
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class ZaakAfsluitenTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True

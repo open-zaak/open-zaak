@@ -8,7 +8,7 @@ from django.conf import settings
 from django.test import override_settings, tag
 from django.utils import timezone
 
-from freezegun.api import freeze_time
+import time_machine
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
@@ -33,7 +33,7 @@ from .utils import (
 
 
 @tag("convenience-endpoints", "cloudevents")
-@freeze_time("2025-10-10T13:00:00Z")
+@time_machine.travel("2025-10-10T13:00:00Z", tick=False)
 @patch("notifications_api_common.tasks.send_cloudevent.delay")
 @patch(
     "notifications_api_common.cloudevents.uuid.uuid4",
@@ -55,7 +55,7 @@ class DocumentConvenienceCloudEventTest(
         informatieobjecttype_url = reverse(informatieobjecttype)
         catalogus_url = reverse(informatieobjecttype.catalogus)
 
-        with freeze_time("2026-01-02T12:00:00Z"):
+        with time_machine.travel("2026-01-02T12:00:00Z", tick=False):
             zaak = ZaakFactory.create(bronorganisatie="000000000")
 
         zaak_url = reverse(zaak)

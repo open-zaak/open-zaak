@@ -12,8 +12,8 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 import requests_mock
+import time_machine
 from django_webtest import WebTest
-from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
@@ -144,7 +144,7 @@ class ApplicatieInlinesAdminTests(WebTest):
 
 
 @tag("admin-autorisaties", "notifications")
-@freeze_time("2022-01-01")
+@time_machine.travel("2022-01-01", tick=False)
 @disable_admin_mfa()
 @override_settings(SITE_DOMAIN="testserver")
 class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):

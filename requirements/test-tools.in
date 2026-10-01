@@ -5,7 +5,7 @@
 coverage
 django-webtest
 factory-boy
-freezegun
+time-machine[dateutil]
 pyquery
 requests-mock
 tblib

@@ -20,6 +20,7 @@ import warnings
 from django.conf import settings
 
 import structlog
+from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
 from maykin_common.otel import setup_otel
 from self_certifi import load_self_signed_certs as _load_self_signed_certs
@@ -59,6 +60,8 @@ def setup_env():
     monkeypatch_drf_camel_case()
 
     monkeypatch_requests()
+
+    patch_relativedelta()
 
     _env_setup_done = True
 
@@ -136,3 +139,11 @@ def monkeypatch_requests():
         return self._original_request(*args, **kwargs)
 
     Session.request = new_request
+
+
+# python-dateutil's relativedelta does not work with python 3.14, because __eq__ returns
+# NotImplemented when comparing a relativedelta to a non-relativedelta object.
+# python-dateutil doesn't seem to be actively maintained unfortunately.
+def patch_relativedelta():
+    # Fall back to the default implementation of __ne__, which is `not self.__eq__(other)`
+    del relativedelta.__ne__  # = _relativedelta_ne

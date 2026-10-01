@@ -5,7 +5,7 @@ from datetime import date
 from django.test import override_settings, tag
 
 import requests_mock
-from freezegun import freeze_time
+import time_machine
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -31,7 +31,7 @@ from .utils import get_besluittype_response, get_operation_url
 class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    @freeze_time("2018-09-06T12:08+0200")
+    @time_machine.travel("2018-09-06T12:08+0200", tick=False)
     def test_us162_voeg_besluit_toe_aan_zaak(self):
         zaak = ZaakFactory.create(zaaktype__concept=False)
         zaak_url = reverse(zaak)

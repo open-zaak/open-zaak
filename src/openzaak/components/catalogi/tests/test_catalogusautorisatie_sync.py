@@ -4,7 +4,7 @@ from unittest.mock import call, patch
 
 from django.test import TestCase, override_settings, tag
 
-from freezegun import freeze_time
+import time_machine
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
@@ -22,7 +22,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 
 
-@freeze_time("2024-01-01T12:00:00Z")
+@time_machine.travel("2024-01-01T12:00:00Z", tick=False)
 @override_settings(
     NOTIFICATIONS_DISABLED=False,
     SITE_DOMAIN="testserver",

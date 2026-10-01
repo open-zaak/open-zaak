@@ -10,7 +10,7 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/164
 from django.test import override_settings
 from django.utils.translation import gettext_lazy as _
 
-from freezegun import freeze_time
+import time_machine
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
@@ -82,7 +82,7 @@ class US164TestCase(JWTAuthMixin, APITestCase):
         )
 
     @override_settings(ZAAK_IDENTIFICATIE_GENERATOR="use-start-datum-year")
-    @freeze_time("2025-1-1")
+    @time_machine.travel("2025-1-1", tick=False)
     def test_zaak_identificatie_with_startdatum(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
@@ -103,7 +103,7 @@ class US164TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.identificatie, "ZAAK-2030-0000000001")
 
     @override_settings(ZAAK_IDENTIFICATIE_GENERATOR="abc")
-    @freeze_time("2025-1-1")
+    @time_machine.travel("2025-1-1", tick=False)
     def test_zaak_identificatie_with_invalid_generator_uses_startdatum(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
@@ -124,7 +124,7 @@ class US164TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.identificatie, "ZAAK-2030-0000000001")
 
     @override_settings(ZAAK_IDENTIFICATIE_GENERATOR="use-creation-year")
-    @freeze_time("2025-1-1")
+    @time_machine.travel("2025-1-1", tick=False)
     def test_zaak_identificatie_with_creation_year(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
@@ -145,7 +145,7 @@ class US164TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.identificatie, "ZAAK-2025-0000000001")
 
     @override_settings(ZAAK_IDENTIFICATIE_GENERATOR="use-uwv-identification")
-    @freeze_time("2025-1-1")
+    @time_machine.travel("2025-1-1", tick=False)
     def test_zaak_identificatie_with_uwv_identification(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)

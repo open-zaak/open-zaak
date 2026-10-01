@@ -5,7 +5,7 @@ from datetime import date
 
 from django.test import TestCase
 
-from freezegun.api import freeze_time
+import time_machine
 from hypothesis import given, strategies as st
 from hypothesis.extra.django import TestCase as HypothesisTestCase
 
@@ -154,7 +154,7 @@ class UWVRandomTests(HypothesisTestCase):
         self.assertTrue((next_prefix == current_prefix) or next_pos == current_pos + 1)
 
 
-@freeze_time("2026-01-01")
+@time_machine.travel("2026-01-01", tick=False)
 class CreationYearIdentificationTests(TestCase):
     def setUp(self):
         self.cyi = CreationYearIdentification("111222333")

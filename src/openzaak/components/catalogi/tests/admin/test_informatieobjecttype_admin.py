@@ -7,8 +7,8 @@ from django.urls import reverse, reverse_lazy
 from django.utils.http import urlencode
 from django.utils.translation import gettext as _, ngettext_lazy
 
+import time_machine
 from django_webtest import WebTest
-from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
 
 from openzaak.accounts.tests.factories import SuperUserFactory
@@ -289,7 +289,7 @@ class CreateIotypeTests(NotificationsConfigMixin, AdminTestMixin, WebTest):
     url = reverse_lazy("admin:catalogi_informatieobjecttype_add")
 
     @override_settings(NOTIFICATIONS_DISABLED=False, LOG_NOTIFICATIONS_IN_DB=False)
-    @freeze_time("2022-01-01")
+    @time_machine.travel("2022-01-01", tick=False)
     @patch("notifications_api_common.viewsets.send_notification.delay")
     @tag("notifications")
     def test_create_notification_actie(self, mock_notif):

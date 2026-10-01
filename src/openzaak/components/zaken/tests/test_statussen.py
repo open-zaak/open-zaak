@@ -6,7 +6,7 @@ from django.test import override_settings, tag
 from django.utils import timezone
 
 import requests_mock
-from freezegun import freeze_time
+import time_machine
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
@@ -161,7 +161,7 @@ class StatusTests(JWTAuthMixin, APITestCase):
         self.assertEqual(data["next"], f"http://testserver{url}?page=2&pageSize=5")
 
     @tag("gh-2179")
-    @freeze_time("2025-01-01T12:00:00")
+    @time_machine.travel("2025-01-01T12:00:00", tick=False)
     def test_create_status_sets_zaak_laatst_gemuteerd(self):
         url = reverse("status-list")
         zaak = ZaakFactory.create()

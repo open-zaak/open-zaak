@@ -21,3 +21,13 @@ target environments:
 * ``plugins.py``: essentially a hook to install/register plugins via Docker
   volume mounts. Chances are low you'll need this.
 """
+
+import importlib.util
+
+# time_machine is a dev/testing dependency
+if importlib.util.find_spec("time_machine") is not None:
+    import time_machine
+
+    time_machine.naive_mode = time_machine.NaiveMode.LOCAL
+else:  # pragma: no cover
+    pass

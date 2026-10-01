@@ -5,7 +5,7 @@ from datetime import datetime
 from django.test import override_settings, tag
 from django.utils import timezone
 
-from freezegun import freeze_time
+import time_machine
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import reverse
@@ -48,7 +48,7 @@ class BesluitCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     def test_besluit_create_sends_gemuteerd_cloud_event_if_related_to_zaak(self):
         # Create without linking besluit to zaak should not emit `zaak-gemuteerd`
         with patch_send_cloud_event() as mock_send:
-            with freeze_time("2025-09-23T12:15:00Z"):
+            with time_machine.travel("2025-09-23T12:15:00Z", tick=False):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.post(
                         reverse(Besluit),
@@ -64,7 +64,7 @@ class BesluitCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
         mock_send.assert_not_called()
 
         with patch_send_cloud_event() as mock_send:
-            with freeze_time("2025-09-23T12:15:00Z"):
+            with time_machine.travel("2025-09-23T12:15:00Z", tick=False):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.post(reverse(Besluit), self.data)
 
@@ -86,7 +86,7 @@ class BesluitCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             verantwoordelijke_organisatie="000000000",
         )
         with patch_send_cloud_event() as mock_send:
-            with freeze_time("2025-09-23T12:15:00Z"):
+            with time_machine.travel("2025-09-23T12:15:00Z", tick=False):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.put(
                         reverse(besluit_without_zaak),
@@ -101,7 +101,7 @@ class BesluitCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
             mock_send.assert_not_called()
 
-            with freeze_time("2025-09-23T12:16:00Z"):
+            with time_machine.travel("2025-09-23T12:16:00Z", tick=False):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.patch(
                         reverse(besluit_without_zaak), {"datum": "2024-01-01"}
@@ -116,7 +116,7 @@ class BesluitCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             verantwoordelijke_organisatie="000000000",
         )
         with patch_send_cloud_event() as mock_send:
-            with freeze_time("2025-09-23T12:15:00Z"):
+            with time_machine.travel("2025-09-23T12:15:00Z", tick=False):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.put(reverse(besluit), self.data)
 
@@ -132,7 +132,7 @@ class BesluitCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
 
             mock_send.reset_mock()
 
-            with freeze_time("2025-09-23T12:16:00Z"):
+            with time_machine.travel("2025-09-23T12:16:00Z", tick=False):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.patch(reverse(besluit), self.data)
 
@@ -152,7 +152,7 @@ class BesluitCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             zaak=None, besluittype=self.besluittype
         )
         with patch_send_cloud_event() as mock_send:
-            with freeze_time("2025-09-23T12:15:00Z"):
+            with time_machine.travel("2025-09-23T12:15:00Z", tick=False):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.delete(reverse(besluit_without_zaak))
 
@@ -163,7 +163,7 @@ class BesluitCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
 
         besluit = BesluitFactory.create(zaak=self.zaak, besluittype=self.besluittype)
         with patch_send_cloud_event() as mock_send:
-            with freeze_time("2025-09-23T12:15:00Z"):
+            with time_machine.travel("2025-09-23T12:15:00Z", tick=False):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.delete(reverse(besluit))
 

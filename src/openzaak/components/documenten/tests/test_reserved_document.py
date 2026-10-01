@@ -4,7 +4,7 @@ from datetime import date
 
 from django.test import tag
 
-from freezegun import freeze_time
+import time_machine
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -24,7 +24,7 @@ from openzaak.tests.utils import JWTAuthMixin
 
 @tag("gh-2018")
 @temp_private_root()
-@freeze_time("2025-01-01T12:00:00")
+@time_machine.travel("2025-01-01T12:00:00", tick=False)
 class ReservedDocumentTests(JWTAuthMixin, APITestCase):
     url = reverse_lazy("reserveddocument-list")
     heeft_alle_autorisaties = True
@@ -147,7 +147,7 @@ class ReservedDocumentTests(JWTAuthMixin, APITestCase):
         )
         self.assertIsNotNone(reserved)
 
-    @freeze_time("2025-01-01")
+    @time_machine.travel("2025-01-01", tick=False)
     def test_create_multiple_reservations(self):
         data = {"bronorganisatie": self.bronorganisatie, "aantal": 3}
 
@@ -184,7 +184,7 @@ class ReservedDocumentTests(JWTAuthMixin, APITestCase):
         self.assertTrue(any(param.get("name") == "aantal" for param in invalid_params))
 
 
-@freeze_time("2025-01-01T12:00:00")
+@time_machine.travel("2025-01-01T12:00:00", tick=False)
 @tag("gh-2018")
 class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)

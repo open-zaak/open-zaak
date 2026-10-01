@@ -3,7 +3,7 @@
 from django.test import override_settings, tag
 
 import requests_mock
-from freezegun import freeze_time
+import time_machine
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.utils import generate_jwt
@@ -286,7 +286,7 @@ class ExternalZaakBesluitTests(JWTAuthMixin, APITestCase):
 class ZaakBesluitenJWTExpiryTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    @freeze_time("2019-01-01T12:00:00")
+    @time_machine.travel("2019-01-01T12:00:00", tick=False)
     def setUp(self):
         super().setUp()
         token = generate_jwt(
@@ -298,7 +298,7 @@ class ZaakBesluitenJWTExpiryTests(JWTAuthMixin, APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=token)
 
     @override_settings(JWT_EXPIRY=60 * 60)
-    @freeze_time("2019-01-01T13:00:00")
+    @time_machine.travel("2019-01-01T13:00:00", tick=False)
     def test_zaakbesluit_list_jwt_expired(self):
         zaak = ZaakFactory.create()
         url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": zaak.uuid})
@@ -309,7 +309,7 @@ class ZaakBesluitenJWTExpiryTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.data["code"], "jwt-expired")
 
     @override_settings(JWT_EXPIRY=60 * 60)
-    @freeze_time("2019-01-01T13:00:00")
+    @time_machine.travel("2019-01-01T13:00:00", tick=False)
     def test_zaakbesluit_detail_jwt_expired(self):
         besluit = BesluitFactory.create(for_zaak=True)
         zaakbesluit = besluit.zaak.zaakbesluit_set.first()

@@ -7,8 +7,8 @@ from django.test import override_settings, tag
 from django.utils.translation import gettext as _
 
 import requests_mock
+import time_machine
 from dateutil.relativedelta import relativedelta
-from freezegun.api import freeze_time
 from log_outgoing_requests.models import OutgoingRequestsLogConfig
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -40,7 +40,7 @@ from openzaak.components.zaken.tests.utils import (
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
 
-@freeze_time("2025-04-04")
+@time_machine.travel("2025-04-04", tick=False)
 class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     status_list_url = reverse_lazy("status-list")

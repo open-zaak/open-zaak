@@ -8,7 +8,7 @@ from django.test import override_settings, tag
 from django.utils import timezone
 
 import requests_mock
-from freezegun import freeze_time
+import time_machine
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -33,7 +33,7 @@ from .utils import (
 )
 
 
-@freeze_time("2018-06-27 12:12:12")
+@time_machine.travel("2018-06-27 12:12:12", tick=False)
 @temp_private_root()
 class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
@@ -944,7 +944,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_eio_detail_filter_by_registratie_op(self):
-        with freeze_time("2019-01-01 12:00:00"):
+        with time_machine.travel("2019-01-01 12:00:00", tick=False):
             eio = EnkelvoudigInformatieObjectFactory.create(
                 beschrijving="beschrijving1"
             )
@@ -953,14 +953,14 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
             "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
         )
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
-        with freeze_time("2019-01-01 13:00:00"):
+        with time_machine.travel("2019-01-01 13:00:00", tick=False):
             self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
 
         response = self.client.get(eio_url, {"registratieOp": "2019-01-01T12:00:00"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["beschrijving"], "beschrijving1")
 
-    @freeze_time("2019-01-01 12:00:00")
+    @time_machine.travel("2019-01-01 12:00:00", tick=False)
     def test_eio_detail_filter_by_wrong_registratie_op_gives_404(self):
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
 
@@ -1000,7 +1000,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
             self.assertEqual(response_download.content, b"inhoud1")
 
     def test_eio_download_content_filter_by_registratie(self):
-        with freeze_time("2019-01-01 12:00:00"):
+        with time_machine.travel("2019-01-01 12:00:00", tick=False):
             eio = EnkelvoudigInformatieObjectFactory.create(
                 beschrijving="beschrijving1", inhoud__data=b"inhoud1"
             )
@@ -1009,7 +1009,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
             "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
         )
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
-        with freeze_time("2019-01-01 13:00:00"):
+        with time_machine.travel("2019-01-01 13:00:00", tick=False):
             self.client.patch(
                 eio_url,
                 {

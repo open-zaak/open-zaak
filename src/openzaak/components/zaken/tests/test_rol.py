@@ -3,7 +3,7 @@
 from django.test import override_settings, tag
 
 import requests_mock
-from freezegun import freeze_time
+import time_machine
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RolTypes
@@ -37,7 +37,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
     maxDiff = None
     list_url = reverse(Rol)
 
-    @freeze_time("2018-01-01")
+    @time_machine.travel("2018-01-01", tick=False)
     def test_read_rol_np(self):
         zaak = ZaakFactory.create()
         rol = RolFactory.create(
@@ -139,7 +139,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             },
         )
 
-    @freeze_time("2018-01-01")
+    @time_machine.travel("2018-01-01", tick=False)
     def test_read_rol_nnp(self):
         zaak = ZaakFactory.create()
         rol = RolFactory.create(
@@ -231,7 +231,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             },
         )
 
-    @freeze_time("2018-01-01")
+    @time_machine.travel("2018-01-01", tick=False)
     def test_read_rol_vestiging(self):
         zaak = ZaakFactory.create()
         rol = RolFactory.create(
@@ -494,7 +494,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
 
         self.assertEqual(validation_error["code"], "invalid-betrokkene")
 
-    @freeze_time("2018-01-01")
+    @time_machine.travel("2018-01-01", tick=False)
     def test_filter_rol_np_bsn(self):
         zaak = ZaakFactory.create()
         rol = RolFactory.create(
