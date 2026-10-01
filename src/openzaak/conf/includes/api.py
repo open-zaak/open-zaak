@@ -22,6 +22,12 @@ REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = REST_FRAMEWORK[
 
 REST_FRAMEWORK["DEFAULT_SCHEMA_CLASS"] = "openzaak.utils.schema.AutoSchema"
 
+# TODO should be addressed in commonground-api-common
+# See: https://github.com/maykinmedia/commonground-api-common/issues/190
+# DRF 3.18 changed the default list-serializer error format from a list to a
+# dict keyed by index. `vng_api_common`'s exception handler still expects the
+# list-based format to build indexed `invalidParams` paths, so keep the old format until that's updated.
+REST_FRAMEWORK["LIST_SERIALIZER_ERRORS_AS_DICT"] = False
 
 SECURITY_DEFINITION_NAME = "JWT-Claims"
 OPENZAAK_API_CONTACT_EMAIL = "support@maykin.nl"
