@@ -102,8 +102,8 @@ class ZaakTypeViewSet(
     """
 
     queryset = (
-        ZaakType.objects.prefetch_related(
-            "catalogus",
+        ZaakType.objects.select_related("catalogus")
+        .prefetch_related(
             "statustypen",
             "zaaktypenrelaties",
             "informatieobjecttypen",

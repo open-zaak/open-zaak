@@ -96,6 +96,7 @@ class ExpandMixin:
                 raise ValidationError(
                     {"expand": f"Expansion '{unsupported[0]}' is not supported."}
                 )
+
             # Sort parent lookups before nested lookups
             inclusions.sort(
                 key=lambda inclusion: "__"
