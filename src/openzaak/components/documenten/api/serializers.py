@@ -577,6 +577,11 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         return eio
 
     def to_representation(self, instance):
+        if isinstance(instance, EnkelvoudigInformatieObjectCanonical):
+            # Expanded document relations expose the latest document version.
+            instance = instance.latest_version
+            self.instance = instance
+
         # instance is used in by AnyBase64File.to_representation
         if not self.instance:
             self.instance = instance
