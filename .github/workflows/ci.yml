@@ -123,6 +123,7 @@ jobs:
         env:
           DB_POOL_ENABLED: ${{ matrix.use_pooling }}
           CELERY_BROKER_URL: 'redis://bad-host:6379/0'
+          CELERY_RESULT_BACKEND: 'redis://bad-host:6379/0'
 
       - name: Publish coverage report
         # TODO find a better way to upload this only once
