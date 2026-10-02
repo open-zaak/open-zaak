@@ -7,10 +7,11 @@ Test the flow described in https://github.com/VNG-Realisatie/gemma-zaken/issues/
 import base64
 from datetime import date
 from io import BytesIO
+from unittest.mock import patch
 from urllib.parse import urlparse
 
 from django.core.files import File
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from privates.test import temp_private_root
 from rest_framework import status
@@ -70,6 +71,32 @@ class US39TestCase(JWTAuthMixin, APITestCase):
             get_operation_url("enkelvoudiginformatieobject_download", uuid=eio.uuid),
         )
         self.assertEqual(eio.canonical.latest_version, eio)
+
+    @tag("gh-2530")
+    def test_post_inhoud_validates_generated_filename(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        data = {
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-07-01",
+            "titel": "test",
+            "auteur": "ANONIEM",
+            "taal": "dut",
+            "inhoud": base64.b64encode(b"document").decode("utf-8"),
+            "informatieobjecttype": f"http://testserver{reverse(informatieobjecttype)}",
+        }
+        # Base64 uploads get a generated filename rather than a client filename.
+        with patch(
+            "openzaak.components.documenten.api.serializers.AnyBase64File.get_file_name",
+            return_value="a" * 251,
+        ):
+            response = self.client.post(
+                get_operation_url("enkelvoudiginformatieobject_create"), data
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        document = EnkelvoudigInformatieObject.objects.get()
+        self.assertEqual(document.inhoud.name.rsplit("/", 1)[-1], f"{'a' * 243}.bin")
+        self.assertEqual(document.inhoud.read(), b"document")
 
     def test_read_detail_file(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
