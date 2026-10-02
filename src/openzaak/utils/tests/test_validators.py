@@ -32,11 +32,11 @@ class JQExpressionValidatorTests(SimpleTestCase):
             validator(".foo |")
 
         self.assertEqual(
-            context.exception.detail[0].code,
+            context.exception.detail[0].code,  # pyright: ignore[reportArgumentType, reportAttributeAccessIssue]
             "invalid",
         )
         self.assertEqual(
-            str(context.exception.detail[0]),
+            str(context.exception.detail[0]),  # pyright: ignore[reportArgumentType]
             validator.message,
         )
         mock_validate_jq.assert_called_once_with(".foo |")
@@ -52,11 +52,11 @@ class JQExpressionValidatorTests(SimpleTestCase):
             validator(".foo")
 
         self.assertEqual(
-            context.exception.detail[0].code,
+            context.exception.detail[0].code,  # pyright: ignore[reportArgumentType, reportAttributeAccessIssue]
             "invalid",
         )
         self.assertEqual(
-            str(context.exception.detail[0]),
+            str(context.exception.detail[0]),  # pyright: ignore[reportArgumentType]
             _("An error occurred while executing the jq expression."),
         )
         mock_validate_jq.assert_called_once_with(".foo")

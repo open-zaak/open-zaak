@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from typing import Any, Dict, Optional, Union
+from typing import Dict, Optional, Union
 
 from django.conf import settings
 from django.db.models.base import ModelBase
@@ -52,14 +52,14 @@ def get_related_object(autorisatie: Autorisatie) -> Optional[RelatedTypeObject]:
     return None
 
 
-def sort_key(item: Any):
+def sort_key(item: object):
     if not isinstance(item, dict):
         return item
 
     return tuple(item.items())
 
 
-def _normalize_list_order(obj: Any) -> Any:
+def _normalize_list_order(obj: object) -> object:
     if isinstance(obj, list):
         return sorted([_normalize_list_order(item) for item in obj], key=sort_key)
     elif isinstance(obj, dict):
@@ -84,7 +84,9 @@ def get_applicatie_serializer(
     return serializer
 
 
-def versions_equivalent(version1: Dict[str, Any], version2: Dict[str, Any]) -> bool:
+def versions_equivalent(
+    version1: Dict[str, object], version2: Dict[str, object]
+) -> bool:
     """
     Compare if two dicts are different or not.
 
@@ -97,7 +99,7 @@ def versions_equivalent(version1: Dict[str, Any], version2: Dict[str, Any]) -> b
 
 
 def send_applicatie_changed_notification(
-    applicatie: Applicatie, new_version: Optional[Dict[str, Any]] = None
+    applicatie: Applicatie, new_version: Optional[Dict[str, object]] = None
 ):
     from openzaak.utils import build_fake_request
 

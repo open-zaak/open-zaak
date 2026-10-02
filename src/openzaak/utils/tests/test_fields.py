@@ -22,7 +22,7 @@ class TestFieldUtils(SimpleTestCase):
                 DOCUMENTEN_API_BACKEND=DocumentenBackendTypes.azure_blob_storage
             ):
                 field = EnkelvoudigInformatieObject.inhoud.field
-                field.storage._setup()
+                field.storage._setup()  # pyright: ignore[reportAttributeAccessIssue]
                 assert get_default_path(field) == Path("uploads/2026/01")
 
         with self.subTest("test S3 Storage"):
@@ -30,7 +30,7 @@ class TestFieldUtils(SimpleTestCase):
                 DOCUMENTEN_API_BACKEND=DocumentenBackendTypes.s3_storage
             ):
                 field = EnkelvoudigInformatieObject.inhoud.field
-                field.storage._setup()
+                field.storage._setup()  # pyright: ignore[reportAttributeAccessIssue]
                 assert get_default_path(field) == Path("uploads/2026/01")
 
         with self.subTest("test Filesystem Storage"):
@@ -38,7 +38,7 @@ class TestFieldUtils(SimpleTestCase):
                 DOCUMENTEN_API_BACKEND=DocumentenBackendTypes.filesystem
             ):
                 field = EnkelvoudigInformatieObject.inhoud.field
-                field.storage._setup()
+                field.storage._setup()  # pyright: ignore[reportAttributeAccessIssue]
                 path = get_default_path(field)
                 assert str(path).endswith(
                     f"{settings.PRIVATE_MEDIA_URL}uploads/2026/01"
@@ -48,5 +48,5 @@ class TestFieldUtils(SimpleTestCase):
             with override_settings(DOCUMENTEN_API_BACKEND="test"):
                 with self.assertRaises(DocumentBackendNotImplementedError):
                     field = EnkelvoudigInformatieObject.inhoud.field
-                    field.storage._setup()
+                    field.storage._setup()  # pyright: ignore[reportAttributeAccessIssue]
                     get_default_path(field)
