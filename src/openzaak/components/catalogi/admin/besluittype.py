@@ -3,18 +3,57 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
-from openzaak.utils.admin import UUIDAdminMixin
+from openzaak.utils.admin import EditInlineAdminMixin, UUIDAdminMixin
 
-from ..models import BesluitType
+from ..models import BesluitType, BesluitTypeInformatieObjectType
 from .filters import GeldigheidFilter
-from .forms import BesluitTypeAdminForm
+from .forms import BesluitTypeAdminForm, BesluitTypeInformatieObjectTypeAdminForm
 from .mixins import (
     CatalogusContextAdminMixin,
     GeldigheidAdminMixin,
     GeldigheidPublishAdminMixin,
     ReadOnlyPublishedMixin,
+    ReadOnlyPublishedParentMixin,
     SideEffectsMixin,
 )
+
+
+@admin.register(BesluitTypeInformatieObjectType)
+class BesluitTypeInformatieObjectTypeAdmin(
+    ReadOnlyPublishedParentMixin,
+    admin.ModelAdmin,
+):
+    form = BesluitTypeInformatieObjectTypeAdminForm
+
+    list_display = (
+        "besluittype",
+        "_informatieobjecttype",
+        "_iotype_base_url",
+        "_iotype_relative_url",
+    )
+
+    fields = (
+        "besluittype",
+        "_informatieobjecttype",
+        "_iotype_base_url",
+        "_iotype_relative_url",
+    )
+    raw_id_fields = (
+        "besluittype",
+        "_informatieobjecttype",
+        "_iotype_base_url",
+    )
+
+    def get_concept(self, obj):
+        if not obj:
+            return True
+        return obj.besluittype.concept
+
+
+class BesluitTypeInformatieObjectTypeInline(EditInlineAdminMixin, admin.TabularInline):
+    model = BesluitTypeInformatieObjectType
+    fk_name = "besluittype"
+    fields = BesluitTypeInformatieObjectTypeAdmin.list_display
 
 
 @admin.register(BesluitType)
@@ -27,7 +66,6 @@ class BesluitTypeAdmin(
     SideEffectsMixin,
     admin.ModelAdmin,
 ):
-    # List
     list_display = ("omschrijving", "besluitcategorie", "catalogus", "is_published")
     list_filter = (
         GeldigheidFilter,
@@ -39,9 +77,9 @@ class BesluitTypeAdmin(
     raw_id_fields = (
         "catalogus",
         "zaaktypen",
-        "informatieobjecttypen",
     )
     form = BesluitTypeAdminForm
+    inlines = (BesluitTypeInformatieObjectTypeInline,)
 
     # Details
     fieldsets = (
@@ -73,12 +111,11 @@ class BesluitTypeAdmin(
             {
                 "fields": (
                     "catalogus",
-                    "informatieobjecttypen",
                     # 'resultaattypes',
                     "zaaktypen",
                 )
             },
         ),
     )
-    filter_horizontal = ("informatieobjecttypen", "zaaktypen")  # , 'resultaattypes'
+    filter_horizontal = ("zaaktypen",)  # , 'resultaattypes'
     readonly_fields = ("uuid",)

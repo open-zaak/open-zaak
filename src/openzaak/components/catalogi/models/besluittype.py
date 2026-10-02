@@ -110,17 +110,6 @@ class BesluitType(ETagMixin, APIMixin, GeldigheidMixin, ConceptMixin, models.Mod
         ),
     )
 
-    informatieobjecttypen = models.ManyToManyField(
-        "catalogi.InformatieObjectType",
-        blank=True,
-        # verbose_name=_("informatieobjecttype"),
-        related_name="besluittypen",
-        help_text=_(
-            "URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten waarin besluiten van dit "
-            "BESLUITTYPE worden vastgelegd."
-        ),
-    )
-
     zaaktypen = models.ManyToManyField(
         "catalogi.ZaakType",
         # verbose_name=_("zaaktypen"),
