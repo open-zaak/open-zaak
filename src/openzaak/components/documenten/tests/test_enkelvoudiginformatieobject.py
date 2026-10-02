@@ -67,6 +67,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "trefwoorden": ["some", "other"],
             "inhoudIsVervallen": False,
             "tonenAanInitiator": True,
+            "isGereedVoorPublicatie": True,
         }
 
         # Send to the API
@@ -98,6 +99,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(stored_object.trefwoorden, ["some", "other"])
         self.assertFalse(stored_object.inhoud_is_vervallen)
         self.assertTrue(stored_object.tonen_aan_initiator)
+        self.assertTrue(stored_object.is_gereed_voor_publicatie)
 
         expected_url = reverse(stored_object)
         expected_file_url = get_operation_url(
@@ -181,6 +183,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "trefwoorden": ["some", "other"],
             "inhoudIsVervallen": None,
             "tonenAanInitiator": False,
+            "isGereedVoorPublicatie": False,
         }
 
         # Send to the API
@@ -212,6 +215,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(stored_object.trefwoorden, ["some", "other"])
         self.assertIsNone(stored_object.inhoud_is_vervallen)
         self.assertFalse(stored_object.tonen_aan_initiator)
+        self.assertFalse(stored_object.is_gereed_voor_publicatie)
 
         expected_url = reverse(stored_object)
         expected_file_url = get_operation_url(
@@ -391,6 +395,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "_expand": {},
             "inhoudIsVervallen": test_object.inhoud_is_vervallen,
             "tonenAanInitiator": test_object.tonen_aan_initiator,
+            "isGereedVoorPublicatie": test_object.is_gereed_voor_publicatie,
         }
 
         response_data = response.json()
