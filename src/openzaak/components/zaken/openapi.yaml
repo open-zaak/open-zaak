@@ -8810,7 +8810,7 @@ paths:
             - zaakinformatieobjecten
             - zaakobjecten
             - zaaktype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
         style: form
@@ -9561,7 +9561,7 @@ paths:
             - zaakinformatieobjecten
             - zaakobjecten
             - zaaktype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
         style: form
@@ -12408,7 +12408,7 @@ paths:
             - zaakinformatieobjecten
             - zaakobjecten
             - zaaktype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n (samengevoegd met evt. expand in body)"
         explode: false
         style: form
@@ -12826,7 +12826,7 @@ paths:
                     - zaakinformatieobjecten
                     - zaakobjecten
                     - zaaktype
-                  description: "Sluit de gespecifieerde gerelateerde resources in\
+                  description: "Sluit de gespecificeerde gerelateerde resources aan\
                     \ in het antwoord. \n\n"
       security:
       - JWT-Claims:

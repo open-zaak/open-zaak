@@ -36,10 +36,12 @@ from .base import APITestCase
 from .factories import (
     BesluitTypeFactory,
     CatalogusFactory,
+    EigenschapFactory,
     InformatieObjectTypeFactory,
     ResultaatTypeFactory,
     RolTypeFactory,
     StatusTypeFactory,
+    ZaakObjectTypeFactory,
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
     ZaakTypenRelatieFactory,
@@ -131,6 +133,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "eindeObject": None,
             "broncatalogus": {"domein": "", "rsin": "", "url": ""},
             "bronzaaktype": {"identificatie": "", "omschrijving": "", "url": ""},
+            "_expand": {},
         }
         self.assertEqual(response_data, expected)
 
@@ -1577,6 +1580,298 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             zaaktype.bronzaaktype_url,
             f"http://example.com{reverse(bron_zaaktype)}",
         )
+
+    def test_get_detail_expand_zaakobjecttypen(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        zaakobjecttype = ZaakObjectTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+
+        response = self.client.get(
+            reverse(zaaktype),
+            {"expand": "zaakobjecttypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("zaakobjecttypen", data["_expand"])
+        self.assertEqual(
+            data["_expand"]["zaakobjecttypen"][0]["url"],
+            f"http://testserver{reverse(zaakobjecttype)}",
+        )
+
+    def test_get_detail_expand_catalogus(self):
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+
+        response = self.client.get(
+            reverse(zaaktype),
+            {"expand": "catalogus"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["_expand"]["catalogus"]["url"],
+            f"http://testserver{reverse(self.catalogus)}",
+        )
+
+    def test_get_detail_expand_statustypen(self):
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        statustype = StatusTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+
+        response = self.client.get(
+            reverse(zaaktype),
+            {"expand": "statustypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("statustypen", data["_expand"])
+        self.assertEqual(
+            data["_expand"]["statustypen"][0]["url"],
+            f"http://testserver{reverse(statustype)}",
+        )
+
+    def test_get_detail_expand_resultaattypen(self):
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        resultaat_type = ResultaatTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+
+        response = self.client.get(
+            reverse(zaaktype),
+            {"expand": "resultaattypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("resultaattypen", data["_expand"])
+        self.assertEqual(
+            data["_expand"]["resultaattypen"][0]["url"],
+            f"http://testserver{reverse(resultaat_type)}",
+        )
+
+    def test_get_detail_expand_eigenschappen(self):
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        eigenschap = EigenschapFactory.create(
+            zaaktype=zaaktype,
+        )
+
+        response = self.client.get(
+            reverse(zaaktype),
+            {"expand": "eigenschappen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("eigenschappen", data["_expand"])
+        self.assertEqual(
+            data["_expand"]["eigenschappen"][0]["url"],
+            f"http://testserver{reverse(eigenschap)}",
+        )
+
+    def test_get_detail_expand_informatieobjecttypen(self):
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype,
+            informatieobjecttype=informatieobjecttype,
+        )
+
+        response = self.client.get(
+            reverse(zaaktype),
+            {"expand": "informatieobjecttypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("informatieobjecttypen", data["_expand"])
+        self.assertEqual(
+            data["_expand"]["informatieobjecttypen"][0]["url"],
+            f"http://testserver{reverse(informatieobjecttype)}",
+        )
+
+    def test_get_detail_expand_roltypen(self):
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        roltype = RolTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+
+        response = self.client.get(
+            reverse(zaaktype),
+            {"expand": "roltypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("roltypen", data["_expand"])
+        self.assertEqual(
+            data["_expand"]["roltypen"][0]["url"],
+            f"http://testserver{reverse(roltype)}",
+        )
+
+    def test_get_detail_expand_besluittypen(self):
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        besluit_type = BesluitTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+
+        zaaktype.besluittypen.add(besluit_type)
+
+        response = self.client.get(
+            reverse(zaaktype),
+            {"expand": "besluittypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("besluittypen", data["_expand"])
+        self.assertEqual(
+            data["_expand"]["besluittypen"][0]["url"],
+            f"http://testserver{reverse(besluit_type)}",
+        )
+
+    def test_get_detail_expand_deelzaaktypen(self):
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        deelzaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+
+        zaaktype.deelzaaktypen.add(deelzaaktype)
+
+        response = self.client.get(
+            reverse(zaaktype),
+            {"expand": "deelzaaktypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("deelzaaktypen", data["_expand"])
+        self.assertEqual(
+            data["_expand"]["deelzaaktypen"][0]["url"],
+            f"http://testserver{reverse(deelzaaktype)}",
+        )
+
+    def test_get_detail_expand_multiple(self):
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        ZaakObjectTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+        StatusTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+        EigenschapFactory.create(
+            zaaktype=zaaktype,
+        )
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype,
+            informatieobjecttype=informatieobjecttype,
+        )
+        RolTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+        besluit_type = BesluitTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        deelzaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+
+        zaaktype.besluittypen.add(besluit_type)
+        zaaktype.deelzaaktypen.add(deelzaaktype)
+
+        response = self.client.get(
+            reverse(zaaktype),
+            {
+                "expand": (
+                    "zaakobjecttypen,catalogus,statustypen,resultaattypen,"
+                    "eigenschappen,informatieobjecttypen,roltypen,besluittypen,"
+                    "deelzaaktypen"
+                )
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("zaakobjecttypen", data["_expand"])
+        self.assertIn("catalogus", data["_expand"])
+        self.assertIn("statustypen", data["_expand"])
+        self.assertIn("resultaattypen", data["_expand"])
+        self.assertIn("eigenschappen", data["_expand"])
+        self.assertIn("informatieobjecttypen", data["_expand"])
+        self.assertIn("roltypen", data["_expand"])
+        self.assertIn("besluittypen", data["_expand"])
+        self.assertIn("deelzaaktypen", data["_expand"])
+
+    def test_get_detail_expand_nested_not_supported(self):
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+
+        response = self.client.get(
+            reverse(zaaktype),
+            {"expand": "catalogus.zaaktypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_get_detail_without_expand(self):
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+
+        response = self.client.get(reverse(zaaktype))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["_expand"], {})
 
 
 class ZaakTypePublishTests(APITestCase):

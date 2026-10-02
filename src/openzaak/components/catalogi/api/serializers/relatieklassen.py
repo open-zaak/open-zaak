@@ -38,6 +38,12 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
         ),
     )
+    inclusion_serializers = {
+        "zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "catalogus": "openzaak.components.catalogi.api.serializers.CatalogusSerializer",
+        "informatieobjecttype": "openzaak.components.catalogi.api.serializers.InformatieObjectTypeSerializer",
+        "statustype": "openzaak.components.catalogi.api.serializers.StatusTypeSerializer",
+    }
 
     class Meta:
         model = ZaakTypeInformatieObjectType

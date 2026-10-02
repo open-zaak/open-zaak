@@ -1,17 +1,20 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+
 import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import viewsets
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
-from openzaak.utils.mixins import CacheQuerysetMixin
+from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 
-from ...models import ResultaatType
-from ..filters import ResultaatTypeFilter
+from ...models import (
+    ResultaatType,
+)
+from ..filters import ResultaatTypeDetailFilter, ResultaatTypeFilter
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_DELETE,
     SCOPE_CATALOGI_FORCED_WRITE,
@@ -66,6 +69,7 @@ logger = structlog.stdlib.get_logger(__name__)
 class ResultaatTypeViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
+    ExpandMixin,
     ZaakTypeConceptMixin,
     viewsets.ModelViewSet,
 ):
@@ -77,13 +81,31 @@ class ResultaatTypeViewSet(
     """
 
     queryset = (
-        ResultaatType.objects.all()
-        .select_related("zaaktype", "zaaktype__catalogus")
+        ResultaatType.objects.select_related("zaaktype", "zaaktype__catalogus")
         .prefetch_related("besluittypen", "informatieobjecttypen")
         .order_by("-pk")
     )
+
+    inclusion_viewsets = {
+        "zaaktype": (
+            "zaaktype",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "catalogus": (
+            "zaaktype__catalogus",
+            "openzaak.components.catalogi.api.viewsets.catalogus.CatalogusViewSet",
+        ),
+        "besluittypen": (
+            "besluittypen",
+            "openzaak.components.catalogi.api.viewsets.besluittype.BesluitTypeViewSet",
+        ),
+        "informatieobjecttypen": (
+            "informatieobjecttypen",
+            "openzaak.components.catalogi.api.viewsets.informatieobjecttype.InformatieObjectTypeViewSet",
+        ),
+    }
+
     serializer_class = ResultaatTypeSerializer
-    filterset_class = ResultaatTypeFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
     permission_classes = (AuthRequired,)
@@ -95,6 +117,15 @@ class ResultaatTypeViewSet(
         "partial_update": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_WRITE,
         "destroy": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_DELETE,
     }
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return ResultaatTypeDetailFilter
+        return ResultaatTypeFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)

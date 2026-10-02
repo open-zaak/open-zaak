@@ -95,6 +95,7 @@ class StatusTypeAPITests(APITestCase):
             "eindeGeldigheid": None,
             "beginObject": None,
             "eindeObject": None,
+            "_expand": {},
         }
 
         self.assertEqual(expected, response.json())
@@ -441,6 +442,112 @@ class StatusTypeAPITests(APITestCase):
         self.assertEqual(new_checklistitem.itemnaam, "new")
         self.assertNotEqual(old_checklistitem.id, new_checklistitem.id)
         self.assertFalse(CheckListItem.objects.filter(id=old_checklistitem.id).exists())
+
+    def test_get_detail_expand_catalogus(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        statustype = StatusTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+
+        response = self.client.get(
+            reverse(statustype),
+            {"expand": "catalogus"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["_expand"]["catalogus"]["url"],
+            f"http://testserver{reverse(self.catalogus)}",
+        )
+
+    def test_get_detail_expand_zaaktype(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        statustype = StatusTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+
+        response = self.client.get(
+            reverse(statustype),
+            {"expand": "zaaktype"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["_expand"]["zaaktype"]["url"],
+            f"http://testserver{reverse(zaaktype)}",
+        )
+
+    def test_get_detail_expand_eigenschappen(self):
+        statustype = StatusTypeFactory.create(
+            zaaktype__catalogus=self.catalogus,
+        )
+        eigenschap = EigenschapFactory.create(
+            statustype=statustype,
+        )
+
+        response = self.client.get(
+            reverse(statustype),
+            {"expand": "eigenschappen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("eigenschappen", data["_expand"])
+        self.assertEqual(
+            data["_expand"]["eigenschappen"][0]["url"],
+            f"http://testserver{reverse(eigenschap)}",
+        )
+
+    def test_get_detail_expand_multiple(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        statustype = StatusTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+        EigenschapFactory.create(
+            statustype=statustype,
+        )
+
+        response = self.client.get(
+            reverse(statustype),
+            {"expand": "catalogus,zaaktype,eigenschappen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("catalogus", data["_expand"])
+        self.assertIn("zaaktype", data["_expand"])
+        self.assertIn("eigenschappen", data["_expand"])
+
+    def test_get_detail_expand_nested_not_supported(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        statustype = StatusTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+
+        response = self.client.get(
+            reverse(statustype),
+            {"expand": "catalogus.zaaktypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_get_detail_without_expand(self):
+        statustype = StatusTypeFactory.create()
+
+        response = self.client.get(reverse(statustype))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["_expand"], {})
 
 
 class StatusTypeFilterAPITests(APITestCase):
