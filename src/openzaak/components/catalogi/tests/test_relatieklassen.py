@@ -158,7 +158,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
         )
         data = {
             "zaaktype": f"http://testserver.com{reverse(ziot.zaaktype)}",
-            "informatieobjecttype": f"http://testserver.com{reverse(informatieobjecttype, namespace='catalogi')}",
+            "informatieobjecttype": f"http://testserver{reverse(informatieobjecttype, namespace='catalogi')}",
             "volgnummer": ziot.volgnummer,
             "richting": RichtingChoices.inkomend,
         }

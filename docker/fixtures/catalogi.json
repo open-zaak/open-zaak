@@ -71,7 +71,7 @@
         "_etag": "c3317875068f41f79dbb3912bd626f43",
         "uuid": "781dbfd1-e076-410d-a9ba-3a78eff83d86",
         "zaaktype": 504,
-        "informatieobjecttype": 501,
+        "_informatieobjecttype": 501,
         "volgnummer": 1,
         "richting": "inkomend",
         "statustype": null
@@ -84,7 +84,7 @@
         "_etag": "ff9a8d14c50edd209f0c8ba02a33952f",
         "uuid": "b45a3edf-1e6a-402b-83a3-7c667bc51d69",
         "zaaktype": 517,
-        "informatieobjecttype": 501,
+        "_informatieobjecttype": 501,
         "volgnummer": 1,
         "richting": "inkomend",
         "statustype": null
@@ -995,13 +995,18 @@
         "catalogus": [
             "d785f428-9ae6-4f84-82f6-26414500b2aa"
         ],
-        "informatieobjecttypen": [
-            501
-        ],
         "zaaktypen": [
             504,
             517
         ]
+    }
+},
+{
+    "model": "catalogi.besluittypeinformatieobjecttype",
+    "pk": 501,
+    "fields": {
+        "besluittype": 501,
+        "_informatieobjecttype": 501
     }
 }
 ]

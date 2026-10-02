@@ -22,6 +22,10 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeFactory,
 )
 
+IOTYPE_LOOKUP_ID = (
+    "lookup_id_besluittypeinformatieobjecttype_set-__prefix__-_informatieobjecttype"
+)
+
 
 @disable_admin_mfa()
 class BesluitTypeAdminTests(WebTest):
@@ -63,12 +67,10 @@ class BesluitTypeAdminTests(WebTest):
         rows = popup_response.html.findAll("tr")[1:]
         self.assertEqual(len(rows), 4)
 
-        popup_iotypen = response.html.find(
-            "a", {"id": "lookup_id_informatieobjecttypen"}
-        )
+        popup_iotypen = response.html.find("a", {"id": IOTYPE_LOOKUP_ID})
         self.assertEqual(
             popup_iotypen.attrs["href"],
-            reverse("admin:catalogi_informatieobjecttype_changelist"),
+            f"{reverse('admin:catalogi_informatieobjecttype_changelist')}?_to_field=id",
         )
         # Verify that the popup screen shows only one IOtype
         popup_response = self.app.get(popup_iotypen.attrs["href"])
@@ -95,15 +97,13 @@ class BesluitTypeAdminTests(WebTest):
         rows = popup_response.html.findAll("tr")[1:]
         self.assertEqual(len(rows), 1)
 
-        popup_iotypen = response.html.find(
-            "a", {"id": "lookup_id_informatieobjecttypen"}
-        )
+        popup_iotypen = response.html.find("a", {"id": IOTYPE_LOOKUP_ID})
         iotype_changelist_url = reverse(
             "admin:catalogi_informatieobjecttype_changelist"
         )
         self.assertEqual(
             popup_iotypen.attrs["href"],
-            f"{iotype_changelist_url}?{urlencode({'catalogus__exact': self.catalogus.pk})}",
+            f"{iotype_changelist_url}?{urlencode({'_to_field': 'id', 'catalogus__exact': self.catalogus.pk})}",
         )
         popup_response = self.app.get(popup_iotypen.attrs["href"])
         rows = popup_response.html.findAll("tr")[1:]
@@ -126,15 +126,13 @@ class BesluitTypeAdminTests(WebTest):
         rows = popup_response.html.findAll("tr")[1:]
         self.assertEqual(len(rows), 1)
 
-        popup_iotypen = response.html.find(
-            "a", {"id": "lookup_id_informatieobjecttypen"}
-        )
+        popup_iotypen = response.html.find("a", {"id": IOTYPE_LOOKUP_ID})
         iotype_changelist_url = reverse(
             "admin:catalogi_informatieobjecttype_changelist"
         )
         self.assertEqual(
             popup_iotypen.attrs["href"],
-            f"{iotype_changelist_url}?{urlencode({'catalogus__exact': self.catalogus.pk})}",
+            f"{iotype_changelist_url}?{urlencode({'_to_field': 'id', 'catalogus__exact': self.catalogus.pk})}",
         )
         popup_response = self.app.get(popup_iotypen.attrs["href"])
         rows = popup_response.html.findAll("tr")[1:]
@@ -152,9 +150,7 @@ class BesluitTypeAdminTests(WebTest):
 
         popup_zaaktypen = response.html.find("a", {"id": "lookup_id_zaaktypen"})
         self.assertIsNone(popup_zaaktypen)
-        popup_iotypen = response.html.find(
-            "a", {"id": "lookup_id_informatieobjecttypen"}
-        )
+        popup_iotypen = response.html.find("a", {"id": IOTYPE_LOOKUP_ID})
         self.assertIsNone(popup_iotypen)
 
     def test_create_besluittype(self):

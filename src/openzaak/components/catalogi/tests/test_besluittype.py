@@ -17,7 +17,7 @@ from ..api.validators import (
     M2MConceptCreateValidator,
     M2MConceptUpdateValidator,
 )
-from ..models import BesluitType
+from ..models import BesluitType, BesluitTypeInformatieObjectType
 from .base import APITestCase
 from .factories import (
     BesluitTypeFactory,
@@ -163,6 +163,10 @@ class BesluitTypeAPITests(APITestCase):
         self.assertEqual(besluittype.catalogus, self.catalogus)
         self.assertEqual(besluittype.informatieobjecttypen.get(), informatieobjecttype)
         self.assertEqual(besluittype.concept, True)
+
+        relation = BesluitTypeInformatieObjectType.objects.get()
+        self.assertEqual(relation.besluittype, besluittype)
+        self.assertEqual(relation.informatieobjecttype, informatieobjecttype)
 
     def test_create_besluittype_fail_non_concept_informatieobjecttypen(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
@@ -423,7 +427,8 @@ class BesluitTypeAPITests(APITestCase):
             "publicatietermijn": None,
             "toelichting": "aangepast",
             "informatieobjecttypen": [
-                reverse(
+                "http://testserver"
+                + reverse(
                     informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE
                 )
             ],
@@ -455,7 +460,8 @@ class BesluitTypeAPITests(APITestCase):
             "publicatietermijn": None,
             "toelichting": "aangepast",
             "informatieobjecttypen": [
-                reverse(
+                "http://testserver"
+                + reverse(
                     informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE
                 )
             ],
@@ -487,7 +493,8 @@ class BesluitTypeAPITests(APITestCase):
             "publicatietermijn": None,
             "toelichting": "aangepast",
             "informatieobjecttypen": [
-                reverse(
+                "http://testserver"
+                + reverse(
                     informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE
                 )
             ],
@@ -545,7 +552,8 @@ class BesluitTypeAPITests(APITestCase):
             besluittype_url,
             {
                 "informatieobjecttypen": [
-                    reverse(
+                    "http://testserver"
+                    + reverse(
                         informatieobjecttype,
                         namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE,
                     )

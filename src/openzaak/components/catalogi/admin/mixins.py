@@ -299,8 +299,8 @@ class CatalogusContextAdminMixin(ExtraContextAdminMixin):
             "zaaktype__id__exact", request.GET.get("zaaktype__id__exact")
         )
         iotype_pk = _changelist_filters.get(
-            "informatieobjecttype__id__exact",
-            request.GET.get("informatieobjecttype__id__exact"),
+            "_informatieobjecttype__id__exact",
+            request.GET.get("_informatieobjecttype__id__exact"),
         )
         catalogus_pk = _changelist_filters.get(
             "catalogus__id__exact", request.GET.get("catalogus__id__exact")

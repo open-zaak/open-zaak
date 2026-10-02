@@ -115,6 +115,18 @@ class InformatieObjectType(
         ),
     )
 
+    besluittypen = models.ManyToManyField(
+        "catalogi.BesluitType",
+        related_name="informatieobjecttypen",
+        through="catalogi.BesluitTypeInformatieObjectType",
+        through_fields=("_informatieobjecttype", "besluittype"),
+        blank=True,
+        help_text=_(
+            "BESLUITTYPE waarin besluiten van dit BESLUITTYPE worden vastgelegd "
+            "in informatieobjecten van dit INFORMATIEOBJECTTYPE"
+        ),
+    )
+
     objects = SyncAutorisatieManager.from_queryset(GeldigheidQuerySet)()
 
     class Meta:
