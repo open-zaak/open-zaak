@@ -108,6 +108,18 @@ class ZaakTypeInformatieObjectTypeLooseFkTests(TestCase):
             list(local.informatieobjecttype.zaaktypen.all()), [local.zaaktype]
         )
 
+    def test_concept_of_external_informatieobjecttype_follows_zaaktype(self):
+        for zaaktype_concept in (True, False):
+            with self.subTest(zaaktype_concept=zaaktype_concept):
+                ztiot = ZaakTypeInformatieObjectType.objects.create(
+                    zaaktype=ZaakTypeFactory.create(concept=zaaktype_concept),
+                    informatieobjecttype=EXTERNAL_IOTYPE,
+                    volgnummer=1,
+                    richting="inkomend",
+                )
+
+                self.assertEqual(ztiot.concept, zaaktype_concept)
+
 
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class ZaakTypeInformatieObjectTypeFilterTests(TestCase):

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from django.db import DatabaseError, transaction
+from django.db.models import Prefetch
 
 import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
@@ -15,7 +16,7 @@ from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, VALIDATION_ERROR_RESPONSES
 
-from ...models import BesluitType
+from ...models import BesluitType, BesluitTypeInformatieObjectType
 from ..filters import BesluitTypeFilter
 from ..kanalen import KANAAL_BESLUITTYPEN
 from ..scopes import (
@@ -86,7 +87,17 @@ class BesluitTypeViewSet(
     queryset = (
         BesluitType.objects.all()
         .select_related("catalogus")
-        .prefetch_related("informatieobjecttypen", "zaaktypen", "resultaattype_set")
+        .prefetch_related(
+            "informatieobjecttypen",
+            Prefetch(
+                "besluittypeinformatieobjecttype_set",
+                queryset=BesluitTypeInformatieObjectType.objects.select_related(
+                    "_informatieobjecttype"
+                ).order_by("pk"),
+            ),
+            "zaaktypen",
+            "resultaattype_set",
+        )
         .with_dates()
         .order_by("-pk")
     )

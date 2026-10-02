@@ -188,13 +188,18 @@ class ObjecttypeInformatieobjecttypeRelationValidator:
 
         # zaaktype/besluittype are always local, the informatieobjecttype can be
         # either local or external.
-        # TODO: external informatieobjecttypen cannot be linked to a
-        # zaaktype/besluittype yet (their relation is a m2m to the local
-        # InformatieObjectType), so there is nothing to validate them against.
-        if not io_type.pk:
-            return
+        if io_type.pk:
+            related = objecttype.informatieobjecttypen.filter(
+                uuid=io_type.uuid
+            ).exists()
+        else:
+            related = (
+                objecttype.get_informatieobjecttype_relations()
+                .filter(informatieobjecttype=io_type._loose_fk_data["url"])
+                .exists()
+            )
 
-        if not objecttype.informatieobjecttypen.filter(uuid=io_type.uuid).exists():
+        if not related:
             raise serializers.ValidationError(message, code=code)
 
 

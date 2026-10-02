@@ -101,6 +101,8 @@ class ZaakTypeInformatieObjectType(ETagMixin, models.Model):
         Subresources of Zaaktype are implicitly concept or non-concept based on the
         value of this attribute of the Zaaktype
         """
+        if self._informatieobjecttype is None:
+            return self.zaaktype.concept
         return self.zaaktype.concept and self.informatieobjecttype.concept
 
     class Meta:
@@ -171,7 +173,9 @@ class BesluitTypeInformatieObjectType(models.Model):
         ]
 
     def __str__(self):
-        return "{} - {}".format(self.besluittype, self.informatieobjecttype)
+        return "{} - {}".format(
+            self.besluittype, self._informatieobjecttype or self._iotype_url
+        )
 
 
 class ZaakTypenRelatie(models.Model):

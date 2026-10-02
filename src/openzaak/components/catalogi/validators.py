@@ -13,6 +13,7 @@ from openzaak.client import fetch_object
 from openzaak.utils.dict import get_by_path
 
 from .constants import SelectielijstKlasseProcestermijn as Procestermijn
+from .external import ExternalInformatieObjectTypeUnavailable, get_external_concept
 from .models import ZaakType
 
 
@@ -111,9 +112,29 @@ def validate_zaaktype_for_publish(zaaktype: ZaakType) -> List[Tuple[str, str]]:
 
     errors = []
 
+    external_iotypen = zaaktype.zaaktypeinformatieobjecttype_set.filter(
+        _informatieobjecttype__isnull=True
+    )
+    has_concept_external_iotypen = False
+    for relation in external_iotypen:
+        url = relation._iotype_url
+        try:
+            has_concept_external_iotypen |= get_external_concept(url)
+        except ExternalInformatieObjectTypeUnavailable:
+            errors.append(
+                (
+                    None,
+                    _(
+                        "The informatieobjecttype {url} could not be retrieved to "
+                        "check whether it is published"
+                    ).format(url=url),
+                )
+            )
+
     if (
         zaaktype.besluittypen.filter(concept=True).exists()
         or zaaktype.informatieobjecttypen.filter(concept=True).exists()
+        or has_concept_external_iotypen
     ):
         errors.append((None, _("All related resources should be published")))
 

@@ -70,6 +70,16 @@ class InformatieObjectTypeRelationETagTests(JWTAuthMixin, APITransactionTestCase
         self.assertNotEqual(self.get_etag(besluittype, "zaken"), besluittype_etag)
         self.assertNotEqual(self.get_etag(iotype, "documenten"), iotype_etag)
 
+    def test_besluittype_external_relation_created(self):
+        besluittype = BesluitTypeFactory.create(informatieobjecttypen=[])
+        besluittype_etag = self.get_etag(besluittype, "zaken")
+
+        BesluitTypeInformatieObjectType.objects.create(
+            besluittype=besluittype, informatieobjecttype=EXTERNAL_IOTYPE
+        )
+
+        self.assertNotEqual(self.get_etag(besluittype, "zaken"), besluittype_etag)
+
     def test_besluittype_relation_replaced_via_api(self):
         besluittype = BesluitTypeFactory.create(informatieobjecttypen=[])
         iotype = InformatieObjectTypeFactory.create(

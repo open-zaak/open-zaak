@@ -345,3 +345,54 @@ class ZaakTypeInformatieObjectTypeDeleteAdminTests(AdminTestMixin, WebTest):
         # Both relations are successfully deleted
         self.assertEqual(response.status_code, 302)
         self.assertFalse(ZaakTypeInformatieObjectType.objects.exists())
+
+
+@disable_admin_mfa()
+class ZaakTypeInformatieObjectTypeAddAdminTests(AdminTestMixin, WebTest):
+    def test_create_without_informatieobjecttype(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+
+        response = self.app.get(
+            reverse("admin:catalogi_zaaktypeinformatieobjecttype_add"),
+            {"zaaktype": zaaktype.pk},
+        )
+        form = response.forms["zaaktypeinformatieobjecttype_form"]
+        form["volgnummer"] = 1
+        form["richting"] = "inkomend"
+        response = form.submit()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(ZaakTypeInformatieObjectType.objects.exists())
+        self.assertIn("Je moet een informatieobjecttype opgeven", response.text)
+
+    def test_create_with_informatieobjecttype(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        iotype = InformatieObjectTypeFactory.create(
+            catalogus=zaaktype.catalogus, zaaktypen=None
+        )
+
+        response = self.app.get(
+            reverse("admin:catalogi_zaaktypeinformatieobjecttype_add"),
+            {"zaaktype": zaaktype.pk},
+        )
+        form = response.forms["zaaktypeinformatieobjecttype_form"]
+        form["_informatieobjecttype"] = iotype.pk
+        form["volgnummer"] = 1
+        form["richting"] = "inkomend"
+        response = form.submit()
+
+        self.assertEqual(response.status_code, 302)
+        relation = ZaakTypeInformatieObjectType.objects.get()
+        self.assertEqual(relation._informatieobjecttype, iotype)
+
+    def test_change_relation_with_local_informatieobjecttype(self):
+        relation = ZaakTypeInformatieObjectTypeFactory.create(zaaktype__concept=True)
+
+        response = self.app.get(
+            reverse(
+                "admin:catalogi_zaaktypeinformatieobjecttype_change",
+                args=(relation.pk,),
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
