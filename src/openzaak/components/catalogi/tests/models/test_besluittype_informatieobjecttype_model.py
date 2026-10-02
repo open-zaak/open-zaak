@@ -98,3 +98,37 @@ class BesluitTypeInformatieObjectTypeTests(TestCase):
         BesluitTypeInformatieObjectType.objects.create(
             besluittype=BesluitTypeFactory.create(), informatieobjecttype=url
         )
+
+    def test_m2m_accessors_only_expose_local_informatieobjecttypen(self):
+        besluittype = BesluitTypeFactory.create()
+        local = InformatieObjectTypeFactory.create()
+        BesluitTypeInformatieObjectType.objects.create(
+            besluittype=besluittype, informatieobjecttype=local
+        )
+        BesluitTypeInformatieObjectType.objects.create(
+            besluittype=besluittype,
+            informatieobjecttype=f"{EXTERNAL_API_ROOT}informatieobjecttypen/2b2d2cb3-2a67-4b8e-a05f-cbbb7a0b3ff1",
+        )
+
+        self.assertEqual(list(besluittype.informatieobjecttypen.all()), [local])
+        self.assertEqual(list(local.besluittypen.all()), [besluittype])
+        self.assertEqual(besluittype.get_informatieobjecttype_relations().count(), 2)
+
+    def test_delete_besluittype_deletes_external_relations(self):
+        besluittype = BesluitTypeFactory.create()
+        BesluitTypeInformatieObjectType.objects.create(
+            besluittype=besluittype,
+            informatieobjecttype=f"{EXTERNAL_API_ROOT}informatieobjecttypen/2b2d2cb3-2a67-4b8e-a05f-cbbb7a0b3ff1",
+        )
+
+        besluittype.delete()
+
+        self.assertFalse(BesluitTypeInformatieObjectType.objects.exists())
+
+    def test_str_does_not_fetch_external_informatieobjecttype(self):
+        url = f"{EXTERNAL_API_ROOT}informatieobjecttypen/2b2d2cb3-2a67-4b8e-a05f-cbbb7a0b3ff1"
+        relation = BesluitTypeInformatieObjectType.objects.create(
+            besluittype=BesluitTypeFactory.create(), informatieobjecttype=url
+        )
+
+        self.assertTrue(str(relation).endswith(url))

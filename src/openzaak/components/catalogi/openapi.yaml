@@ -10416,6 +10416,7 @@ components:
           items:
             type: string
             format: uri
+            maxLength: 1000
           description: URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
             waarin besluiten van dit BESLUITTYPE worden vastgelegd.
         beginGeldigheid:
@@ -10527,7 +10528,9 @@ components:
           type: array
           items:
             type: string
+            minLength: 1
             format: uri
+            maxLength: 1000
           description: URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
             waarin besluiten van dit BESLUITTYPE worden vastgelegd.
         beginGeldigheid:
@@ -11877,7 +11880,9 @@ components:
           type: array
           items:
             type: string
+            minLength: 1
             format: uri
+            maxLength: 1000
           description: URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
             waarin besluiten van dit BESLUITTYPE worden vastgelegd.
         beginGeldigheid:
@@ -12279,11 +12284,11 @@ components:
           minLength: 1
         informatieobjecttype:
           type: string
-          format: uri
+          minLength: 1
           title: Informatie object type
           description: URL-referentie naar het INFORMATIEOBJECTTYPE.
+          format: uri
           maxLength: 1000
-          minLength: 1
         volgnummer:
           type: integer
           maximum: 999
@@ -13705,11 +13710,10 @@ components:
           readOnly: true
         informatieobjecttype:
           type: string
-          format: uri
           title: Informatie object type
           description: URL-referentie naar het INFORMATIEOBJECTTYPE.
+          format: uri
           maxLength: 1000
-          minLength: 1
         volgnummer:
           type: integer
           maximum: 999
@@ -13764,11 +13768,11 @@ components:
           minLength: 1
         informatieobjecttype:
           type: string
-          format: uri
+          minLength: 1
           title: Informatie object type
           description: URL-referentie naar het INFORMATIEOBJECTTYPE.
+          format: uri
           maxLength: 1000
-          minLength: 1
         volgnummer:
           type: integer
           maximum: 999

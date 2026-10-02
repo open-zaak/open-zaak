@@ -9,17 +9,18 @@ from vng_api_common.serializers import (
 )
 from vng_api_common.utils import get_help_text
 
-from openzaak.utils.serializer_fields import (
-    DeprecatedNamespaceLengthHyperlinkedRelatedField,
-)
+from openzaak.utils.serializers import DeprecatedNamespaceHyperlinkedModelSerializer
 from openzaak.utils.validators import UniqueTogetherValidator
 
 from ...constants import RichtingChoices
-from ...models import InformatieObjectType, ZaakTypeInformatieObjectType
+from ...models import ZaakTypeInformatieObjectType
+from ..fields import InformatieObjectTypeUrlField, is_concept
 from ..validators import ZaakTypeInformatieObjectTypeCatalogusValidator, is_force_write
 
 
-class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
+class ZaakTypeInformatieObjectTypeSerializer(
+    DeprecatedNamespaceHyperlinkedModelSerializer
+):
     """
     Represent a ZaakTypeInformatieObjectType.
 
@@ -41,14 +42,11 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
         ),
     )
-    informatieobjecttype = DeprecatedNamespaceLengthHyperlinkedRelatedField(
+    informatieobjecttype = InformatieObjectTypeUrlField(
         help_text=get_help_text(
             "catalogi.ZaakTypeInformatieObjectType", "informatieobjecttype"
         ),
         label="Informatie object type",
-        lookup_field="uuid",
-        queryset=InformatieObjectType.objects.all(),
-        view_name="documenten:informatieobjecttype-detail",
     )
 
     class Meta:
@@ -103,17 +101,19 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
         if self.instance:
             zaaktype = attrs.get("zaaktype") or self.instance.zaaktype
             informatieobjecttype = (
-                attrs.get("informatieobjecttype") or self.instance.informatieobjecttype
+                attrs.get("informatieobjecttype")
+                or self.instance._informatieobjecttype
+                or self.instance._iotype_url
             )
 
-            if not (zaaktype.concept or informatieobjecttype.concept):
+            if not (zaaktype.concept or is_concept(informatieobjecttype)):
                 message = _("Objects related to non-concept objects can't be updated")
                 raise serializers.ValidationError(message, code="non-concept-relation")
         else:
             zaaktype = attrs.get("zaaktype")
             informatieobjecttype = attrs.get("informatieobjecttype")
 
-            if not (zaaktype.concept or informatieobjecttype.concept):
+            if not (zaaktype.concept or is_concept(informatieobjecttype)):
                 message = _(
                     "Creating relations between non-concept objects is forbidden"
                 )

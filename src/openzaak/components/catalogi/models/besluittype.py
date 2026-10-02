@@ -134,6 +134,16 @@ class BesluitType(ETagMixin, APIMixin, GeldigheidMixin, ConceptMixin, models.Mod
             representation = "{} (CONCEPT)".format(representation)
         return representation
 
+    def get_informatieobjecttype_relations(self):
+        return self.besluittypeinformatieobjecttype_set.all()
+
+    @transaction.atomic
+    def set_informatieobjecttypen(self, informatieobjecttypen) -> None:
+        values = dict.fromkeys(informatieobjecttypen)
+        self.besluittypeinformatieobjecttype_set.all().delete()
+        for value in values:
+            self.besluittypeinformatieobjecttype_set.create(informatieobjecttype=value)
+
     @transaction.atomic
     def save(self, *args, **kwargs):
         if not self.pk:

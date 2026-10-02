@@ -427,7 +427,8 @@ class BesluitTypeAPITests(APITestCase):
             "publicatietermijn": None,
             "toelichting": "aangepast",
             "informatieobjecttypen": [
-                reverse(
+                "http://testserver"
+                + reverse(
                     informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE
                 )
             ],
@@ -459,7 +460,8 @@ class BesluitTypeAPITests(APITestCase):
             "publicatietermijn": None,
             "toelichting": "aangepast",
             "informatieobjecttypen": [
-                reverse(
+                "http://testserver"
+                + reverse(
                     informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE
                 )
             ],
@@ -491,7 +493,8 @@ class BesluitTypeAPITests(APITestCase):
             "publicatietermijn": None,
             "toelichting": "aangepast",
             "informatieobjecttypen": [
-                reverse(
+                "http://testserver"
+                + reverse(
                     informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE
                 )
             ],
@@ -549,7 +552,8 @@ class BesluitTypeAPITests(APITestCase):
             besluittype_url,
             {
                 "informatieobjecttypen": [
-                    reverse(
+                    "http://testserver"
+                    + reverse(
                         informatieobjecttype,
                         namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE,
                     )

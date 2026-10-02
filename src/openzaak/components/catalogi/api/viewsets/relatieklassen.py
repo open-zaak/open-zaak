@@ -16,6 +16,7 @@ from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 
 from ...models import ZaakTypeInformatieObjectType
+from ..fields import is_concept
 from ..filters import ZaakTypeInformatieObjectTypeFilter
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_DELETE,
@@ -117,9 +118,12 @@ class ZaakTypeInformatieObjectTypeViewSet(
         ziot = self.get_object()
         zaaktype = getattr(instance, "zaaktype", None) or ziot.zaaktype
         informatieobjecttype = (
-            getattr(instance, "informatieobjecttype", None) or ziot.informatieobjecttype
+            getattr(instance, "_informatieobjecttype", None)
+            or getattr(instance, "_iotype_url", None)
+            or ziot._informatieobjecttype
+            or ziot._iotype_url
         )
-        return zaaktype.concept or informatieobjecttype.concept
+        return zaaktype.concept or is_concept(informatieobjecttype)
 
     def get_concept_filter(self):
         return ~(Q(zaaktype__concept=True) | Q(_informatieobjecttype__concept=True))

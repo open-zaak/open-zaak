@@ -21,6 +21,7 @@ from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 from zgw_consumers.test.factories import ServiceFactory
 
+from openzaak.components.catalogi.models import ZaakTypeInformatieObjectType
 from openzaak.components.catalogi.tests.factories import (
     InformatieObjectTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
@@ -746,14 +747,8 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             error["code"], "missing-zaaktype-informatieobjecttype-relation"
         )
 
-    def test_zaaktype_internal_iotype_external(self):
-        """
-        Zaaktypen are always local, but the informatieobjecttype of an external
-        document can be external.
-        """
-        zaak = ZaakFactory.create()
+    def _post_with_external_iotype(self, zaak, informatieobjecttype: str):
         zaak_url = f"http://openzaak.nl{reverse(zaak)}"
-        informatieobjecttype = f"{self.base}informatieobjecttypen/{uuid.uuid4()}"
         catalogus = f"{self.base}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
 
         with requests_mock.Mocker() as m:
@@ -777,13 +772,47 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                 status_code=201,
             )
 
-            response = self.client.post(
+            return self.client.post(
                 self.list_url,
                 {"zaak": zaak_url, "informatieobject": self.document},
                 headers={"host": "openzaak.nl"},
             )
 
+    def test_zaaktype_internal_iotype_external(self):
+        """
+        Zaaktypen are always local, but the informatieobjecttype of an external
+        document can be external, if it is linked to the zaaktype
+        """
+        zaak = ZaakFactory.create()
+        informatieobjecttype = f"{self.base}informatieobjecttypen/{uuid.uuid4()}"
+        ZaakTypeInformatieObjectType.objects.create(
+            zaaktype=zaak.zaaktype,
+            informatieobjecttype=informatieobjecttype,
+            volgnummer=1,
+            richting="inkomend",
+        )
+
+        response = self._post_with_external_iotype(zaak, informatieobjecttype)
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_zaaktype_internal_iotype_external_not_linked_fail(self):
+        zaak = ZaakFactory.create()
+        informatieobjecttype = f"{self.base}informatieobjecttypen/{uuid.uuid4()}"
+        ZaakTypeInformatieObjectType.objects.create(
+            zaaktype=zaak.zaaktype,
+            informatieobjecttype=f"{self.base}informatieobjecttypen/{uuid.uuid4()}",
+            volgnummer=1,
+            richting="inkomend",
+        )
+
+        response = self._post_with_external_iotype(zaak, informatieobjecttype)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(
+            error["code"], "missing-zaaktype-informatieobjecttype-relation"
+        )
 
 
 @tag("external-urls")

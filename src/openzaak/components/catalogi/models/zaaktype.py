@@ -366,6 +366,9 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
             self.zaaktype_omschrijving, "CONCEPT" if self.concept else self.versiedatum
         )
 
+    def get_informatieobjecttype_relations(self):
+        return self.zaaktypeinformatieobjecttype_set.all()
+
     @transaction.atomic
     def save(self, *args, **kwargs):
         # sync after creating new objects
