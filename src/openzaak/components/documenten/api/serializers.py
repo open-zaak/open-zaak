@@ -69,6 +69,7 @@ from ..models import (
     Verzending,
 )
 from ..storage import get_private_media_storage
+from ..validators import validate_inhoud_filename
 from .fields import OnlyRemoteOrFKOrURLField
 from .utils import create_filename, merge_files
 from .validators import (
@@ -290,6 +291,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
     )
     inhoud = AnyBase64File(
         view_name="enkelvoudiginformatieobject-download",
+        validators=[validate_inhoud_filename],
         help_text=_(
             f"Minimal accepted size of uploaded file = {settings.MIN_UPLOAD_SIZE} bytes "
             f"(or {naturalsize(settings.MIN_UPLOAD_SIZE, binary=True)})"
