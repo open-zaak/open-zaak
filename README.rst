@@ -6,99 +6,109 @@ Open Zaak
     :height: 100px
     :alt: Open Zaak
 
-*Productiewaardige API's voor Zaakgericht Werken*
-
-`Read this in English`_
-
-.. _`Read this in English`: README.en.md
-
 :Version: 1.30.0
 :Source: https://github.com/open-zaak/open-zaak
 :Keywords: zaken, zaakgericht werken, zaken-api, catalogi-api, besluiten-api, documenten-api
 :PythonVersion: 3.12
 
-|build-status| |docs| |coverage| |code-quality| |ruff| |docker| |docker| |python-version|
+|docs| |docker|
 
-Deze repository bevat broncode en documentatie voor productiewaardige API's voor Zaakgericht Werken (ZGW). Deze API's volgen de standaard van VNG Realisatie "API's voor Zaakgericht Werken".
+Registraties en API's op basis van de VNG API standaard voor Zaakgericht Werken. (`English version`_)
 
-Zaakgericht Werken
-==================
+Ontwikkeld door `Maykin B.V.`_, geïnitieerd door de `Stakeholders`_.
+
+Introductie
+===========
 
 Zaakgericht werken is een vorm van procesgericht werken die door de Nederlandse gemeenten, en steeds meer landelijke overheden, wordt toegepast om verzoeken van burgers en bedrijven te behandelen. De zaak staat hierbij centraal. Een zaak is een samenhangende hoeveelheid werk met een gedefinieerde aanleiding en een gedefinieerd resultaat waarvan kwaliteit en doorlooptijd bewaakt moeten worden. De API's voor Zaakgericht Werken ondersteunen de registratie van alle metadata en gegevens die komen kijken bij Zaakgericht Werken. Zie ook `Zaakgericht werken in het gemeentelijk gegevenslandschap`_.
 
 .. _`Zaakgericht werken in het gemeentelijk gegevenslandschap`: https://www.gemmaonline.nl/images/gemmaonline/f/f6/20190620_-_Zaakgericht_werken_in_het_Gemeentelijk_Gegevenslandschap_v101.pdf
 
 
-Standaard "API's voor Zaakgericht Werken"
-=========================================
+Duurzaam beheer
+===============
 
-In het kader van Common Ground heeft VNG Realisatie deze standaard ontwikkeld. Daarbij zijn tegelijk met API-specificaties referentie-implementaties gerealiseerd om aan te tonen dat de specificaties in software kunnen worden geïmplementeerd. De volgende inhoudelijke API's maken onderdeel uit van de standaard:
+Deze software is open source en vrij te gebruiken binnen de voorwaarden van de EUPL. Veilig en betrouwbaar productiegebruik vraagt echter om structureel beheer, waaronder beveiligingsupdates, dependency- en releasebeheer, kwaliteitsbewaking en het verwerken van kwetsbaarheden. Ook het onderhouden van publieke functies rondom het open source product vraagt om structurele inzet.
 
-* Catalogi - voor de registratie van zaaktype-catalogi, zaaktype en alle daarbij horende typen.
-* Zaken - voor de registratie van zaken. Zaken kunnen o.a. relaties hebben met documenten, besluiten, contacten. De API biedt functionaliteit voor audit trail en archiveren.
-* Documenten - voor de registratie van informatieobjecten, hetgeen zowel documenten als andere informatiedragers zoals foto's en film kunnen zijn.
-* Besluiten - voor de registratie van besluiten die in het kader van zaakgericht werken worden genomen.
+**Publieke code vraagt om publieke verantwoordelijkheid.**
 
-Daarnaast zijn er een paar generieke API's die nodig om gebruik te maken van deze API's:
+De `Stakeholders`_ verwachten van publieke organisaties, die deze software in productie gebruiken, een financiele bijdrage aan de gezamenlijke instandhouding.
 
-* Notificaties - in Common Ground worden gegevens bij de bron geregistreerd en bijgehouden. Consumers krijgen niet vanzelf bericht als er iets is gewijzigd. Hiervoor kunnen ze een abonnement registreren bij de Notificaties API.
-* Autorisaties - via de Autorisaties API wordt de toegang van applicaties tot gegevens geregeld.
+Lees meer over de beheerorganisatie, bijdragen en verantwoordelijkheden in `PROJECT_GOVERNANCE.md`_.
 
-Productiewaardige API's
-=======================
 
-Bij de realisatie van productiewaardige API's is aandacht besteed aan een aantal belangrijke aspecten:
+API specificaties
+=================
 
-* Beheer: er is een beheerportaal ingericht waarmee de verschillende API's door functioneel beheerders kunnen worden beheerd.
-* Performance: er zijn performance-metingen verricht op basis van schattingen van de verwachte belasting door applicaties die eindgebruikers gebruiken. Benodigde verbeteringen zijn doorgevoerd waardoor een belasting door 2000 eindgebruikers geen problemen zou moeten opleveren.
-* Documentatie van de componenten, met name van de beheer applicaties. (De inhoudelijke documentatie over de API's is onderdeel van de standaard.)
-* Uitrol: Om de uitrol naar servers te vereenvoudigen is er een Docker container beschikbaar. Dit zijn een soort componenten die gemakkelijk kunnen worden uitgerold op een server om ze vervolgens in gebruik te nemen. Hiermee kunnen gemeenten de API’s op eenvoudige wijze (laten) draaien bij een hostingpartij.
+Open Zaak bevat meerdere componenten. Hieronder staan per component de API-versies.
 
-Architectuur van Open Zaak
-==========================
+==================  ==========  ===================
+API-component       API versie  API specificatie
+==================  ==========  ===================
+Zaken API           1.5.1       `ReDoc <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/1.30.0/src/openzaak/components/zaken/openapi.yaml>`_,
+                                `Swagger <https://petstore.swagger.io/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/1.30.0/src/openzaak/components/zaken/openapi.yaml>`_
+Documenten API      1.4.2       `ReDoc <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/1.30.0/src/openzaak/components/documenten/openapi.yaml>`_,
+                                `Swagger <https://petstore.swagger.io/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/1.30.0/src/openzaak/components/documenten/openapi.yaml>`_
+Besluiten API       1.1.0       `ReDoc <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/1.30.0/src/openzaak/components/besluiten/openapi.yaml>`_,
+                                `Swagger <https://petstore.swagger.io/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/1.30.0/src/openzaak/components/besluiten/openapi.yaml>`_
+Catalogi API        1.3.1       `ReDoc <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/1.30.0/src/openzaak/components/catalogi/openapi.yaml>`_,
+                                `Swagger <https://petstore.swagger.io/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/1.30.0/src/openzaak/components/catalogi/openapi.yaml>`_
+Autorisaties API    1.0.0       `ReDoc <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/1.30.0/src/openzaak/components/autorisaties/openapi.yaml>`_,
+                                `Swagger <https://petstore.swagger.io/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/1.30.0/src/openzaak/components/autorisaties/openapi.yaml>`_
+==================  ==========  ===================
 
-De architectuur van Open Zaak is gebaseerd op een beperkt aantal componenten. De belangrijkste component is de registratiecomponent die de API's voor ZGW aanbiedt. Daarnaast zijn er de volgende componenten:
+Vorige versies van Open Zaak worden nog 6 maanden ondersteund nadat de volgende versie
+is uitgebracht.
 
-* Notificatie-component, noodzakelijk voor de werking van Open Zaak.
-* Selectielijst component die wordt gebruikt om de VNG Selectielijst voor archiveren te ontsluiten
-* Beheerportaal dat toegang biedt tot de verschillende beheerapps die bij de API's horen
+Zie: `Alle versies en wijzigingen <https://github.com/open-zaak/open-zaak/blob/main/CHANGELOG.rst>`_
 
-.. image:: docs/introduction/_assets/architecture.png
-    :width: 100%
-    :alt: Open-Zaak Componenten-overzicht
 
-Implementatie
-=============
+Component
+=========
 
-Deze repository bevat de broncode voor de API's. Om gebruik te kunnen maken van de API's moeten deze ergens gehost worden als een service. Als onderdeel van de ontwikkelstraat worden bij elke nieuwe versie van Open Zaak een Docker container die direct kunnen worden uitgerold in een Kubernetes cluster.
+|build-status| |coverage| |code-quality| |ruff| |python-version|
+
+Open Zaak is bedoeld voor productie-doeleinden maar kan uitgeprobeerd worden door
+ontwikkelaars en/of hobbyisten met onderstaande "quickstart".
+
+Quickstart
+----------
+
+1. Download en start Open Zaak:
+
+   .. code:: bash
+
+      $ wget https://raw.githubusercontent.com/open-zaak/open-zaak/refs/heads/main/docker-compose.yml
+      $ docker-compose up -d --no-build
+      $ docker-compose exec web src/manage.py createsuperuser
+
+2. In de browser, navigeer naar ``http://localhost:8000/`` om de beheerinterface
+   en de API te benaderen.
+
 
 Links
 =====
 
-* `VNG Standaard API's voor Zaakgericht Werken`_
-* `Documentatie`_
-* `Docker Hub`_
+* `Documentatie <https://open-zaak.readthedocs.io/>`_
+* `Docker image <https://hub.docker.com/r/openzaak/open-zaak>`_
+* `Issues <https://github.com/open-zaak/open-zaak/issues>`_
+* `Code <https://github.com/open-zaak/open-zaak>`_
+* `Community <https://commonground.nl/groups/view/d9c2f667-2f3e-4153-a79b-57dde7f56cc2/open-gegevenslaag-zaken-documenten-producten-klantcontacten>`_
 
-.. _`Documentatie`: https://open-zaak.readthedocs.io/en/latest/
-.. _`Docker Hub`: https://hub.docker.com/u/openzaak
-.. _`VNG Standaard API's voor Zaakgericht Werken`: https://github.com/VNG-Realisatie/gemma-zaken
-
-Bouw
-====
-
-Deze API's zijn ontwikkeld door `Maykin B.V.`_ in opdracht van Amsterdam,
-Rotterdam, Utrecht, Tilburg, Arnhem, Haarlem, 's-Hertogenbosch, Delft en een coalitie
-van Hoorn, Medemblik, Stede Broec, Drechteland, Enkhuizen (SED), onder regie van `Dimpact`_.
-
-.. _Maykin B.V.: https://www.maykin.nl
-.. _Dimpact: https://www.dimpact.nl
 
 Licentie
 ========
 
-Licensed under the EUPL_
+Copyright © de `Stakeholders`_, 2026
 
-.. _EUPL: LICENSE.md
+Licensed under the `EUPL`_.
+
+.. _`English version`: README.EN.rst
+.. _`Maykin B.V.`: https://www.maykin.nl
+.. _`Stakeholders`: STAKEHOLDERS.md
+.. _`PROJECT_GOVERNANCE.md`: PROJECT_GOVERNANCE.md
+.. _`EUPL`: LICENSE.md
+
 
 .. |build-status| image:: https://github.com/open-zaak/open-zaak/actions/workflows/ci.yml/badge.svg?branch=main
     :alt: Build status
