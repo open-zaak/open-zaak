@@ -527,12 +527,6 @@ class BesluitTypeAdminForm(forms.ModelForm):
                 admin_site=site,
                 catalogus_pk=catalogus_pk,
             )
-        if "informatieobjecttypen" in self.fields:
-            self.fields["informatieobjecttypen"].widget = CatalogusFilterM2MRawIdWidget(
-                rel=BesluitType.informatieobjecttypen.rel,
-                admin_site=site,
-                catalogus_pk=catalogus_pk,
-            )
 
 
 class ZaakTypeInformatieObjectTypeAdminForm(forms.ModelForm):

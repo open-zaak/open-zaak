@@ -7,3 +7,6 @@ from django.utils.translation import gettext_lazy as _
 class CatalogiConfig(AppConfig):
     name = "openzaak.components.catalogi"
     verbose_name = _("Catalogi")
+
+    def ready(self):
+        from . import signals  # noqa

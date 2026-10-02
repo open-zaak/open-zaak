@@ -28,7 +28,10 @@ class BesluitTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializer):
         many=True,
         lookup_field="uuid",
         queryset=InformatieObjectType.objects.all(),
-        help_text=get_help_text("catalogi.BesluitType", "informatieobjecttypen"),
+        help_text=_(
+            "URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten waarin besluiten van dit "
+            "BESLUITTYPE worden vastgelegd."
+        ),
     )
 
     zaaktypen = CachedHyperlinkedRelatedField(

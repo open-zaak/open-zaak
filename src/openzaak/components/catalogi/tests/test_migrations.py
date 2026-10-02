@@ -135,3 +135,86 @@ class ZaakTypeInformatieObjectTypeLooseFkBackwardTests(TestMigrations):
         self.assertIn("informatieobjecttype_id", columns)
         self.assertNotIn("_informatieobjecttype_id", columns)
         self.assertNotIn("_iotype_base_url_id", columns)
+
+
+def _create_besluittype(apps, catalogus):
+    BesluitType = apps.get_model("catalogi", "BesluitType")
+    return BesluitType.objects.create(
+        _etag="",
+        catalogus=catalogus,
+        omschrijving="besluittype",
+        publicatie_indicatie=False,
+        datum_begin_geldigheid=date(2020, 1, 1),
+    )
+
+
+class BesluitTypeInformatieObjectTypenForwardTests(TestMigrations):
+    app = "catalogi"
+    migrate_from = "0028_informatieobjecttype_loose_fk"
+    migrate_to = "0029_besluittype_informatieobjecttypen_through"
+
+    def setUpBeforeMigration(self, apps):
+        _, self.iotype = _create_zaaktype_and_iotype(apps)
+        self.besluittype = _create_besluittype(apps, self.iotype.catalogus)
+        self.other_besluittype = _create_besluittype(apps, self.iotype.catalogus)
+        self.besluittype.informatieobjecttypen.add(self.iotype)
+        connection.check_constraints()
+
+    def test_relation_is_kept(self):
+        BesluitTypeInformatieObjectType = self.apps.get_model(
+            "catalogi", "BesluitTypeInformatieObjectType"
+        )
+
+        relations = BesluitTypeInformatieObjectType.objects.all()
+
+        self.assertEqual(relations.count(), 1)
+        self.assertEqual(relations[0].besluittype_id, self.besluittype.pk)
+        self.assertEqual(relations[0]._informatieobjecttype_id, self.iotype.pk)
+
+    def test_m2m_table_removed(self):
+        with connection.cursor() as cursor:
+            tables = connection.introspection.table_names(cursor)
+
+        self.assertNotIn("catalogi_besluittype_informatieobjecttypen", tables)
+
+    def test_reverse_accessors(self):
+        BesluitType = self.apps.get_model("catalogi", "BesluitType")
+
+        besluittype = BesluitType.objects.get(pk=self.besluittype.pk)
+
+        self.assertEqual(
+            list(besluittype.informatieobjecttypen.values_list("pk", flat=True)),
+            [self.iotype.pk],
+        )
+        self.assertFalse(
+            BesluitType.objects.get(
+                pk=self.other_besluittype.pk
+            ).informatieobjecttypen.exists()
+        )
+
+
+class BesluitTypeInformatieObjectTypenBackwardTests(TestMigrations):
+    app = "catalogi"
+    migrate_from = "0029_besluittype_informatieobjecttypen_through"
+    migrate_to = "0028_informatieobjecttype_loose_fk"
+
+    def setUpBeforeMigration(self, apps):
+        BesluitTypeInformatieObjectType = apps.get_model(
+            "catalogi", "BesluitTypeInformatieObjectType"
+        )
+        _, self.iotype = _create_zaaktype_and_iotype(apps)
+        self.besluittype = _create_besluittype(apps, self.iotype.catalogus)
+        BesluitTypeInformatieObjectType.objects.create(
+            besluittype=self.besluittype, _informatieobjecttype=self.iotype
+        )
+        connection.check_constraints()
+
+    def test_relation_is_restored(self):
+        BesluitType = self.apps.get_model("catalogi", "BesluitType")
+
+        besluittype = BesluitType.objects.get(pk=self.besluittype.pk)
+
+        self.assertEqual(
+            list(besluittype.informatieobjecttypen.values_list("pk", flat=True)),
+            [self.iotype.pk],
+        )
