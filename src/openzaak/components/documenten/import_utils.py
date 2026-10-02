@@ -9,6 +9,13 @@ from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.import_data.models import ImportRowResultChoices
 
 
+def _parse_nullable_bool(value: str) -> bool | None:
+    value = value.lower()
+    if value in ("none", "null", ""):
+        return None
+    return value == "true"
+
+
 @dataclass
 class DocumentRow:
     _uuid: str
@@ -155,8 +162,8 @@ class DocumentRow:
         return self._verzenddatum or None
 
     @property
-    def indicatie_gebruiksrecht(self) -> bool:
-        return self._indicatie_gebruiksrecht in ("True", "true")
+    def indicatie_gebruiksrecht(self) -> bool | None:
+        return _parse_nullable_bool(self._indicatie_gebruiksrecht)
 
     @property
     def ondertekening(self) -> Optional[dict]:
@@ -208,10 +215,7 @@ class DocumentRow:
 
     @property
     def inhoud_is_vervallen(self) -> bool | None:
-        value = self._inhoud_is_vervallen.lower()
-        if value in ("none", "null", ""):
-            return None
-        return value == "true"
+        return _parse_nullable_bool(self._inhoud_is_vervallen)
 
     @property
     def tonen_aan_initiator(self) -> bool:
@@ -219,7 +223,7 @@ class DocumentRow:
 
     @property
     def is_gereed_voor_publicatie(self) -> bool | None:
-        return self._is_gereed_voor_publicatie.lower() == "true"
+        return _parse_nullable_bool(self._is_gereed_voor_publicatie)
 
     @property
     def processed(self) -> bool:
