@@ -181,7 +181,7 @@ codecov==2.1.13
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-commonground-api-common==2.16.0
+commonground-api-common==3.0.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -429,7 +429,7 @@ django-sessionprofile==3.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-django-setup-configuration==0.11.0
+django-setup-configuration==0.13.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -1457,7 +1457,7 @@ wrapt==1.16.0
     #   opentelemetry-instrumentation-dbapi
     #   opentelemetry-instrumentation-redis
     #   vcrpy
-zgw-consumers==2.0.3
+zgw-consumers==2.1.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
