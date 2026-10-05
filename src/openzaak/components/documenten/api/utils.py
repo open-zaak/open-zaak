@@ -1,27 +1,29 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
+from __future__ import annotations
+
 import re
-import shutil
 import uuid
+from collections.abc import Iterable
 from datetime import date
-from pathlib import Path, PurePath
+from pathlib import PurePath
+from typing import IO
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.core.files import File
 from django.db.models import Max
 
 
-def merge_files(part_files, file_dir, file_name) -> str:
-    file_dir_path = Path(file_dir)
-    file_dir_path.mkdir(exist_ok=True)
-    file_path = file_dir_path / file_name
-    with open(file_path, "wb") as output:
-        for file in part_files:
-            with file.open("rb") as fileobj:
-                shutil.copyfileobj(
-                    fileobj, output, settings.DOCUMENTEN_UPLOAD_READ_CHUNK
-                )
-    return file_path
+def merge_files(part_files: Iterable[File[bytes]], dst: IO[bytes], /) -> None:
+    """
+    Write the contents of ``part_files`` to ``dst``, in order.
+    """
+    # TODO: in python 3.14 change type of dst to io.Writer[bytes]
+    for file in part_files:
+        with file.open("rb"):
+            for chunk in file.chunks(settings.DOCUMENTEN_UPLOAD_READ_CHUNK):
+                dst.write(chunk)
 
 
 def create_filename(name):

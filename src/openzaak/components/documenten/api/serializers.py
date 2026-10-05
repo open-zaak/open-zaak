@@ -6,6 +6,7 @@ Serializers of the Document Registratie Component REST API
 
 import binascii
 import math
+import tempfile
 import uuid
 from base64 import b64decode
 from pathlib import Path
@@ -852,16 +853,16 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
             file_field = self.instance._meta.get_field("inhoud")
             rel_path = file_field.generate_filename(self.instance, name)
             file_name = Path(rel_path).name
-            # merge files
+            # merge files into a uniquely named file; documents with the same
+            # bestandsnaam may be unlocked concurrently
             file_dir = Path(settings.PRIVATE_MEDIA_ROOT)
-            target_file = merge_files(part_files, file_dir, file_name)
-            # save full file to the instance FileField
-            with open(target_file, "rb") as file_obj:
-                self.instance.inhoud = File(file_obj, name=file_name)
+            file_dir.mkdir(exist_ok=True)
+            with tempfile.NamedTemporaryFile(dir=file_dir) as merged:
+                merge_files(part_files, merged)
+                merged.seek(0)
+                # save full file to the instance FileField
+                self.instance.inhoud = File(merged, name=file_name)
                 self.instance.save()
-
-            # Remove the merged file
-            target_file.unlink()
         else:
             self.instance.bestandsomvang = None
             self.instance.save()
