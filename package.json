@@ -2,15 +2,15 @@
   "name": "openzaak",
   "version": "1.30.0",
   "description": "Open Zaak",
-  "main": "src/openzaak/static/bundles/openzaak-js.js",
+  "main": "src/openzaak/static/bundles/index.js",
+  "type": "module",
   "directories": {
     "doc": "doc"
   },
   "scripts": {
-    "build": "npm run bundle",
-    "bundle": "webpack",
-    "test": "karma start",
-    "watch": "webpack -w"
+    "build": "node build.js",
+    "test": "echo 'no tests defined' && exit 1",
+    "watch": "node build.js --watch"
   },
   "repository": {
     "type": "git",
@@ -29,21 +29,8 @@
     "react-use": "^17.4.0"
   },
   "devDependencies": {
-    "@babel/core": "latest",
-    "@babel/preset-env": "latest",
-    "@babel/preset-react": "^7.22.15",
-    "autoprefixer": "^10.4.16",
-    "babel-loader": "latest",
-    "css-loader": "latest",
-    "cssnano": "latest",
-    "mini-css-extract-plugin": "latest",
-    "postcss-loader": "latest",
-    "postcss-selector-lint": "latest",
-    "sass": "^1.99.0",
-    "sass-loader": "latest",
-    "webpack": "latest",
-    "webpack-cli": "latest",
-    "webpack-stream": "latest",
-    "yargs": "latest"
+    "esbuild": "latest",
+    "esbuild-sass-plugin": "latest",
+    "sass-embedded": "latest"
   }
 }
