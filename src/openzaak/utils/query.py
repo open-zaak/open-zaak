@@ -18,6 +18,8 @@ class QueryBlocked(Exception):
 
 
 class BlockChangeMixin:
+    model: type[models.Model]
+
     def _block(self, method: str):
         raise QueryBlocked(
             f"Queryset/manager `{method}` is forbidden for {self.model.__name__}. "
@@ -37,14 +39,14 @@ class BlockChangeMixin:
         self._block("delete")
 
     # see django.db.models.query.QuerySet.delete
-    delete.queryset_only = True
+    delete.queryset_only = True  # pyright: ignore[reportFunctionMemberAccess]
 
 
-class LooseFkAuthorizationsFilterMixin:
-    auth_fields = []
-    loose_fk_field = None
+class LooseFkAuthorizationsFilterMixin(models.QuerySet):
+    auth_fields: list[str] = []
+    loose_fk_field: str = None  # pyright: ignore[reportAssignmentType]
     vertrouwelijkheidaanduiding_use = True
-    authorizations_lookup = None
+    authorizations_lookup: str | None = None
 
     @property
     def prefix(self):

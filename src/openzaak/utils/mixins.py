@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from __future__ import annotations
 
 from django.utils.module_loading import import_string
 
 from dictdiffer import diff
+from rest_framework.viewsets import GenericViewSet
 from rest_framework_inclusions.renderer import (
     get_allowed_paths,
 )
@@ -25,7 +27,7 @@ def format_dict_diff(changes):
     return res
 
 
-class AuditTrailMixin:
+class AuditTrailMixin(_APIMixin):
     @property
     def audittrail(self):
         qs = AuditTrail.objects.filter(
@@ -47,7 +49,7 @@ class APIMixin(_APIMixin):
         return super().get_absolute_api_url(request=request, **kwargs)
 
 
-class ExpandMixin:
+class ExpandMixin(GenericViewSet):
     renderer_classes = (ExpandJSONRenderer,)
     expand_param = EXPAND_QUERY_PARAM
 
@@ -71,6 +73,7 @@ class ExpandMixin:
             self.get_serializer(), "inclusion_serializers", {}
         )
         inclusions = get_allowed_paths(self.request, view=self)
+        assert inclusions is not None
 
         expand_serializers = set()
 
@@ -86,7 +89,7 @@ class ExpandMixin:
         return permissions
 
 
-class CacheQuerysetMixin:
+class CacheQuerysetMixin(GenericViewSet):
     """
     Mixin for ViewSets to avoid doing redundant calls to `ViewSet.get_queryset()`
 
