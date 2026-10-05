@@ -1,6 +1,63 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+**Bugfixes**
+
+* [:open-zaak:`2592`] Fix documents with the same file name overwriting each other's
+  content when they are saved at the same time, or imported.
+
+.. warning::
+
+    Manual intervention may be required: documents may have silently lost their content.
+
+    Three bugs could replace a document's content with another document's, without any
+    error. Which ones apply depends on the storage backend, set with
+    ``DOCUMENTEN_API_BACKEND`` (when unset, it's ``filesystem``):
+
+    ==========================  =====================  ==============  =================
+    ``DOCUMENTEN_API_BACKEND``  1. Large file uploads  2. Bulk import  3. Same-name save
+    ==========================  =====================  ==============  =================
+    ``filesystem`` (default)    affected               affected        not affected
+    ``azure_blob_storage``      affected               not affected    not affected
+    ``s3_storage``              affected               not affected    affected
+    ==========================  =====================  ==============  =================
+
+    #. **Large file uploads** (since 1.8.0): documents with the same ``bestandsnaam``,
+       uploaded in ``bestandsdelen`` and unlocked at the same time.
+    #. **Bulk import** (since 1.13.0): files with the same name, imported in the same
+       month as another file or document with that name.
+    #. **Same-name saves** (since 1.27.0): documents with the same name, saved at the
+       same time.
+
+    If you switched backends, consider every backend you used since 1.8.0.
+
+    **What to do**
+
+    Run this in an Open Zaak container. It only reads, and can run on a live
+    installation:
+
+    .. code-block:: bash
+
+        python src/manage.py detect_overwritten_documents > report.tsv
+
+    On Azure and S3 it makes one request per file, which can take hours for millions of
+    documents; run it as a Kubernetes Job, for example. It ends with a summary:
+
+    * **Affected**: these documents almost certainly lost their content. Expect few or
+      none. Ask the application that created them to upload them again.
+    * **Possible**: the command can't rule these out. Inspect them, by comparing them
+      with the originals in the application that uploaded them.
+    * **Unlikely**: ruled out by the timing of their uploads, under conservative
+      assumptions. There can be many; most installations can leave them.
+
+    A document that isn't listed is fine, apart from a few cases that can't be
+    detected. The reasoning behind each check, when it can be wrong, how to estimate the
+    remaining risk and those undetectable cases are in
+    :ref:`installation_reference_overwritten_documents`.
+
 1.30.0 (2026-08-20)
 -------------------
 
