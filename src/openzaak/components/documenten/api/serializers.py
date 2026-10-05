@@ -384,6 +384,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "trefwoorden",
             "inhoud_is_vervallen",
             "tonen_aan_initiator",
+            "is_gereed_voor_publicatie",
         )
         extra_kwargs = {
             "taal": {"min_length": 3},
