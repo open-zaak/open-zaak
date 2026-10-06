@@ -66,3 +66,6 @@ warnings.filterwarnings("ignore", r".*", SystemTimeWarning, "urllib3.connection"
 # (which runs queries?) causes the tests to fail.
 if DB_POOL_ENABLED:
     INSTALLED_APPS.remove("upgrade_check")
+    # A specific system check in zgw-consumers causes database issues when running tests
+    # in parallel with pooling enabled
+    TEST_RUNNER = "openzaak.tests.utils.runners.CITestRunner"

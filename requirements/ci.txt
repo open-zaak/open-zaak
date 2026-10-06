@@ -154,7 +154,7 @@ cloudevents==1.12.0
     #   -r requirements/base.txt
 codecov==2.1.13
     # via -r requirements/test-tools.in
-commonground-api-common==2.16.0
+commonground-api-common==3.0.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -387,7 +387,7 @@ django-sessionprofile==3.0.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
-django-setup-configuration==0.11.0
+django-setup-configuration==0.13.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -1264,7 +1264,7 @@ wrapt==1.16.0
     #   opentelemetry-instrumentation-dbapi
     #   opentelemetry-instrumentation-redis
     #   vcrpy
-zgw-consumers==2.0.3
+zgw-consumers==2.1.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
