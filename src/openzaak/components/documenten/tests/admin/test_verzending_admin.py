@@ -15,7 +15,11 @@ class VerzendingAdminTests(AdminTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        cls.verzending = VerzendingFactory.create()
+        # the admin searches with icontains: the factory's "document-1" would also
+        # match "document-10" etc. of the other verzendingen
+        cls.verzending = VerzendingFactory.create(
+            informatieobject__latest_version__identificatie="verzending-search-target"
+        )
         cls.verzending_same_io = VerzendingFactory.create(
             informatieobject=cls.verzending.informatieobject,
             contactpersoonnaam="Verzending contactpersoonnaam",
