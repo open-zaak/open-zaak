@@ -1,13 +1,8 @@
 Changelog
 =========
 
-Unreleased
-----------
-
-**Bugfixes**
-
-* [:open-zaak:`2592`] Fix documents with the same file name overwriting each other's
-  content when they are saved at the same time, or imported.
+1.31.0 (2026-10-09)
+-------------------
 
 .. warning::
 
@@ -57,6 +52,86 @@ Unreleased
     detected. The reasoning behind each check, when it can be wrong, how to estimate the
     remaining risk and those undetectable cases are in
     :ref:`installation_reference_overwritten_documents`.
+
+**New features**
+
+* [:open-zaak:`2570`] Additions to Verzending admin UI
+
+  * Diplay informatieobject in list view
+  * Allow searching on informatieobject UUID and identificatie admin list view
+
+* [:open-zaak:`2560`] Add werkprocesnummer postfix to UWV zaak identificatie generation
+
+**ZGW API upgrades**
+
+* [:open-zaak:`2453`] Upgrade Documenten API to 1.5.0
+
+  * Add ``inhoudIsVervallen`` attribute to EnkelvoudigInformatieObject
+  * Remove validation mentioned in API spec for EnkelvoudigInformatieObject that disallows PUT/PATCH if status is not ``definitief``
+
+* [:open-zaak:`2454`] Upgrade Documenten API to 1.6.0
+
+  * Add ``expand`` to
+
+    * ``/enkelvoudiginformatieobjecten``
+    * ``/gebruiksrechten``
+    * ``/objectinformatieobjecten``
+    * ``/verzendingen``
+
+  * Add ``tonenAanInitiator`` attribute to EnkelvoudigInformatieObject
+  * Update Verzending API spec helptext to correctly reflect validation
+
+**Experimental features** (see :ref:`api_experimental`)
+
+* [:open-archiefbeheer:`1071`] Add webhook for zaakobject date changed cloudevent for archiving purposes
+* [:open-archiefbeheer:`1069`] update models and API with 'product' value for ZaakObjectType enum
+
+**Bugfixes**
+
+* [:open-zaak:`2592`] Fix documents with the same file name overwriting each other's content when they are saved at the same time, or imported.
+* [:open-zaak:`2586`] Fix context variables not being JSON serializable in the CloudEvent webhook view
+* [:open-zaak:`2484`] Fix 500 error that occurred when successfully deleting a Zaak
+* [:open-zaak:`2581`] Avoid crashing view config page if configured services are missing JWT secrets
+* [:open-zaak:`2570`] Fix very slow verzending admin list view
+* [:open-zaak:`2313`] Use service TLS certificates when fetching remote URLs
+* [:open-archiefbeheer:`1071`] Fixed a related zaakobject without an end date preventing a zaak from being closed
+* [:open-zaak:`2506`] Fix 500 error for writes to ``/statustypen`` with a valid doorlooptijd
+* [:open-zaak:`2426`] Fix 500 error that occurred when attempting to add a new service via the Service configuration view in the admin
+
+**Project maintenance**
+
+* [:open-zaak:`2576`] Upgrade python dependencies
+
+  * anyio to 4.14.2
+  * commonground-api-common to 3.0.0
+  * django-loose-fk to 2.0.0
+  * django-setup-configuration to 0.13.0
+  * djangorestframework to 3.18.1
+  * djangorestframework-gis to 1.3.0
+  * filelock to 4.0.8
+  * gitpython to 3.2.0
+  * maykin-common to 0.22.0
+  * notifications-api-common to 0.13.1
+  * oauthlib to 4.0.0
+  * open-api-framework to 0.16.0
+  * pip to 26.2.1
+  * pyjwt to 2.15.1
+  * sqlparse to 0.6.0
+  * tornado to 6.5.10
+  * urllib3 to 2.8.0
+  * virtualenv to 21.14.2
+  * webob to 1.8.11
+  * zgw-consumers to 2.1.0
+
+* [:open-zaak:`2576`] Upgrade NPM dependencies
+* [:open-zaak:`2590`] Export ``UWSGI_*`` defaults instead of passing explicit flags
+* [:open-zaak:`2027`] Remove ``FUZZY_PAGINATION`` envvar and always use default pagination instead
+* [:open-api-workflows:`64`] Add action to generate and update Docker Hub description
+* Update versions of dependencies used in github actions
+
+**Documentation**
+
+* Use main branch instead of master for Open Zaak repo in docs
 
 1.30.0 (2026-08-20)
 -------------------
