@@ -645,7 +645,7 @@ maykin-2fa==1.0.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
-maykin-common==0.20.1
+maykin-common==0.22.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -691,7 +691,7 @@ oauthlib==4.0.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   requests-oauthlib
-open-api-framework==0.15.0
+open-api-framework==0.16.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

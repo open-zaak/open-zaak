@@ -729,7 +729,7 @@ maykin-2fa==1.0.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-maykin-common==0.20.1
+maykin-common==0.22.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -777,7 +777,7 @@ oauthlib==4.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   requests-oauthlib
-open-api-framework==0.15.0
+open-api-framework==0.16.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
