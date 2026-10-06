@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from datetime import date
+from unittest import mock
 
 from django.test import override_settings, tag
 
@@ -119,6 +120,35 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             self.assertEqual(
                 besluit.besluitinformatieobject_set.get().informatieobject, io.canonical
             )
+
+    def test_sync_zaakbesluit_with_capture_oncommit_callbacks(self):
+        zaak = ZaakFactory.create(zaaktype__concept=False)
+        zaak_url = reverse(zaak)
+        besluittype = BesluitTypeFactory.create(concept=False)
+        besluittype_url = reverse(besluittype)
+        besluittype.zaaktypen.add(zaak.zaaktype)
+
+        url = get_operation_url("besluit_create")
+        with mock.patch.object(Besluit, "previous_zaak", None):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(
+                    url,
+                    {
+                        "verantwoordelijke_organisatie": "517439943",  # RSIN
+                        "identificatie": "123123",
+                        "besluittype": f"http://openzaak.nl{besluittype_url}",
+                        "zaak": f"http://openzaak.nl{zaak_url}",
+                        "datum": "2018-09-06",
+                        "toelichting": "Vergunning verleend.",
+                        "ingangsdatum": "2018-10-01",
+                        "vervaldatum": "2018-11-01",
+                        "vervalreden": VervalRedenen.tijdelijk,
+                    },
+                    headers={"host": "openzaak.nl"},
+                )
+                self.assertEqual(
+                    response.status_code, status.HTTP_201_CREATED, response.data
+                )
 
     def test_opvragen_informatieobjecten_besluit(self):
         besluit1, besluit2 = BesluitFactory.create_batch(2)
