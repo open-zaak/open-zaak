@@ -540,6 +540,11 @@ class StatusTypeAPITests(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        errors = get_validation_errors(response, "expand")
+        self.assertEqual(
+            errors["reason"],
+            "Selecteer een geldige keuze. catalogus.zaaktypen is geen beschikbare keuze.",
+        )
 
     def test_get_detail_without_expand(self):
         statustype = StatusTypeFactory.create()

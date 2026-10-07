@@ -1851,6 +1851,44 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertIn("besluittypen", data["_expand"])
         self.assertIn("deelzaaktypen", data["_expand"])
 
+    def test_get_detail_expand_multiple_query_count(self):
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        ZaakObjectTypeFactory.create(zaaktype=zaaktype)
+        StatusTypeFactory.create(zaaktype=zaaktype)
+        ResultaatTypeFactory.create(zaaktype=zaaktype)
+        EigenschapFactory.create(zaaktype=zaaktype)
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype,
+            informatieobjecttype=informatieobjecttype,
+        )
+        RolTypeFactory.create(zaaktype=zaaktype)
+        besluit_type = BesluitTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        deelzaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        zaaktype.besluittypen.add(besluit_type)
+        zaaktype.deelzaaktypen.add(deelzaaktype)
+
+        with self.assertNumQueries(81):
+            response = self.client.get(
+                reverse(zaaktype),
+                {
+                    "expand": (
+                        "zaakobjecttypen,catalogus,statustypen,resultaattypen,"
+                        "eigenschappen,informatieobjecttypen,roltypen,besluittypen,"
+                        "deelzaaktypen"
+                    )
+                },
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_get_detail_expand_nested_not_supported(self):
         zaaktype = ZaakTypeFactory.create(
             catalogus=self.catalogus,
@@ -1858,10 +1896,15 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         response = self.client.get(
             reverse(zaaktype),
-            {"expand": "catalogus.zaaktypen"},
+            {"expand": "statustypen.roltypen"},
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        errors = get_validation_errors(response, "expand")
+        self.assertEqual(
+            errors["reason"],
+            "Selecteer een geldige keuze. statustypen.roltypen is geen beschikbare keuze.",
+        )
 
     def test_get_detail_without_expand(self):
         zaaktype = ZaakTypeFactory.create(

@@ -5,7 +5,6 @@ from django.db.models import Prefetch
 from django.utils.module_loading import import_string
 
 from dictdiffer import diff
-from rest_framework.exceptions import ValidationError
 from rest_framework_inclusions.renderer import (
     get_allowed_paths,
 )
@@ -14,6 +13,8 @@ from vng_api_common.models import APIMixin as _APIMixin
 
 from .expansion import EXPAND_QUERY_PARAM, ExpandJSONRenderer
 from .permissions import ExpandAuthRequired
+
+EXPAND_SUPPORTED_ACTIONS = ["list", "_zoek", "retrieve"]
 
 
 def format_dict_diff(changes):
@@ -51,8 +52,15 @@ class APIMixin(_APIMixin):
 
 class ExpandMixin:
     expand_param = EXPAND_QUERY_PARAM
+    inclusion_viewsets = None
 
     def _remove_select_related(self, qs, lookup):
+        """
+        Remove a select_related lookup so the expanded relation can be loaded
+        with prefetch_related using the related viewset's queryset.
+        Without this, expanding ``zaaktype`` on EigenschapViewSet can result
+        in ~1200 queries instead of ~15.
+        """
         select_related = qs.query.select_related
 
         if not select_related or select_related is True:
@@ -79,30 +87,20 @@ class ExpandMixin:
         else:
             inclusions = None
 
-        inclusion_viewsets = getattr(self, "inclusion_viewsets", None)
+        inclusion_viewsets = self.inclusion_viewsets
 
         if inclusions and inclusion_viewsets:
             prefetches = list(qs._prefetch_related_lookups)
 
             inclusions = [inclusion.strip() for inclusion in inclusions.split(",")]
 
-            unsupported = [
-                inclusion
-                for inclusion in inclusions
-                if inclusion not in inclusion_viewsets
-            ]
-
-            if unsupported:
-                raise ValidationError(
-                    {"expand": f"Expansion '{unsupported[0]}' is not supported."}
-                )
-
             # Sort parent lookups before nested lookups
             inclusions.sort(
                 key=lambda inclusion: "__"
                 in (
                     inclusion_viewsets[inclusion][0]
-                    if isinstance(inclusion_viewsets[inclusion], tuple)
+                    if inclusion in inclusion_viewsets
+                    and isinstance(inclusion_viewsets[inclusion], tuple)
                     else inclusion
                 )
             )
@@ -124,6 +122,7 @@ class ExpandMixin:
 
                 related_viewset = import_string(viewset_path)
 
+                # Build a list of the prefetches from the base queryset for all attributes that are not expanded
                 prefetches = [
                     prefetch
                     for prefetch in prefetches
@@ -135,7 +134,7 @@ class ExpandMixin:
                     )
                 ]
 
-                # TODO if contains ., replace with __?
+                # Add the base queryset from the related viewset (including all select_relateds and prefetches) as a prefetch
                 prefetches.append(
                     Prefetch(
                         lookup,
@@ -149,12 +148,12 @@ class ExpandMixin:
 
     def get_renderers(self):
         # Only use the expand renderer for actions that support expansion.
-        if self.action in ["list", "_zoek", "retrieve"]:
+        if self.action in EXPAND_SUPPORTED_ACTIONS:
             return [ExpandJSONRenderer()]
         return super().get_renderers()
 
     def include_allowed(self):
-        return self.action in ["list", "_zoek", "retrieve"]
+        return self.action in EXPAND_SUPPORTED_ACTIONS
 
     def get_requested_inclusions(self, request):
         # Pull expand parameter from request body and/or query_param in case of _zoek operation
