@@ -11,8 +11,10 @@ import requests_mock
 from django_webtest import WebTest
 from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
+from openzaak.components.catalogi.admin.mixins import PublishAdminMixin
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import (
@@ -716,7 +718,7 @@ class PublishWithGeldigheidTests(
 
 @tag("readonly-user")
 @disable_admin_mfa()
-class ReadOnlyUserTests(ClearCachesMixin, WebTest):
+class ReadOnlyUserTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -732,6 +734,19 @@ class ReadOnlyUserTests(ClearCachesMixin, WebTest):
         )
 
         cls.user = user
+
+        # Create user with change permission
+        cls.user_with_change_permission = UserFactory.create(is_staff=True)
+        cls.user_with_change_permission.user_permissions.add(
+            *Permission.objects.filter(
+                content_type__app_label="catalogi",
+                codename__in=(
+                    "change_zaaktype",
+                    "change_informatieobjecttype",
+                    "change_besluittype",
+                ),
+            )
+        )
 
     def setUp(self):
         super().setUp()
@@ -775,6 +790,155 @@ class ReadOnlyUserTests(ClearCachesMixin, WebTest):
 
         # try to submit it anyway
         form.submit("_publish", status=403)
+
+    @tag("gh-2519")
+    def test_publish_selected_not_visible_in_action_select_option(self):
+        for factory in (
+            ZaakTypeFactory,
+            InformatieObjectTypeFactory,
+            BesluitTypeFactory,
+        ):
+            with self.subTest(factory=factory):
+                obj = factory.create(concept=True)
+                url = reverse(f"admin:catalogi_{obj._meta.model_name}_changelist")
+
+                response = self.app.get(url)
+
+                self.assertNotContains(response, 'value="publish_selected"')
+
+    @tag("gh-2519")
+    def test_publish_selected_visible_in_select_option_with_change_permission(self):
+        self.app.set_user(self.user_with_change_permission)
+        for factory in (
+            ZaakTypeFactory,
+            InformatieObjectTypeFactory,
+            BesluitTypeFactory,
+        ):
+            with self.subTest(factory=factory):
+                obj = factory.create(concept=True)
+                url = reverse(f"admin:catalogi_{obj._meta.model_name}_changelist")
+                response = self.app.get(url)
+                self.assertContains(response, 'value="publish_selected"')
+
+    @tag("gh-2519")
+    @requests_mock.Mocker()
+    def test_publish_with_change_permission_succeeds(self, m):
+        self.app.set_user(self.user_with_change_permission)
+        self.client.force_login(self.user_with_change_permission)
+
+        mock_selectielijst_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/65a0a7ab-0906-49bd-924f-f261f990b50f"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
+        zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            selectielijst_procestype=(
+                "https://selectielijst.openzaak.nl/api/v1/"
+                "procestypen/cdb46f05-0750-4d83-8025-31e20408ed21"
+            ),
+            verlenging_mogelijk=False,
+        )
+        mock_resource_get(m, "procestypen", url=zaaktype.selectielijst_procestype)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+        )
+        RolTypeFactory.create(zaaktype=zaaktype)
+
+        for obj in (
+            zaaktype,
+            BesluitTypeFactory.create(concept=True),
+            InformatieObjectTypeFactory.create(concept=True),
+        ):
+            with self.subTest(obj=obj):
+                url = reverse(f"admin:catalogi_{obj._meta.model_name}_changelist")
+
+                response = self.client.post(
+                    url,
+                    {"action": "publish_selected", "_selected_action": obj.pk},
+                )
+
+                self.assertEqual(response.status_code, 302)
+                self.assertEqual(
+                    [
+                        str(message)
+                        for message in self.client.get(response.url).context["messages"]
+                    ],
+                    [
+                        ngettext_lazy(
+                            "%d object has been published successfully",
+                            "%d objects have been published successfully",
+                            1,
+                        )
+                        % 1
+                    ],
+                )
+                obj.refresh_from_db()
+                self.assertFalse(obj.concept)
+
+                # Publish the same valid object through the detail page.
+                obj.concept = True
+                obj.save()
+
+                self.assertTrue(obj.concept)
+                url = reverse(
+                    f"admin:catalogi_{obj._meta.model_name}_change", args=(obj.pk,)
+                )
+                detail_page = self.app.get(url)
+                form = detail_page.forms[f"{obj._meta.model_name}_form"]
+                response = form.submit("_publish")
+
+                self.assertEqual(response.status_code, 302)
+                self.assertEqual(
+                    [str(message) for message in response.follow().context["messages"]],
+                    [_("The resource has been published successfully!")],
+                )
+                obj.refresh_from_db()
+                self.assertFalse(obj.concept)
+
+    @tag("gh-2519")
+    def test_publish_without_change_permission_fails(self):
+        """
+        Resources should not be publishable unless the user has permission to make changes.
+        Resources that have not yet been published should remain concept(True).
+        """
+        self.client.force_login(self.user)  # login user without change permission
+
+        for factory in (
+            ZaakTypeFactory,
+            InformatieObjectTypeFactory,
+            BesluitTypeFactory,
+        ):
+            with self.subTest(factory=factory):
+                obj = factory.create(concept=True)
+
+                # Publishing through the bulk action leaves the object unpublished
+                url = reverse(f"admin:catalogi_{obj._meta.model_name}_changelist")
+                response = self.client.post(
+                    url,
+                    {"action": "publish_selected", "_selected_action": obj.pk},
+                )
+                self.assertEqual(response.status_code, 200)
+                self.assertTrue(obj.concept)
+
+                obj.refresh_from_db()
+                self.assertTrue(obj.concept)  # Concept should still be True
+
+                # Publishing through the detail page is forbidden
+                url = reverse(
+                    f"admin:catalogi_{obj._meta.model_name}_change", args=(obj.pk,)
+                )
+                response = self.client.post(url, {"_publish": "Publiceren"})
+                self.assertEqual(response.status_code, 403)
+                self.assertTrue(obj.concept)
+
+                obj.refresh_from_db()
+                self.assertTrue(obj.concept)  # Concept should still be True
 
 
 @tag("check-readonly")
@@ -879,3 +1043,46 @@ class ReadOnlyFieldsTests(ClearCachesMixin, AdminTestMixin, WebTest):
             "<a href='https://example.com/?q=\"&gt;&lt;script&gt;alert(2)&lt;/script&gt;'>"
             'https://example.com/?q="&gt;&lt;script&gt;alert(2)&lt;/script&gt;</a>',
         )
+
+
+@tag("gh-2519")
+class PublishAdminMixinTests(WebTest):
+    def test_actions_can_be_explicitly_disabled(self):
+        class DisabledAdmin(PublishAdminMixin):
+            actions = None
+
+        self.assertIsNone(DisabledAdmin.actions)
+
+    def test_publish_action_added_without_mutating_inherited_actions(self):
+        existing_actions = ["other_action"]
+
+        class ParentAdmin:
+            actions = existing_actions
+
+        class CustomAdmin(ParentAdmin, PublishAdminMixin):
+            pass
+
+        self.assertEqual(CustomAdmin.actions, [*existing_actions, "publish_selected"])
+        self.assertIs(ParentAdmin.actions, existing_actions)
+        self.assertNotIn("publish_selected", existing_actions)
+
+    def test_existing_publish_action_is_preserved_without_duplicates(self):
+        existing_actions = ["other_action", "publish_selected"]
+
+        class CustomAdmin(PublishAdminMixin):
+            actions = existing_actions
+
+        self.assertIs(CustomAdmin.actions, existing_actions)
+
+    def test_default_publish_action_is_inherited(self):
+        class CustomAdmin(PublishAdminMixin):
+            pass
+
+        self.assertEqual(CustomAdmin.actions, ["publish_selected"])
+
+    def test_default_publish_validation_has_no_errors(self):
+        obj = ZaakTypeFactory.build(concept=True)
+
+        errors = PublishAdminMixin()._publish_validation_errors(obj)
+
+        self.assertEqual(errors, [])
