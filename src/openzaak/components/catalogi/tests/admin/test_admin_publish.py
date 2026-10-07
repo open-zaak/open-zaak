@@ -14,6 +14,7 @@ from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
+from openzaak.components.catalogi.admin.mixins import PublishAdminMixin
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import (
@@ -1042,3 +1043,46 @@ class ReadOnlyFieldsTests(ClearCachesMixin, AdminTestMixin, WebTest):
             "<a href='https://example.com/?q=\"&gt;&lt;script&gt;alert(2)&lt;/script&gt;'>"
             'https://example.com/?q="&gt;&lt;script&gt;alert(2)&lt;/script&gt;</a>',
         )
+
+
+@tag("gh-2519")
+class PublishAdminMixinTests(WebTest):
+    def test_actions_can_be_explicitly_disabled(self):
+        class DisabledAdmin(PublishAdminMixin):
+            actions = None
+
+        self.assertIsNone(DisabledAdmin.actions)
+
+    def test_publish_action_added_without_mutating_inherited_actions(self):
+        existing_actions = ["other_action"]
+
+        class ParentAdmin:
+            actions = existing_actions
+
+        class CustomAdmin(ParentAdmin, PublishAdminMixin):
+            pass
+
+        self.assertEqual(CustomAdmin.actions, [*existing_actions, "publish_selected"])
+        self.assertIs(ParentAdmin.actions, existing_actions)
+        self.assertNotIn("publish_selected", existing_actions)
+
+    def test_existing_publish_action_is_preserved_without_duplicates(self):
+        existing_actions = ["other_action", "publish_selected"]
+
+        class CustomAdmin(PublishAdminMixin):
+            actions = existing_actions
+
+        self.assertIs(CustomAdmin.actions, existing_actions)
+
+    def test_default_publish_action_is_inherited(self):
+        class CustomAdmin(PublishAdminMixin):
+            pass
+
+        self.assertEqual(CustomAdmin.actions, ["publish_selected"])
+
+    def test_default_publish_validation_has_no_errors(self):
+        obj = ZaakTypeFactory.build(concept=True)
+
+        errors = PublishAdminMixin()._publish_validation_errors(obj)
+
+        self.assertEqual(errors, [])
