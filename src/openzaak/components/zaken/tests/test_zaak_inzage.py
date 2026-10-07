@@ -118,6 +118,57 @@ class ZaakInzageAuthTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_retrieve_with_authorized_hoofdzaak_and_deelzaak(self):
+        hoofdzaak = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        deelzaak = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        self.zaak.hoofdzaak = hoofdzaak
+        self.zaak.save()
+        deelzaak.hoofdzaak = self.zaak
+        deelzaak.save()
+
+        response = self.client.get(self.url, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_retrieve_with_unauthorized_hoofdzaak(self):
+        for hoofdzaak_kwargs in (
+            {"zaaktype": ZaakTypeFactory.create()},
+            {
+                "zaaktype": self.zaaktype,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
+            },
+        ):
+            with self.subTest(hoofdzaak_kwargs=hoofdzaak_kwargs):
+                self.zaak.hoofdzaak = ZaakFactory.create(**hoofdzaak_kwargs)
+                self.zaak.save()
+
+                response = self.client.get(self.url, **ZAAK_READ_KWARGS)
+
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_retrieve_with_unauthorized_deelzaak(self):
+        for deelzaak_kwargs in (
+            {"zaaktype": ZaakTypeFactory.create()},
+            {
+                "zaaktype": self.zaaktype,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
+            },
+        ):
+            with self.subTest(deelzaak_kwargs=deelzaak_kwargs):
+                deelzaak = ZaakFactory.create(hoofdzaak=self.zaak, **deelzaak_kwargs)
+
+                response = self.client.get(self.url, **ZAAK_READ_KWARGS)
+
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+                deelzaak.delete()
+
     def test_retrieve_unknown_uuid_returns_not_found(self):
         url = reverse("zaken:zaakinzage", kwargs={"uuid": uuid.uuid4()})
         response = self.client.get(url, **ZAAK_READ_KWARGS)
