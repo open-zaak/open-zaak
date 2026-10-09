@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from __future__ import annotations
+
 import uuid as _uuid
 from urllib.parse import urlparse
 
@@ -297,6 +299,8 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
         null=True,
         editable=False,
     )
+    # inverse defined on BestandsDeel
+    bestandsdelen: BestandsDeelQuerySet
 
     def __str__(self):
         try:

@@ -1,0 +1,833 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Content-Length:
+      - '0'
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjEyLjEx
+        MStkZWIxMy1hbWQ2NCBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjE0IG1kL3B5aW1w
+        bCNDUHl0aG9uIG0vZSxELE4sWixiIGNmZy9yZXRyeS1tb2RlI2xlZ2FjeSBCb3RvY29yZS8xLjQy
+        LjI3IFJlc291cmNl
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjEwMDVUMTkxODI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        ZWFmZDg2MTEtOWYzNi00NzczLWJjNDUtMDljMTU5ZjRkODVk
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: DELETE
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/besluit.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - close
+      Content-Type:
+      - text/html; charset=utf-8
+      Date:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      Server:
+      - Werkzeug/3.1.9 Python/3.13.15
+      x-amzn-requestid:
+      - 7RdRxACH8pn9zGyeV51gtgA2r4eN1Iw7DzNSlWLCnZCyps3CgLK0
+    status:
+      code: 204
+      message: NO CONTENT
+- request:
+    body: null
+    headers:
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjEyLjEx
+        MStkZWIxMy1hbWQ2NCBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjE0IG1kL3B5aW1w
+        bCNDUHl0aG9uIG0vZSxELE4sWixiIGNmZy9yZXRyeS1tb2RlI2xlZ2FjeSBCb3RvY29yZS8xLjQy
+        LjI3IFJlc291cmNl
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjEwMDVUMTkxODI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        YTUyNTA0MjgtYzBiYy00MjhlLWEyYTEtODY1ZDA4MjFmMTVi
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/besluit.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - close
+      Content-Length:
+      - '0'
+      Content-Type:
+      - text/html; charset=utf-8
+      Date:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      Server:
+      - Werkzeug/3.1.9 Python/3.13.15
+      x-amzn-requestid:
+      - KnD6nvOO4kuq2xHJoBZ090S4YMizAIn44plOLxYlIl8qvplMxuHO
+    status:
+      code: 404
+      message: NOT FOUND
+- request:
+    body: null
+    headers:
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjEyLjEx
+        MStkZWIxMy1hbWQ2NCBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjE0IG1kL3B5aW1w
+        bCNDUHl0aG9uIG0vZSxELE4sWixiIGNmZy9yZXRyeS1tb2RlI2xlZ2FjeSBCb3RvY29yZS8xLjQy
+        LjI3IFJlc291cmNl
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjEwMDVUMTkxODI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        ZmU3NzU4MGYtMjE2OC00ZjVkLThiNmQtY2VkY2VhYjQ1YjQx
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/besluit.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - close
+      Content-Length:
+      - '0'
+      Content-Type:
+      - text/html; charset=utf-8
+      Date:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      Server:
+      - Werkzeug/3.1.9 Python/3.13.15
+      x-amzn-requestid:
+      - nLP3gQ4w2suR3oZSrMhpuLnzVAYELY98iofZbjfcivGZzQ8hvS3f
+    status:
+      code: 404
+      message: NOT FOUND
+- request:
+    body: !!python/object/new:_io.BytesIO
+      state: !!python/tuple
+      - !!binary |
+        c2Vjb25k
+      - 0
+      - null
+    headers:
+      Content-Length:
+      - '6'
+      Content-Type:
+      - !!binary |
+        dGV4dC9wbGFpbg==
+      Expect:
+      - !!binary |
+        MTAwLWNvbnRpbnVl
+      If-None-Match:
+      - !!binary |
+        Kg==
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjEyLjEx
+        MStkZWIxMy1hbWQ2NCBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjE0IG1kL3B5aW1w
+        bCNDUHl0aG9uIG0vZSxELFUsTixaLGIsRyBjZmcvcmV0cnktbW9kZSNsZWdhY3kgQm90b2NvcmUv
+        MS40Mi4yNyBSZXNvdXJjZQ==
+      X-Amz-Content-SHA256:
+      - !!binary |
+        MTYzNjdhYWNiNjdhNGEwMTdjOGRhOGFiOTU2ODJjY2IzOTA4NjM3ODBmNzExNGRkYTBhMGUwYzU1
+        NjQ0YzdjNA==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjEwMDVUMTkxODI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        ZjZhNjQ1ZGMtNmQxNy00YzgyLTk0YTktODQzNjdmNGZkMTI3
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+      x-amz-checksum-crc32:
+      - !!binary |
+        dGg4UmFRPT0=
+      x-amz-sdk-checksum-algorithm:
+      - !!binary |
+        Q1JDMzI=
+    method: PUT
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/besluit.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - close
+      Content-Length:
+      - '0'
+      Content-Type:
+      - text/html; charset=utf-8
+      Date:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      ETag:
+      - '"a9f0e61a137d86aa9db53465e0801612"'
+      Server:
+      - Werkzeug/3.1.9 Python/3.13.15
+      last-modified:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      x-amz-checksum-crc32:
+      - th8RaQ==
+      x-amz-sdk-checksum-algorithm:
+      - CRC32
+      x-amzn-requestid:
+      - MqPTLncFgB7UaphrBPVSbFD6HX2Vaqx9wR2esbtd2At5ghqjMVhb
+    status:
+      code: 200
+      message: OK
+- request:
+    body: !!python/object/new:_io.BytesIO
+      state: !!python/tuple
+      - !!binary |
+        Zmlyc3Q=
+      - 0
+      - null
+    headers:
+      Content-Length:
+      - '5'
+      Content-Type:
+      - !!binary |
+        dGV4dC9wbGFpbg==
+      Expect:
+      - !!binary |
+        MTAwLWNvbnRpbnVl
+      If-None-Match:
+      - !!binary |
+        Kg==
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjEyLjEx
+        MStkZWIxMy1hbWQ2NCBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjE0IG1kL3B5aW1w
+        bCNDUHl0aG9uIG0vZSxELFUsTixaLGIsRyBjZmcvcmV0cnktbW9kZSNsZWdhY3kgQm90b2NvcmUv
+        MS40Mi4yNyBSZXNvdXJjZQ==
+      X-Amz-Content-SHA256:
+      - !!binary |
+        YTc5MzdiNjRiOGNhYTU4ZjAzNzIxYmI2YmFjZjVjNzhjYjIzNWZlYmUwZTcwYjFiODRjZDk5NTQx
+        NDYxYTA4ZQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjEwMDVUMTkxODI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        ODdiZDg2ZGEtNDM1MS00MDE4LWIyMTMtYWYxYTI1NjNjNWMy
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+      x-amz-checksum-crc32:
+      - !!binary |
+        a25IdVZ3PT0=
+      x-amz-sdk-checksum-algorithm:
+      - !!binary |
+        Q1JDMzI=
+    method: PUT
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/besluit.txt
+  response:
+    body:
+      string: '<?xml version="1.0" encoding="utf-8"?>
+
+        <Error><Code>PreconditionFailed</Code><Message>At least one of the pre-conditions
+        you specified did not hold</Message><Condition>If-None-Match</Condition><RequestId>YgeP465UlMvK3VxDlsrJCN7OLoK3seu0e2ILHWNU6wLa6lKhuR2w</RequestId><HostId>9Gjjt1m+cjU4OPvX9O9/8RuvnG41MRb/18Oux2o5H5MY7ISNTlXN+Dz9IG62/ILVxhAGI0qyPfg=</HostId></Error>'
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - close
+      Content-Length:
+      - '369'
+      Content-Type:
+      - application/xml
+      Date:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      Server:
+      - Werkzeug/3.1.9 Python/3.13.15
+      - amazon.com
+      x-amzn-requestid:
+      - YgeP465UlMvK3VxDlsrJCN7OLoK3seu0e2ILHWNU6wLa6lKhuR2w
+    status:
+      code: 412
+      message: PRECONDITION FAILED
+- request:
+    body: null
+    headers:
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjEyLjEx
+        MStkZWIxMy1hbWQ2NCBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjE0IG1kL3B5aW1w
+        bCNDUHl0aG9uIG0vZSxELE4sWixiIGNmZy9yZXRyeS1tb2RlI2xlZ2FjeSBCb3RvY29yZS8xLjQy
+        LjI3IFJlc291cmNl
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjEwMDVUMTkxODI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        MTIxYmRhYzgtOGU5MS00YWY2LWEzNzAtNzIwN2Q5NDBlYmY5
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/besluit_gh2592a.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - close
+      Content-Length:
+      - '0'
+      Content-Type:
+      - text/html; charset=utf-8
+      Date:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      Server:
+      - Werkzeug/3.1.9 Python/3.13.15
+      x-amzn-requestid:
+      - buXPVXHnlF0ifGRePk81sr2Ie40NHue9AXDWlqkBy4ky4VWtiBAf
+    status:
+      code: 404
+      message: NOT FOUND
+- request:
+    body: !!python/object/new:_io.BytesIO
+      state: !!python/tuple
+      - !!binary |
+        Zmlyc3Q=
+      - 0
+      - null
+    headers:
+      Content-Length:
+      - '5'
+      Content-Type:
+      - !!binary |
+        dGV4dC9wbGFpbg==
+      Expect:
+      - !!binary |
+        MTAwLWNvbnRpbnVl
+      If-None-Match:
+      - !!binary |
+        Kg==
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjEyLjEx
+        MStkZWIxMy1hbWQ2NCBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjE0IG1kL3B5aW1w
+        bCNDUHl0aG9uIG0vZSxELFUsTixaLGIsRyBjZmcvcmV0cnktbW9kZSNsZWdhY3kgQm90b2NvcmUv
+        MS40Mi4yNyBSZXNvdXJjZQ==
+      X-Amz-Content-SHA256:
+      - !!binary |
+        YTc5MzdiNjRiOGNhYTU4ZjAzNzIxYmI2YmFjZjVjNzhjYjIzNWZlYmUwZTcwYjFiODRjZDk5NTQx
+        NDYxYTA4ZQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjEwMDVUMTkxODI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        YTgyNGY1M2YtNDk2Yi00MjUxLThiNzMtZDZkYzVlNDkwN2U5
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+      x-amz-checksum-crc32:
+      - !!binary |
+        a25IdVZ3PT0=
+      x-amz-sdk-checksum-algorithm:
+      - !!binary |
+        Q1JDMzI=
+    method: PUT
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/besluit_gh2592a.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - close
+      Content-Length:
+      - '0'
+      Content-Type:
+      - text/html; charset=utf-8
+      Date:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      ETag:
+      - '"8b04d5e3775d298e78455efc5ca404d5"'
+      Server:
+      - Werkzeug/3.1.9 Python/3.13.15
+      last-modified:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      x-amz-checksum-crc32:
+      - knHuVw==
+      x-amz-sdk-checksum-algorithm:
+      - CRC32
+      x-amzn-requestid:
+      - xa6L5S1ZLfCYY0XfLlr0sk3A6CoqCLK2mEI5jNG9QJK5a6yuOor9
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjEyLjEx
+        MStkZWIxMy1hbWQ2NCBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjE0IG1kL3B5aW1w
+        bCNDUHl0aG9uIG0vZSxELE4sWixiIGNmZy9yZXRyeS1tb2RlI2xlZ2FjeSBCb3RvY29yZS8xLjQy
+        LjI3IFJlc291cmNl
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjEwMDVUMTkxODI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        MTE0NzFjMjktMGEwZS00YzhmLTkwM2EtZjA2NTc5NWRiM2Zi
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/besluit_gh2592a.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - close
+      Content-Length:
+      - '5'
+      Date:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      ETag:
+      - '"8b04d5e3775d298e78455efc5ca404d5"'
+      Server:
+      - Werkzeug/3.1.9 Python/3.13.15
+      content-type:
+      - text/plain
+      last-modified:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      x-amz-content-sha256:
+      - a7937b64b8caa58f03721bb6bacf5c78cb235febe0e70b1b84cd99541461a08e
+      x-amz-sdk-checksum-algorithm:
+      - CRC32
+      x-amzn-requestid:
+      - twyAb5tMQGPvEarvLefw9P6gwe9S9dAt9UxqWfkEBg40liwWQvp2
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjEyLjEx
+        MStkZWIxMy1hbWQ2NCBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjE0IG1kL3B5aW1w
+        bCNDUHl0aG9uIG0vZSxELE4sWixiLEcgY2ZnL3JldHJ5LW1vZGUjbGVnYWN5IEJvdG9jb3JlLzEu
+        NDIuMjcgUmVzb3VyY2U=
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjEwMDVUMTkxODI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        MzMyYzYwNDMtYWIxNy00NWQ3LWIxMDYtMWQ1ZWJiNTczNDYz
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/besluit_gh2592a.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - close
+      Content-Length:
+      - '5'
+      Date:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      ETag:
+      - '"8b04d5e3775d298e78455efc5ca404d5"'
+      Server:
+      - Werkzeug/3.1.9 Python/3.13.15
+      content-type:
+      - text/plain
+      last-modified:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      x-amz-content-sha256:
+      - a7937b64b8caa58f03721bb6bacf5c78cb235febe0e70b1b84cd99541461a08e
+      x-amz-sdk-checksum-algorithm:
+      - CRC32
+      x-amzn-requestid:
+      - bZwtZovsYno8yz0SN1hCSU81mE2EYiaMClrODA664F6BvpTYo4vI
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjEyLjEx
+        MStkZWIxMy1hbWQ2NCBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjE0IG1kL3B5aW1w
+        bCNDUHl0aG9uIG0vZSxELE4sWixiLEcgY2ZnL3JldHJ5LW1vZGUjbGVnYWN5IEJvdG9jb3JlLzEu
+        NDIuMjcgUmVzb3VyY2U=
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjEwMDVUMTkxODI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        YWQ4MzNhOTctMmI4Yi00NGMwLTk3MDktMWYzNjc1Mjc0Zjlk
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+      x-amz-checksum-mode:
+      - !!binary |
+        RU5BQkxFRA==
+    method: GET
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/besluit_gh2592a.txt
+  response:
+    body:
+      string: first
+    headers:
+      Accept-Ranges:
+      - bytes
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - close
+      Content-Length:
+      - '5'
+      Date:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      ETag:
+      - '"8b04d5e3775d298e78455efc5ca404d5"'
+      Server:
+      - Werkzeug/3.1.9 Python/3.13.15
+      content-type:
+      - text/plain
+      last-modified:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      x-amz-checksum-crc32:
+      - knHuVw==
+      x-amz-content-sha256:
+      - a7937b64b8caa58f03721bb6bacf5c78cb235febe0e70b1b84cd99541461a08e
+      x-amz-sdk-checksum-algorithm:
+      - CRC32
+      x-amzn-requestid:
+      - yluEBQAmn5wc9gU74M4Ee9q9LGxt2vALjfgfDHQ1dG3a78yy98Es
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjEyLjEx
+        MStkZWIxMy1hbWQ2NCBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjE0IG1kL3B5aW1w
+        bCNDUHl0aG9uIG0vZSxELE4sWixiIGNmZy9yZXRyeS1tb2RlI2xlZ2FjeSBCb3RvY29yZS8xLjQy
+        LjI3IFJlc291cmNl
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjEwMDVUMTkxODI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        NGQyN2Q4NTAtZTNhYi00ZGQ1LWE1NzEtYTA4MzE1MGM0ZTRm
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/besluit.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - close
+      Content-Length:
+      - '6'
+      Date:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      ETag:
+      - '"a9f0e61a137d86aa9db53465e0801612"'
+      Server:
+      - Werkzeug/3.1.9 Python/3.13.15
+      content-type:
+      - text/plain
+      last-modified:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      x-amz-content-sha256:
+      - 16367aacb67a4a017c8da8ab95682ccb390863780f7114dda0a0e0c55644c7c4
+      x-amz-sdk-checksum-algorithm:
+      - CRC32
+      x-amzn-requestid:
+      - lN1rXEKtWXE2gdPgBybMO7qXNhwYtlBTvdohlKTiJh5nnu6c6YJg
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjEyLjEx
+        MStkZWIxMy1hbWQ2NCBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjE0IG1kL3B5aW1w
+        bCNDUHl0aG9uIG0vZSxELE4sWixiLEcgY2ZnL3JldHJ5LW1vZGUjbGVnYWN5IEJvdG9jb3JlLzEu
+        NDIuMjcgUmVzb3VyY2U=
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjEwMDVUMTkxODI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        OTcyYjRlYzQtMTY5Ny00MzFhLWIwMjMtZWFkYTEyYWU4MWMz
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/besluit.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - close
+      Content-Length:
+      - '6'
+      Date:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      ETag:
+      - '"a9f0e61a137d86aa9db53465e0801612"'
+      Server:
+      - Werkzeug/3.1.9 Python/3.13.15
+      content-type:
+      - text/plain
+      last-modified:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      x-amz-content-sha256:
+      - 16367aacb67a4a017c8da8ab95682ccb390863780f7114dda0a0e0c55644c7c4
+      x-amz-sdk-checksum-algorithm:
+      - CRC32
+      x-amzn-requestid:
+      - CHfsayByvKW5xlMRQjfZF5G1a6fbvkmZ0eX48dFdqKDg2nWJDCeE
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjEyLjEx
+        MStkZWIxMy1hbWQ2NCBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjE0IG1kL3B5aW1w
+        bCNDUHl0aG9uIG0vZSxELE4sWixiLEcgY2ZnL3JldHJ5LW1vZGUjbGVnYWN5IEJvdG9jb3JlLzEu
+        NDIuMjcgUmVzb3VyY2U=
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjEwMDVUMTkxODI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        OGQ0ZWNmNGMtMDZmOC00Y2NkLWFhMDMtNGIzZGFjZmJmZTcx
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+      x-amz-checksum-mode:
+      - !!binary |
+        RU5BQkxFRA==
+    method: GET
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/besluit.txt
+  response:
+    body:
+      string: second
+    headers:
+      Accept-Ranges:
+      - bytes
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - close
+      Content-Length:
+      - '6'
+      Date:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      ETag:
+      - '"a9f0e61a137d86aa9db53465e0801612"'
+      Server:
+      - Werkzeug/3.1.9 Python/3.13.15
+      content-type:
+      - text/plain
+      last-modified:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      x-amz-checksum-crc32:
+      - th8RaQ==
+      x-amz-content-sha256:
+      - 16367aacb67a4a017c8da8ab95682ccb390863780f7114dda0a0e0c55644c7c4
+      x-amz-sdk-checksum-algorithm:
+      - CRC32
+      x-amzn-requestid:
+      - m24H8Qu0iWDg1PHNTboG0Wgn60TPjwIc8eamjhyWdj6AEj2cCWMM
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Content-Length:
+      - '0'
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjEyLjEx
+        MStkZWIxMy1hbWQ2NCBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjE0IG1kL3B5aW1w
+        bCNDUHl0aG9uIG0vZSxELE4sWixiIGNmZy9yZXRyeS1tb2RlI2xlZ2FjeSBCb3RvY29yZS8xLjQy
+        LjI3IFJlc291cmNl
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjEwMDVUMTkxODI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        OGE4YzZiYWMtMmRiOS00N2I5LWExNzAtMTM4YzVhOWFiNjZk
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: DELETE
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/besluit_gh2592a.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - close
+      Content-Type:
+      - text/html; charset=utf-8
+      Date:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      Server:
+      - Werkzeug/3.1.9 Python/3.13.15
+      x-amzn-requestid:
+      - NholaOKuTyyBMMXu5tCeBvy4yXFQlf51csQvO0CNQM3Ih3BLQ6l4
+    status:
+      code: 204
+      message: NO CONTENT
+- request:
+    body: null
+    headers:
+      Content-Length:
+      - '0'
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjEyLjEx
+        MStkZWIxMy1hbWQ2NCBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjE0IG1kL3B5aW1w
+        bCNDUHl0aG9uIG0vZSxELE4sWixiIGNmZy9yZXRyeS1tb2RlI2xlZ2FjeSBCb3RvY29yZS8xLjQy
+        LjI3IFJlc291cmNl
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjEwMDVUMTkxODI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        NDQyMTNmYjMtMjU2Ny00NTQzLWJkNmUtN2IyYzlhMjMzZGU2
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: DELETE
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/besluit.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - close
+      Content-Type:
+      - text/html; charset=utf-8
+      Date:
+      - Mon, 05 Oct 2026 19:18:26 GMT
+      Server:
+      - Werkzeug/3.1.9 Python/3.13.15
+      x-amzn-requestid:
+      - lIJUZ0MinV7Y8zgJ50jU9HN3VGvLTK0rIXXpcu4dobG2Va3C1RIe
+    status:
+      code: 204
+      message: NO CONTENT
+version: 1

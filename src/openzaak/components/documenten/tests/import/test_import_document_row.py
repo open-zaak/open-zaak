@@ -113,8 +113,6 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
 
         document_row = _import_document_row(row, 0, identifier, [], {}, self.request)
 
-        self.shutil_mock.assert_called_once()
-
         eio = document_row.instance
 
         self.assertIs(type(eio), EnkelvoudigInformatieObject)
@@ -552,7 +550,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
 
         self.assertFalse(imported_path.exists())
 
-    @patch("openzaak.components.documenten.tasks.shutil.copy2")
+    @patch("openzaak.components.documenten.tasks.copy_file_to_storage")
     def test_unable_to_copy_file(self, patched_copy):
         patched_copy.side_effect = FileNotFoundError
 

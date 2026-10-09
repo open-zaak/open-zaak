@@ -2,6 +2,7 @@
 # Copyright (C) 2022 Dimpact
 import uuid
 from base64 import b64encode
+from unittest.mock import patch
 
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -16,6 +17,7 @@ from vng_api_common.tests import get_validation_errors, reverse
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
 
+from ..api import serializers
 from ..api.scopes import (
     SCOPE_DOCUMENTEN_AANMAKEN,
     SCOPE_DOCUMENTEN_ALLES_LEZEN,
@@ -673,6 +675,52 @@ class LargeFileAPITests(JWTAuthMixin, APITestCase):
         self._upload_part_files()
         self._unlock()
         self._download_file()
+
+    def test_concurrent_unlocks_of_documents_with_the_same_name(self):
+        """
+        Regression test for #2592: unlocking documents with the same bestandsnaam
+        while another unlock is still merging must not corrupt either document.
+        """
+        documents = []
+        for content in [b"first document!!!", b"second document!!"]:
+            self._create_metadata()
+            EnkelvoudigInformatieObject.objects.filter(pk=self.eio.pk).update(
+                bestandsnaam="besluit.txt"
+            )
+            self.file_content = SimpleUploadedFile("besluit.txt", content)
+            self._upload_part_files()
+            documents.append((self.eio, self.canonical.lock, content))
+        (first, first_lock, _), (second, second_lock, _) = documents
+
+        def unlock(eio, lock):
+            url = get_operation_url("enkelvoudiginformatieobject_unlock", uuid=eio.uuid)
+            return self.client.post(url, {"lock": lock})
+
+        real_merge_files = serializers.merge_files
+
+        def merge_files_and_unlock_second(*args):
+            result = real_merge_files(*args)
+            # unlock the second document while the first is still being saved
+            with patch.object(serializers, "merge_files", real_merge_files):
+                response = unlock(second, second_lock)
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+            return result
+
+        with patch.object(
+            serializers, "merge_files", side_effect=merge_files_and_unlock_second
+        ):
+            response = unlock(first, first_lock)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        for eio, _, content in documents:
+            with self.subTest(content=content):
+                url = get_operation_url(
+                    "enkelvoudiginformatieobject_download", uuid=eio.uuid
+                )
+                response = self.client.get(url)
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual(response.getvalue(), content)
 
     def test_upload_part_wrong_size(self):
         """

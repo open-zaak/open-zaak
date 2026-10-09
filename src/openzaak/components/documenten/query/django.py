@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from typing import Dict, Tuple
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Dict, Tuple
 
 from django.apps import apps
 from django.db import models
@@ -14,6 +16,9 @@ from openzaak.utils.query import BlockChangeMixin, LooseFkAuthorizationsFilterMi
 
 from ..constants import ObjectInformatieObjectTypes
 from ..typing import IORelation
+
+if TYPE_CHECKING:
+    from openzaak.components.documenten.models import BestandsDeel  # noqa: F401
 
 
 class InformatieobjectAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin):
@@ -131,7 +136,7 @@ class DjangoQuerySet(InformatieobjectQuerySet):
     pass
 
 
-class BestandsDeelQuerySet(models.QuerySet):
+class BestandsDeelQuerySet(models.QuerySet["BestandsDeel"]):
     def wipe(self):
         for part in self:
             part.inhoud.delete()
