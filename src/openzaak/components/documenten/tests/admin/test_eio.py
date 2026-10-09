@@ -7,10 +7,17 @@ from django.utils.translation import gettext as _
 
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
+from privates.test import temp_private_root
 from webtest import Upload
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.components.documenten.admin import EnkelvoudigInformatieObjectAdmin
+from openzaak.components.documenten.admin import (
+    EnkelvoudigInformatieObjectAdmin,
+)
+from openzaak.components.documenten.constants import (
+    MAX_INHOUD_FILENAME_LENGTH,
+    MAX_UPLOAD_INHOUD_FILENAME_LENGTH,
+)
 from openzaak.components.documenten.exceptions import DocumentBackendNotImplementedError
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
@@ -71,6 +78,38 @@ class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, WebTest):
         eio = EnkelvoudigInformatieObject.objects.get()
         self.assertEqual(eio.canonical, canonical)
         self.assertEqual(eio.inhoud.read(), b"foo")
+
+    @tag("gh-2530")
+    @temp_private_root()
+    def test_create_informatieobject_with_long_inhoud_filename(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        canonical = EnkelvoudigInformatieObjectCanonicalFactory.create(
+            latest_version=None
+        )
+        response = self.app.get(
+            reverse("admin:documenten_enkelvoudiginformatieobject_add")
+        )
+        form = response.forms["enkelvoudiginformatieobject_form"]
+        form["canonical"] = canonical.pk
+        form["bronorganisatie"] = "000000000"
+        form["creatiedatum"] = "2010-01-01"
+        form["_informatieobjecttype"] = informatieobjecttype.pk
+        form["titel"] = "test"
+        form["auteur"] = "test"
+        form["taal"] = "nld"
+        form["inhoud"] = Upload(
+            f"{'a' * (MAX_INHOUD_FILENAME_LENGTH - 4)}.pdf", b"document"
+        )
+
+        response = form.submit(name="_continue")
+
+        self.assertEqual(response.status_code, 302)
+        document = EnkelvoudigInformatieObject.objects.get()
+        self.assertEqual(
+            document.inhoud.name.rsplit("/", 1)[-1],
+            f"{'a' * (MAX_UPLOAD_INHOUD_FILENAME_LENGTH - 4)}.pdf",
+        )
+        self.assertEqual(document.inhoud.read(), b"document")
 
     @tag("gh-1306")
     def test_create_informatieobject_save_identificatie_all_characters_allowed(self):
