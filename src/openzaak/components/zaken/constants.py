@@ -51,8 +51,8 @@ class SoortRechtsvorm(models.TextChoices):
         _("Cooperatie, Europees Economische Samenwerking"),
     )
     europese_cooperatieve_vennootschap = (
-        "europese_cooperatieve_venootschap",
-        _("Europese Cooperatieve Venootschap"),
+        "europese_cooperatieve_vennootschap",
+        _("Europese Cooperatieve Vennootschap"),
     )
     europese_naamloze_vennootschap = (
         "europese_naamloze_vennootschap",

@@ -380,7 +380,7 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
 
         response = self.client.get(
             url,
-            {"rol__betrokkeneIdentificatie__medewerker__identificatie": "0" * 129},
+            {"rol__betrokkeneIdentificatie__medewerker__identificatie": "0" * 255},
             **ZAAK_READ_KWARGS,
         )
 
