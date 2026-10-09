@@ -114,6 +114,7 @@ New endpoints are added:
 * POST ``/api/v1/zaak_verlengen/{uuid}`` - extend a zaak and set a new status for the zaak
 * POST ``/api/v1/zaak_bijwerken/{uuid}`` - update a zaak in combination with a status & rollen to immediately link them to this zaak.
 * POST ``/api/v1/zaak_afsluiten/{uuid}`` - close a zaak by creating a status and resultaat for the zaak.
+* GET ``/api/v1/zaak-inzage/{uuid}`` - retrieve a zaak with its zaaktype and related resources nested in the response. Requires the ``zaken.lezen``, ``catalogi.lezen`` and ``besluiten.lezen`` scopes on their respective API component authorizations.
 * GET ``/api/v1/substatussen``
 * POST ``/api/v1/substatussen``
 
