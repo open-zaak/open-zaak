@@ -1777,18 +1777,24 @@ class ZaakContactMomentViewSet(
 
 @extend_schema_view(
     list=extend_schema(
-        summary="Alle ZAAK-VERZOEK opvragen.", description="Alle ZAAK-VERZOEK opvragen."
+        summary="Alle ZAAK-VERZOEK opvragen.",
+        description="Alle ZAAK-VERZOEK opvragen.",
+        deprecated=True,
     ),
     retrieve=extend_schema(
         summary="Een specifiek ZAAK-VERZOEK opvragen.",
         description="Een specifiek ZAAK-VERZOEK opvragen.",
+        deprecated=True,
     ),
     create=extend_schema(
         summary="Maak een ZAAK-VERZOEK aan.",
         description=("**Er wordt gevalideerd op**\n- geldigheid URL naar de VERZOEK"),
+        deprecated=True,
     ),
     destroy=extend_schema(
-        summary="Verwijder een ZAAK-VERZOEK.", description="Verwijder een ZAAK-VERZOEK."
+        summary="Verwijder een ZAAK-VERZOEK.",
+        description="Verwijder een ZAAK-VERZOEK.",
+        deprecated=True,
     ),
 )
 class ZaakVerzoekViewSet(
