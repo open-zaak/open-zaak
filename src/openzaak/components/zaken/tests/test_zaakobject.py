@@ -342,6 +342,7 @@ class ZaakObjectHuishoudenTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
+        print(data)
 
         self.assertEqual(
             data,
@@ -360,6 +361,7 @@ class ZaakObjectHuishoudenTestCase(JWTAuthMixin, APITestCase):
                         "adresAanduidingGrp": {
                             "numIdentificatie": "1",
                             "oaoIdentificatie": "a",
+                            "aoaIdentificatie": "a",
                             "wplWoonplaatsNaam": "test city",
                             "gorOpenbareRuimteNaam": "test space",
                             "aoaPostcode": "",
@@ -390,7 +392,7 @@ class ZaakObjectHuishoudenTestCase(JWTAuthMixin, APITestCase):
                     "identificatie": "1",
                     "adresAanduidingGrp": {
                         "numIdentificatie": "1",
-                        "oaoIdentificatie": "a",
+                        "aoaIdentificatie": "a",
                         "wplWoonplaatsNaam": "test city",
                         "gorOpenbareRuimteNaam": "test space",
                         "aoaPostcode": "1010",
@@ -417,6 +419,81 @@ class ZaakObjectHuishoudenTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             huishouden.is_gehuisvest_in.adres_aanduiding_grp.identificatie, "a"
         )
+
+    def test_create_zaakobject_huishouden_without_identificatie(self):
+        url = get_operation_url("zaakobject_create")
+        zaak = ZaakFactory.create()
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "objectType": ZaakobjectTypes.huishouden,
+            "relatieomschrijving": "test",
+            "objectTypeOverige": "",
+            "objectIdentificatie": {
+                "nummer": "123456",
+                "isGehuisvestIn": {
+                    "identificatie": "1",
+                    "adresAanduidingGrp": {
+                        "numIdentificatie": "1",
+                        "wplWoonplaatsNaam": "test city",
+                        "gorOpenbareRuimteNaam": "test space",
+                        "aoaPostcode": "1010",
+                        "aoaHuisnummer": 11,
+                        "aoaHuisletter": "a",
+                        "aoaHuisnummertoevoeging": "test",
+                        "ogoLocatieAanduiding": "test",
+                    },
+                },
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(
+            response,
+            "objectIdentificatie.isGehuisvestIn.adresAanduidingGrp.aoaIdentificatie",
+        )
+        self.assertEqual(error["code"], "invalid")
+
+    def test_create_zaakobject_huishouden_with_both_identificaties(self):
+        url = get_operation_url("zaakobject_create")
+        zaak = ZaakFactory.create()
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "objectType": ZaakobjectTypes.huishouden,
+            "relatieomschrijving": "test",
+            "objectTypeOverige": "",
+            "objectIdentificatie": {
+                "nummer": "123456",
+                "isGehuisvestIn": {
+                    "identificatie": "1",
+                    "adresAanduidingGrp": {
+                        "numIdentificatie": "1",
+                        "oaoIdentificatie": "old",
+                        "aoaIdentificatie": "new",
+                        "wplWoonplaatsNaam": "test city",
+                        "gorOpenbareRuimteNaam": "test space",
+                        "aoaPostcode": "1010",
+                        "aoaHuisnummer": 11,
+                        "aoaHuisletter": "a",
+                        "aoaHuisnummertoevoeging": "test",
+                        "ogoLocatieAanduiding": "test",
+                    },
+                },
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(
+            response,
+            "objectIdentificatie.isGehuisvestIn.adresAanduidingGrp.aoaIdentificatie",
+        )
+        self.assertEqual(error["code"], "invalid")
 
     def test_update_zaakobject_medewerker(self):
         zaak = ZaakFactory.create()
@@ -572,6 +649,7 @@ class ZaakObjectTerreinGebouwdObjectTestCase(JWTAuthMixin, APITestCase):
                     "adresAanduidingGrp": {
                         "numIdentificatie": "1",
                         "oaoIdentificatie": "123",
+                        "aoaIdentificatie": "123",
                         "wplWoonplaatsNaam": "test city",
                         "gorOpenbareRuimteNaam": "test space",
                         "aoaPostcode": "",
@@ -625,6 +703,74 @@ class ZaakObjectTerreinGebouwdObjectTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(terrein_gebouwd.identificatie, "12345")
         self.assertEqual(terrein_gebouwd.adres_aanduiding_grp, adres)
         self.assertEqual(adres.identificatie, "a")
+
+    def test_create_zaakobject_terreinGebouwdObject_with_both_identificaties(self):
+        url = get_operation_url("zaakobject_create")
+        zaak = ZaakFactory.create()
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "objectType": ZaakobjectTypes.terrein_gebouwd_object,
+            "relatieomschrijving": "test",
+            "objectTypeOverige": "",
+            "objectIdentificatie": {
+                "identificatie": "12345",
+                "adresAanduidingGrp": {
+                    "numIdentificatie": "1",
+                    "oaoIdentificatie": "old",
+                    "aoaIdentificatie": "new",
+                    "wplWoonplaatsNaam": "test city",
+                    "gorOpenbareRuimteNaam": "test space",
+                    "aoaPostcode": "1010",
+                    "aoaHuisnummer": 11,
+                    "aoaHuisletter": "a",
+                    "aoaHuisnummertoevoeging": "test",
+                    "ogoLocatieAanduiding": "test",
+                },
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(
+            response, "objectIdentificatie.adresAanduidingGrp.aoaIdentificatie"
+        )
+        self.assertEqual(error["code"], "invalid")
+
+    def test_create_zaakobject_terreinGebouwdObject_without_identificatie(self):
+        url = get_operation_url("zaakobject_create")
+        zaak = ZaakFactory.create()
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "objectType": ZaakobjectTypes.terrein_gebouwd_object,
+            "relatieomschrijving": "test",
+            "objectTypeOverige": "",
+            "objectIdentificatie": {
+                "identificatie": "12345",
+                "adresAanduidingGrp": {
+                    "numIdentificatie": "1",
+                    "wplWoonplaatsNaam": "test city",
+                    "gorOpenbareRuimteNaam": "test space",
+                    "aoaPostcode": "1010",
+                    "aoaHuisnummer": 11,
+                    "aoaHuisletter": "a",
+                    "aoaHuisnummertoevoeging": "test",
+                    "ogoLocatieAanduiding": "test",
+                },
+            },
+        }
+
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(
+            response, "objectIdentificatie.adresAanduidingGrp.aoaIdentificatie"
+        )
+        self.assertEqual(error["code"], "invalid")
 
     def test_update_zaakobject_wozObject(self):
         zaak = ZaakFactory.create()

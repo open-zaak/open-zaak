@@ -262,13 +262,9 @@ class Medewerker(AbstractRolZaakobjectRelation):
     """
 
     identificatie = models.CharField(
-        max_length=128,
+        max_length=254,
         blank=True,
-        help_text=mark_experimental(
-            "Een korte unieke aanduiding van de MEDEWERKER. "
-            "Dit veld wijkt af van de standaard, omdat er 128 "
-            "karakters zijn toegestaan in plaats van 24"
-        ),
+        help_text=_("Een unieke aanduiding van de MEDEWERKER."),
         db_index=True,
     )
     achternaam = models.CharField(

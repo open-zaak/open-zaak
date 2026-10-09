@@ -1785,9 +1785,7 @@ paths:
         name: betrokkeneIdentificatie__medewerker__identificatie
         schema:
           type: string
-        description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de MEDEWERKER.
-          Dit veld wijkt af van de standaard, omdat er 128 karakters zijn toegestaan
-          in plaats van 24'
+        description: Een unieke aanduiding van de MEDEWERKER.
       - in: query
         name: betrokkeneIdentificatie__natuurlijkPersoon__anpIdentificatie
         schema:
@@ -8049,6 +8047,7 @@ paths:
       security:
       - JWT-Claims:
         - zaken.lezen
+      deprecated: true
       responses:
         '200':
           headers:
@@ -8208,6 +8207,7 @@ paths:
       security:
       - JWT-Claims:
         - zaken.bijwerken
+      deprecated: true
       responses:
         '201':
           headers:
@@ -8352,6 +8352,7 @@ paths:
       security:
       - JWT-Claims:
         - zaken.lezen
+      deprecated: true
       responses:
         '200':
           headers:
@@ -8500,6 +8501,7 @@ paths:
       security:
       - JWT-Claims:
         - zaken.bijwerken
+      deprecated: true
       responses:
         '204':
           headers:
@@ -8936,9 +8938,7 @@ paths:
         name: rol__betrokkeneIdentificatie__medewerker__identificatie
         schema:
           type: string
-        description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de MEDEWERKER.
-          Dit veld wijkt af van de standaard, omdat er 128 karakters zijn toegestaan
-          in plaats van 24'
+        description: Een unieke aanduiding van de MEDEWERKER.
       - in: query
         name: rol__betrokkeneIdentificatie__natuurlijkPersoon__anpIdentificatie
         schema:
@@ -12717,9 +12717,7 @@ paths:
                     gekoppeld aan de onderneming.'
                 rol__betrokkeneIdentificatie__medewerker__identificatie:
                   type: string
-                  description: '**EXPERIMENTEEL** Een korte unieke aanduiding van
-                    de MEDEWERKER. Dit veld wijkt af van de standaard, omdat er 128
-                    karakters zijn toegestaan in plaats van 24'
+                  description: Een unieke aanduiding van de MEDEWERKER.
                 rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie:
                   type: string
                   description: '**EXPERIMENTEEL** Een korte identificatie van de organisatorische
@@ -13160,8 +13158,7 @@ components:
           readOnly: true
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
         omschrijvingGeneriek:
-          allOf:
-          - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
+          type: string
           readOnly: true
           description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
             \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
@@ -13379,8 +13376,7 @@ components:
           readOnly: true
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
         omschrijvingGeneriek:
-          allOf:
-          - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
+          type: string
           readOnly: true
           description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
             \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
@@ -13590,8 +13586,7 @@ components:
           readOnly: true
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
         omschrijvingGeneriek:
-          allOf:
-          - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
+          type: string
           readOnly: true
           description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
             \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
@@ -14596,7 +14591,7 @@ components:
       enum:
       - besloten_vennootschap
       - cooperatie_europees_economische_samenwerking
-      - europese_cooperatieve_venootschap
+      - europese_cooperatieve_vennootschap
       - europese_naamloze_vennootschap
       - kerkelijke_organisatie
       - naamloze_vennootschap
@@ -14715,10 +14710,8 @@ components:
       properties:
         identificatie:
           type: string
-          description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de MEDEWERKER.
-            Dit veld wijkt af van de standaard, omdat er 128 karakters zijn toegestaan
-            in plaats van 24'
-          maxLength: 128
+          description: Een unieke aanduiding van de MEDEWERKER.
+          maxLength: 254
         achternaam:
           type: string
           description: De achternaam zoals de MEDEWERKER die in het dagelijkse verkeer
@@ -14739,10 +14732,8 @@ components:
       properties:
         identificatie:
           type: string
-          description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de MEDEWERKER.
-            Dit veld wijkt af van de standaard, omdat er 128 karakters zijn toegestaan
-            in plaats van 24'
-          maxLength: 128
+          description: Een unieke aanduiding van de MEDEWERKER.
+          maxLength: 254
         achternaam:
           type: string
           description: De achternaam zoals de MEDEWERKER die in het dagelijkse verkeer
@@ -16049,17 +16040,6 @@ components:
       required:
       - avgAard
       - identificatie
-    OmschrijvingGeneriekEnum:
-      enum:
-      - adviseur
-      - behandelaar
-      - belanghebbende
-      - beslisser
-      - initiator
-      - klantcontacter
-      - zaakcoordinator
-      - mede_initiator
-      type: string
     OneOrMultipleZaakIdentificaties:
       oneOf:
       - $ref: '#/components/schemas/ReserveZaakIdentificatie'
@@ -17862,8 +17842,14 @@ components:
           maxLength: 100
         oaoIdentificatie:
           type: string
-          description: De unieke identificatie van het OBJECT
-          maxLength: 100
+          description: Dit veld is verkeerd gespeld en is daarom deprecated. Het wordt
+            vervangen door `aoaIdentificatie`. Als `aoaIdentificatie` nog niet wordt
+            gebruikt dan is dit veld nog steeds verplicht voor backwards compatibility.
+          deprecated: true
+        aoaIdentificatie:
+          type: string
+          description: De unieke identificatie van het OBJECT. Als `oaoIdentificatie`
+            niet meer wordt gebruikt dan is dit veld verplicht.
         wplWoonplaatsNaam:
           type: string
           maxLength: 80
@@ -17900,8 +17886,16 @@ components:
           maxLength: 100
         oaoIdentificatie:
           type: string
-          description: De unieke identificatie van het OBJECT
-          maxLength: 100
+          minLength: 1
+          description: Dit veld is verkeerd gespeld en is daarom deprecated. Het wordt
+            vervangen door `aoaIdentificatie`. Als `aoaIdentificatie` nog niet wordt
+            gebruikt dan is dit veld nog steeds verplicht voor backwards compatibility.
+          deprecated: true
+        aoaIdentificatie:
+          type: string
+          minLength: 1
+          description: De unieke identificatie van het OBJECT. Als `oaoIdentificatie`
+            niet meer wordt gebruikt dan is dit veld verplicht.
         wplWoonplaatsNaam:
           type: string
           minLength: 1
