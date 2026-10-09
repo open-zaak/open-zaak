@@ -213,7 +213,7 @@ jobs:
                       --average median \
                       --github-actions '${{ secrets.GITHUB_TOKEN }}' \
                       --file output.json \
-                      "pytest performance_test/ --benchmark-warmup=on --benchmark-warmup-iterations=5 --benchmark-json output.json"
+                      "pytest performance_test/ --ignore=performance_test/convenience_endpoints/ --benchmark-warmup=on --benchmark-warmup-iterations=5 --benchmark-json output.json"
 
       - name: Run tests for other branches
         if: github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
@@ -232,7 +232,102 @@ jobs:
                       --testbed ubuntu-24.04 \
                       --github-actions '${{ secrets.GITHUB_TOKEN }}' \
                       --file output.json \
-                      "pytest performance_test/ --benchmark-warmup=on --benchmark-warmup-iterations=5 --benchmark-json output.json"
+                      "pytest performance_test/ --ignore=performance_test/convenience_endpoints/ --benchmark-warmup=on --benchmark-warmup-iterations=5 --benchmark-json output.json"
+
+  convenience-endpoint-performance-tests:
+    name: Run convenience endpoint performance tests
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: read
+      pull-requests: write # to add comments to the PR
+      checks: write
+
+    services:
+      postgres:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:8
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Set up backend environment
+        uses: maykinmedia/setup-django-backend@4a6c5facc65bb1dd510cf06be20871db11a156b3 # v1.4.2
+        with:
+          apt-packages: "gdal-bin"
+          python-version: "3.12"
+          optimize-postgres: "no"
+          setup-node: "no"
+
+      - name: Set up uWSGI and generate data
+        run: |
+          createdb -h localhost -U postgres openzaak
+          pip install uv
+          uv pip install -r requirements/ci.txt
+          src/manage.py migrate
+          SCRIPTPATH=bin UWSGI_PROCESSES=4 UWSGI_THREADS=4 bin/docker_start.sh &
+          echo "yes" | src/manage.py generate_data --zaken=100 --generate-superuser-credentials --generate-non-superuser-credentials --without-zaakgeometrie --generate-zaak-inzage-data
+        env:
+          RUN_SETUP_CONFIG: false
+          DB_PASSWORD: ""
+          DB_USER: postgres
+          DB_NAME: openzaak
+          DB_HOST: localhost
+          SECRET_KEY: secret
+          DJANGO_SETTINGS_MODULE: openzaak.conf.production
+          SITE_DOMAIN: localhost:8000
+          ALLOWED_HOSTS: localhost,127.0.0.1
+          DB_CONN_MAX_AGE: 60
+          LOG_REQUESTS: False
+
+      - name: Install dependencies
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSfL https://bencher.dev/download/install-cli.sh | sh
+          pip install uv
+          pkgs=$(cat requirements/performance-tests.in)
+          grep -E "^($(echo $pkgs | sed 's/ /|/g'))([=<>]|$)" requirements/ci.txt | xargs uv pip install
+
+      - name: Run tests for main branch
+        if: github.ref == 'refs/heads/main'
+        run: |
+          bencher run --adapter python_pytest \
+                      --project open-zaak-ed2ce35-z71n5gf8t4f40 \
+                      --key '${{ secrets.BENCHER_API_TOKEN }}' \
+                      --branch main \
+                      --testbed ubuntu-24.04 \
+                      --average median \
+                      --github-actions '${{ secrets.GITHUB_TOKEN }}' \
+                      --file output.json \
+                      "pytest performance_test/convenience_endpoints/ --benchmark-warmup=on --benchmark-warmup-iterations=5 --benchmark-json output.json"
+
+      - name: Run tests for other branches
+        if: github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
+        run: |
+          bencher run --adapter python_pytest \
+                      --project open-zaak-ed2ce35-z71n5gf8t4f40 \
+                      --key '${{ secrets.BENCHER_API_TOKEN }}' \
+                      --branch "$GITHUB_HEAD_REF" \
+                      --start-point "$GITHUB_BASE_REF" \
+                      --start-point-max-versions 30 \
+                      --average median \
+                      --threshold-measure latency \
+                      --threshold-test iqr \
+                      --threshold-upper-boundary 2.0 \
+                      --threshold-min-sample-size 15 \
+                      --testbed ubuntu-24.04 \
+                      --github-actions '${{ secrets.GITHUB_TOKEN }}' \
+                      --file output.json \
+                      "pytest performance_test/convenience_endpoints/ --benchmark-warmup=on --benchmark-warmup-iterations=5 --benchmark-json output.json"
 
   store-reusable-workflow-vars:
     name: create values which can be passed through a reusable workflow
