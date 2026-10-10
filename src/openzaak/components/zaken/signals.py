@@ -4,7 +4,7 @@ import threading
 
 from django.db import transaction
 from django.db.models.base import ModelBase
-from django.db.models.signals import ModelSignal, post_delete, post_save, pre_delete
+from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
 
@@ -76,45 +76,36 @@ def schedule_zaak_verwijderd(instance: Zaak):
     transaction.on_commit(send)
 
 
-@receiver(
-    [post_save, post_delete], sender=Besluit, dispatch_uid="zaken.sync_zaakbesluit"
-)
-def sync_zaakbesluit(
-    sender: ModelBase, signal: ModelSignal, instance: Besluit, **kwargs
-) -> None:
+@receiver(post_save, sender=Besluit, dispatch_uid="zaken.sync_zaakbesluit")
+def sync_zaakbesluit(sender: ModelBase, instance: Besluit, **kwargs) -> None:
     """
     Synchronize instances of ZaakBesluit with Besluit.
 
     Business logic:
     * updates are not allowed
     * creating a Besluit with zaak creates the ZaakBesluit
-    * deleting a Besluit with zaak deletes the ZaakBesluit
+    * deleting a Besluit with zaak deletes the ZaakBesluit. This is not done here:
+      ``ZaakBesluit._besluit`` has ``on_delete=CASCADE``. Depending on the other
+      objects related to the Besluit, the ZaakBesluit is already deleted before the
+      ``post_delete`` signal of the Besluit is sent, so it can't be looked up then.
     """
 
+    # loading fixtures -> skip
+    if kwargs["raw"]:
+        return
+
+    created = kwargs["created"]
+
     # check for post_save that's not create -> block it
-    if signal is post_save:
-        # loading fixtures -> skip
-        if kwargs["raw"]:
+    if not created:
+        if instance.zaak == instance.previous_zaak:
             return
 
-        created = kwargs["created"]
+        if instance.previous_zaak:
+            ZaakBesluit.objects.delete_for(instance, previous=True)
 
-        if not created:
-            if instance.zaak == instance.previous_zaak:
-                return
-
-            if instance.previous_zaak:
-                ZaakBesluit.objects.delete_for(instance, previous=True)
-
-        if instance.zaak:
-            ZaakBesluit.objects.create_from(instance)
-
-    elif signal is post_delete:
-        if instance.zaak:
-            ZaakBesluit.objects.delete_for(instance)
-
-    else:
-        raise NotImplementedError(f"Signal {signal} is not supported")
+    if instance.zaak:
+        ZaakBesluit.objects.create_from(instance)
 
 
 @receiver(

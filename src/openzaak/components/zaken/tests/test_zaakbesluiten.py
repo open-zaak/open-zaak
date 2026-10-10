@@ -11,6 +11,7 @@ from vng_api_common.tests import get_validation_errors, reverse
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
+from openzaak.components.besluiten.models import Besluit
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.besluiten.tests.utils import get_besluit_response
 from openzaak.tests.utils import JWTAuthMixin, mock_brc_oas_get
@@ -34,6 +35,18 @@ class BesluitenSignals(APITestCase):
 
         self.assertEqual(zaakbesluit.besluit, besluit)
         self.assertEqual(zaakbesluit.zaak, besluit.zaak)
+
+    def test_create_besluit_with_zaak_raw(self):
+        besluit = BesluitFactory.create(for_zaak=True)
+        pk = besluit.pk
+        besluit.delete()
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
+        besluit.pk = pk
+
+        besluit.save_base(raw=True, force_insert=True)
+
+        self.assertTrue(Besluit.objects.filter(pk=pk).exists())
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
 
     def test_delete_besluit_without_zaak(self):
         besluit = BesluitFactory.create(for_zaak=False)
