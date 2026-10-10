@@ -57,6 +57,20 @@ info:
     [Link naar volledige documentatie(in het Engels)](https://open-zaak.readthedocs.io/en/stable/client-development/authentication.html) met codevoorbeelden voor Java, JavaScript, PHP, Python.
 
 
+    ### Expand: afwijking van de standaard
+
+    De Zaken API 1.6.0-standaard staat het uitbreiden van gerelateerde resources met
+    `expand` tot een willekeurige diepte toe. Open Zaak wijkt hiervan af: alleen de
+    expliciet ondersteunde expand-paden zijn beschikbaar, met maximaal drie niveaus
+    van nesting. Niet ieder pad tot en met drie niveaus wordt ondersteund. Raadpleeg
+    de toegestane waarden van `expand` bij de betreffende operatie.
+
+    Bijvoorbeeld: `hoofdzaak.status.statustype` omvat drie niveaus. Gebruik bij het
+    opvragen van zaken
+    `expand=hoofdzaak,hoofdzaak.status,hoofdzaak.status.statustype` om ook de
+    bovenliggende resources mee te nemen. Diepere of niet-vermelde expand-paden
+    worden niet ondersteund.
+
     ### Notificaties
 
     Deze API publiceert notificaties op het kanaal `zaken`.
@@ -751,6 +765,20 @@ paths:
       description: Deze lijst kan gefilterd wordt met query-string parameters.
       summary: Alle RESULTAATen van ZAAKen opvragen.
       parameters:
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - resultaattype
+            - zaak
+            - zaak.zaaktype
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
       - name: page
         required: false
         in: query
@@ -791,7 +819,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedResultaatList'
+                $ref: '#/components/schemas/PaginatedExpandResultaatList'
           description: OK
         '400':
           headers:
@@ -1086,6 +1114,25 @@ paths:
           MultipleValues:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
             summary: Meerdere ETag-waardes
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - resultaattype
+            - zaak
+            - zaak.zaaktype
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
+      - in: query
+        name: resultaattype
+        schema:
+          type: string
+        description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
       - in: path
         name: uuid
         schema:
@@ -1093,6 +1140,12 @@ paths:
           format: uuid
           description: Unieke resource identifier (UUID4)
         required: true
+      - in: query
+        name: zaak
+        schema:
+          type: string
+          format: uri
+        description: URL-referentie naar de ZAAK.
       tags:
       - resultaten
       security:
@@ -1115,7 +1168,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resultaat'
+                $ref: '#/components/schemas/ExpandResultaat'
           description: OK
         '401':
           headers:
@@ -1861,6 +1914,22 @@ paths:
           Type van de `betrokkene`.
 
       - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - roltype
+            - statussen
+            - statussen.statustype
+            - zaak
+            - zaak.zaaktype
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
+      - in: query
         name: machtiging
         schema:
           type: string
@@ -1961,7 +2030,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedRolList'
+                $ref: '#/components/schemas/PaginatedExpandRolList'
           description: OK
         '400':
           headers:
@@ -2255,6 +2324,172 @@ paths:
           MultipleValues:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
             summary: Meerdere ETag-waardes
+      - in: query
+        name: betrokkene
+        schema:
+          type: string
+        description: URL-referentie naar een betrokkene gerelateerd aan de ZAAK.
+      - in: query
+        name: betrokkeneIdentificatie__medewerker__identificatie
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de MEDEWERKER.
+          Dit veld wijkt af van de standaard, omdat er 128 karakters zijn toegestaan
+          in plaats van 24'
+      - in: query
+        name: betrokkeneIdentificatie__natuurlijkPersoon__anpIdentificatie
+        schema:
+          type: string
+        description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
+          NATUURLIJK PERSOON
+      - in: query
+        name: betrokkeneIdentificatie__natuurlijkPersoon__inpA_nummer
+        schema:
+          type: string
+        description: Het administratienummer van de persoon, bedoeld in de Wet BRP
+      - in: query
+        name: betrokkeneIdentificatie__natuurlijkPersoon__inpBsn
+        schema:
+          type: string
+        description: Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene
+          bepalingen burgerservicenummer.
+      - in: query
+        name: betrokkeneIdentificatie__nietNatuurlijkPersoon__annIdentificatie
+        schema:
+          type: string
+        description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
+          NIET-NATUURLIJK PERSOON
+      - in: query
+        name: betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId
+        schema:
+          type: string
+        description: Het door een kamer toegekend RSIN voor de INGESCHREVEN NIET-NATUURLIJK
+          PERSOON
+      - in: query
+        name: betrokkeneIdentificatie__nietNatuurlijkPersoon__kvkNummer
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Een uniek nummer toegekend door de Kamer van
+          Koophandel'
+      - in: query
+        name: betrokkeneIdentificatie__nietNatuurlijkPersoon__vestigingsNummer
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de Vestiging.'
+      - in: query
+        name: betrokkeneIdentificatie__organisatorischeEenheid__identificatie
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Een korte identificatie van de organisatorische
+          eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters zijn
+          toegestaan in plaats van 24'
+      - in: query
+        name: betrokkeneIdentificatie__vestiging__kvkNummer
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** **DEPRECATED** Een uniek nummer gekoppeld
+          aan de onderneming.'
+      - in: query
+        name: betrokkeneIdentificatie__vestiging__vestigingsNummer
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** **DEPRECATED** Een korte unieke aanduiding
+          van de Vestiging.'
+      - in: query
+        name: betrokkeneType
+        schema:
+          type: string
+          enum:
+          - medewerker
+          - natuurlijk_persoon
+          - niet_natuurlijk_persoon
+          - organisatorische_eenheid
+          - vestiging
+        description: |+
+          Type van de `betrokkene`.
+
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - roltype
+            - statussen
+            - statussen.statustype
+            - zaak
+            - zaak.zaaktype
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
+      - in: query
+        name: machtiging
+        schema:
+          type: string
+          enum:
+          - eigen
+          - gemachtigde
+          - machtiginggever
+        description: |+
+          **EXPERIMENTEEL** filter objecten op basis van `indicatieMachtiging`:
+          * `eigen`: Toon objecten waarvan het attribuut `indicatieMachtiging` leeg is.
+          * `gemachtigde`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'gemachtigde' is.
+          * `machtiginggever`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'machtiginggever'
+
+
+      - in: query
+        name: machtiging__loa
+        schema:
+          type: string
+          enum:
+          - urn:etoegang:core:assurance-class:loa1
+          - urn:etoegang:core:assurance-class:loa2
+          - urn:etoegang:core:assurance-class:loa2plus
+          - urn:etoegang:core:assurance-class:loa3
+          - urn:etoegang:core:assurance-class:loa4
+          - urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract
+          - urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+          - urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard
+          - urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI
+        description: "**EXPERIMENTEEL** Rollen met een 'authenticatieContext.levelOfAssurance'\
+          \ die lager of gelijk is dan de aangegeven aanduiding worden teruggeven\
+          \ als resultaten.\n \n **Digid:** \n* `urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport`\
+          \ - DigiD Basis\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract`\
+          \ - DigiD Midden\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard` -\
+          \ DigiD Substantieel\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI`\
+          \ - DigiD Hoog\n \n **eHerkenning:** \n* `urn:etoegang:core:assurance-class:loa1`\
+          \ - Niet bestaand (1)\n* `urn:etoegang:core:assurance-class:loa2` - Laag\
+          \ (2)\n* `urn:etoegang:core:assurance-class:loa2plus` - Laag (2+)\n* `urn:etoegang:core:assurance-class:loa3`\
+          \ - Substantieel (3)\n* `urn:etoegang:core:assurance-class:loa4` - Hoog\
+          \ (4)\n\n"
+      - in: query
+        name: omschrijving
+        schema:
+          type: string
+        description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
+      - in: query
+        name: omschrijvingGeneriek
+        schema:
+          type: string
+          enum:
+          - adviseur
+          - behandelaar
+          - belanghebbende
+          - beslisser
+          - initiator
+          - klantcontacter
+          - mede_initiator
+          - zaakcoordinator
+        description: |+
+          Algemeen gehanteerde benaming van de aard van de ROL, afgeleid uit het ROLTYPE.
+
+      - in: query
+        name: roltype
+        schema:
+          type: string
+        description: URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.
       - in: path
         name: uuid
         schema:
@@ -2262,6 +2497,12 @@ paths:
           format: uuid
           description: Unieke resource identifier (UUID4)
         required: true
+      - in: query
+        name: zaak
+        schema:
+          type: string
+          format: uri
+        description: URL-referentie naar de ZAAK.
       tags:
       - rollen
       security:
@@ -2284,7 +2525,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Rol'
+                $ref: '#/components/schemas/ExpandRol'
           description: OK
         '401':
           headers:
@@ -2766,6 +3007,24 @@ paths:
       summary: Alle STATUSsen van ZAAKen opvragen.
       parameters:
       - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - gezetdoor
+            - gezetdoor.roltype
+            - statustype
+            - zaak
+            - zaak.zaaktype
+            - zaakinformatieobjecten
+            - zaakinformatieobjecten.informatieobject
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
+      - in: query
         name: indicatieLaatstGezetteStatus
         schema:
           type: boolean
@@ -2811,7 +3070,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedStatusList'
+                $ref: '#/components/schemas/PaginatedExpandStatusList'
           description: OK
         '400':
           headers:
@@ -3113,6 +3372,35 @@ paths:
           MultipleValues:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
             summary: Meerdere ETag-waardes
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - gezetdoor
+            - gezetdoor.roltype
+            - statustype
+            - zaak
+            - zaak.zaaktype
+            - zaakinformatieobjecten
+            - zaakinformatieobjecten.informatieobject
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
+      - in: query
+        name: indicatieLaatstGezetteStatus
+        schema:
+          type: boolean
+        description: Het gegeven is afleidbaar uit de historie van de attribuutsoort
+          Datum status gezet van van alle statussen bij de desbetreffende zaak.
+      - in: query
+        name: statustype
+        schema:
+          type: string
+        description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
       - in: path
         name: uuid
         schema:
@@ -3120,6 +3408,12 @@ paths:
           format: uuid
           description: Unieke resource identifier (UUID4)
         required: true
+      - in: query
+        name: zaak
+        schema:
+          type: string
+          format: uri
+        description: URL-referentie naar de ZAAK.
       tags:
       - statussen
       security:
@@ -3142,7 +3436,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Status'
+                $ref: '#/components/schemas/ExpandStatus'
           description: OK
         '401':
           headers:
@@ -4833,6 +5127,23 @@ paths:
       summary: Alle ZAAK-INFORMATIEOBJECT relaties opvragen.
       parameters:
       - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - informatieobject
+            - status
+            - status.gezetdoor
+            - status.statustype
+            - zaak
+            - zaak.zaaktype
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
+      - in: query
         name: informatieobject
         schema:
           type: string
@@ -4862,7 +5173,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ZaakInformatieObject'
+                  $ref: '#/components/schemas/ExpandZaakInformatieObject'
           description: OK
         '400':
           headers:
@@ -5170,6 +5481,29 @@ paths:
           MultipleValues:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
             summary: Meerdere ETag-waardes
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - informatieobject
+            - status
+            - status.gezetdoor
+            - status.statustype
+            - zaak
+            - zaak.zaaktype
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
+      - in: query
+        name: informatieobject
+        schema:
+          type: string
+        description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten API),
+          waar ook de relatieinformatie opgevraagd kan worden.
       - in: path
         name: uuid
         schema:
@@ -5177,6 +5511,12 @@ paths:
           format: uuid
           description: Unieke resource identifier (UUID4)
         required: true
+      - in: query
+        name: zaak
+        schema:
+          type: string
+          format: uri
+        description: URL-referentie naar de ZAAK.
       tags:
       - zaakinformatieobjecten
       security:
@@ -5199,7 +5539,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ZaakInformatieObject'
+                $ref: '#/components/schemas/ExpandZaakInformatieObject'
           description: OK
         '401':
           headers:
@@ -7055,6 +7395,20 @@ paths:
       summary: Alle ZAAKOBJECTen opvragen.
       parameters:
       - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - zaak
+            - zaak.zaaktype
+            - zaakobjecttype
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
+      - in: query
         name: object
         schema:
           type: string
@@ -7134,7 +7488,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedZaakObjectList'
+                $ref: '#/components/schemas/PaginatedExpandZaakObjectList'
           description: OK
         '400':
           headers:
@@ -7415,6 +7769,65 @@ paths:
       description: Een specifiek ZAAKOBJECT opvragen.
       summary: Een specifiek ZAAKOBJECT opvragen.
       parameters:
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - zaak
+            - zaak.zaaktype
+            - zaakobjecttype
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
+      - in: query
+        name: object
+        schema:
+          type: string
+        description: URL-referentie naar de resource die het OBJECT beschrijft.
+      - in: query
+        name: objectType
+        schema:
+          type: string
+          enum:
+          - adres
+          - besluit
+          - buurt
+          - enkelvoudig_document
+          - gemeente
+          - gemeentelijke_openbare_ruimte
+          - huishouden
+          - inrichtingselement
+          - kadastrale_onroerende_zaak
+          - kunstwerkdeel
+          - maatschappelijke_activiteit
+          - medewerker
+          - natuurlijk_persoon
+          - niet_natuurlijk_persoon
+          - openbare_ruimte
+          - organisatorische_eenheid
+          - overige
+          - pand
+          - product
+          - spoorbaandeel
+          - status
+          - terrein_gebouwd_object
+          - terreindeel
+          - vestiging
+          - waterdeel
+          - wegdeel
+          - wijk
+          - woonplaats
+          - woz_deelobject
+          - woz_object
+          - woz_waarde
+          - zakelijk_recht
+        description: |+
+          Beschrijft het type OBJECT gerelateerd aan de ZAAK. Als er geen passend type is, dan moet het type worden opgegeven onder `objectTypeOverige`.
+
       - in: path
         name: uuid
         schema:
@@ -7422,6 +7835,12 @@ paths:
           format: uuid
           description: Unieke resource identifier (UUID4)
         required: true
+      - in: query
+        name: zaak
+        schema:
+          type: string
+          format: uri
+        description: URL-referentie naar de ZAAK.
       tags:
       - zaakobjecten
       security:
@@ -7438,7 +7857,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ZaakObject'
+                $ref: '#/components/schemas/ExpandZaakObject'
           description: OK
         '401':
           headers:
@@ -10704,6 +11123,29 @@ paths:
       description: Alle ZAAKBESLUITen opvragen.
       summary: Alle ZAAKBESLUITen opvragen.
       parameters:
+      - in: query
+        name: besluit
+        schema:
+          type: string
+        description: URL-referentie naar het BESLUIT (in de Besluiten API).
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - besluit
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
+      - in: query
+        name: zaak
+        schema:
+          type: string
+          format: uri
+        description: URL-referentie naar de ZAAK.
       - in: path
         name: zaak_uuid
         schema:
@@ -10729,7 +11171,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ZaakBesluit'
+                  $ref: '#/components/schemas/ExpandZaakBesluit'
           description: OK
         '400':
           headers:
@@ -11018,6 +11460,23 @@ paths:
       description: Een specifiek ZAAKBESLUIT opvragen.
       summary: Een specifiek ZAAKBESLUIT opvragen.
       parameters:
+      - in: query
+        name: besluit
+        schema:
+          type: string
+        description: URL-referentie naar het BESLUIT (in de Besluiten API).
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - besluit
+        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+          \ \n\n"
+        explode: false
+        style: form
       - in: path
         name: uuid
         schema:
@@ -11025,6 +11484,12 @@ paths:
           format: uuid
           description: Unieke resource identifier (UUID4)
         required: true
+      - in: query
+        name: zaak
+        schema:
+          type: string
+          format: uri
+        description: URL-referentie naar de ZAAK.
       - in: path
         name: zaak_uuid
         schema:
@@ -11048,7 +11513,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ZaakBesluit'
+                $ref: '#/components/schemas/ExpandZaakBesluit'
           description: OK
         '401':
           headers:
@@ -14388,6 +14853,82 @@ components:
       - bsn
       - kvkNummer
       type: string
+    ExpandResultaat:
+      allOf:
+      - $ref: '#/components/schemas/Resultaat'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              zaak:
+                allOf:
+                - $ref: '#/components/schemas/Zaak'
+                description: URL-referentie naar de ZAAK.
+              resultaattype:
+                allOf:
+                - $ref: https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.2.0/src/openapi.yaml#/components/schemas/ResultaatType
+                description: URL-referentie naar het RESULTAATTYPE (in de Catalogi
+                  API).
+    ExpandRol:
+      allOf:
+      - $ref: '#/components/schemas/Rol'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              zaak:
+                allOf:
+                - $ref: '#/components/schemas/Zaak'
+                description: URL-referentie naar de ZAAK.
+              roltype:
+                allOf:
+                - $ref: https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.2.0/src/openapi.yaml#/components/schemas/RolType
+                description: URL-referentie naar een roltype binnen het ZAAKTYPE van
+                  de ZAAK.
+              statussen:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Status'
+                readOnly: true
+                description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft
+                  geregistreerd dat STATUSsen in die ZAAK bereikt zijn.
+    ExpandStatus:
+      allOf:
+      - $ref: '#/components/schemas/Status'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              zaak:
+                allOf:
+                - $ref: '#/components/schemas/Zaak'
+                description: URL-referentie naar de ZAAK.
+              statustype:
+                allOf:
+                - $ref: https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.2.0/src/openapi.yaml#/components/schemas/StatusType
+                description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
+              gezetdoor:
+                allOf:
+                - $ref: '#/components/schemas/Rol'
+                nullable: true
+                title: Gezet door
+                description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft
+                  geregistreerd dat STATUSsen in die ZAAK bereikt zijn.
+              zaakinformatieobjecten:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZaakInformatieObject'
+                readOnly: true
+                description: URL-referenties naar ZAAKINFORMATIEOBJECTen.
     ExpandZaak:
       allOf:
       - $ref: '#/components/schemas/Zaak'
@@ -14453,6 +14994,65 @@ components:
                   $ref: '#/components/schemas/ZaakObject'
                 readOnly: true
                 description: URL-referenties naar ZAAKOBJECTen.
+    ExpandZaakBesluit:
+      allOf:
+      - $ref: '#/components/schemas/ZaakBesluit'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              besluit:
+                allOf:
+                - $ref: https://raw.githubusercontent.com/vng-Realisatie/besluiten-api/1.0.1.post0/src/openapi.yaml#/components/schemas/Besluit
+                description: URL-referentie naar het BESLUIT (in de Besluiten API).
+    ExpandZaakInformatieObject:
+      allOf:
+      - $ref: '#/components/schemas/ZaakInformatieObject'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              zaak:
+                allOf:
+                - $ref: '#/components/schemas/Zaak'
+                description: URL-referentie naar de ZAAK.
+              status:
+                allOf:
+                - $ref: '#/components/schemas/Status'
+                nullable: true
+                description: De bij de desbetreffende ZAAK behorende STATUS waarvoor
+                  het ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het
+                  bereiken van die STATUS en/of de communicatie daarover.
+              informatieobject:
+                allOf:
+                - $ref: https://raw.githubusercontent.com/vng-Realisatie/documenten-api/1.0.1.post1/src/openapi.yaml#/components/schemas/EnkelvoudigInformatieObject
+                description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
+                  API), waar ook de relatieinformatie opgevraagd kan worden.
+    ExpandZaakObject:
+      allOf:
+      - $ref: '#/components/schemas/ZaakObject'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              zaak:
+                allOf:
+                - $ref: '#/components/schemas/Zaak'
+                description: URL-referentie naar de ZAAK.
+              zaakobjecttype:
+                allOf:
+                - $ref: https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.2.0/src/openapi.yaml#/components/schemas/ZaakObjectType
+                description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi
+                  API).
     FieldValidationError:
       type: object
       description: Formaat van validatiefouten.
@@ -16140,6 +16740,75 @@ components:
           description: '**EXPERIMENTEEL** Dit veld wijkt af van de standaard, omdat
             er 255 karakters zijn toegestaan in plaats van 24'
           maxLength: 255
+    PaginatedExpandResultaatList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpandResultaat'
+    PaginatedExpandRolList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpandRol'
+    PaginatedExpandStatusList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpandStatus'
     PaginatedExpandZaakList:
       type: object
       required:
@@ -16163,6 +16832,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ExpandZaak'
+    PaginatedExpandZaakObjectList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpandZaakObject'
     PaginatedKlantContactList:
       type: object
       required:

@@ -111,6 +111,7 @@ from .filters import (
     ResultaatFilter,
     RolFilter,
     StatusFilter,
+    ZaakBesluitFilter,
     ZaakContactMomentFilter,
     ZaakDetailFilter,
     ZaakFilter,
@@ -584,6 +585,7 @@ class ZaakViewSet(
 @conditional_retrieve()
 class StatusViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
@@ -596,8 +598,12 @@ class StatusViewSet(
     """
 
     queryset = (
-        Status.objects.select_related("_statustype", "zaak", "gezetdoor")
-        .prefetch_related("zaakinformatieobjecten")
+        Status.objects.select_related(
+            "_statustype",
+            "zaak",
+            "gezetdoor",
+        )
+        .prefetch_related("zaakinformatieobjecten___informatieobject__latest_version")
         .annotate_with_max_datum_status_gezet()
         .order_by("-datum_status_gezet", "-pk")
     )
@@ -794,6 +800,7 @@ class SubStatusViewSet(
 )
 class ZaakObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     CheckQueryParamsMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
@@ -806,8 +813,38 @@ class ZaakObjectViewSet(
     Opvragen en bewerken van ZAAKOBJECTen.
     """
 
-    queryset = ZaakObject.objects.select_related("zaak", "_zaakobjecttype").order_by(
-        "-pk"
+    queryset = (
+        ZaakObject.objects.select_related(
+            "zaak",
+            "_zaakobjecttype",
+            "zaak__resultaat",
+        )
+        .prefetch_related(
+            # Zaak
+            "zaak__deelzaken",
+            "zaak__zaakobject_set",
+            "zaak__zaakkenmerk_set",
+            "zaak__status_set",
+            "zaak__rol_set",
+            "zaak__zaakeigenschap_set",
+            "zaak__zaakbesluit_set",
+            "zaak__relevante_andere_zaken",
+            "zaak__gerelateerde_zaken",
+            "zaak__zaakinformatieobject_set",
+            # Zaaktype
+            "zaak___zaaktype__eigenschap_set",
+            "zaak___zaaktype__resultaattypen__besluittypen",
+            "zaak___zaaktype__resultaattypen__informatieobjecttypen",
+            "zaak___zaaktype__roltype_set",
+            "zaak___zaaktype__statustypen__checklistitem_set",
+            "zaak___zaaktype__statustypen__eigenschappen",
+            "zaak___zaaktype__statustypen__zaakobjecttypen",
+            "zaak___zaaktype__zaakobjecttype_set__resultaattypen",
+            "zaak___zaaktype__deelzaaktypen",
+            "zaak___zaaktype__zaaktypenrelaties",
+            "zaak___zaaktype__catalogus",
+        )
+        .order_by("-pk")
     )
     serializer_class = ZaakObjectSerializer
     filterset_class = ZaakObjectFilter
@@ -931,6 +968,7 @@ class ZaakObjectViewSet(
 @conditional_retrieve()
 class ZaakInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationCreateMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -943,8 +981,41 @@ class ZaakInformatieObjectViewSet(
     """
 
     queryset = (
-        ZaakInformatieObject.objects.select_related("zaak", "_informatieobject")
-        .prefetch_related("_informatieobject__enkelvoudiginformatieobject_set")
+        ZaakInformatieObject.objects.select_related(
+            "zaak",
+            "status",
+            "status___statustype",
+            "status__gezetdoor",
+            "_informatieobject__latest_version",
+            "zaak__resultaat",
+            "zaak__hoofdzaak",
+        )
+        .prefetch_related(
+            "_informatieobject__enkelvoudiginformatieobject_set",
+            # Zaak
+            "zaak__deelzaken",
+            "zaak__zaakobject_set",
+            "zaak__zaakkenmerk_set",
+            "zaak__status_set",
+            "zaak__rol_set",
+            "zaak__zaakeigenschap_set",
+            "zaak__zaakbesluit_set",
+            "zaak__relevante_andere_zaken",
+            "zaak__gerelateerde_zaken",
+            "zaak__zaakinformatieobject_set",
+            # Zaaktype
+            "zaak___zaaktype__eigenschap_set",
+            "zaak___zaaktype__resultaattypen__besluittypen",
+            "zaak___zaaktype__resultaattypen__informatieobjecttypen",
+            "zaak___zaaktype__roltype_set",
+            "zaak___zaaktype__statustypen__checklistitem_set",
+            "zaak___zaaktype__statustypen__eigenschappen",
+            "zaak___zaaktype__statustypen__zaakobjecttypen",
+            "zaak___zaaktype__zaakobjecttype_set__resultaattypen",
+            "zaak___zaaktype__deelzaaktypen",
+            "zaak___zaaktype__zaaktypenrelaties",
+            "zaak___zaaktype__catalogus",
+        )
         .order_by("-pk")
     )
     filterset_class = ZaakInformatieObjectFilter
@@ -1273,6 +1344,7 @@ class KlantContactViewSet(
 @conditional_retrieve()
 class RolViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -1288,7 +1360,7 @@ class RolViewSet(
     """
 
     queryset = (
-        Rol.objects.select_related("_roltype", "zaak")
+        Rol.objects.select_related("_roltype", "zaak", "zaak___zaaktype")
         .prefetch_related(
             "natuurlijkpersoon",
             "nietnatuurlijkpersoon",
@@ -1296,6 +1368,7 @@ class RolViewSet(
             "organisatorischeeenheid",
             "medewerker",
             "statussen",
+            "statussen___statustype",
         )
         .order_by("-pk")
     )
@@ -1396,6 +1469,7 @@ class RolViewSet(
 @conditional_retrieve()
 class ResultaatViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -1521,6 +1595,8 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
 )
 class ZaakBesluitViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
+    CheckQueryParamsMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
@@ -1534,8 +1610,9 @@ class ZaakBesluitViewSet(
     Opvragen en beheren van zaak-besluiten.
     """
 
-    queryset = ZaakBesluit.objects.order_by("-pk")
+    queryset = ZaakBesluit.objects.select_related("zaak", "_besluit").order_by("-pk")
     serializer_class = ZaakBesluitSerializer
+    filterset_class = ZaakBesluitFilter
     lookup_field = "uuid"
     parent_retrieve_kwargs = {"zaak_uuid": "uuid"}
     permission_classes = (ZaakNestedAuthRequired,)
@@ -1549,7 +1626,9 @@ class ZaakBesluitViewSet(
     audit = AUDIT_ZRC
 
     def get_queryset(self):
-        if not self.kwargs:  # this happens during schema generation, and causes crashes
+        if (
+            "zaak_uuid" not in self.kwargs
+        ):  # this happens during schema generation, and causes crashes
             return self.queryset.none()
         return super().get_queryset()
 
@@ -1561,7 +1640,7 @@ class ZaakBesluitViewSet(
     def get_serializer_context(self):
         context = super().get_serializer_context()
         # DRF introspection
-        if not self.kwargs:
+        if "zaak_uuid" not in self.kwargs:
             return context
 
         context["parent_object"] = self._get_zaak()
