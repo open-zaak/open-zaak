@@ -97,6 +97,10 @@ def sync_zaakbesluit(
         if kwargs["raw"]:
             return
 
+        # Skip saving when only the ETag is being updated
+        if kwargs.get("update_fields") == {"_etag"}:
+            return
+
         created = kwargs["created"]
 
         if not created:
