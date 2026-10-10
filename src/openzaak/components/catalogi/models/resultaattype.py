@@ -5,6 +5,7 @@ import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from openzaak.selectielijst.api import retrieve_resultaattype_omschrijvingen
 import requests
 from relativedeltafield.utils import parse_relativedelta
 from structlog import get_logger
@@ -302,12 +303,12 @@ class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
         Save some derived fields into local object as a means of caching.
         """
         if self.resultaattypeomschrijving:
-            # TODO should this use a proper client?
-            # Yes, perform all selectielijst requests in save in a single http2
-            # session; with proper caching.
+            # TODO make sure a single session is used for these requests
             try:
-                response = requests.get(self.resultaattypeomschrijving).json()
-                self.omschrijving_generiek = response["omschrijving"]
+                resultaattypeomschrijving = retrieve_resultaattype_omschrijvingen(
+                    self.resultaattypeomschrijving
+                )
+                self.omschrijving_generiek = resultaattypeomschrijving["omschrijving"]
             except requests.RequestException:
                 logger.exception(
                     "fetching_resultaattypeomschrijving_failed",
