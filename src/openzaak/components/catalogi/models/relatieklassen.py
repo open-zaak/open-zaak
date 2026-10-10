@@ -8,10 +8,12 @@ from django.utils.translation import gettext_lazy as _
 
 from vng_api_common.caching import ETagMixin
 
+from openzaak.utils.mixins import APIMixin
+
 from ..constants import AardRelatieChoices, RichtingChoices
 
 
-class ZaakTypeInformatieObjectType(ETagMixin, models.Model):
+class ZaakTypeInformatieObjectType(ETagMixin, APIMixin, models.Model):
     """
     ZAAK-INFORMATIEOBJECT-TYPE
 

@@ -306,6 +306,8 @@ Query parameters
     * ``omschrijving__icontains`` – filter by (a part of the) ``zaaktype_omschrijving`` (case-insensitive match).
     * ``identificatie__icontains`` – filter by (a part of the) ``identificatie`` (case-insensitive match).
 
+* The ``expand`` query parameter deviates from the VNG specification as it does not allow expansion to an arbitrary depth.
+
 Besluiten API
 =============
 

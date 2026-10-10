@@ -9,11 +9,13 @@ from django.utils.translation import gettext_lazy as _
 from vng_api_common.caching import ETagMixin
 from vng_api_common.constants import RolOmschrijving
 
+from openzaak.utils.mixins import APIMixin
+
 from .mixins import OptionalGeldigheidMixin
 from .validators import validate_zaaktype_concept
 
 
-class RolType(ETagMixin, OptionalGeldigheidMixin, models.Model):
+class RolType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
     """
     Generieke aanduiding van de aard van een ROL die een BETROKKENE kan
     uitoefenen in ZAAKen van een ZAAKTYPE.
