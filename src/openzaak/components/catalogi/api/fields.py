@@ -2,8 +2,6 @@
 # Copyright (C) 2026 Dimpact
 from functools import cached_property
 
-from django.utils.translation import gettext_lazy as _
-
 from rest_framework import serializers
 
 from openzaak.utils.serializer_fields import (
@@ -12,10 +10,6 @@ from openzaak.utils.serializer_fields import (
     FKOrServiceUrlValidator,
 )
 
-from ..external import (
-    ExternalInformatieObjectTypeUnavailable,
-    get_external_concept,
-)
 from ..models import BesluitTypeInformatieObjectType, InformatieObjectType
 
 
@@ -28,19 +22,9 @@ def get_url(informatieobjecttype) -> str:
 
 
 def is_concept(informatieobjecttype) -> bool:
-    if not isinstance(informatieobjecttype, str):
-        return bool(informatieobjecttype.concept)
-
-    try:
-        return get_external_concept(informatieobjecttype)
-    except ExternalInformatieObjectTypeUnavailable as exc:
-        raise serializers.ValidationError(
-            _(
-                "The informatieobjecttype {url} could not be retrieved to check "
-                "whether it is a concept."
-            ).format(url=informatieobjecttype),
-            code="external-informatieobjecttype-unavailable",
-        ) from exc
+    if isinstance(informatieobjecttype, str):
+        return False
+    return bool(informatieobjecttype.concept)
 
 
 class InformatieObjectTypeUrlField(FKOrServiceUrlField):

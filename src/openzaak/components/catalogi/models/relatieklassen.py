@@ -59,7 +59,10 @@ class ZaakTypeInformatieObjectType(ETagMixin, models.Model):
         fk_field="_informatieobjecttype",
         url_field="_iotype_url",
         verbose_name=_("informatie object type"),
-        help_text=_("URL-referentie naar het INFORMATIEOBJECTTYPE."),
+        help_text=_(
+            "URL-referentie naar het INFORMATIEOBJECTTYPE."
+            " Let op: voor een extern INFORMATIEOBJECTTYPE wordt niet gecontroleerd of dit een concept is of gepubliceerd."
+        ),
     )
 
     volgnummer = models.PositiveSmallIntegerField(
@@ -102,6 +105,8 @@ class ZaakTypeInformatieObjectType(ETagMixin, models.Model):
         value of this attribute of the Zaaktype
         """
         if self._informatieobjecttype is None:
+            # External informatieobjecttype: it is not fetched to check its concept
+            # status, so only the zaaktype determines whether this is a concept.
             return self.zaaktype.concept
         return self.zaaktype.concept and self.informatieobjecttype.concept
 

@@ -29,7 +29,7 @@ class BesluitTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializer):
     informatieobjecttypen = BesluitTypeInformatieObjectTypenField(
         help_text=_(
             "URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten waarin besluiten van dit "
-            "BESLUITTYPE worden vastgelegd."
+            "BESLUITTYPE worden vastgelegd. Let op: voor een extern INFORMATIEOBJECTTYPE wordt niet gecontroleerd of dit een concept is of gepubliceerd."
         ),
     )
 

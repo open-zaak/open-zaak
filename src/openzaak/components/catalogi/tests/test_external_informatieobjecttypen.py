@@ -5,7 +5,6 @@ import uuid
 from django.test import TestCase, override_settings, tag
 from django.utils.translation import gettext_lazy as _
 
-import requests
 import requests_mock
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
@@ -160,28 +159,19 @@ class ZaakTypeInformatieObjectTypeExternalTests(
             richting=RichtingChoices.inkomend,
         )
 
-    def _mock_relation_iotype(
-        self, m, relation, concept: bool | None, unavailable: bool
-    ) -> None:
-        if unavailable:
-            m.get(
-                relation._iotype_url,
-                exc=requests.exceptions.ConnectTimeout("timed out"),
-            )
-        elif concept is not None:
-            self.mock_external_iotype(m, relation._iotype_url, concept=concept)
-
-    def _patch(self, relation, concept: bool | None = None, unavailable=False):
+    def _patch(self, relation):
         with requests_mock.Mocker() as m:
-            self._mock_relation_iotype(m, relation, concept, unavailable)
-            return self.client.patch(
+            response = self.client.patch(
                 reverse(relation), {"richting": RichtingChoices.uitgaand}
             )
+        self.assertFalse(m.called)
+        return response
 
-    def _delete(self, relation, concept: bool | None = None, unavailable=False):
+    def _delete(self, relation):
         with requests_mock.Mocker() as m:
-            self._mock_relation_iotype(m, relation, concept, unavailable)
-            return self.client.delete(reverse(relation))
+            response = self.client.delete(reverse(relation))
+        self.assertFalse(m.called)
+        return response
 
     def test_update_concept_zaaktype_does_not_fetch_informatieobjecttype(self):
         relation = self._create_relation(
@@ -194,36 +184,16 @@ class ZaakTypeInformatieObjectTypeExternalTests(
         relation.refresh_from_db()
         self.assertEqual(relation.richting, RichtingChoices.uitgaand)
 
-    def test_update_published_zaaktype_published_informatieobjecttype(self):
+    def test_update_published_zaaktype_external_informatieobjecttype(self):
         relation = self._create_relation(
             ZaakTypeFactory.create(catalogus=self.catalogus, concept=False)
         )
 
-        response = self._patch(relation, concept=False)
+        response = self._patch(relation)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "non-concept-relation")
-
-    def test_update_published_zaaktype_concept_informatieobjecttype(self):
-        relation = self._create_relation(
-            ZaakTypeFactory.create(catalogus=self.catalogus, concept=False)
-        )
-
-        response = self._patch(relation, concept=True)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-    def test_update_published_zaaktype_informatieobjecttype_unavailable(self):
-        relation = self._create_relation(
-            ZaakTypeFactory.create(catalogus=self.catalogus, concept=False)
-        )
-
-        response = self._patch(relation, unavailable=True)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "external-informatieobjecttype-unavailable")
 
     def test_delete_concept_zaaktype_does_not_fetch_informatieobjecttype(self):
         relation = self._create_relation(
@@ -235,45 +205,15 @@ class ZaakTypeInformatieObjectTypeExternalTests(
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(ZaakTypeInformatieObjectType.objects.exists())
 
-    def test_delete_published_zaaktype_published_informatieobjecttype(self):
+    def test_delete_published_zaaktype_external_informatieobjecttype(self):
         relation = self._create_relation(
             ZaakTypeFactory.create(catalogus=self.catalogus, concept=False)
         )
 
-        response = self._delete(relation, concept=False)
+        response = self._delete(relation)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertTrue(ZaakTypeInformatieObjectType.objects.exists())
-
-    def test_delete_published_zaaktype_concept_informatieobjecttype(self):
-        relation = self._create_relation(
-            ZaakTypeFactory.create(catalogus=self.catalogus, concept=False)
-        )
-
-        response = self._delete(relation, concept=True)
-
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(ZaakTypeInformatieObjectType.objects.exists())
-
-    def test_delete_published_zaaktype_informatieobjecttype_unavailable(self):
-        relation = self._create_relation(
-            ZaakTypeFactory.create(catalogus=self.catalogus, concept=False)
-        )
-
-        response = self._delete(relation, unavailable=True)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertTrue(ZaakTypeInformatieObjectType.objects.exists())
-
-    def test_create_published_zaaktype_concept_informatieobjecttype(self):
-        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus, concept=False)
-        iotype = new_external_iotype()
-
-        with requests_mock.Mocker() as m:
-            self.mock_external_iotype(m, iotype, concept=True)
-            response = self.client.post(self.list_url, self._data(zaaktype, iotype))
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_create_with_external_informatieobjecttype_unknown_service(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
@@ -492,16 +432,13 @@ class BesluitTypeExternalInformatieObjectTypenConceptTests(
 class ZaakTypePublishExternalInformatieObjectTypeTests(
     ExternalInformatieObjectTypeMixin, TestCase
 ):
-    def _validate(self, zaaktype, concept: bool | None = None, unavailable=False):
-        iotype = zaaktype.zaaktypeinformatieobjecttype_set.get()._iotype_url
+    def _validate(self, zaaktype):
         with requests_mock.Mocker() as m:
-            if unavailable:
-                m.get(iotype, exc=requests.exceptions.ConnectTimeout("timed out"))
-            elif concept is not None:
-                self.mock_external_iotype(m, iotype, concept=concept)
-            return [
+            errors = [
                 str(error) for _field, error in validate_zaaktype_for_publish(zaaktype)
             ]
+        self.assertFalse(m.called)
+        return errors
 
     def _zaaktype(self) -> ZaakType:
         zaaktype = ZaakTypeFactory.create(concept=True)
@@ -513,21 +450,10 @@ class ZaakTypePublishExternalInformatieObjectTypeTests(
         )
         return zaaktype
 
-    def test_concept_external_informatieobjecttype(self):
-        errors = self._validate(self._zaaktype(), concept=True)
-
-        self.assertIn(str(RESOURCES_PUBLISHED_ERROR), errors)
-
-    def test_published_external_informatieobjecttype(self):
-        errors = self._validate(self._zaaktype(), concept=False)
+    def test_external_informatieobjecttype_is_not_checked(self):
+        errors = self._validate(self._zaaktype())
 
         self.assertNotIn(str(RESOURCES_PUBLISHED_ERROR), errors)
-        self.assertFalse(any("could not be retrieved" in error for error in errors))
-
-    def test_unavailable_external_informatieobjecttype(self):
-        errors = self._validate(self._zaaktype(), unavailable=True)
-
-        self.assertTrue(any("could not be retrieved" in error for error in errors))
 
     def test_no_external_informatieobjecttypen_are_fetched(self):
         zaaktype = ZaakTypeFactory.create(concept=True)

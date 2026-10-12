@@ -1151,10 +1151,10 @@ paths:
   /besluittypen/{uuid}/publish:
     post:
       operationId: besluittype_publish
-      description: Publiceren van het besluittype zorgt ervoor dat dit in een Besluiten
-        API kan gebruikt worden. Na het publiceren van een besluittype zijn geen inhoudelijke
-        wijzigingen meer mogelijk. Indien er na het publiceren nog wat gewijzigd moet
-        worden, dan moet je een nieuwe versie aanmaken.
+      description: |-
+        Publiceren van het besluittype zorgt ervoor dat dit in een Besluiten API kan gebruikt worden. Na het publiceren van een besluittype zijn geen inhoudelijke wijzigingen meer mogelijk. Indien er na het publiceren nog wat gewijzigd moet worden, dan moet je een nieuwe versie aanmaken.
+
+        Voor externe INFORMATIEOBJECTTYPEn wordt niet gecontroleerd of deze gepubliceerd zijn.
       summary: Publiceer het concept BESLUITTYPE.
       parameters:
       - in: header
@@ -8119,7 +8119,9 @@ paths:
         schema:
           type: string
           format: uri
-        description: URL-referentie naar het INFORMATIEOBJECTTYPE.
+        description: 'URL-referentie naar het INFORMATIEOBJECTTYPE. Let op: voor een
+          extern INFORMATIEOBJECTTYPE wordt niet gecontroleerd of dit een concept
+          is of gepubliceerd.'
       - name: page
         required: false
         in: query
@@ -10175,11 +10177,10 @@ paths:
   /zaaktypen/{uuid}/publish:
     post:
       operationId: zaaktype_publish
-      description: Publiceren van het zaaktype zorgt ervoor dat dit in een Zaken API
-        kan gebruikt worden. Na het publiceren van een zaaktype zijn geen inhoudelijke
-        wijzigingen meer mogelijk - ook niet de statustypen, eigenschappen... etc.
-        Indien er na het publiceren nog wat gewijzigd moet worden, dan moet je een
-        nieuwe versie aanmaken.
+      description: |-
+        Publiceren van het zaaktype zorgt ervoor dat dit in een Zaken API kan gebruikt worden. Na het publiceren van een zaaktype zijn geen inhoudelijke wijzigingen meer mogelijk - ook niet de statustypen, eigenschappen... etc. Indien er na het publiceren nog wat gewijzigd moet worden, dan moet je een nieuwe versie aanmaken.
+
+        Voor externe INFORMATIEOBJECTTYPEn wordt niet gecontroleerd of deze gepubliceerd zijn.
       summary: Publiceer het concept ZAAKTYPE.
       parameters:
       - in: header
@@ -10417,8 +10418,10 @@ components:
             type: string
             format: uri
             maxLength: 1000
-          description: URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
-            waarin besluiten van dit BESLUITTYPE worden vastgelegd.
+          description: 'URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
+            waarin besluiten van dit BESLUITTYPE worden vastgelegd. Let op: voor een
+            extern INFORMATIEOBJECTTYPE wordt niet gecontroleerd of dit een concept
+            is of gepubliceerd.'
         beginGeldigheid:
           type: string
           format: date
@@ -10531,8 +10534,10 @@ components:
             minLength: 1
             format: uri
             maxLength: 1000
-          description: URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
-            waarin besluiten van dit BESLUITTYPE worden vastgelegd.
+          description: 'URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
+            waarin besluiten van dit BESLUITTYPE worden vastgelegd. Let op: voor een
+            extern INFORMATIEOBJECTTYPE wordt niet gecontroleerd of dit een concept
+            is of gepubliceerd.'
         beginGeldigheid:
           type: string
           format: date
@@ -11883,8 +11888,10 @@ components:
             minLength: 1
             format: uri
             maxLength: 1000
-          description: URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
-            waarin besluiten van dit BESLUITTYPE worden vastgelegd.
+          description: 'URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
+            waarin besluiten van dit BESLUITTYPE worden vastgelegd. Let op: voor een
+            extern INFORMATIEOBJECTTYPE wordt niet gecontroleerd of dit een concept
+            is of gepubliceerd.'
         beginGeldigheid:
           type: string
           format: date
@@ -12286,7 +12293,9 @@ components:
           type: string
           minLength: 1
           title: Informatie object type
-          description: URL-referentie naar het INFORMATIEOBJECTTYPE.
+          description: 'URL-referentie naar het INFORMATIEOBJECTTYPE. Let op: voor
+            een extern INFORMATIEOBJECTTYPE wordt niet gecontroleerd of dit een concept
+            is of gepubliceerd.'
           format: uri
           maxLength: 1000
         volgnummer:
@@ -13711,7 +13720,9 @@ components:
         informatieobjecttype:
           type: string
           title: Informatie object type
-          description: URL-referentie naar het INFORMATIEOBJECTTYPE.
+          description: 'URL-referentie naar het INFORMATIEOBJECTTYPE. Let op: voor
+            een extern INFORMATIEOBJECTTYPE wordt niet gecontroleerd of dit een concept
+            is of gepubliceerd.'
           format: uri
           maxLength: 1000
         volgnummer:
@@ -13770,7 +13781,9 @@ components:
           type: string
           minLength: 1
           title: Informatie object type
-          description: URL-referentie naar het INFORMATIEOBJECTTYPE.
+          description: 'URL-referentie naar het INFORMATIEOBJECTTYPE. Let op: voor
+            een extern INFORMATIEOBJECTTYPE wordt niet gecontroleerd of dit een concept
+            is of gepubliceerd.'
           format: uri
           maxLength: 1000
         volgnummer:

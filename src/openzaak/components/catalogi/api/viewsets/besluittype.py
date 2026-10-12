@@ -167,7 +167,9 @@ class BesluitTypeViewSet(
             "Publiceren van het besluittype zorgt ervoor dat dit in een Besluiten API kan gebruikt "
             "worden. Na het publiceren van een besluittype zijn geen inhoudelijke wijzigingen "
             "meer mogelijk. Indien er na het publiceren nog wat gewijzigd moet worden, dan moet "
-            "je een nieuwe versie aanmaken."
+            "je een nieuwe versie aanmaken.\n\n"
+            "Voor externe INFORMATIEOBJECTTYPEn wordt niet gecontroleerd of deze "
+            "gepubliceerd zijn."
         ),
         request=None,
         responses={
