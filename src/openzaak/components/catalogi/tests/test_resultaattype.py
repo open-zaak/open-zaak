@@ -31,6 +31,7 @@ from .base import APITestCase
 from .contants import BrondatumArchiefprocedureExampleMapping as MAPPING
 from .factories import (
     BesluitTypeFactory,
+    CatalogusFactory,
     InformatieObjectTypeFactory,
     ResultaatTypeFactory,
     ZaakTypeFactory,
@@ -151,6 +152,7 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
                 "beginObject": None,
                 "eindeObject": None,
                 "_expand": {},
+                "referentiecode": None,
             },
         )
 
@@ -205,6 +207,7 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
             },
             "beginGeldigheid": "2023-01-01",
             "eindeGeldigheid": "2023-12-01",
+            "referentiecode": "referentiecode0909",
         }
         mock_selectielijst_oas_get(m)
         m.get(
@@ -231,6 +234,105 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
         )
         self.assertEqual(resultaattype.datum_begin_geldigheid, date(2023, 1, 1))
         self.assertEqual(resultaattype.datum_einde_geldigheid, date(2023, 12, 1))
+        self.assertEqual(response.json()["referentiecode"], "referentiecode0909")
+        self.assertEqual(
+            ResultaatType.objects.get().referentiecode, "referentiecode0909"
+        )
+
+    def _post_resultaattype(self, m, zaaktype, **extra):
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "omschrijving": "illum",
+            "resultaattypeomschrijving": RESULTAATTYPEOMSCHRIJVING_URL,
+            "selectielijstklasse": SELECTIELIJSTKLASSE_URL,
+            "archiefnominatie": "blijvend_bewaren",
+            "archiefactietermijn": "P10Y",
+            "brondatumArchiefprocedure": {
+                "afleidingswijze": Afleidingswijze.afgehandeld,
+                "einddatumBekend": False,
+                "procestermijn": None,
+                "datumkenmerk": "",
+                "objecttype": "",
+                "registratie": "",
+            },
+            **extra,
+        }
+        mock_selectielijst_oas_get(m)
+        m.get(
+            SELECTIELIJSTKLASSE_URL,
+            json={
+                "url": SELECTIELIJSTKLASSE_URL,
+                "procesType": PROCESTYPE_URL,
+                "procestermijn": Procestermijn.nihil,
+            },
+        )
+        m.get(RESULTAATTYPEOMSCHRIJVING_URL, json={"omschrijving": "test"})
+
+        return self.client.post(self.list_url, data)
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch_resource_validator
+    @requests_mock.Mocker()
+    def test_create_resultaattype_empty_referentiecode_stored_as_null(
+        self, mock_shape, mock_fetch, m
+    ):
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
+
+        for omschrijving in ("een", "twee"):
+            with self.subTest(omschrijving=omschrijving):
+                response = self._post_resultaattype(
+                    m, zaaktype, omschrijving=omschrijving, referentiecode=""
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+                self.assertIsNone(response.json()["referentiecode"])
+
+        self.assertEqual(ResultaatType.objects.filter(referentiecode=None).count(), 2)
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch_resource_validator
+    @requests_mock.Mocker()
+    def test_create_resultaattype_duplicate_referentiecode_same_zaaktype(
+        self, mock_shape, mock_fetch, m
+    ):
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, omschrijving="bestaand", referentiecode="A1"
+        )
+
+        response = self._post_resultaattype(m, zaaktype, referentiecode="A1")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unique")
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch_resource_validator
+    @requests_mock.Mocker()
+    def test_create_resultaattype_same_referentiecode_other_zaaktype(
+        self, mock_shape, mock_fetch, m
+    ):
+        ResultaatTypeFactory.create(referentiecode="A1")
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
+
+        response = self._post_resultaattype(m, zaaktype, referentiecode="A1")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch_resource_validator
+    @requests_mock.Mocker()
+    def test_create_resultaattype_referentiecode_too_long(
+        self, mock_shape, mock_fetch, m
+    ):
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
+
+        response = self._post_resultaattype(m, zaaktype, referentiecode="x" * 21)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "referentiecode")
+        self.assertEqual(error["code"], "max_length")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch_resource_validator
@@ -1028,6 +1130,65 @@ class ResultaatTypeFilterAPITests(APITestCase):
     url = reverse_lazy("resultaattype-list")
 
     @override_settings(ALLOWED_HOSTS=["openzaak.nl"])
+    def test_filter_referentiecode(self):
+        rt = ResultaatTypeFactory.create(zaaktype__concept=False, referentiecode="A1")
+        ResultaatTypeFactory.create(zaaktype__concept=False, referentiecode="B2")
+
+        response = self.client.get(
+            reverse("resultaattype-list"),
+            {"referentiecode": "A1"},
+            headers={"host": "openzaak.nl"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = response.json()["results"]
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["url"], f"http://openzaak.nl{reverse(rt)}")
+        self.assertEqual(results[0]["referentiecode"], "A1")
+
+    def test_list_returns_all_published_versions_not_only_latest(self):
+        catalogus = CatalogusFactory.create()
+        common = dict(catalogus=catalogus, identificatie="ZAAKTYPE-1")
+        zt_v1 = ZaakTypeFactory.create(
+            concept=False,
+            datum_begin_geldigheid=date(2020, 1, 1),
+            datum_einde_geldigheid=date(2020, 12, 31),
+            **common,
+        )
+        zt_v2 = ZaakTypeFactory.create(
+            concept=False, datum_begin_geldigheid=date(2021, 1, 1), **common
+        )
+        zt_v3_concept = ZaakTypeFactory.create(
+            concept=True, datum_begin_geldigheid=date(2022, 1, 1), **common
+        )
+        for zaaktype in (zt_v1, zt_v2, zt_v3_concept):
+            ResultaatTypeFactory.create(
+                zaaktype=zaaktype,
+                referentiecode="A1",
+                datum_begin_geldigheid=zaaktype.datum_begin_geldigheid,
+                datum_einde_geldigheid=zaaktype.datum_einde_geldigheid,
+            )
+
+        with self.subTest("default: all published versions, no concepts"):
+            response = self.client.get(self.url, {"referentiecode": "A1"})
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.json()["count"], 2)
+
+        with self.subTest("status=alles: also the concept version"):
+            response = self.client.get(
+                self.url, {"referentiecode": "A1", "status": "alles"}
+            )
+
+            self.assertEqual(response.json()["count"], 3)
+
+        with self.subTest("datumGeldigheid narrows down to one version"):
+            response = self.client.get(
+                self.url, {"referentiecode": "A1", "datumGeldigheid": "2020-06-01"}
+            )
+
+            self.assertEqual(response.json()["count"], 1)
+
     def test_filter_on_zaaktype(self):
         zt1, zt2 = ZaakTypeFactory.create_batch(2, concept=False)
         rt1 = ResultaatTypeFactory.create(zaaktype=zt1)

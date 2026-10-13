@@ -137,6 +137,7 @@ class ResultaatTypeSerializer(
             "einde_geldigheid",
             "begin_object",
             "einde_object",
+            "referentiecode",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
@@ -164,11 +165,16 @@ class ResultaatTypeSerializer(
             "informatieobjecttypen": {"lookup_field": "uuid", "required": False},
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
+            "referentiecode": {"default": None},
         }
         validators = [
             UniqueTogetherValidator(
                 queryset=ResultaatType.objects.all(),
                 fields=["zaaktype", "omschrijving"],
+            ),
+            UniqueTogetherValidator(
+                queryset=ResultaatType.objects.all(),
+                fields=["zaaktype", "referentiecode"],
             ),
             ProcesTypeValidator("selectielijstklasse"),
             ProcestermijnAfleidingswijzeValidator("selectielijstklasse"),
@@ -184,6 +190,9 @@ class ResultaatTypeSerializer(
             ),
             StartBeforeEndValidator(),
         ]
+
+    def validate_referentiecode(self, value):
+        return value or None
 
     def get_fields(self):
         fields = super().get_fields()

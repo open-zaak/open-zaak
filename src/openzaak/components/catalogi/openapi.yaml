@@ -4481,6 +4481,12 @@ paths:
         schema:
           type: integer
       - in: query
+        name: referentiecode
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Code waarmee dit resultaattype in een extern
+          systeem wordt geïdentificeerd. Moet uniek zijn binnen het zaaktype.'
+      - in: query
         name: status
         schema:
           type: string
@@ -6561,6 +6567,12 @@ paths:
           maximum: 500).'
         schema:
           type: integer
+      - in: query
+        name: referentiecode
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Code waarmee dit statustype in een extern
+          systeem wordt geïdentificeerd. Moet uniek zijn binnen het zaaktype.'
       - in: query
         name: status
         schema:
@@ -13300,6 +13312,12 @@ components:
           format: date
           nullable: true
           description: De datum waarop het is opgeheven.
+        referentiecode:
+          type: string
+          nullable: true
+          description: '**EXPERIMENTEEL** Code waarmee dit resultaattype in een extern
+            systeem wordt geïdentificeerd. Moet uniek zijn binnen het zaaktype.'
+          maxLength: 20
     PatchedRolTypeRequest:
       type: object
       description: Adds nested create feature
@@ -13408,6 +13426,12 @@ components:
           format: date
           nullable: true
           description: De datum waarop het is opgeheven.
+        referentiecode:
+          type: string
+          nullable: true
+          description: '**EXPERIMENTEEL** Code waarmee dit statustype in een extern
+            systeem wordt geïdentificeerd. Moet uniek zijn binnen het zaaktype.'
+          maxLength: 20
     PatchedZaakObjectTypeRequest:
       type: object
       properties:
@@ -13909,6 +13933,12 @@ components:
           format: date
           readOnly: true
           description: De datum van de aller laatste versie van het object.
+        referentiecode:
+          type: string
+          nullable: true
+          description: '**EXPERIMENTEEL** Code waarmee dit resultaattype in een extern
+            systeem wordt geïdentificeerd. Moet uniek zijn binnen het zaaktype.'
+          maxLength: 20
       required:
       - beginObject
       - besluittypeOmschrijving
@@ -14040,6 +14070,12 @@ components:
           format: date
           nullable: true
           description: De datum waarop het is opgeheven.
+        referentiecode:
+          type: string
+          nullable: true
+          description: '**EXPERIMENTEEL** Code waarmee dit resultaattype in een extern
+            systeem wordt geïdentificeerd. Moet uniek zijn binnen het zaaktype.'
+          maxLength: 20
       required:
       - omschrijving
       - resultaattypeomschrijving
@@ -14289,6 +14325,12 @@ components:
           format: date
           readOnly: true
           description: De datum van de aller laatste versie van het object.
+        referentiecode:
+          type: string
+          nullable: true
+          description: '**EXPERIMENTEEL** Code waarmee dit statustype in een extern
+            systeem wordt geïdentificeerd. Moet uniek zijn binnen het zaaktype.'
+          maxLength: 20
       required:
       - beginObject
       - catalogus
@@ -14367,6 +14409,12 @@ components:
           format: date
           nullable: true
           description: De datum waarop het is opgeheven.
+        referentiecode:
+          type: string
+          nullable: true
+          description: '**EXPERIMENTEEL** Code waarmee dit statustype in een extern
+            systeem wordt geïdentificeerd. Moet uniek zijn binnen het zaaktype.'
+          maxLength: 20
       required:
       - omschrijving
       - volgnummer

@@ -18,6 +18,7 @@ from vng_api_common.constants import (
 from vng_api_common.descriptors import GegevensGroepType
 
 from openzaak.utils.fields import DurationField
+from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import APIMixin
 
 from .mixins import OptionalGeldigheidMixin
@@ -286,6 +287,19 @@ class ResultaatType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
         ),
     )
 
+    referentiecode = models.CharField(
+        _("referentiecode"),
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text=mark_experimental(
+            _(
+                "Code waarmee dit resultaattype in een extern systeem wordt geïdentificeerd. "
+                "Moet uniek zijn binnen het zaaktype."
+            )
+        ),
+    )
+
     @property
     def concept(self):
         """
@@ -296,6 +310,12 @@ class ResultaatType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
 
     class Meta:
         unique_together = ("zaaktype", "omschrijving")
+        constraints = [
+            models.UniqueConstraint(
+                fields=("zaaktype", "referentiecode"),
+                name="unique_resultaattype_referentiecode_per_zaaktype",
+            )
+        ]
         verbose_name = _("resultaattype")
         verbose_name_plural = _("resultaattypen")
 
