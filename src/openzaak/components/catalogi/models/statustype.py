@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from vng_api_common.caching import ETagMixin
 
 from openzaak.utils.fields import DurationField
+from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import APIMixin
 
 from .mixins import OptionalGeldigheidMixin
@@ -102,6 +103,19 @@ class StatusType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
         help_text=_("Een eventuele toelichting op dit STATUSTYPE."),
     )
 
+    referentiecode = models.CharField(
+        _("referentiecode"),
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text=mark_experimental(
+            _(
+                "Code waarmee dit statustype in een extern systeem wordt geïdentificeerd. "
+                "Moet uniek zijn binnen het zaaktype."
+            )
+        ),
+    )
+
     @property
     def concept(self):
         """
@@ -112,6 +126,12 @@ class StatusType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
 
     class Meta:
         unique_together = ("zaaktype", "statustypevolgnummer")
+        constraints = [
+            models.UniqueConstraint(
+                fields=("zaaktype", "referentiecode"),
+                name="unique_statustype_referentiecode_per_zaaktype",
+            )
+        ]
         verbose_name = _("Statustype")
         verbose_name_plural = _("Statustypen")
         ordering = ("zaaktype", "-statustypevolgnummer")

@@ -7,6 +7,8 @@ from rest_framework import serializers
 from vng_api_common.serializers import CachedHyperlinkedRelatedField
 from vng_api_common.utils import get_help_text
 
+from openzaak.utils.validators import UniqueTogetherValidator
+
 from ...models import CheckListItem, StatusType
 from ..validators import StartBeforeEndValidator, ZaakTypeConceptValidator
 
@@ -115,6 +117,7 @@ class StatusTypeSerializer(
             "einde_geldigheid",
             "begin_object",
             "einde_object",
+            "referentiecode",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
@@ -124,5 +127,16 @@ class StatusTypeSerializer(
             "zaaktype": {"lookup_field": "uuid"},
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
+            "referentiecode": {"default": None},
         }
-        validators = [ZaakTypeConceptValidator(), StartBeforeEndValidator()]
+        validators = [
+            UniqueTogetherValidator(
+                queryset=StatusType.objects.all(),
+                fields=["zaaktype", "referentiecode"],
+            ),
+            ZaakTypeConceptValidator(),
+            StartBeforeEndValidator(),
+        ]
+
+    def validate_referentiecode(self, value):
+        return value or None
