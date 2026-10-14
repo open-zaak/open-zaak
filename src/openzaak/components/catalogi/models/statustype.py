@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -13,7 +14,11 @@ from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import APIMixin
 
 from .mixins import OptionalGeldigheidMixin
-from .validators import validate_zaaktype_concept
+from .validators import (
+    REFERENTIECODE_IN_USE_MESSAGE,
+    is_referentiecode_in_use,
+    validate_zaaktype_concept,
+)
 
 
 class StatusType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
@@ -111,7 +116,7 @@ class StatusType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
         help_text=mark_experimental(
             _(
                 "Code waarmee dit statustype in een extern systeem wordt geïdentificeerd. "
-                "Moet uniek zijn binnen het zaaktype."
+                "Moet uniek zijn, behalve tussen de versies van hetzelfde statustype."
             )
         ),
     )
@@ -140,6 +145,18 @@ class StatusType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
         super().clean()
 
         validate_zaaktype_concept(self.zaaktype)
+
+        if is_referentiecode_in_use(
+            type(self),
+            zaaktype=self.zaaktype,
+            referentiecode=self.referentiecode,
+            identity_field="statustypevolgnummer",
+            identity_value=self.statustypevolgnummer,
+            pk=self.pk,
+        ):
+            raise ValidationError(
+                {"referentiecode": REFERENTIECODE_IN_USE_MESSAGE}, code="unique"
+            )
 
     def is_eindstatus(self):
         """

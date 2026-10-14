@@ -7,10 +7,12 @@ from rest_framework import serializers
 from vng_api_common.serializers import CachedHyperlinkedRelatedField
 from vng_api_common.utils import get_help_text
 
-from openzaak.utils.validators import UniqueTogetherValidator
-
 from ...models import CheckListItem, StatusType
-from ..validators import StartBeforeEndValidator, ZaakTypeConceptValidator
+from ..validators import (
+    ReferentiecodeUniqueValidator,
+    StartBeforeEndValidator,
+    ZaakTypeConceptValidator,
+)
 
 
 class CheckListItemSerializer(serializers.ModelSerializer):
@@ -130,10 +132,7 @@ class StatusTypeSerializer(
             "referentiecode": {"default": None},
         }
         validators = [
-            UniqueTogetherValidator(
-                queryset=StatusType.objects.all(),
-                fields=["zaaktype", "referentiecode"],
-            ),
+            ReferentiecodeUniqueValidator("statustypevolgnummer"),
             ZaakTypeConceptValidator(),
             StartBeforeEndValidator(),
         ]

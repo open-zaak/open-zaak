@@ -68,17 +68,44 @@ class StatusTypeAdminTests(AdminTestMixin, WebTest):
         response = self._add_statustype(zaaktype, 5, referentiecode="A1")
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context["adminform"].form.non_field_errors())
+        self.assertIn("referentiecode", response.context["adminform"].form.errors)
         self.assertEqual(StatusType.objects.count(), 1)
 
-    def test_same_referentiecode_other_zaaktype_allowed(self):
-        StatusTypeFactory.create(referentiecode="A1")
+    def test_same_referentiecode_other_zaaktype_family_not_allowed(self):
+        StatusTypeFactory.create(referentiecode="A1", statustypevolgnummer=1)
         zaaktype = ZaakTypeFactory.create(concept=True)
 
         response = self._add_statustype(zaaktype, 1, referentiecode="A1")
 
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("referentiecode", response.context["adminform"].form.errors)
+        self.assertEqual(StatusType.objects.count(), 1)
+
+    def test_same_referentiecode_new_zaaktype_version_allowed(self):
+        old = StatusTypeFactory.create(referentiecode="A1", statustypevolgnummer=1)
+        new_zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            catalogus=old.zaaktype.catalogus,
+            identificatie=old.zaaktype.identificatie,
+        )
+
+        response = self._add_statustype(new_zaaktype, 1, referentiecode="A1")
+
         self.assertEqual(response.status_code, 302)
         self.assertEqual(StatusType.objects.filter(referentiecode="A1").count(), 2)
+
+    def test_referentiecode_of_other_statustype_in_new_version_not_allowed(self):
+        old = StatusTypeFactory.create(referentiecode="A1", statustypevolgnummer=1)
+        new_zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            catalogus=old.zaaktype.catalogus,
+            identificatie=old.zaaktype.identificatie,
+        )
+
+        response = self._add_statustype(new_zaaktype, 2, referentiecode="A1")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("referentiecode", response.context["adminform"].form.errors)
 
     def test_referentiecode_max_length(self):
         zaaktype = ZaakTypeFactory.create(concept=True)
