@@ -150,6 +150,7 @@ paths:
         name: informatieobjecttypen
         schema:
           type: string
+          format: uri
         description: Het INFORMATIEOBJECTTYPE van informatieobjecten waarin besluiten
           van dit BESLUITTYPE worden vastgelegd.
       - in: query

@@ -662,14 +662,16 @@ class BesluitTypeFilterAPITests(ClearCachesMixin, APITestCase):
         besluittype1_url = reverse(besluittype1, namespace=self.NAMESPACE)
         iot1_url = f"http://openzaak.nl{reverse(iot1)}"
 
-        response = self.client.get(self.url, {"informatieobjecttypen": iot1_url})
+        response = self.client.get(
+            self.url, {"informatieobjecttypen": iot1_url}, HTTP_HOST="openzaak.nl"
+        )
 
         self.assertEqual(response.status_code, 200)
 
         data = response.json()["results"]
 
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://testserver{besluittype1_url}")
+        self.assertEqual(data[0]["url"], f"http://openzaak.nl{besluittype1_url}")
 
     def test_validate_unknown_query_params(self):
         BesluitTypeFactory.create_batch(2)

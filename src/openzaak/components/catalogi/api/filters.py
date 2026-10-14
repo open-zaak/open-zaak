@@ -19,6 +19,7 @@ from openzaak.utils.help_text import mark_experimental
 
 from ..models import (
     BesluitType,
+    BesluitTypeInformatieObjectType,
     Catalogus,
     Eigenschap,
     InformatieObjectType,
@@ -305,14 +306,13 @@ class BesluitTypeFilter(FilterSet):
         ),
         validators=[URLValidator()],
     )
-    informatieobjecttypen = filters.CharFilter(
-        field_name="informatieobjecttypen",
-        method=m2m_filter,
+    informatieobjecttypen = InformatieObjectTypeUrlFilter(
+        field_name="besluittypeinformatieobjecttype__informatieobjecttype",
+        queryset=BesluitTypeInformatieObjectType.objects.all(),
         help_text=_(
             "Het INFORMATIEOBJECTTYPE van informatieobjecten waarin besluiten van dit "
             "BESLUITTYPE worden vastgelegd."
         ),
-        validators=[URLValidator()],
     )
     status = filters.ChoiceFilter(
         field_name="concept",

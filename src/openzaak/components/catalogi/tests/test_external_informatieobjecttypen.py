@@ -301,6 +301,24 @@ class BesluitTypeExternalInformatieObjectTypenTests(
         self.assertEqual(relations[0].informatieobjecttype, local)
         self.assertEqual(relations[1]._iotype_url, external)
 
+    def test_filter_on_external_informatieobjecttype(self):
+        external = new_external_iotype()
+        besluittype = BesluitTypeFactory.create(catalogus=self.catalogus, concept=False)
+        besluittype.set_informatieobjecttypen([external])
+        other = BesluitTypeFactory.create(catalogus=self.catalogus, concept=False)
+        other.set_informatieobjecttypen([new_external_iotype()])
+        BesluitTypeFactory.create(catalogus=self.catalogus, concept=False)
+
+        response = self.client.get(
+            self.list_url, {"informatieobjecttypen": external, "status": "alles"}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = response.json()["results"]
+        self.assertEqual(len(results), 1)
+        url = reverse(besluittype, namespace="zaken")
+        self.assertEqual(results[0]["url"], f"http://testserver{url}")
+
     def test_retrieve_with_external_informatieobjecttypen(self):
         besluittype = BesluitTypeFactory.create(
             catalogus=self.catalogus, informatieobjecttypen=[]
