@@ -134,6 +134,7 @@ class EditInlineAdminMixin:
 
 class AuditTrailAdminMixin:
     viewset = None
+    is_nested_action = False
 
     def get_viewset(self, request):
         if not self.viewset:
@@ -166,7 +167,7 @@ class AuditTrailAdminMixin:
         basename = model._meta.object_name.lower()
         data = data_after or data_before
 
-        if basename == viewset.audit.main_resource:
+        if basename == viewset.audit.main_resource or self.is_nested_action:
             main_object = data["url"]
         elif hasattr(viewset, "audittrail_main_resource_key"):
             main_object = data[viewset.audittrail_main_resource_key]
