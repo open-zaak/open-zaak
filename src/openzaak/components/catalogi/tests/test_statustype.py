@@ -181,11 +181,11 @@ class StatusTypeAPITests(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        error = get_validation_errors(response, "nonFieldErrors")
+        error = get_validation_errors(response, "referentiecode")
         self.assertEqual(error["code"], "unique")
 
-    def test_create_statustype_same_referentiecode_other_zaaktype(self):
-        StatusTypeFactory.create(referentiecode="A1")
+    def test_create_statustype_same_referentiecode_other_zaaktype_family(self):
+        StatusTypeFactory.create(referentiecode="A1", statustypevolgnummer=2)
         zaaktype = ZaakTypeFactory.create()
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
@@ -199,7 +199,55 @@ class StatusTypeAPITests(APITestCase):
             },
         )
 
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "referentiecode")
+        self.assertEqual(error["code"], "unique")
+
+    def test_create_statustype_same_referentiecode_new_zaaktype_version(self):
+        old_statustype = StatusTypeFactory.create(
+            referentiecode="A1", statustypevolgnummer=2
+        )
+        old_zaaktype = old_statustype.zaaktype
+        new_zaaktype = ZaakTypeFactory.create(
+            catalogus=old_zaaktype.catalogus, identificatie=old_zaaktype.identificatie
+        )
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": new_zaaktype.uuid})
+
+        response = self.client.post(
+            reverse("statustype-list"),
+            {
+                "omschrijving": "Besluit genomen",
+                "zaaktype": f"http://testserver{zaaktype_url}",
+                "volgnummer": 2,
+                "referentiecode": "A1",
+            },
+        )
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_statustype_referentiecode_of_other_statustype_in_new_version(self):
+        old_statustype = StatusTypeFactory.create(
+            referentiecode="A1", statustypevolgnummer=2
+        )
+        old_zaaktype = old_statustype.zaaktype
+        new_zaaktype = ZaakTypeFactory.create(
+            catalogus=old_zaaktype.catalogus, identificatie=old_zaaktype.identificatie
+        )
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": new_zaaktype.uuid})
+
+        response = self.client.post(
+            reverse("statustype-list"),
+            {
+                "omschrijving": "Besluit genomen",
+                "zaaktype": f"http://testserver{zaaktype_url}",
+                "volgnummer": 3,
+                "referentiecode": "A1",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "referentiecode")
+        self.assertEqual(error["code"], "unique")
 
     def test_filter_referentiecode(self):
         StatusTypeFactory.create(zaaktype__concept=False, referentiecode="A1")

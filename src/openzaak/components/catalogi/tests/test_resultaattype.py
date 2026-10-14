@@ -304,21 +304,69 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
         response = self._post_resultaattype(m, zaaktype, referentiecode="A1")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        error = get_validation_errors(response, "nonFieldErrors")
+        error = get_validation_errors(response, "referentiecode")
         self.assertEqual(error["code"], "unique")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch_resource_validator
     @requests_mock.Mocker()
-    def test_create_resultaattype_same_referentiecode_other_zaaktype(
+    def test_create_resultaattype_same_referentiecode_other_zaaktype_family(
         self, mock_shape, mock_fetch, m
     ):
-        ResultaatTypeFactory.create(referentiecode="A1")
+        ResultaatTypeFactory.create(omschrijving="bestaand", referentiecode="A1")
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
 
         response = self._post_resultaattype(m, zaaktype, referentiecode="A1")
 
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "referentiecode")
+        self.assertEqual(error["code"], "unique")
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch_resource_validator
+    @requests_mock.Mocker()
+    def test_create_resultaattype_same_referentiecode_new_zaaktype_version(
+        self, mock_shape, mock_fetch, m
+    ):
+        old_resultaattype = ResultaatTypeFactory.create(
+            omschrijving="bestaand", referentiecode="A1"
+        )
+        old_zaaktype = old_resultaattype.zaaktype
+        new_zaaktype = ZaakTypeFactory.create(
+            catalogus=old_zaaktype.catalogus,
+            identificatie=old_zaaktype.identificatie,
+            selectielijst_procestype=PROCESTYPE_URL,
+        )
+
+        response = self._post_resultaattype(
+            m, new_zaaktype, omschrijving="bestaand", referentiecode="A1"
+        )
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch_resource_validator
+    @requests_mock.Mocker()
+    def test_create_resultaattype_referentiecode_of_other_resultaattype_in_new_version(
+        self, mock_shape, mock_fetch, m
+    ):
+        old_resultaattype = ResultaatTypeFactory.create(
+            omschrijving="bestaand", referentiecode="A1"
+        )
+        old_zaaktype = old_resultaattype.zaaktype
+        new_zaaktype = ZaakTypeFactory.create(
+            catalogus=old_zaaktype.catalogus,
+            identificatie=old_zaaktype.identificatie,
+            selectielijst_procestype=PROCESTYPE_URL,
+        )
+
+        response = self._post_resultaattype(
+            m, new_zaaktype, omschrijving="ander", referentiecode="A1"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "referentiecode")
+        self.assertEqual(error["code"], "unique")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch_resource_validator
