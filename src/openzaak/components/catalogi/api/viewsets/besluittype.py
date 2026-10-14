@@ -10,13 +10,13 @@ from rest_framework.decorators import action
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
-from openzaak.utils.mixins import CacheQuerysetMixin
+from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, VALIDATION_ERROR_RESPONSES
 
 from ...models import BesluitType
-from ..filters import BesluitTypeFilter
+from ..filters import BesluitTypeDetailFilter, BesluitTypeFilter
 from ..kanalen import KANAAL_BESLUITTYPEN
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_DELETE,
@@ -62,6 +62,7 @@ logger = structlog.stdlib.get_logger(__name__)
 class BesluitTypeViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
+    ExpandMixin,
     ConceptMixin,
     M2MConceptDestroyMixin,
     NotificationViewSetMixin,
@@ -86,13 +87,20 @@ class BesluitTypeViewSet(
     queryset = (
         BesluitType.objects.all()
         .select_related("catalogus")
-        .prefetch_related("informatieobjecttypen", "zaaktypen", "resultaattype_set")
+        .prefetch_related("informatieobjecttypen", "zaaktypen", "resultaattypen")
         .with_dates()
         .order_by("-pk")
     )
+
+    inclusion_viewsets = {
+        "catalogus": "openzaak.components.catalogi.api.viewsets.catalogus.CatalogusViewSet",
+        "zaaktypen": "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        "informatieobjecttypen": "openzaak.components.catalogi.api.viewsets.informatieobjecttype.InformatieObjectTypeViewSet",
+        "resultaattypen": "openzaak.components.catalogi.api.viewsets.resultaattype.ResultaatTypeViewSet",
+    }
+
     serializer_class = BesluitTypeSerializer
     publish_serializer = BesluitTypePublishSerializer
-    filterset_class = BesluitTypeFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
     permission_classes = (AuthRequired,)
@@ -107,6 +115,15 @@ class BesluitTypeViewSet(
     }
     notifications_kanaal = KANAAL_BESLUITTYPEN
     concept_related_fields = ["informatieobjecttypen", "zaaktypen"]
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return BesluitTypeDetailFilter
+        return BesluitTypeFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)

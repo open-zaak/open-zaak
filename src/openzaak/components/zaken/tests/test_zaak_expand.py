@@ -76,6 +76,9 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         eigenschap_data = self.client.get(
             reverse(eigenschap, kwargs={"zaak_uuid": zaak.uuid})
         ).json()
+        # Remove _expand because a normal GET adds it, while the query parameter
+        # only adds it when a further expansion is requested.
+        zaaktype_data.pop("_expand", None)
 
         response = self.client.get(
             self.url,
@@ -173,6 +176,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         # only has a _expand attribute at the root level (no _expand nested inside _expand)
         del zaak_data["_expand"]
         del hoofdzaak_data["_expand"]
+        del zaaktype_data["_expand"]
 
         response = self.client.post(
             reverse("zaak--zoek"),
@@ -259,6 +263,9 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         zaak_data = self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).json()
         resultaat_data = self.client.get(reverse(resultaat)).json()
         resultaattype_data = self.client.get(reverse(resultaat.resultaattype)).json()
+        # Remove _expand because a normal GET adds it, while the query parameter
+        # only adds it when a further expansion is requested.
+        resultaattype_data.pop("_expand", None)
 
         response = self.client.get(
             self.url,
@@ -307,6 +314,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         # only has a _expand attribute at the root level (no _expand nested inside _expand)
         del zaak_data["_expand"]
         del hoofdzaak_data["_expand"]
+        del zaaktype_data["_expand"]
 
         response = self.client.get(
             zaak_url,

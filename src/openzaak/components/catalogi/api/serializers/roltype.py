@@ -41,6 +41,10 @@ class RolTypeSerializer(NestedCreateMixin, serializers.HyperlinkedModelSerialize
         read_only=True,
         help_text=_("De datum van de aller laatste versie van het object."),
     )
+    inclusion_serializers = {
+        "catalogus": "openzaak.components.catalogi.api.serializers.CatalogusSerializer",
+        "zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+    }
 
     class Meta:
         model = RolType

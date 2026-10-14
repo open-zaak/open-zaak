@@ -6,12 +6,12 @@ from rest_framework import viewsets
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
-from openzaak.utils.mixins import CacheQuerysetMixin
+from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 
 from ...models import RolType
-from ..filters import RolTypeFilter
+from ..filters import RolTypeDetailFilter, RolTypeFilter
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_DELETE,
     SCOPE_CATALOGI_FORCED_WRITE,
@@ -66,6 +66,7 @@ logger = structlog.stdlib.get_logger(__name__)
 class RolTypeViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
+    ExpandMixin,
     ZaakTypeConceptMixin,
     viewsets.ModelViewSet,
 ):
@@ -77,10 +78,22 @@ class RolTypeViewSet(
     """
 
     queryset = RolType.objects.select_related(
-        "zaaktype", "zaaktype__catalogus"
+        "zaaktype",
+        "zaaktype__catalogus",
     ).order_by("-pk")
+
+    inclusion_viewsets = {
+        "zaaktype": (
+            "zaaktype",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "catalogus": (
+            "zaaktype__catalogus",
+            "openzaak.components.catalogi.api.viewsets.catalogus.CatalogusViewSet",
+        ),
+    }
+
     serializer_class = RolTypeSerializer
-    filterset_class = RolTypeFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
     permission_classes = (AuthRequired,)
@@ -92,6 +105,15 @@ class RolTypeViewSet(
         "partial_update": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_WRITE,
         "destroy": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_DELETE,
     }
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return RolTypeDetailFilter
+        return RolTypeFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)

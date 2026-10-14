@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from django.utils.text import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
 from vng_api_common.serializers import CachedHyperlinkedRelatedField
@@ -36,7 +36,6 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
 
     resultaattypen = CachedHyperlinkedRelatedField(
         many=True,
-        source="resultaattype_set",
         view_name="resultaattype-detail",
         lookup_field="uuid",
         read_only=True,
@@ -47,7 +46,7 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
     )
     resultaattypen_omschrijving = serializers.SlugRelatedField(
         many=True,
-        source="resultaattype_set",
+        source="resultaattypen",
         read_only=True,
         slug_field="omschrijving",
         help_text=_("Omschrijving van de aard van resultaten van het RESULTAATTYPE."),
@@ -70,6 +69,13 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
         read_only=True,
         help_text=_("De datum van de aller laatste versie van het object."),
     )
+
+    inclusion_serializers = {
+        "catalogus": "openzaak.components.catalogi.api.serializers.CatalogusSerializer",
+        "zaaktypen": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "informatieobjecttypen": "openzaak.components.catalogi.api.serializers.InformatieObjectTypeSerializer",
+        "resultaattypen": "openzaak.components.catalogi.api.serializers.ResultaatTypeSerializer",
+    }
 
     class Meta:
         model = BesluitType

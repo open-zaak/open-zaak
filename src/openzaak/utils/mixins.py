@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 
+from django.db.models import Prefetch
 from django.utils.module_loading import import_string
 
 from dictdiffer import diff
@@ -12,6 +13,8 @@ from vng_api_common.models import APIMixin as _APIMixin
 
 from .expansion import EXPAND_QUERY_PARAM, ExpandJSONRenderer
 from .permissions import ExpandAuthRequired
+
+EXPAND_SUPPORTED_ACTIONS = ["list", "_zoek", "retrieve"]
 
 
 def format_dict_diff(changes):
@@ -48,11 +51,109 @@ class APIMixin(_APIMixin):
 
 
 class ExpandMixin:
-    renderer_classes = (ExpandJSONRenderer,)
     expand_param = EXPAND_QUERY_PARAM
+    inclusion_viewsets = None
+
+    def _remove_select_related(self, qs, lookup):
+        """
+        Remove a select_related lookup so the expanded relation can be loaded
+        with prefetch_related using the related viewset's queryset.
+        Without this, expanding ``zaaktype`` on EigenschapViewSet can result
+        in ~1200 queries instead of ~15.
+        """
+        select_related = qs.query.select_related
+
+        if not select_related or select_related is True:
+            return qs
+
+        parts = lookup.split("__")
+        current = select_related
+
+        for part in parts[:-1]:
+            current = current.get(part)
+            if current is None:
+                return qs
+
+        current.pop(parts[-1], None)
+        return qs
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        request = getattr(self, "request", None)
+
+        if request is not None and hasattr(request, "data"):
+            inclusions = self.get_requested_inclusions(request)
+        else:
+            inclusions = None
+
+        inclusion_viewsets = self.inclusion_viewsets
+
+        if inclusions and inclusion_viewsets:
+            prefetches = list(qs._prefetch_related_lookups)
+
+            inclusions = [inclusion.strip() for inclusion in inclusions.split(",")]
+
+            # Sort parent lookups before nested lookups
+            inclusions.sort(
+                key=lambda inclusion: "__"
+                in (
+                    inclusion_viewsets[inclusion][0]
+                    if inclusion in inclusion_viewsets
+                    and isinstance(inclusion_viewsets[inclusion], tuple)
+                    else inclusion
+                )
+            )
+
+            for inclusion in inclusions:
+                related_viewset = inclusion_viewsets.get(inclusion)
+                if not related_viewset:
+                    continue
+
+                # The API expand name can differ from the lookup for reverse relations
+                if isinstance(related_viewset, tuple):
+                    lookup, viewset_path = related_viewset
+                else:
+                    lookup = inclusion
+                    viewset_path = related_viewset
+
+                # If the inclusion replaces a select_related lookup, remove that lookup
+                qs = self._remove_select_related(qs, lookup)
+
+                related_viewset = import_string(viewset_path)
+
+                # Build a list of the prefetches from the base queryset for all attributes that are not expanded
+                prefetches = [
+                    prefetch
+                    for prefetch in prefetches
+                    if not (
+                        prefetch == lookup
+                        or getattr(prefetch, "prefetch_to", prefetch).startswith(
+                            f"{lookup}__"
+                        )
+                    )
+                ]
+
+                # Add the base queryset from the related viewset (including all select_relateds and prefetches) as a prefetch
+                prefetches.append(
+                    Prefetch(
+                        lookup,
+                        queryset=related_viewset.queryset.order_by(),
+                    )
+                )
+            # Clear the existing prefetches so the modified prefetch list can replace them
+            qs = qs.prefetch_related(None).prefetch_related(*prefetches)
+
+        return qs
+
+    def get_renderers(self):
+        # Only use the expand renderer for actions that support expansion.
+        if self.action in EXPAND_SUPPORTED_ACTIONS:
+            return [ExpandJSONRenderer()]
+        return super().get_renderers()
 
     def include_allowed(self):
-        return self.action in ["list", "_zoek", "retrieve"]
+        return self.action in EXPAND_SUPPORTED_ACTIONS
 
     def get_requested_inclusions(self, request):
         # Pull expand parameter from request body and/or query_param in case of _zoek operation
