@@ -96,6 +96,14 @@ def sync_zaakbesluit(sender: ModelBase, instance: Besluit, **kwargs) -> None:
 
     created = kwargs["created"]
 
+    update_fields = kwargs.get("update_fields")
+    if update_fields is not None and not {
+        "_zaak",
+        "_zaak_base_url",
+        "_zaak_relative_url",
+    }.intersection(update_fields):
+        return
+
     # check for post_save that's not create -> block it
     if not created:
         if instance.zaak == instance.previous_zaak:
