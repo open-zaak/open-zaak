@@ -604,7 +604,9 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         ]
         for field in instance._meta.get_fields():
             # Ignore latest_version_of since it is a reverse relation
-            if field.name == "latest_version_of":
+            # TODO: remove the `field.name.startswith("_")` bit when the django-loose-fk
+            #  library gets removed from the project.
+            if field.name == "latest_version_of" or field.name.startswith("_"):
                 continue
             if field.name not in validated_data_field_names and (
                 self.partial or field.name not in updatable_field_names

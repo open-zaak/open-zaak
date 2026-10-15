@@ -1077,9 +1077,7 @@ class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
 @tag("external-urls")
 @temp_private_root()
 @override_settings(ALLOWED_HOSTS=["testserver"])
-class InformatieobjectCreateExternalURLsTests(
-    MockSchemasMixin, JWTAuthMixin, APITestCase
-):
+class InformatieobjectExternalURLsTests(MockSchemasMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     mocker_attr = "requests_mock"
@@ -1275,6 +1273,109 @@ class InformatieobjectCreateExternalURLsTests(
 
         error = get_validation_errors(response, "informatieobjecttype")
         self.assertEqual(error["code"], "not-published")
+
+    def test_update_external_to_internal_informatieobjecttype(self):
+        external_catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        external_informatieobjecttype = (
+            "https://externe.catalogus.nl/api/v1/informatieobjecttypen/"
+            "b71f72ef-198d-44d8-af64-ae1932df830a"
+        )
+        self.requests_mock.get(
+            external_informatieobjecttype,
+            json=get_informatieobjecttype_response(
+                external_catalogus, external_informatieobjecttype
+            ),
+        )
+        self.requests_mock.get(
+            external_catalogus,
+            json=get_informatieobjecttype_response(
+                external_catalogus, external_informatieobjecttype
+            ),
+        )
+        eio = EnkelvoudigInformatieObjectFactory(
+            informatieobjecttype=external_informatieobjecttype
+        )
+        internal_informatieobjecttype = InformatieObjectTypeFactory.create(
+            concept=False
+        )
+        internal_informatieobjecttype_url = reverse(internal_informatieobjecttype)
+        detail_url = reverse(
+            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+        )
+
+        lock_response = self.client.post(f"{detail_url}/lock")
+        self.assertEqual(lock_response.status_code, status.HTTP_200_OK)
+        lock = lock_response.data.get("lock")
+        self.assertIsNotNone(lock)
+
+        response = self.client.patch(
+            detail_url,
+            {
+                "informatieobjecttype": f"http://testserver{internal_informatieobjecttype_url}",
+                "lock": lock,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(
+            response.json()["informatieobjecttype"],
+            f"http://testserver{internal_informatieobjecttype_url}",
+        )
+        # get newly created EIO
+        eio.refresh_from_db()
+        eio = eio.canonical.latest_version
+        self.assertIsNone(eio._informatieobjecttype_url)
+        self.assertEqual(eio._informatieobjecttype, internal_informatieobjecttype)
+        self.assertEqual(eio.informatieobjecttype, internal_informatieobjecttype)
+
+    def test_update_internal_to_external_informatieobjecttype(self):
+        external_catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        external_informatieobjecttype = (
+            "https://externe.catalogus.nl/api/v1/informatieobjecttypen/"
+            "b71f72ef-198d-44d8-af64-ae1932df830a"
+        )
+        self.requests_mock.get(
+            external_informatieobjecttype,
+            json=get_informatieobjecttype_response(
+                external_catalogus, external_informatieobjecttype
+            ),
+        )
+        self.requests_mock.get(
+            external_catalogus,
+            json=get_informatieobjecttype_response(
+                external_catalogus, external_informatieobjecttype
+            ),
+        )
+        internal_informatieobjecttype = InformatieObjectTypeFactory.create(
+            concept=False
+        )
+        eio = EnkelvoudigInformatieObjectFactory(
+            informatieobjecttype=internal_informatieobjecttype
+        )
+        detail_url = reverse(
+            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+        )
+
+        lock_response = self.client.post(f"{detail_url}/lock")
+        self.assertEqual(lock_response.status_code, status.HTTP_200_OK)
+        lock = lock_response.data.get("lock")
+        self.assertIsNotNone(lock)
+
+        response = self.client.patch(
+            detail_url,
+            {"informatieobjecttype": external_informatieobjecttype, "lock": lock},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(
+            response.json()["informatieobjecttype"], external_informatieobjecttype
+        )
+        # get newly created EIO
+        eio.refresh_from_db()
+        eio = eio.canonical.latest_version
+        self.assertEqual(eio._informatieobjecttype, None)
+        self.assertEqual(eio._informatieobjecttype_url, external_informatieobjecttype)
+        self.assertEqual(eio.informatieobjecttype, external_informatieobjecttype)
 
 
 @temp_private_root()
