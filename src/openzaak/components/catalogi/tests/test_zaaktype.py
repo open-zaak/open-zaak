@@ -127,6 +127,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "versiedatum": "2018-01-01",
             "concept": True,
             "deelzaaktypen": [],
+            "deelzaaktypeIdentificaties": [],
             "zaakobjecttypen": [],
             "verantwoordelijke": zaaktype.verantwoordelijke,
             "beginObject": "2018-01-01",
@@ -136,6 +137,49 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "_expand": {},
         }
         self.assertEqual(response_data, expected)
+
+    def test_get_detail_deelzaaktype_identificaties(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        deelzaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        zaaktype.deelzaaktypen.add(deelzaaktype)
+
+        response = self.client.get(
+            get_operation_url("zaaktype_read", uuid=zaaktype.uuid)
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["deelzaaktypeIdentificaties"], [deelzaaktype.identificatie]
+        )
+
+    def test_get_detail_gerelateerde_zaaktypen_identificatie(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        local = ZaakTypeFactory.create(catalogus=self.catalogus)
+        ZaakTypenRelatieFactory.create(
+            zaaktype=zaaktype,
+            gerelateerd_zaaktype=f"http://testserver{reverse(local)}",
+        )
+        ZaakTypenRelatieFactory.create(
+            zaaktype=zaaktype,
+            gerelateerd_zaaktype="https://external.example.com/catalogi/api/v1/zaaktypen/b6cbb4e3-0a6a-4bd0-95a0-bb2ab77a1c0e",
+        )
+
+        response = self.client.get(
+            get_operation_url("zaaktype_read", uuid=zaaktype.uuid)
+        )
+
+        self.assertEqual(response.status_code, 200)
+        identificaties = {
+            relatie["zaaktype"].rsplit("/", 1)[-1]: relatie["zaaktypeIdentificatie"]
+            for relatie in response.json()["gerelateerdeZaaktypen"]
+        }
+        self.assertEqual(
+            identificaties,
+            {
+                str(local.uuid): local.identificatie,
+                "b6cbb4e3-0a6a-4bd0-95a0-bb2ab77a1c0e": "",
+            },
+        )
 
     def test_get_detail_404(self):
         ZaakTypeFactory.create(catalogus=self.catalogus)
@@ -214,6 +258,15 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "http://example.com/zaaktype/1",
         )
         self.assertEqual(zaaktype.concept, True)
+
+        # ``deelzaaktypen`` is optional on POST (Catalogi API 1.3.3)
+        response_data = response.json()
+        self.assertEqual(response_data["deelzaaktypen"], [])
+        self.assertEqual(response_data["deelzaaktypeIdentificaties"], [])
+        # the related zaaktype is external, so its identificatie is unknown
+        self.assertEqual(
+            response_data["gerelateerdeZaaktypen"][0]["zaaktypeIdentificatie"], ""
+        )
 
     @tag("gh-1306")
     def test_create_zaaktype_identificatie_all_characters_allowed(self):
@@ -1876,7 +1929,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype.besluittypen.add(besluit_type)
         zaaktype.deelzaaktypen.add(deelzaaktype)
 
-        with self.assertNumQueries(68):
+        with self.assertNumQueries(87):
             response = self.client.get(
                 reverse(zaaktype),
                 {
