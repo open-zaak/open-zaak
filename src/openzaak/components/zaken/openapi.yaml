@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Zaken API
-  version: 1.5.1
+  version: 1.7.0
   description: |
     Een API om een zaakregistratiecomponent (ZRC) te benaderen.
 
@@ -6002,7 +6002,7 @@ paths:
   /zaaknotities:
     get:
       operationId: zaaknotitie_list
-      description: '**EXPERIMENTEEL** Alle ZAAKNOTITIEs opvragen.'
+      description: Alle ZAAKNOTITIEs opvragen.
       summary: Alle ZAAKNOTITIEs opvragen.
       parameters:
       - in: query
@@ -6259,7 +6259,7 @@ paths:
           description: Internal server error
     post:
       operationId: zaaknotitie_create
-      description: '**EXPERIMENTEEL** Maak een ZAAKNOTITIE aan.'
+      description: Maak een ZAAKNOTITIE aan.
       summary: Maak een ZAAKNOTITIE aan.
       parameters:
       - in: header
@@ -6410,7 +6410,7 @@ paths:
   /zaaknotities/{uuid}:
     get:
       operationId: zaaknotitie_read
-      description: '**EXPERIMENTEEL** Een specifieke ZAAKNOTITIE opvragen.'
+      description: Een specifieke ZAAKNOTITIE opvragen.
       summary: Een specifieke ZAAKNOTITIE opvragen.
       parameters:
       - in: path
@@ -6549,7 +6549,7 @@ paths:
     put:
       operationId: zaaknotitie_update
       description: |-
-        **EXPERIMENTEEL** Werk een ZAAKNOTITIE in zijn geheel bij.
+        Werk een ZAAKNOTITIE in zijn geheel bij.
 
          **WARNING**: Notitie can only be modified when status is `concept`
       summary: Werk een ZAAKNOTITIE in zijn geheel bij.
@@ -6716,7 +6716,7 @@ paths:
     patch:
       operationId: zaaknotitie_partial_update
       description: |-
-        **EXPERIMENTEEL** Werk een ZAAKNOTITIE deels bij.
+        Werk een ZAAKNOTITIE deels bij.
 
          **WARNING**: Notitie can only be modified when status is `concept`
       summary: Werk een ZAAKNOTITIE deels bij.
@@ -6881,7 +6881,7 @@ paths:
           description: Internal server error
     delete:
       operationId: zaaknotitie_delete
-      description: '**EXPERIMENTEEL** Verwijder een ZAAKNOTITIE.'
+      description: Verwijder een ZAAKNOTITIE.
       summary: Verwijder een ZAAKNOTITIE.
       parameters:
       - in: path
@@ -7017,7 +7017,7 @@ paths:
     post:
       operationId: zaaknummer_reserveren
       description: |-
-        **EXPERIMENTEEL** Reserveer een zaaknummer binnen een specifieke bronorganisatie zonder direct een Zaak aan te maken. Dit zaaknummer zal toegekend worden aan de eerstvolgende Zaak die met dit zaaknummer wordt aangemaakt binnen de bronorganisatie en het zaaknummer kan daarna niet hergebruikt worden.
+        Reserveer een zaaknummer binnen een specifieke bronorganisatie zonder direct een Zaak aan te maken. Dit zaaknummer zal toegekend worden aan de eerstvolgende Zaak die met dit zaaknummer wordt aangemaakt binnen de bronorganisatie en het zaaknummer kan daarna niet hergebruikt worden.
 
         Als `aantal` niet wordt opgegeven of gelijk is aan 1, wordt een enkel object teruggegeven.
         Als `aantal > 1`, wordt een lijst van objecten teruggegeven.
@@ -11660,7 +11660,7 @@ paths:
 
         **Er wordt gevalideerd op**
 
-        - **EXPERIMENTEEL** `waarde` moet worden gevalideerd tegen `eigenschap.specificatie` indien `ZAAK_EIGENSCHAP_WAARDE_VALIDATION` op `True` staat.
+        - `waarde` moet worden gevalideerd tegen `eigenschap.specificatie` indien `ZAAK_EIGENSCHAP_WAARDE_VALIDATION` op `True` staat.
       summary: Maak een ZAAKEIGENSCHAP aan.
       parameters:
       - in: header
