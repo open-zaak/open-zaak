@@ -6,6 +6,8 @@ from rest_framework import serializers
 from vng_api_common.serializers import CachedHyperlinkedRelatedField
 from vng_api_common.utils import get_help_text
 
+from openzaak.utils.help_text import mark_deprecated
+
 from ...models import BesluitType, InformatieObjectType
 from ..validators import (
     ConceptUpdateValidator,
@@ -31,7 +33,10 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
         view_name="zaaktype-detail",
         lookup_field="uuid",
         read_only=True,
-        help_text=get_help_text("catalogi.BesluitType", "zaaktypen"),
+        help_text=mark_deprecated(
+            _("Gebruik `zaaktypeIdentificaties`. ")
+            + get_help_text("catalogi.BesluitType", "zaaktypen")
+        ),
     )
 
     resultaattypen = CachedHyperlinkedRelatedField(
@@ -68,6 +73,26 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
     einde_object = serializers.DateField(
         read_only=True,
         help_text=_("De datum van de aller laatste versie van het object."),
+    )
+    zaaktype_identificaties = serializers.SlugRelatedField(
+        source="zaaktypen",
+        many=True,
+        read_only=True,
+        slug_field="identificatie",
+        help_text=_(
+            "De identificaties van ZAAKTYPEs met ZAAKen die relevant kunnen zijn "
+            "voor dit BESLUITTYPE."
+        ),
+    )
+    informatieobjecttype_omschrijvingen = serializers.SlugRelatedField(
+        source="informatieobjecttypen",
+        many=True,
+        read_only=True,
+        slug_field="omschrijving",
+        help_text=_(
+            "De omschrijvingen van INFORMATIEOBJECTTYPEs van informatieobjecten "
+            "waarin besluiten van dit BESLUITTYPE worden vastgelegd."
+        ),
     )
 
     inclusion_serializers = {
@@ -107,6 +132,8 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
             "vastgelegd_in",
             "begin_object",
             "einde_object",
+            "zaaktype_identificaties",
+            "informatieobjecttype_omschrijvingen",
         )
         validators = [
             GeldigheidValidator(),
