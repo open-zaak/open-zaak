@@ -60,13 +60,15 @@ class BesluitTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializer):
         help_text=_("Omschrijving van de aard van resultaten van het RESULTAATTYPE."),
     )
 
+    # TODO: external informatieobjecttypen are not included, their omschrijving
+    # is not available without fetching the external resource
     vastgelegd_in = serializers.SlugRelatedField(
         many=True,
         source="informatieobjecttypen",
         read_only=True,
         slug_field="omschrijving",
         help_text=_(
-            "Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE."
+            "Omschrijving van de aard van interne informatieobjecten van dit INFORMATIEOBJECTTYPE."
         ),
     )
     begin_object = serializers.DateField(

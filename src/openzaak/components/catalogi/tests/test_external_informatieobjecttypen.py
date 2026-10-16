@@ -342,6 +342,24 @@ class BesluitTypeExternalInformatieObjectTypenTests(
         )
         self.assertEqual(response.json()["vastgelegdIn"], [local.omschrijving])
 
+    def test_vastgelegd_in_only_contains_internal_informatieobjecttypen(self):
+        besluittype = BesluitTypeFactory.create(
+            catalogus=self.catalogus, informatieobjecttypen=[]
+        )
+        local = InformatieObjectTypeFactory.create(catalogus=self.catalogus)
+        external = new_external_iotype()
+        besluittype.set_informatieobjecttypen([local, external])
+
+        response = self.client.get(reverse(besluittype, namespace="zaken"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertEqual(len(data["informatieobjecttypen"]), 2)
+        # TODO: `vastgelegdIn` is derived from the local `informatieobjecttypen`
+        # relation, so the omschrijving of an external informatieobjecttype is not
+        # included. It would require fetching the external resource.
+        self.assertEqual(data["vastgelegdIn"], [local.omschrijving])
+
     def test_update_replaces_external_informatieobjecttypen(self):
         besluittype = BesluitTypeFactory.create(
             catalogus=self.catalogus, informatieobjecttypen=[]

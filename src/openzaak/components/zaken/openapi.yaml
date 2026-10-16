@@ -18000,7 +18000,8 @@ components:
           items:
             type: string
           readOnly: true
-          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+          description: Omschrijving van de aard van interne informatieobjecten van
+            dit INFORMATIEOBJECTTYPE.
         beginObject:
           type: string
           format: date
