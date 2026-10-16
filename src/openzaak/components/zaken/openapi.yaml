@@ -2296,6 +2296,7 @@ paths:
         name: informatieobjecttypen
         schema:
           type: string
+          format: uri
         description: Het INFORMATIEOBJECTTYPE van informatieobjecten waarin besluiten
           van dit BESLUITTYPE worden vastgelegd.
       - in: query
@@ -3292,10 +3293,10 @@ paths:
   /besluittypen/{uuid}/publish:
     post:
       operationId: besluittype_publish
-      description: Publiceren van het besluittype zorgt ervoor dat dit in een Besluiten
-        API kan gebruikt worden. Na het publiceren van een besluittype zijn geen inhoudelijke
-        wijzigingen meer mogelijk. Indien er na het publiceren nog wat gewijzigd moet
-        worden, dan moet je een nieuwe versie aanmaken.
+      description: |-
+        Publiceren van het besluittype zorgt ervoor dat dit in een Besluiten API kan gebruikt worden. Na het publiceren van een besluittype zijn geen inhoudelijke wijzigingen meer mogelijk. Indien er na het publiceren nog wat gewijzigd moet worden, dan moet je een nieuwe versie aanmaken.
+
+        Voor externe INFORMATIEOBJECTTYPEn wordt niet gecontroleerd of deze gepubliceerd zijn.
       summary: Publiceer het concept BESLUITTYPE.
       parameters:
       - in: header
@@ -17960,8 +17961,11 @@ components:
           items:
             type: string
             format: uri
-          description: URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
-            waarin besluiten van dit BESLUITTYPE worden vastgelegd.
+            maxLength: 1000
+          description: 'URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
+            waarin besluiten van dit BESLUITTYPE worden vastgelegd. Let op: voor een
+            extern INFORMATIEOBJECTTYPE wordt niet gecontroleerd of dit een concept
+            is of gepubliceerd.'
         beginGeldigheid:
           type: string
           format: date
@@ -17996,7 +18000,8 @@ components:
           items:
             type: string
           readOnly: true
-          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+          description: Omschrijving van de aard van interne informatieobjecten van
+            dit INFORMATIEOBJECTTYPE.
         beginObject:
           type: string
           format: date
@@ -18071,9 +18076,13 @@ components:
           type: array
           items:
             type: string
+            minLength: 1
             format: uri
-          description: URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
-            waarin besluiten van dit BESLUITTYPE worden vastgelegd.
+            maxLength: 1000
+          description: 'URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
+            waarin besluiten van dit BESLUITTYPE worden vastgelegd. Let op: voor een
+            extern INFORMATIEOBJECTTYPE wordt niet gecontroleerd of dit een concept
+            is of gepubliceerd.'
         beginGeldigheid:
           type: string
           format: date
@@ -20510,9 +20519,13 @@ components:
           type: array
           items:
             type: string
+            minLength: 1
             format: uri
-          description: URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
-            waarin besluiten van dit BESLUITTYPE worden vastgelegd.
+            maxLength: 1000
+          description: 'URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
+            waarin besluiten van dit BESLUITTYPE worden vastgelegd. Let op: voor een
+            extern INFORMATIEOBJECTTYPE wordt niet gecontroleerd of dit een concept
+            is of gepubliceerd.'
         beginGeldigheid:
           type: string
           format: date

@@ -110,17 +110,6 @@ class BesluitType(ETagMixin, APIMixin, GeldigheidMixin, ConceptMixin, models.Mod
         ),
     )
 
-    informatieobjecttypen = models.ManyToManyField(
-        "catalogi.InformatieObjectType",
-        blank=True,
-        # verbose_name=_("informatieobjecttype"),
-        related_name="besluittypen",
-        help_text=_(
-            "URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten waarin besluiten van dit "
-            "BESLUITTYPE worden vastgelegd."
-        ),
-    )
-
     zaaktypen = models.ManyToManyField(
         "catalogi.ZaakType",
         # verbose_name=_("zaaktypen"),
@@ -144,6 +133,16 @@ class BesluitType(ETagMixin, APIMixin, GeldigheidMixin, ConceptMixin, models.Mod
         if self.concept:
             representation = "{} (CONCEPT)".format(representation)
         return representation
+
+    def get_informatieobjecttype_relations(self):
+        return self.besluittypeinformatieobjecttype_set.all()
+
+    @transaction.atomic
+    def set_informatieobjecttypen(self, informatieobjecttypen) -> None:
+        values = dict.fromkeys(informatieobjecttypen)
+        self.besluittypeinformatieobjecttype_set.all().delete()
+        for value in values:
+            self.besluittypeinformatieobjecttype_set.create(informatieobjecttype=value)
 
     @transaction.atomic
     def save(self, *args, **kwargs):
