@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import CacheMixin, JWTAuthMixin, reverse
 
+from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.tests.utils import get_spec
 
 from .factories import (
@@ -21,7 +22,7 @@ from .factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
-from .utils import ZAAK_READ_KWARGS
+from .utils import ZAAK_READ_KWARGS, ZAAK_WRITE_KWARGS
 
 
 class ZaakCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
@@ -103,6 +104,39 @@ class ZaakCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotIn("ETag", response)
+
+    @tag("gh-2577")
+    def test_create_with_gerelateerde_zaak_invalidates_its_etag(self):
+        """
+        Creating a zaak adds the reverse relation to its gerelateerde zaak, in one
+        batch of invalidations.
+        """
+        gerelateerde_zaak = ZaakFactory.create()
+        etag = self.client.get(reverse(gerelateerde_zaak), **ZAAK_READ_KWARGS)["ETag"]
+        zaaktype = ZaakTypeFactory.create(concept=False)
+
+        response = self.client.post(
+            reverse("zaak-list"),
+            {
+                "zaaktype": f"http://testserver{reverse(zaaktype)}",
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "startdatum": "2018-06-11",
+                "gerelateerdeZaken": [
+                    {"url": f"http://testserver{reverse(gerelateerde_zaak)}"}
+                ],
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        response = self.client.get(
+            reverse(gerelateerde_zaak),
+            headers={"if-none-match": etag},
+            **ZAAK_READ_KWARGS,
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()["gerelateerdeZaken"]), 1)
 
 
 class StatusCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
