@@ -338,7 +338,8 @@ class BesluitInformatieObjectViewSet(
                     error=str(exception),
                     objectinformatieobject_url=instance._objectinformatieobject_url,
                 )
-                instance.save()
+                with transaction.atomic():
+                    instance.save()
                 raise ValidationError(
                     {"informatieobject": _("Could not delete remote relation")},
                     code="pending-relations",
