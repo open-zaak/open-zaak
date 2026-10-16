@@ -61,9 +61,6 @@ class ZaakTypeFactory(factory.django.DjangoModelFactory):
         model = ZaakType
 
     class Params:
-        with_etag = factory.Trait(
-            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
-        )
         with_identificatie = factory.Trait(
             identificatie=factory.Sequence(lambda n: "ZAAKTYPE_{}".format(n))
         )
