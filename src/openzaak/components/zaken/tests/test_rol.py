@@ -911,6 +911,9 @@ class RollenExpandTests(JWTAuthMixin, APITestCase):
         # The detail responses also include the _expand attribute, but the list response
         # only has a _expand attribute at the root level (no _expand nested inside _expand)
         del zaak_data["_expand"]
+        del zaaktype_data["_expand"]
+        del statustype_data["_expand"]
+        del roltype_data["_expand"]
 
         expected = {
             **rol_data,
@@ -943,6 +946,7 @@ class RollenExpandTests(JWTAuthMixin, APITestCase):
         # only has a _expand attribute at the root level (no _expand nested inside _expand unless)
         del zaak_data["_expand"]
         del status_data["_expand"]
+        del roltype_data["_expand"]
 
         expected_expansions = {
             "zaak": {"zaak": zaak_data},
