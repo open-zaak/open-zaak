@@ -224,7 +224,7 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             )
         else:
             bio._objectinformatieobject_url = response["url"]
-            bio.save()
+            bio.save(update_fields=["_objectinformatieobject_url"])
         return bio
 
 
