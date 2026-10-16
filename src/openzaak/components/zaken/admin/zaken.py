@@ -591,6 +591,8 @@ class ZaakBesluitForm(forms.ModelForm):
 
 @admin.register(ZaakBesluit)
 class ZaakBesluitAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
+    is_nested_action = True
+
     list_display = ("zaak", "_besluit", "_besluit_base_url", "_besluit_relative_url")
     list_select_related = ("zaak", "_besluit", "_besluit_base_url")
     search_fields = (
