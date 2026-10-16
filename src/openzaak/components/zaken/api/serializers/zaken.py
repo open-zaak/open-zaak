@@ -1251,7 +1251,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             )
         else:
             zio._objectinformatieobject_url = response["url"]
-            zio.save()
+            zio.save(update_fields=["_objectinformatieobject_url"])
 
         return zio
 
