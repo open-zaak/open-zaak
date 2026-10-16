@@ -1,6 +1,50 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+.. warning::
+
+    Manual intervention is required after a rolling deploy: clear the stored ETags.
+
+    During a rolling deploy, processes of the previous release still write without
+    invalidating the stored ETags. Once every process runs this release, clear them, or
+    clients may get a ``304 Not Modified`` for a resource that has changed:
+
+    .. code-block:: bash
+
+        python src/manage.py shell -c "from vng_api_common.caching.models import StoredETag; StoredETag.objects.all().delete()"
+
+    If all processes were stopped before the upgrade, no action is needed.
+
+**Bugfixes**
+
+* [:open-zaak:`2577`] Fix responses with a stale ``ETag``, so a conditional request could
+  get a ``304 Not Modified`` for a changed resource. This happened after:
+
+  * deleting a related object, such as a rol or the resultaat of a zaak;
+  * closing a hoofdzaak, for the ETags of its deelzaken;
+  * adding a bestandsdeel to a document;
+  * unlocking documents or resetting a zaaktype's selectielijst in the admin;
+  * a deploy that changes how resources are represented.
+
+* [:open-zaak:`2577`] Responses to requests with ``?expand=`` no longer have an ``ETag``,
+  and are never a ``304 Not Modified``. Their ``ETag`` was that of the representation
+  without ``expand``.
+* [:open-zaak:`2577`] Writes no longer recalculate ETags: they only invalidate the ETags of
+  the resources they change, and the first ``GET`` after a write calculates the ``ETag``.
+  Adding documents to a zaak no longer gets slower the more documents it has.
+
+**Project maintenance**
+
+* [:open-zaak:`2577`] Upgrade ``commonground-api-common``
+
+  .. TODO: version, once released
+
+* [:open-zaak:`2577`] Record the S3 test cassettes against moto instead of MinIO, whose
+  community edition is abandoned
+
 1.31.0 (2026-10-09)
 -------------------
 
