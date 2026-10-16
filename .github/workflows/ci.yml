@@ -162,6 +162,16 @@ jobs:
         ports:
           - 6379:6379
 
+    strategy:
+      matrix:
+        include:
+          - zaak_inzage: true
+            zaken_count: 10
+            path: "convenience_endpoints"
+          - zaak_inzage: false
+            zaken_count: 3500
+            path: "api_endpoints"
+
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
@@ -174,14 +184,20 @@ jobs:
           optimize-postgres: "no"
           setup-node: "no"
 
-      - name: Set up uWSGI and generate data
+      - name: Set up uWSGI and generate data (${{ matrix.zaken_count }})
         run: |
+          ARGS=""
+
+          if [ "${{ matrix.zaak_inzage }}" = "true" ]; then
+            ARGS="--generate-zaak-inzage-data"
+          fi
+
           createdb -h localhost -U postgres openzaak
           pip install uv
           uv pip install -r requirements/ci.txt
           src/manage.py migrate
           SCRIPTPATH=bin UWSGI_PROCESSES=4 UWSGI_THREADS=4 bin/docker_start.sh &
-          echo "yes" | src/manage.py generate_data --zaken=3500 --generate-superuser-credentials --generate-non-superuser-credentials --without-zaakgeometrie
+          echo "yes" | src/manage.py generate_data --zaken=${{ matrix.zaken_count }} --generate-superuser-credentials --generate-non-superuser-credentials --without-zaakgeometrie $ARGS
         env:
           RUN_SETUP_CONFIG: false
           DB_PASSWORD: ""
@@ -212,8 +228,9 @@ jobs:
                       --testbed ubuntu-24.04 \
                       --average median \
                       --github-actions '${{ secrets.GITHUB_TOKEN }}' \
+                      --ci-id "performance-test-${{ matrix.path }}" \
                       --file output.json \
-                      "pytest performance_test/ --benchmark-warmup=on --benchmark-warmup-iterations=5 --benchmark-json output.json"
+                      "pytest performance_test/${{ matrix.path }} --benchmark-warmup=on --benchmark-warmup-iterations=5 --benchmark-json output.json"
 
       - name: Run tests for other branches
         if: github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
@@ -231,8 +248,9 @@ jobs:
                       --threshold-min-sample-size 15 \
                       --testbed ubuntu-24.04 \
                       --github-actions '${{ secrets.GITHUB_TOKEN }}' \
+                      --ci-id "performance-test-${{ matrix.path }}" \
                       --file output.json \
-                      "pytest performance_test/ --benchmark-warmup=on --benchmark-warmup-iterations=5 --benchmark-json output.json"
+                      "pytest performance_test/${{ matrix.path }} --benchmark-warmup=on --benchmark-warmup-iterations=5 --benchmark-json output.json"
 
   store-reusable-workflow-vars:
     name: create values which can be passed through a reusable workflow
