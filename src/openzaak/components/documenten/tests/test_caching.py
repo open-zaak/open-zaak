@@ -13,7 +13,11 @@ from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactor
 from openzaak.tests.utils import get_spec
 
 from ..models import ObjectInformatieObject
-from ..tests.factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
+from ..tests.factories import (
+    BestandsDeelFactory,
+    EnkelvoudigInformatieObjectFactory,
+    GebruiksrechtenFactory,
+)
 
 
 @temp_private_root()
@@ -56,6 +60,20 @@ class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCas
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_new_bestandsdeel_invalidates_etag(self):
+        """
+        The bestandsdelen are read through the canonical, so adding one must
+        invalidate the ETag.
+        """
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        etag = self.client.get(reverse(eio))["ETag"]
+
+        BestandsDeelFactory.create(informatieobject=eio.canonical)
+
+        response = self.client.get(reverse(eio), headers={"if-none-match": etag})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()["bestandsdelen"]), 1)
 
 
 class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
