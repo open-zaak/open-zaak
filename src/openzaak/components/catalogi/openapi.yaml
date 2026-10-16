@@ -11490,6 +11490,12 @@ components:
           readOnly: true
           description: URL-referenties naar BESLUITTYPEn die in deze CATALOGUS worden
             ontsloten.
+        besluittypeOmschrijving:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
         informatieobjecttypen:
           type: array
           items:
@@ -11498,6 +11504,12 @@ components:
           readOnly: true
           description: URL-referenties naar INFORMATIEOBJECTTYPEn die in deze CATALOGUS
             worden ontsloten.
+        informatieobjecttypeOmschrijving:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
         naam:
           type: string
           description: De benaming die is gegeven aan de zaaktypecatalogus.
@@ -11513,9 +11525,11 @@ components:
           description: Datum waarop de versie van de zaaktypecatalogus van toepassing
             is geworden.
       required:
+      - besluittypeOmschrijving
       - besluittypen
       - contactpersoonBeheerNaam
       - domein
+      - informatieobjecttypeOmschrijving
       - informatieobjecttypen
       - rsin
       - url
@@ -12297,6 +12311,12 @@ components:
             minLength: 1
           readOnly: true
           description: URL-referenties naar de BESLUITTYPEN
+        besluittypeOmschrijving:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
         informatieobjectcategorie:
           type: string
           title: Categorie
@@ -12343,6 +12363,7 @@ components:
       required:
       - beginGeldigheid
       - beginObject
+      - besluittypeOmschrijving
       - besluittypen
       - catalogus
       - concept
@@ -14818,6 +14839,12 @@ components:
           readOnly: true
           description: URL-referenties naar de INFORMATIEOBJECTTYPEN die mogelijk
             zijn binnen dit ZAAKTYPE.
+        informatieobjecttypeOmschrijving:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
         roltypen:
           type: array
           items:
@@ -14835,6 +14862,12 @@ components:
           title: heeft relevante besluittypen
           description: URL-referenties naar de BESLUITTYPEN die mogelijk zijn binnen
             dit ZAAKTYPE.
+        besluittypeOmschrijving:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
         deelzaaktypen:
           type: array
           items:
@@ -14870,6 +14903,7 @@ components:
       - aanleiding
       - beginGeldigheid
       - beginObject
+      - besluittypeOmschrijving
       - besluittypen
       - catalogus
       - concept
@@ -14882,6 +14916,7 @@ components:
       - handelingBehandelaar
       - handelingInitiator
       - indicatieInternOfExtern
+      - informatieobjecttypeOmschrijving
       - informatieobjecttypen
       - omschrijving
       - onderwerp

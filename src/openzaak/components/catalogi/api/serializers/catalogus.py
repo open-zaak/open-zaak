@@ -31,6 +31,14 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
         ),
     )
 
+    besluittype_omschrijving = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        source="besluittype_set",
+        slug_field="omschrijving",
+        help_text=_("Omschrijving van de aard van BESLUITen van het BESLUITTYPE."),
+    )
+
     informatieobjecttypen = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
@@ -39,6 +47,15 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar INFORMATIEOBJECTTYPEn die in deze CATALOGUS worden ontsloten."
+        ),
+    )
+    informatieobjecttype_omschrijving = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        source="informatieobjecttype_set",
+        slug_field="omschrijving",
+        help_text=_(
+            "Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE."
         ),
     )
 
@@ -59,7 +76,9 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
             "contactpersoon_beheer_emailadres",
             "zaaktypen",
             "besluittypen",
+            "besluittype_omschrijving",
             "informatieobjecttypen",
+            "informatieobjecttype_omschrijving",
             "naam",
             "versie",
             "begindatum_versie",

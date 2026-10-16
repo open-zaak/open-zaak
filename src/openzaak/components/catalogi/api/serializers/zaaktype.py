@@ -177,6 +177,16 @@ class ZaakTypeSerializer(
         ),
     )
 
+    informatieobjecttype_omschrijving = SlugRelatedField(
+        many=True,
+        read_only=True,
+        source="informatieobjecttypen",
+        slug_field="omschrijving",
+        help_text=_(
+            "Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE."
+        ),
+    )
+
     statustypen = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
@@ -229,6 +239,15 @@ class ZaakTypeSerializer(
             "URL-referenties naar de BESLUITTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
         ),
     )
+
+    besluittype_omschrijving = SlugRelatedField(
+        many=True,
+        read_only=True,
+        source="besluittypen",
+        slug_field="omschrijving",
+        help_text=_("Omschrijving van de aard van BESLUITen van het BESLUITTYPE."),
+    )
+
     zaakobjecttypen = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
@@ -312,8 +331,10 @@ class ZaakTypeSerializer(
             "resultaattypen",
             "eigenschappen",
             "informatieobjecttypen",
+            "informatieobjecttype_omschrijving",
             "roltypen",
             "besluittypen",
+            "besluittype_omschrijving",
             "deelzaaktypen",
             "deelzaaktype_identificaties",
             "gerelateerde_zaaktypen",
