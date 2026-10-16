@@ -31,6 +31,7 @@ from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
 )
 from openzaak.components.zaken.tests.utils import (
+    ZAAK_READ_KWARGS,
     get_catalogus_response,
     get_resultaattype_response,
     get_statustype_response,
@@ -426,6 +427,45 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             deelzaak_different_termijn.archiefactiedatum,
             self.zaak.startdatum_bewaartermijn + relativedelta(years=5),
         )
+
+    @tag("gh-2577")
+    def test_zaak_afsluiten_invalidates_deelzaak_etag(self):
+        """
+        Closing the hoofdzaak updates its deelzaken without signals, so the update
+        must invalidate their ETags itself.
+        """
+        deelzaak = ZaakFactory.create(zaaktype=self.int_zaaktype, hoofdzaak=self.zaak)
+        StatusFactory.create(
+            zaak=deelzaak,
+            statustype=self.int_statustype2,
+            datum_status_gezet=utcdatetime(2024, 4, 5),
+        )
+        ResultaatFactory.create(
+            zaak=deelzaak,
+            resultaattype=ResultaatTypeFactory.create(
+                zaaktype=self.int_zaaktype,
+                archiefactietermijn=relativedelta(years=10),
+                brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.hoofdzaak,
+            ),
+        )
+        deelzaak_url = reverse(deelzaak)
+        etag = self.client.get(deelzaak_url, **ZAAK_READ_KWARGS)["ETag"]
+
+        response = self.client.post(
+            self.status_list_url,
+            {
+                "zaak": self.zaak_url,
+                "statustype": f"http://testserver{self.int_statustype2_url}",
+                "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.get(
+            deelzaak_url, headers={"if-none-match": etag}, **ZAAK_READ_KWARGS
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNotNone(response.json()["archiefactiedatum"])
 
     @tag("external-urls")
     @override_settings(ALLOWED_HOSTS=["testserver"])

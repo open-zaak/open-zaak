@@ -30,6 +30,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
 from rest_framework_gis.fields import GeometryField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
+from vng_api_common.caching import invalidating_update
 from vng_api_common.caching.etags import track_object_serializer
 from vng_api_common.constants import (
     Archiefnominatie,
@@ -1055,9 +1056,10 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             ),
         )
 
-        qs.filter(
-            resultaat___resultaattype__brondatum_archiefprocedure_afleidingswijze=Afleidingswijze.hoofdzaak
-        ).update(
+        invalidating_update(
+            qs.filter(
+                resultaat___resultaattype__brondatum_archiefprocedure_afleidingswijze=Afleidingswijze.hoofdzaak
+            ),
             # If the hoofdzaak is closed with `blijvend_bewaren`, the brondatum will be
             # empty, but the `archiefnominatie` still has to be set for deelzaken
             archiefnominatie=F("resultaattype_archiefnominatie")
