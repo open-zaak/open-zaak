@@ -346,7 +346,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
     )
     bestandsdelen = BestandsDeelSerializer(
         many=True,
-        source="get_bestandsdelen",
+        source="canonical.bestandsdelen",
         read_only=True,
     )
 

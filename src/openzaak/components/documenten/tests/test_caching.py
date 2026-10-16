@@ -4,6 +4,10 @@
 Test that the caching mechanisms are in place.
 """
 
+from uuid import uuid4
+
+from django.test import tag
+
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
@@ -12,9 +16,13 @@ from vng_api_common.tests import CacheMixin, JWTAuthMixin, reverse
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 from openzaak.tests.utils import get_spec
 
-from ..caching import get_etag_cache_key, set_etag
-from ..models import ObjectInformatieObject
-from ..tests.factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
+from ..admin import unlock
+from ..models import EnkelvoudigInformatieObjectCanonical, ObjectInformatieObject
+from ..tests.factories import (
+    BestandsDeelFactory,
+    EnkelvoudigInformatieObjectFactory,
+    GebruiksrechtenFactory,
+)
 
 
 @temp_private_root()
@@ -43,13 +51,9 @@ class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCas
     def test_conditional_get_304(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
 
-        key = get_etag_cache_key(eio)
-        _etag = eio.calculate_etag_value()
-        set_etag(key, _etag)
+        etag = self.client.get(reverse(eio))["ETag"]
 
-        response = self.client.get(
-            reverse(eio), headers={"if-none-match": f'"{_etag}"'}
-        )
+        response = self.client.get(reverse(eio), headers={"if-none-match": etag})
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
@@ -61,6 +65,35 @@ class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCas
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_new_bestandsdeel_invalidates_etag(self):
+        """
+        The bestandsdelen are read through the canonical, so adding one must
+        invalidate the ETag.
+        """
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        etag = self.client.get(reverse(eio))["ETag"]
+
+        BestandsDeelFactory.create(informatieobject=eio.canonical)
+
+        response = self.client.get(reverse(eio), headers={"if-none-match": etag})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()["bestandsdelen"]), 1)
+
+    @tag("gh-2577")
+    def test_admin_unlock_invalidates_etag(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(canonical__lock=uuid4().hex)
+        etag = self.client.get(reverse(eio))["ETag"]
+
+        unlock(
+            None,
+            None,
+            EnkelvoudigInformatieObjectCanonical.objects.filter(pk=eio.canonical.pk),
+        )
+
+        response = self.client.get(reverse(eio), headers={"if-none-match": etag})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.json()["locked"])
 
 
 class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
@@ -91,25 +124,15 @@ class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         ZaakInformatieObjectFactory.create()
         oio = ObjectInformatieObject.objects.get()
 
-        # Manually set the ETag, since there is no OIO factory
-        key = get_etag_cache_key(oio)
-        _etag = oio.calculate_etag_value()
-        set_etag(key, _etag)
+        etag = self.client.get(reverse(oio))["ETag"]
 
-        response = self.client.get(
-            reverse(oio), headers={"if-none-match": f'"{_etag}"'}
-        )
+        response = self.client.get(reverse(oio), headers={"if-none-match": etag})
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
     def test_conditional_get_stale(self):
         ZaakInformatieObjectFactory.create()
         oio = ObjectInformatieObject.objects.get()
-
-        # Manually set the ETag, since there is no OIO factory
-        key = get_etag_cache_key(oio)
-        _etag = oio.calculate_etag_value()
-        set_etag(key, _etag)
 
         response = self.client.get(
             reverse(oio), headers={"if-none-match": '"not-an-md5"'}
@@ -143,22 +166,16 @@ class GebruiksrechtenCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_conditional_get_304(self):
         gebruiksrecht = GebruiksrechtenFactory.create()
 
-        key = get_etag_cache_key(gebruiksrecht)
-        _etag = gebruiksrecht.calculate_etag_value()
-        set_etag(key, _etag)
+        etag = self.client.get(reverse(gebruiksrecht))["ETag"]
 
         response = self.client.get(
-            reverse(gebruiksrecht), headers={"if-none-match": f'"{_etag}"'}
+            reverse(gebruiksrecht), headers={"if-none-match": etag}
         )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
     def test_conditional_get_stale(self):
         gebruiksrecht = GebruiksrechtenFactory.create()
-
-        key = get_etag_cache_key(gebruiksrecht)
-        _etag = gebruiksrecht.calculate_etag_value()
-        set_etag(key, _etag)
 
         response = self.client.get(
             reverse(gebruiksrecht), headers={"if-none-match": '"not-an-md5"'}
@@ -189,12 +206,10 @@ class EnkelvoudigInformatieObjectCacheTransactionTests(
         """
         eio = EnkelvoudigInformatieObjectFactory.create(titel="bla")
 
-        key = get_etag_cache_key(eio)
-        _etag = eio.calculate_etag_value()
-        set_etag(key, _etag)
+        etag = self.client.get(reverse(eio))["ETag"]
 
         eio.titel = "aangepast"
         eio.save()
 
-        response = self.client.get(reverse(eio), headers={"if-none-match": f"{_etag}"})
+        response = self.client.get(reverse(eio), headers={"if-none-match": etag})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
