@@ -20,9 +20,6 @@ logger = structlog.stdlib.get_logger(__name__)
     dispatch_uid="besluiten.besluit.send_zaak_gemuteerd_event",
 )
 def send_besluit_zaak_gemuteerd_event(sender, instance, created, **kwargs):
-    if kwargs.get("update_fields") in (frozenset({"_etag"}),):
-        return
-
     if zaak := instance.zaak:
         if isinstance(zaak, ProxyMixin):
             return
@@ -40,9 +37,6 @@ def send_besluit_zaak_gemuteerd_event(sender, instance, created, **kwargs):
     dispatch_uid="besluiten.besluit.delete.send_zaak_gemuteerd_event",
 )
 def send_besluit_deleted_gemuteerd_event(sender, instance, **kwargs):
-    if kwargs.get("update_fields") in (frozenset({"_etag"}),):
-        return
-
     if zaak := instance.zaak:
         if isinstance(zaak, ProxyMixin):
             return
