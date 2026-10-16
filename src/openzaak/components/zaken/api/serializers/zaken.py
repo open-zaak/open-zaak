@@ -30,7 +30,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
 from rest_framework_gis.fields import GeometryField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
-from vng_api_common.caching import invalidating_update
+from vng_api_common.caching import batched_invalidation, invalidating_update
 from vng_api_common.constants import (
     Archiefnominatie,
     Archiefstatus,
@@ -689,7 +689,10 @@ class ZaakSerializer(
                 startdatum + zaaktype.doorlooptijd_behandeling
             )
 
-        obj = super().create(validated_data)
+        # the nested relations, and their reverse relations, would each invalidate
+        # the zaak's ETag on their own
+        with batched_invalidation(savepoint=False):
+            obj = super().create(validated_data)
 
         # ⚡️ - a just created zaak cannot have a result, so we can avoid this DB query
         # by caching it as absent. Assigning None to a reverse one-to-one descriptor
@@ -1069,6 +1072,12 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         )
 
     def _update_deelzaken_with_external_catalogi(
+        self, hoofdzaak_closed: bool, qs, brondatum: date | None
+    ):
+        with batched_invalidation(savepoint=False):
+            self._update_deelzaken_archiving(hoofdzaak_closed, qs, brondatum)
+
+    def _update_deelzaken_archiving(
         self, hoofdzaak_closed: bool, qs, brondatum: date | None
     ):
         for deelzaak in qs.iterator():
