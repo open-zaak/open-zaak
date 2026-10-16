@@ -4,10 +4,18 @@
 Test that the caching mechanisms are in place.
 """
 
+from types import SimpleNamespace
+
+from django.contrib import admin
+from django.test import RequestFactory, tag
+
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.tests import CacheMixin, JWTAuthMixin, reverse
 
+from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.components.catalogi.admin.zaaktypen import ZaakTypeAdmin
+from openzaak.components.catalogi.models import ZaakType
 from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
     CatalogusFactory,
@@ -385,6 +393,31 @@ class ResultaatTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @tag("gh-2577")
+    def test_admin_selectielijst_reset_invalidates_etag(self):
+        resultaattype = ResultaatTypeFactory.create(
+            selectielijstklasse=(
+                "https://selectielijst.openzaak.nl/api/v1/"
+                "resultaten/65a0a7ab-0906-49bd-924f-f261f990b50f"
+            )
+        )
+        etag = self.client.get(reverse(resultaattype))["ETag"]
+        request = RequestFactory().post("/")
+        request.user = SuperUserFactory.create()
+
+        ZaakTypeAdmin(ZaakType, admin.site).save_model(
+            request,
+            resultaattype.zaaktype,
+            SimpleNamespace(cleaned_data={"selectielijst_reset": True}),
+            change=True,
+        )
+
+        response = self.client.get(
+            reverse(resultaattype), headers={"if-none-match": etag}
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["selectielijstklasse"], "")
 
 
 class ResultaatTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
