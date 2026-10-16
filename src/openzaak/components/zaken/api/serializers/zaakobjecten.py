@@ -93,6 +93,12 @@ class ObjectTypeOverigeDefinitieSerializer(serializers.Serializer):
 
 
 class ZaakObjectSerializer(PolymorphicSerializer):
+    inclusion_serializers = {
+        "zaak": "openzaak.components.zaken.api.serializers.ZaakSerializer",
+        "zaak.zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "zaakobjecttype": "openzaak.components.catalogi.api.serializers.ZaakObjectTypeSerializer",
+    }
+
     discriminator = Discriminator(
         discriminator_field="object_type",
         mapping={

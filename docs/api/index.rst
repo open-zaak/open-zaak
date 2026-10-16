@@ -44,6 +44,22 @@ Deviation from the standards
 While Open Zaak supports above mentioned standards it also provides extra features, which can enrich
 the client experience. The full list of them is documented :ref:`here <api_experimental>`.
 
+Zaken API: expansion depth
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Zaken API 1.6.0 standard allows related resources to be expanded to arbitrary
+depth using ``expand``. Open Zaak deviates from this standard: expansion is limited
+to explicitly supported paths, with a maximum nesting depth of three levels.
+Not every path up to three levels is supported. Refer to the Open Zaak specification
+for the allowed ``expand`` values for the operation.
+
+For example, ``hoofdzaak.status.statustype`` spans three levels. When retrieving
+zaken, include the parent resources as well::
+
+    ?expand=hoofdzaak,hoofdzaak.status,hoofdzaak.status.statustype
+
+Deeper paths and paths not listed for the operation are not supported.
+
 Reference
 ---------
 

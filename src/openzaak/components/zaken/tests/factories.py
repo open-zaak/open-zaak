@@ -85,6 +85,13 @@ class ZaakInformatieObjectFactory(
         with_etag = factory.Trait(
             _etag=factory.PostGenerationMethodCall("calculate_etag_value")
         )
+        with_status = factory.Trait(
+            status=factory.SubFactory(
+                "openzaak.components.zaken.tests.factories.StatusFactory",
+                zaak=factory.SelfAttribute("..zaak"),
+                statustype__zaaktype=factory.SelfAttribute("..zaak.zaaktype"),
+            )
+        )
 
 
 class ZaakEigenschapFactory(

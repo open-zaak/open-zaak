@@ -1869,7 +1869,7 @@ class KlantContact(models.Model):
         return f"{self.identificatie}"
 
 
-class ZaakBesluit(models.Model):
+class ZaakBesluit(APIMixin, models.Model):
     uuid = models.UUIDField(
         unique=True, default=uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
@@ -1933,6 +1933,11 @@ class ZaakBesluit(models.Model):
             return _("Relation between {zaak} and {besluit}").format(
                 zaak=self.zaak, besluit=self._besluit_url
             )
+
+    def get_absolute_api_url(self, request=None, **kwargs) -> str:
+        # Add `zaak_uuid` to absolute api url
+        kwargs["zaak_uuid"] = self.zaak.uuid
+        return super().get_absolute_api_url(request=request, **kwargs)
 
     def unique_representation(self):
         zaak_repr = self.zaak.unique_representation()
