@@ -456,11 +456,6 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
         kwargs.pop("_request", None)  # see hacky workaround in EIOSerializer.create
         super().__init__(*args, **kwargs)
 
-    # Since canonicals are not stored in the database for CMIS, the BestandsDelen must
-    # be retrieved by using the UUID
-    def get_bestandsdelen(self):
-        return self.canonical.bestandsdelen
-
     @property
     def locked(self) -> bool:
         if self.pk or self.canonical is not None:
