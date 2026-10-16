@@ -183,6 +183,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         # The detail responses also include the _expand attribute, but the list response
         # only has a _expand attribute at the root level (no _expand nested inside _expand)
         del zaak_data["_expand"]
+        del zaaktype_data["_expand"]
         del hoofdzaak_data["_expand"]
         del status_data["_expand"]
         del resultaat_data["_expand"]
@@ -323,6 +324,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         # The detail responses also include the _expand attribute, but the list response
         # only has a _expand attribute at the root level (no _expand nested inside _expand)
         del zaak_data["_expand"]
+        del zaaktype_data["_expand"]
         del hoofdzaak_data["_expand"]
         del status_data["_expand"]
         del resultaat_data["_expand"]

@@ -221,6 +221,12 @@ class ResultatenExpandTests(JWTAuthMixin, APITestCase):
         zaaktype_data = self.client.get(reverse(self.zaaktype)).json()
         resultaattype_data = self.client.get(reverse(self.resultaattype)).json()
 
+        # The detail responses also include the _expand attribute, but the list response
+        # only has a _expand attribute at the root level (no _expand nested inside _expand)
+        del zaak_data["_expand"]
+        del zaaktype_data["_expand"]
+        del resultaattype_data["_expand"]
+
         expected = {
             **resultaat_data,
             "_expand": {
@@ -247,6 +253,7 @@ class ResultatenExpandTests(JWTAuthMixin, APITestCase):
         # The detail responses also include the _expand attribute, but the list response
         # only has a _expand attribute at the root level (no _expand nested inside _expand)
         del zaak_data["_expand"]
+        del resultaattype_data["_expand"]
 
         expected_expansions = {
             "zaak": {"zaak": zaak_data},
