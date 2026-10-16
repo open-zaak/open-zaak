@@ -4,16 +4,32 @@
 Test that the caching mechanisms are in place.
 """
 
-from django.db import transaction
-from django.test import tag
+import time
 
+from django.contrib.sites.models import Site
+from django.db import connection, transaction
+from django.test import tag
+from django.test.utils import CaptureQueriesContext
+
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import CacheMixin, JWTAuthMixin, reverse
+from vng_api_common.tests import CacheMixin, JWTAuthMixin, reverse, reverse_lazy
 
-from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
+from openzaak.components.catalogi.tests.factories import (
+    ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
+)
+from openzaak.components.documenten.models import (
+    EnkelvoudigInformatieObject,
+    EnkelvoudigInformatieObjectCanonical,
+)
+from openzaak.components.documenten.tests.factories import (
+    EnkelvoudigInformatieObjectFactory,
+)
 from openzaak.tests.utils import get_spec
 
+from ..models import ZaakInformatieObject
 from .factories import (
     ResultaatFactory,
     RolFactory,
@@ -345,3 +361,102 @@ class ResultaatCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+@tag("gh-2577")
+@temp_private_root()
+class ZaakInformatieObjectCostTests(JWTAuthMixin, APITestCase):
+    """
+    The queries of adding a ZIO, and of the first GET of the zaak after it, must not
+    grow with the number of ZIOs the zaak already has.
+
+    The POST only invalidates the zaak's ETag; the GET calculates it.
+    """
+
+    heeft_alle_autorisaties = True
+
+    @staticmethod
+    def _create_zios(zaak, amount: int) -> None:
+        """
+        Link ``amount`` documents to the zaak, without the factory's file per document.
+
+        The documents share one informatieobjecttype and one file, which is enough
+        for the (zaak, informatieobject) pairs to be distinct and valid.
+        """
+        template = EnkelvoudigInformatieObjectFactory.create()
+        canonicals = EnkelvoudigInformatieObjectCanonical.objects.bulk_create(
+            [EnkelvoudigInformatieObjectCanonical() for _ in range(amount)]
+        )
+        versions = EnkelvoudigInformatieObject.objects.bulk_create(
+            [
+                EnkelvoudigInformatieObject(
+                    canonical=canonical,
+                    identificatie=f"{template.identificatie}-{n}",
+                    bronorganisatie=template.bronorganisatie,
+                    creatiedatum=template.creatiedatum,
+                    titel=template.titel,
+                    auteur=template.auteur,
+                    formaat=template.formaat,
+                    taal=template.taal,
+                    inhoud=template.inhoud.name,
+                    bestandsomvang=template.bestandsomvang,
+                    informatieobjecttype=template.informatieobjecttype,
+                    vertrouwelijkheidaanduiding=template.vertrouwelijkheidaanduiding,
+                )
+                for n, canonical in enumerate(canonicals)
+            ]
+        )
+        for version in versions:
+            version.canonical.latest_version = version
+        EnkelvoudigInformatieObjectCanonical.objects.bulk_update(
+            canonicals, ["latest_version"]
+        )
+        for canonical in canonicals:
+            ZaakInformatieObject.objects.create(zaak=zaak, _informatieobject=canonical)
+
+    def _measure(self, existing: int) -> tuple[int, int, float, float]:
+        zaak = ZaakFactory.create()
+        self._create_zios(zaak, existing)
+        io = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__concept=False
+        )
+        ZaakTypeInformatieObjectTypeFactory.create(
+            informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
+        )
+        data = {
+            "informatieobject": f"http://testserver{reverse(io)}",
+            "zaak": f"http://testserver{reverse(zaak)}",
+        }
+        url = reverse_lazy(ZaakInformatieObject)
+        # the first request of the test would otherwise be the only one to query it
+        Site.objects.clear_cache()
+
+        with CaptureQueriesContext(connection) as post_queries:
+            start = time.perf_counter()
+            response = self.client.post(url, data)
+            post_duration = time.perf_counter() - start
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        with CaptureQueriesContext(connection) as get_queries:
+            start = time.perf_counter()
+            response = self.client.get(reverse(zaak), **ZAAK_READ_KWARGS)
+            get_duration = time.perf_counter() - start
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("ETag", response)
+
+        return len(post_queries), len(get_queries), post_duration, get_duration
+
+    def test_cost_does_not_grow_with_existing_zios(self):
+        *with_one, post_one, get_one = self._measure(1)
+        *with_many, post_many, get_many = self._measure(500)
+
+        self.assertEqual(with_many, with_one)
+        # Wall-clock time is flaky, so only a generous bound, with slack for a stall on
+        # CI: the POST should cost the same; the GET lists 500 URLs, so it may be
+        # somewhat slower.
+        self.assertLess(
+            post_many, 10 * post_one + 0.5, f"{post_one=:.3f}s {post_many=:.3f}s"
+        )
+        self.assertLess(
+            get_many, 10 * get_one + 0.5, f"{get_one=:.3f}s {get_many=:.3f}s"
+        )
