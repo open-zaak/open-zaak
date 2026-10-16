@@ -513,11 +513,6 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         }
 
     def save(self, *args, **kwargs):
-        update_fields = kwargs.get("update_fields")
-
-        if update_fields and set(update_fields) == {"_etag"}:
-            return super().save(*args, **kwargs)
-
         if not self.identificatie:
             assert not self.identificatie_ptr_id
             identification_class = get_base_identification_class()
@@ -547,7 +542,7 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
             for field_name, value in self._original_values.items():
                 # These fields do not represent a change that requires updating
                 # `laatst_gemuteerd`
-                if field_name in ["laatst_gemuteerd", "laatst_geopend", "_etag"]:
+                if field_name in ["laatst_gemuteerd", "laatst_geopend"]:
                     continue
 
                 if value != getattr(self, field_name):
@@ -1786,11 +1781,6 @@ class ZaakInformatieObject(ETagMixin, APIMixin, models.Model):
         return f"({zaak_repr}) - {doc_identificatie}"
 
     def save(self, *args, **kwargs):
-        update_fields = kwargs.get("update_fields")
-
-        if update_fields and set(update_fields) == {"_etag"}:
-            return super().save(*args, **kwargs)
-
         # override to set aard_relatie
         self.aard_relatie = RelatieAarden.from_object_type("zaak")
 
