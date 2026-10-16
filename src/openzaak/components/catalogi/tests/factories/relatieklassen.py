@@ -21,11 +21,6 @@ class ZaakTypeInformatieObjectTypeFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ZaakTypeInformatieObjectType
 
-    class Params:
-        with_etag = factory.Trait(
-            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
-        )
-
 
 class ZaakTypenRelatieFactory(factory.django.DjangoModelFactory):
     zaaktype = factory.SubFactory(
