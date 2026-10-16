@@ -694,8 +694,9 @@ class ZaakSerializer(
         track_object_serializer(obj, self)
 
         # ⚡️ - a just created zaak cannot have a result, so we can avoid this DB query
-        # by assigning the descriptor already
-        obj.resultaat = None
+        # by caching it as absent. Assigning None to a reverse one-to-one descriptor
+        # clears its cache instead.
+        type(obj).resultaat.related.set_cached_value(obj, None)
         # ⚡️ - avoid status query for just created zaak
         obj.current_status_uuid = None
 
