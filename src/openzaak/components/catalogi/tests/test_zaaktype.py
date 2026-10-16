@@ -1876,7 +1876,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype.besluittypen.add(besluit_type)
         zaaktype.deelzaaktypen.add(deelzaaktype)
 
-        with self.assertNumQueries(81):
+        with self.assertNumQueries(68):
             response = self.client.get(
                 reverse(zaaktype),
                 {

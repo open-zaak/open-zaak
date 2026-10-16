@@ -64,6 +64,7 @@ from openzaak.utils.api import (
 )
 from openzaak.utils.cloudevents import get_url, process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.expansion import EXPAND_QUERY_PARAM
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import (
     CacheQuerysetMixin,
@@ -276,7 +277,7 @@ ZAAK_UUID_PARAMETER = OpenApiParameter(
         ),
     ),
 )
-@conditional_retrieve(extra_depends_on={"status"})
+@conditional_retrieve(extra_depends_on={"status"}, variant_params={EXPAND_QUERY_PARAM})
 class ZaakViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     ExpandMixin,

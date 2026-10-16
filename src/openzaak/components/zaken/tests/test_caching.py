@@ -5,6 +5,7 @@ Test that the caching mechanisms are in place.
 """
 
 from django.db import transaction
+from django.test import tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -84,6 +85,24 @@ class ZaakCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @tag("gh-2577")
+    def test_expand_gets_no_etag(self):
+        """
+        An expanded zaak is another representation than the one the ETag validates.
+        """
+        zaak = ZaakFactory.create()
+        etag = self.client.get(reverse(zaak), **ZAAK_READ_KWARGS)["ETag"]
+
+        response = self.client.get(
+            reverse(zaak),
+            {"expand": "zaaktype"},
+            headers={"if-none-match": etag},
+            **ZAAK_READ_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn("ETag", response)
 
 
 class StatusCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
