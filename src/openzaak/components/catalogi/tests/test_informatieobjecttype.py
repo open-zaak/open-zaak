@@ -74,6 +74,7 @@ class InformatieObjectTypeAPITests(APITestCase):
             "concept": True,
             "trefwoord": ["abc", "def"],
             "besluittypen": [],
+            "besluittypeOmschrijving": [],
             "omschrijvingGeneriek": {
                 "informatieobjecttypeOmschrijvingGeneriek": iotype.omschrijving_generiek_informatieobjecttype,
                 "definitieInformatieobjecttypeOmschrijvingGeneriek": iotype.omschrijving_generiek_definitie,
@@ -89,6 +90,28 @@ class InformatieObjectTypeAPITests(APITestCase):
             "_expand": {},
         }
         self.assertEqual(expected, response.json())
+
+    def test_get_detail_besluittype_omschrijving(self):
+        iotype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus, zaaktypen=None
+        )
+        besluittype1 = BesluitTypeFactory.create(
+            catalogus=self.catalogus, informatieobjecttypen=[iotype]
+        )
+        besluittype2 = BesluitTypeFactory.create(
+            catalogus=self.catalogus, informatieobjecttypen=[iotype]
+        )
+        BesluitTypeFactory.create(catalogus=self.catalogus)  # not related
+
+        response = self.client.get(
+            get_operation_url("informatieobjecttype_read", uuid=iotype.uuid)
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertCountEqual(
+            response.json()["besluittypeOmschrijving"],
+            [besluittype1.omschrijving, besluittype2.omschrijving],
+        )
 
     def test_get_detail_zaaktype_identificaties(self):
         iotype = InformatieObjectTypeFactory.create(
