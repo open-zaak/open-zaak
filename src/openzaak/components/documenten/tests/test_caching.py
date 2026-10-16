@@ -4,6 +4,10 @@
 Test that the caching mechanisms are in place.
 """
 
+from uuid import uuid4
+
+from django.test import tag
+
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
@@ -12,7 +16,8 @@ from vng_api_common.tests import CacheMixin, JWTAuthMixin, reverse
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 from openzaak.tests.utils import get_spec
 
-from ..models import ObjectInformatieObject
+from ..admin import unlock
+from ..models import EnkelvoudigInformatieObjectCanonical, ObjectInformatieObject
 from ..tests.factories import (
     BestandsDeelFactory,
     EnkelvoudigInformatieObjectFactory,
@@ -74,6 +79,21 @@ class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCas
         response = self.client.get(reverse(eio), headers={"if-none-match": etag})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()["bestandsdelen"]), 1)
+
+    @tag("gh-2577")
+    def test_admin_unlock_invalidates_etag(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(canonical__lock=uuid4().hex)
+        etag = self.client.get(reverse(eio))["ETag"]
+
+        unlock(
+            None,
+            None,
+            EnkelvoudigInformatieObjectCanonical.objects.filter(pk=eio.canonical.pk),
+        )
+
+        response = self.client.get(reverse(eio), headers={"if-none-match": etag})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.json()["locked"])
 
 
 class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):

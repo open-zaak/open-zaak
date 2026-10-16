@@ -18,7 +18,7 @@ from django.utils.translation import gettext_lazy as _
 
 import structlog
 from django_loose_fk.loaders import FetchError
-from vng_api_common.caching import ETagMixin
+from vng_api_common.caching import ETagMixin, invalidating_update
 from vng_api_common.constants import (
     Archiefnominatie,
     Archiefstatus,
@@ -1046,7 +1046,8 @@ class Resultaat(ETagMixin, APIMixin, models.Model):
         if Resultaat.objects.filter(zaak=zaak).exists():
             try_calculate_archiving(zaak, force=True)
         else:
-            type(zaak).objects.filter(pk=zaak.pk).update(
+            invalidating_update(
+                type(zaak).objects.filter(pk=zaak.pk),
                 archiefactiedatum=None,
                 startdatum_bewaartermijn=None,
             )
