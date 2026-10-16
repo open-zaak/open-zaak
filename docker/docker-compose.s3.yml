@@ -1,0 +1,38 @@
+services:
+  s3:
+    # moto keeps everything in memory: files are gone after a restart
+    image: motoserver/moto:5.2.4
+    container_name: s3
+    ports:
+      - "9000:5000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:5000/moto-api/')",
+        ]
+      interval: 2s
+      retries: 15
+
+  createbuckets:
+    image: motoserver/moto:5.2.4
+    depends_on:
+      s3:
+        condition: service_healthy
+    environment:
+      BUCKET: "${S3_STORAGE_BUCKET_NAME:-openzaak}"
+    # moto accepts any credentials
+    entrypoint:
+      - python
+      - -c
+      - |
+        import os, boto3
+        boto3.client(
+            "s3",
+            endpoint_url="http://s3:5000",
+            region_name="us-east-1",
+            aws_access_key_id="minioadmin",
+            aws_secret_access_key="minioadmin",
+        ).create_bucket(Bucket=os.environ["BUCKET"])
