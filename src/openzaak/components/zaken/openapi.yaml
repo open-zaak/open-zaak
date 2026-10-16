@@ -775,7 +775,7 @@ paths:
             - resultaattype
             - zaak
             - zaak.zaaktype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
         style: form
@@ -1124,7 +1124,7 @@ paths:
             - resultaattype
             - zaak
             - zaak.zaaktype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
         style: form
@@ -1923,7 +1923,7 @@ paths:
             - statussen.statustype
             - zaak
             - zaak.zaaktype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
         style: form
@@ -2331,9 +2331,7 @@ paths:
         name: betrokkeneIdentificatie__medewerker__identificatie
         schema:
           type: string
-        description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de MEDEWERKER.
-          Dit veld wijkt af van de standaard, omdat er 128 karakters zijn toegestaan
-          in plaats van 24'
+        description: Een unieke aanduiding van de MEDEWERKER.
       - in: query
         name: betrokkeneIdentificatie__natuurlijkPersoon__anpIdentificatie
         schema:
@@ -2418,7 +2416,7 @@ paths:
             - statussen.statustype
             - zaak
             - zaak.zaaktype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
         style: form
@@ -3018,7 +3016,7 @@ paths:
             - zaak.zaaktype
             - zaakinformatieobjecten
             - zaakinformatieobjecten.informatieobject
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
         style: form
@@ -3384,7 +3382,7 @@ paths:
             - zaak.zaaktype
             - zaakinformatieobjecten
             - zaakinformatieobjecten.informatieobject
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
         style: form
@@ -5137,7 +5135,7 @@ paths:
             - status.statustype
             - zaak
             - zaak.zaaktype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
         style: form
@@ -5492,7 +5490,7 @@ paths:
             - status.statustype
             - zaak
             - zaak.zaaktype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
         style: form
@@ -7402,7 +7400,7 @@ paths:
             - zaak
             - zaak.zaaktype
             - zaakobjecttype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
         style: form
@@ -7777,7 +7775,7 @@ paths:
             - zaak
             - zaak.zaaktype
             - zaakobjecttype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
         style: form
@@ -11136,7 +11134,7 @@ paths:
             type: string
             enum:
             - besluit
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
         style: form
@@ -11473,7 +11471,7 @@ paths:
             type: string
             enum:
             - besluit
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
         style: form
