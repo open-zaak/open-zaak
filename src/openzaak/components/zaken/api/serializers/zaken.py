@@ -1237,7 +1237,8 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         try:
             response = create_remote_oio(io_url, zaak_url)
         except Exception:
-            zio.delete()
+            with transaction.atomic():
+                zio.delete()
             logger.exception(
                 "Could not create remote relation due to an unexpected error"
             )
@@ -1251,7 +1252,8 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             )
         else:
             zio._objectinformatieobject_url = response["url"]
-            zio.save(update_fields=["_objectinformatieobject_url"])
+            with transaction.atomic():
+                zio.save(update_fields=["_objectinformatieobject_url"])
 
         return zio
 

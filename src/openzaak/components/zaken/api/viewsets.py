@@ -1027,7 +1027,8 @@ class ZaakInformatieObjectViewSet(
                 delete_remote_oio(instance._objectinformatieobject_url)
             except Exception:
                 # bring back the instance
-                instance.save()
+                with transaction.atomic():
+                    instance.save()
                 raise ValidationError(
                     {"informatieobject": _("Could not delete remote relation")},
                     code="pending-relations",
