@@ -2,7 +2,10 @@
 # Copyright (C) 2020 Dimpact
 from datetime import timedelta
 
+from django.db.models.signals import post_save
+
 from dateutil.relativedelta import relativedelta
+from factory.django import mute_signals
 
 from openzaak.tests.utils import TestMigrations
 
@@ -18,7 +21,11 @@ class MigrateDurationFieldTest(TestMigrations):
         StatusType = apps.get_model("catalogi", "StatusType")
         ZaakType = apps.get_model("catalogi", "ZaakType")
 
-        zaaktype_pk = ZaakTypeFactory.create().pk
+        # the factory uses the current models, while the database is at an older
+        # migration state, the ETag signal handlers would query columns that don't
+        # exist yet
+        with mute_signals(post_save):
+            zaaktype_pk = ZaakTypeFactory.create().pk
         status_type = StatusType.objects.create(
             zaaktype=ZaakType.objects.get(pk=zaaktype_pk),
             statustypevolgnummer=123,
