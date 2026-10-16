@@ -747,6 +747,24 @@ class ZaakTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    @tag("gh-2577")
+    def test_expand_gets_no_etag(self):
+        """
+        An expanded zaaktype is another representation than the one the ETag
+        validates.
+        """
+        zaaktype = ZaakTypeFactory.create()
+        etag = self.client.get(reverse(zaaktype))["ETag"]
+
+        response = self.client.get(
+            reverse(zaaktype),
+            {"expand": "catalogus"},
+            headers={"if-none-match": etag},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn("ETag", response)
+
 
 class ZaakTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
