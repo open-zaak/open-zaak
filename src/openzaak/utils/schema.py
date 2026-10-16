@@ -329,7 +329,12 @@ class AutoSchema(_AutoSchema):
                 return OpenApiParameter(
                     name="expand",
                     location="query",
-                    description=f"{description} (samengevoegd met evt. expand in body)",
+                    description=(
+                        f"{description} (samengevoegd met evt. expand in body). "
+                        "Voor gerelateerde resources uit de Catalogi API is "
+                        "`catalogi.lezen` nodig; voor informatieobjecten uit de "
+                        "Documenten API is `documenten.lezen` nodig."
+                    ),
                     many=True,
                     enum=enum,
                     #
