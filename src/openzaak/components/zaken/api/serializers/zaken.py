@@ -31,7 +31,6 @@ from rest_framework.exceptions import ErrorDetail
 from rest_framework_gis.fields import GeometryField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from vng_api_common.caching import invalidating_update
-from vng_api_common.caching.etags import track_object_serializer
 from vng_api_common.constants import (
     Archiefnominatie,
     Archiefstatus,
@@ -691,7 +690,6 @@ class ZaakSerializer(
             )
 
         obj = super().create(validated_data)
-        track_object_serializer(obj, self)
 
         # ⚡️ - a just created zaak cannot have a result, so we can avoid this DB query
         # by caching it as absent. Assigning None to a reverse one-to-one descriptor
