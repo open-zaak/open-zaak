@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.tests import reverse
 
 from openzaak.components.zaken.models import Zaak, ZaakBesluit
 from openzaak.components.zaken.tests.factories import ZaakFactory
@@ -111,3 +112,64 @@ class BesluitDeleteTestCase(JWTAuthMixin, APITestCase):
         )
         zaak.refresh_from_db()
         self.assertGreater(zaak.laatst_gemuteerd, old)
+
+
+class BesluitRemoveZaakTestCase(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    def test_patch_besluit_remove_zaak_deletes_zaakbesluit(self):
+        zaak = ZaakFactory.create()
+        besluit = BesluitFactory.create(zaak=zaak)
+        besluit.besluittype.zaaktypen.add(zaak.zaaktype)
+        url = get_operation_url("besluit_partial_update", uuid=besluit.uuid)
+
+        response = self.client.patch(url, {"zaak": ""})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertFalse(ZaakBesluit.objects.filter(zaak=zaak).exists())
+
+    def test_save_without_zaak_fields_after_removing_zaak(self):
+        """
+        The etag is calculated in a second save of the same instance, which must not
+        sync the ZaakBesluit again.
+        """
+        zaak = ZaakFactory.create()
+        besluit = BesluitFactory.create(zaak=zaak)
+        besluit = Besluit.objects.get(pk=besluit.pk)
+        besluit.zaak = None
+        besluit.save()
+        self.assertFalse(ZaakBesluit.objects.filter(zaak=zaak).exists())
+
+        besluit.save(update_fields=["_etag"])
+
+        self.assertFalse(ZaakBesluit.objects.filter(zaak=zaak).exists())
+
+    def test_change_zaak_moves_zaakbesluit(self):
+        zaak1 = ZaakFactory.create()
+        zaak2 = ZaakFactory.create(zaaktype=zaak1.zaaktype)
+        besluit = BesluitFactory.create(zaak=zaak1)
+        besluit = Besluit.objects.get(pk=besluit.pk)
+
+        besluit.zaak = zaak2
+        besluit.save()
+        # second save of the same instance, like the etag calculation
+        besluit.save(update_fields=["_etag"])
+
+        self.assertFalse(ZaakBesluit.objects.filter(zaak=zaak1).exists())
+        self.assertEqual(ZaakBesluit.objects.filter(zaak=zaak2).count(), 1)
+
+    def test_patch_change_zaak(self):
+        zaak1 = ZaakFactory.create()
+        zaak2 = ZaakFactory.create(zaaktype=zaak1.zaaktype)
+        besluit = BesluitFactory.create(zaak=zaak1)
+        besluit.besluittype.zaaktypen.add(zaak1.zaaktype)
+        url = get_operation_url("besluit_partial_update", uuid=besluit.uuid)
+
+        response = self.client.patch(
+            url,
+            {"zaak": f"http://testserver{reverse(zaak2)}"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertFalse(ZaakBesluit.objects.filter(zaak=zaak1).exists())
+        self.assertEqual(ZaakBesluit.objects.filter(zaak=zaak2).count(), 1)
