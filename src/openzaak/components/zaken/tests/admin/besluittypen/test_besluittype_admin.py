@@ -12,13 +12,11 @@ from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.models import (
     BesluitType,
-    InformatieObjectType,
     ZaakType,
 )
 from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
     CatalogusFactory,
-    InformatieObjectTypeFactory,
     ZaakTypeFactory,
 )
 
@@ -36,15 +34,6 @@ class BesluitTypeAdminTests(WebTest):
         cls.zaaktype = ZaakTypeFactory.create(catalogus=cls.catalogus)
         ZaakTypeFactory.create_batch(3, catalogus=CatalogusFactory.create())
 
-        # Delete automatically created IOTypen
-        InformatieObjectType.objects.all().delete()
-        cls.iotype = InformatieObjectTypeFactory.create(
-            catalogus=cls.catalogus, zaaktypen=[]
-        )
-        InformatieObjectTypeFactory.create_batch(
-            3, catalogus=CatalogusFactory.create(), zaaktypen=[]
-        )
-
     def setUp(self):
         super().setUp()
 
@@ -60,18 +49,6 @@ class BesluitTypeAdminTests(WebTest):
         # Verify that the popup screen shows only one Zaaktype
         popup_response = self.app.get(popup_zaaktypen.attrs["href"])
 
-        rows = popup_response.html.findAll("tr")[1:]
-        self.assertEqual(len(rows), 4)
-
-        popup_iotypen = response.html.find(
-            "a", {"id": "lookup_id_informatieobjecttypen"}
-        )
-        self.assertEqual(
-            popup_iotypen.attrs["href"],
-            reverse("admin:catalogi_informatieobjecttype_changelist"),
-        )
-        # Verify that the popup screen shows only one IOtype
-        popup_response = self.app.get(popup_iotypen.attrs["href"])
         rows = popup_response.html.findAll("tr")[1:]
         self.assertEqual(len(rows), 4)
 
@@ -95,20 +72,6 @@ class BesluitTypeAdminTests(WebTest):
         rows = popup_response.html.findAll("tr")[1:]
         self.assertEqual(len(rows), 1)
 
-        popup_iotypen = response.html.find(
-            "a", {"id": "lookup_id_informatieobjecttypen"}
-        )
-        iotype_changelist_url = reverse(
-            "admin:catalogi_informatieobjecttype_changelist"
-        )
-        self.assertEqual(
-            popup_iotypen.attrs["href"],
-            f"{iotype_changelist_url}?{urlencode({'catalogus__exact': self.catalogus.pk})}",
-        )
-        popup_response = self.app.get(popup_iotypen.attrs["href"])
-        rows = popup_response.html.findAll("tr")[1:]
-        self.assertEqual(len(rows), 1)
-
     def test_change_besluittype_m2m_relation_popup_filters(self):
         besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
         besluittype.zaaktypen.all().delete()
@@ -126,20 +89,6 @@ class BesluitTypeAdminTests(WebTest):
         rows = popup_response.html.findAll("tr")[1:]
         self.assertEqual(len(rows), 1)
 
-        popup_iotypen = response.html.find(
-            "a", {"id": "lookup_id_informatieobjecttypen"}
-        )
-        iotype_changelist_url = reverse(
-            "admin:catalogi_informatieobjecttype_changelist"
-        )
-        self.assertEqual(
-            popup_iotypen.attrs["href"],
-            f"{iotype_changelist_url}?{urlencode({'catalogus__exact': self.catalogus.pk})}",
-        )
-        popup_response = self.app.get(popup_iotypen.attrs["href"])
-        rows = popup_response.html.findAll("tr")[1:]
-        self.assertEqual(len(rows), 1)
-
     def test_read_published_besluittype_m2m_relation(self):
         """
         There should be no popup links visible here, because the resource
@@ -152,10 +101,6 @@ class BesluitTypeAdminTests(WebTest):
 
         popup_zaaktypen = response.html.find("a", {"id": "lookup_id_zaaktypen"})
         self.assertIsNone(popup_zaaktypen)
-        popup_iotypen = response.html.find(
-            "a", {"id": "lookup_id_informatieobjecttypen"}
-        )
-        self.assertIsNone(popup_iotypen)
 
     def test_create_besluittype(self):
         query_params = urlencode(

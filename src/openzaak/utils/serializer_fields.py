@@ -104,8 +104,8 @@ class ViewNameInjectionMixin:
     """
 
     def __init__(self, *args, view_name: str | None = None, **kwargs):
-        self.view_name = view_name
         super().__init__(*args, **kwargs)
+        self.view_name = view_name
 
     @cached_property
     def _field_instance(self):

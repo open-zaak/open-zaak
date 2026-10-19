@@ -14,6 +14,7 @@ from vng_api_common.tests import get_validation_errors
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
+from openzaak.components.catalogi.models import BesluitTypeInformatieObjectType
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.models import ObjectInformatieObject
 from openzaak.components.documenten.tests.factories import (
@@ -523,12 +524,10 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             error["code"], "missing-besluittype-informatieobjecttype-relation"
         )
 
-    def test_besluittype_internal_iotype_external(self):
-        besluit = BesluitFactory.create()
+    def _post_with_external_iotype(self, besluit, informatieobjecttype: str):
         besluit_url = (
             f"http://openbesluit.nl{reverse(besluit, namespace=self.NAMESPACE)}"
         )
-        informatieobjecttype = f"{self.base}informatieobjecttypen/{uuid.uuid4()}"
         catalogus = f"{self.base}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
 
         with requests_mock.Mocker() as m:
@@ -546,17 +545,42 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                     self.document, informatieobjecttype=informatieobjecttype
                 ),
             )
+            m.post(
+                f"{self.base}objectinformatieobjecten",
+                json=get_oio_response(self.document, besluit_url, "besluit"),
+                status_code=201,
+            )
 
-            response = self.client.post(
+            return self.client.post(
                 self.list_url,
                 {"besluit": besluit_url, "informatieobject": self.document},
                 headers={"host": "openbesluit.nl"},
             )
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    def test_besluittype_internal_iotype_external(self):
+        besluit = BesluitFactory.create()
+        informatieobjecttype = f"{self.base}informatieobjecttypen/{uuid.uuid4()}"
+        BesluitTypeInformatieObjectType.objects.create(
+            besluittype=besluit.besluittype,
+            informatieobjecttype=informatieobjecttype,
+        )
 
+        response = self._post_with_external_iotype(besluit, informatieobjecttype)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_besluittype_internal_iotype_external_not_linked_fail(self):
+        besluit = BesluitFactory.create()
+        informatieobjecttype = f"{self.base}informatieobjecttypen/{uuid.uuid4()}"
+        BesluitTypeInformatieObjectType.objects.create(
+            besluittype=besluit.besluittype,
+            informatieobjecttype=f"{self.base}informatieobjecttypen/{uuid.uuid4()}",
+        )
+
+        response = self._post_with_external_iotype(besluit, informatieobjecttype)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "nonFieldErrors")
-        assert error
         self.assertEqual(
             error["code"], "missing-besluittype-informatieobjecttype-relation"
         )

@@ -115,6 +115,10 @@ def get_by_source(obj, path: str):
     return get_by_source(value, bits[1])
 
 
+def _is_external(relation) -> bool:
+    return isinstance(relation, str) or getattr(relation, "pk", None) is None
+
+
 class RelationCatalogValidator:
     code = "relations-incorrect-catalogus"
     message = _("The {} has catalogus different from created object")
@@ -144,6 +148,8 @@ class RelationCatalogValidator:
             relations = [relations]
 
         for relation in relations:
+            if _is_external(relation):
+                continue
             relation_catalogus = get_by_source(
                 relation, self.relation_field_catalogus_path
             )
@@ -240,8 +246,11 @@ class ZaakTypeInformatieObjectTypeCatalogusValidator:
         instance = getattr(serializer, "instance", None)
         zaaktype = attrs.get("zaaktype") or instance.zaaktype
         informatieobjecttype = (
-            attrs.get("informatieobjecttype") or instance.informatieobjecttype
+            attrs.get("informatieobjecttype") or instance._informatieobjecttype
         )
+
+        if _is_external(informatieobjecttype):
+            return
 
         if zaaktype.catalogus != informatieobjecttype.catalogus:
             raise ValidationError(self.message, code=self.code)
@@ -372,6 +381,8 @@ class M2MConceptCreateValidator:
         for field_name in self.concept_related_fields:
             field = attrs.get(field_name, [])
             for related_object in field:
+                if _is_external(related_object):
+                    continue
                 if not related_object.concept:
                     msg = _(
                         f"Relations to non-concept {field_name} object can't be created"
@@ -418,6 +429,8 @@ class M2MConceptUpdateValidator:
             field_in_attrs = attrs.get(field_name)
             if field_in_attrs:
                 for relation in field_in_attrs:
+                    if _is_external(relation):
+                        continue
                     if not relation.concept:
                         msg = _(
                             f"Objects can't be updated with a relation to non-concept {field_name}"
