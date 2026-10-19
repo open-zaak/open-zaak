@@ -30,7 +30,8 @@ drf-extra-fields
 drf-writable-nested
 humanize
 
-commonground-api-common[setup-configuration,testutils,oas]
+# TODO: back to a release once open-zaak#2577 is released in commonground-api-common
+commonground-api-common[setup-configuration,testutils,oas] @ git+https://github.com/maykinmedia/commonground-api-common.git@issue/open-zaak-2577-etags
 maykin-common[axes,mfa,otel,cli,health-checks]
 psycopg[pool, binary]
 zgw-consumers[oauth2]
