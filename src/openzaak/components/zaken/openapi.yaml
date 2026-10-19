@@ -8982,8 +8982,10 @@ paths:
             - status
             - status.statustype
             - zaakinformatieobjecten
+            - zaakinformatieobjecten.informatieobject
             - zaakobjecten
             - zaaktype
+            - zaaktype.catalogus
         description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
@@ -9731,8 +9733,10 @@ paths:
             - status
             - status.statustype
             - zaakinformatieobjecten
+            - zaakinformatieobjecten.informatieobject
             - zaakobjecten
             - zaaktype
+            - zaaktype.catalogus
         description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
@@ -12602,10 +12606,14 @@ paths:
             - status
             - status.statustype
             - zaakinformatieobjecten
+            - zaakinformatieobjecten.informatieobject
             - zaakobjecten
             - zaaktype
+            - zaaktype.catalogus
         description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
-          \ \n\n (samengevoegd met evt. expand in body)"
+          \ \n\n (samengevoegd met evt. expand in body). Voor gerelateerde resources\
+          \ uit de Catalogi API is `catalogi.lezen` nodig; voor informatieobjecten\
+          \ uit de Documenten API is `documenten.lezen` nodig."
         explode: false
         style: form
       - name: page
@@ -12629,6 +12637,41 @@ paths:
             schema:
               type: object
               properties:
+                fields:
+                  title: Fields
+                  type: array
+                  items:
+                    oneOf:
+                    - type: string
+                    - type: object
+                  example:
+                  - url
+                  - uuid
+                  - identificatie
+                  - bronorganisatie
+                  - zaaktype:
+                    - identificatie
+                    - omschrijving
+                    - catalogus:
+                      - domein
+                    status:
+                    - statustype: volgnummer
+                    - datumStatusGezet
+                    resultaat:
+                    - '*'
+                    zaakinformatieobjecten:
+                    - informatieobject:
+                      - inhoud
+                      - bestandsnaam
+                      - bestandsomvang
+                    processobject:
+                    - identificatie
+                  description: |-
+                    De elementen (fields) die worden teruggegeven in de repons conform het expand-mechanisme. Het voorbeeld geeft aan hoe het werkt. Hierin betekent "*" dat alle elementen van een resource worden teruggegeven.
+
+                    Voor gerelateerde resources uit de Catalogi API is `catalogi.lezen` nodig; voor informatieobjecten uit de Documenten API is `documenten.lezen` nodig.
+
+                    **Let op:** Het gebruik van het "fields" en "expand" element is mutual exclusive. Of je gebruikt de één of de ander maar nooit te gelijk.
                 zaakgeometrie:
                   $ref: '#/components/schemas/GeoWithinRequest'
                 uuid__in:
@@ -13018,8 +13061,10 @@ paths:
                     - status
                     - status.statustype
                     - zaakinformatieobjecten
+                    - zaakinformatieobjecten.informatieobject
                     - zaakobjecten
                     - zaaktype
+                    - zaaktype.catalogus
                   description: "Sluit de gespecificeerde gerelateerde resources aan\
                     \ in het antwoord. \n\n"
       security:
@@ -13354,8 +13399,7 @@ components:
           readOnly: true
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
         omschrijvingGeneriek:
-          allOf:
-          - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
+          type: string
           readOnly: true
           description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
             \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
@@ -13573,8 +13617,7 @@ components:
           readOnly: true
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
         omschrijvingGeneriek:
-          allOf:
-          - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
+          type: string
           readOnly: true
           description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
             \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
@@ -13784,8 +13827,7 @@ components:
           readOnly: true
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
         omschrijvingGeneriek:
-          allOf:
-          - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
+          type: string
           readOnly: true
           description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
             \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
@@ -16374,17 +16416,6 @@ components:
       required:
       - avgAard
       - identificatie
-    OmschrijvingGeneriekEnum:
-      enum:
-      - adviseur
-      - behandelaar
-      - belanghebbende
-      - beslisser
-      - initiator
-      - klantcontacter
-      - zaakcoordinator
-      - mede_initiator
-      type: string
     OneOrMultipleZaakIdentificaties:
       oneOf:
       - $ref: '#/components/schemas/ReserveZaakIdentificatie'
