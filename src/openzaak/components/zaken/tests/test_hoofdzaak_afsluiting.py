@@ -641,7 +641,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             )
 
     def test_queries_with_no_deelzaken(self):
-        with self.assertNumQueries(67):
+        with self.assertNumQueries(57):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -667,7 +667,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         (8) 77: archiving recalculation query
         (9) 78: savepoints transaction management for archiving update
         """
-        with self.assertNumQueries(75):
+        with self.assertNumQueries(65):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -695,7 +695,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         (17) 87-91: archiving recalculation query
         """
         self._generate_deelzaken(1, False)
-        with self.assertNumQueries(82):
+        with self.assertNumQueries(72):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -721,7 +721,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         (10) 78: savepoint transaction management for archiving update
         """
         self._generate_deelzaken(10, True)
-        with self.assertNumQueries(75):
+        with self.assertNumQueries(65):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -736,11 +736,11 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_queries_with_many_deelzaken_with_external_catalogi(self):
         """
-        A single deelzaak with external catalogi costs 82 queries, and each further one 9.
-        82 + (9*9) = 163
+        A single deelzaak with external catalogi costs 72 queries, and each further one 9.
+        72 + (9*9) = 153
         """
         self._generate_deelzaken(10, False)
-        with self.assertNumQueries(163):
+        with self.assertNumQueries(153):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -757,7 +757,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         self._generate_deelzaken(10, True)
         self._generate_deelzaken(10, False)
 
-        with self.assertNumQueries(166):
+        with self.assertNumQueries(156):
             response = self.client.post(
                 self.status_list_url,
                 {
