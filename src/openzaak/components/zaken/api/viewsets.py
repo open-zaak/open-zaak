@@ -50,6 +50,7 @@ from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 
 from openzaak.client import get_client
+from openzaak.components.catalogi.models import ZaakType
 from openzaak.components.zaken.metrics import (
     zaken_create_counter,
     zaken_delete_counter,
@@ -68,6 +69,7 @@ from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import (
     CacheQuerysetMixin,
     ExpandMixin,
+    FieldsMixin,
 )
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
@@ -279,6 +281,7 @@ ZAAK_UUID_PARAMETER = OpenApiParameter(
 @conditional_retrieve(extra_depends_on={"status"})
 class ZaakViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    FieldsMixin,
     ExpandMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
@@ -300,7 +303,9 @@ class ZaakViewSet(
         Zaak.objects.prefetch_related(
             # Prefetch _zaaktype instead of using `.select_related`, because using the latter
             # causes the main Zaak query to contain a lot of duplicate data, increasing overhead
-            "_zaaktype",
+            models.Prefetch(
+                "_zaaktype", queryset=ZaakType.objects.with_dates("identificatie")
+            ),
             "deelzaken",
             models.Prefetch(
                 "relevante_andere_zaken",
@@ -328,6 +333,86 @@ class ZaakViewSet(
         .order_by("-pk")
         .distinct()
     )
+    inclusion_viewsets = {
+        "zaaktype": (
+            "_zaaktype",
+            "openzaak.components.catalogi.api.viewsets.ZaakTypeViewSet",
+        ),
+        "hoofdzaak": (
+            "hoofdzaak",
+            "openzaak.components.zaken.api.viewsets.ZaakViewSet",
+        ),
+        "deelzaken": (
+            "deelzaken",
+            "openzaak.components.zaken.api.viewsets.ZaakViewSet",
+        ),
+        "eigenschappen": (
+            "zaakeigenschap_set",
+            "openzaak.components.zaken.api.viewsets.ZaakEigenschapViewSet",
+        ),
+        "status": (
+            "status_set",
+            "openzaak.components.zaken.api.viewsets.StatusViewSet",
+        ),
+        "resultaat": (
+            "resultaat",
+            "openzaak.components.zaken.api.viewsets.ResultaatViewSet",
+        ),
+        "rollen": ("rol_set", "openzaak.components.zaken.api.viewsets.RolViewSet"),
+        "zaakinformatieobjecten": (
+            "zaakinformatieobject_set",
+            "openzaak.components.zaken.api.viewsets.ZaakInformatieObjectViewSet",
+        ),
+        "zaakobjecten": (
+            "zaakobject_set",
+            "openzaak.components.zaken.api.viewsets.ZaakObjectViewSet",
+        ),
+        "eigenschappen.eigenschap": (
+            "zaakeigenschap_set___eigenschap",
+            "openzaak.components.catalogi.api.viewsets.EigenschapViewSet",
+        ),
+        "status.statustype": (
+            "prefetched_statuses___statustype",
+            "openzaak.components.catalogi.api.viewsets.StatusTypeViewSet",
+        ),
+        "resultaat.resultaattype": (
+            "resultaat___resultaattype",
+            "openzaak.components.catalogi.api.viewsets.ResultaatTypeViewSet",
+        ),
+        "rollen.roltype": (
+            "rol_set___roltype",
+            "openzaak.components.catalogi.api.viewsets.RolTypeViewSet",
+        ),
+        "zaaktype.catalogus": (
+            "_zaaktype__catalogus",
+            "openzaak.components.catalogi.api.viewsets.CatalogusViewSet",
+        ),
+        "zaakinformatieobjecten.informatieobject": (
+            "zaakinformatieobject_set___informatieobject__latest_version",
+            "openzaak.components.documenten.api.viewsets.EnkelvoudigInformatieObjectViewSet",
+        ),
+    }
+    # Reuse the same relations when expanding a hoofdzaak or deelzaken
+    inclusion_viewsets.update(
+        {
+            f"{parent}.{name}": (f"{parent}__{lookup}", viewset)
+            for name, (lookup, viewset) in inclusion_viewsets.items()
+            if name
+            in (
+                "zaaktype",
+                "status",
+                "status.statustype",
+                "resultaat",
+                "resultaat.resultaattype",
+                "rollen",
+                "rollen.roltype",
+                "zaakinformatieobjecten",
+                "zaakobjecten",
+            )
+            for parent in ("hoofdzaak", "deelzaken")
+        }
+    )
+
     serializer_class = ZaakSerializer
     search_input_serializer_class = ZaakZoekSerializer
     filter_backends = (Backend,)
@@ -396,6 +481,17 @@ class ZaakViewSet(
         if not request.data:
             err = serializers.ErrorDetail(
                 _("Search parameters must be specified"), code="empty_search_body"
+            )
+            raise serializers.ValidationError({api_settings.NON_FIELD_ERRORS_KEY: err})
+
+        elif self.has_expand(request) and self.has_fields(request):
+            # Het gebruik van het "fields" en "expand" element is mutual exclusive.
+            # Of je gebruikt de één of de ander maar nooit te gelijk.
+            err = serializers.ErrorDetail(
+                _(
+                    "Het gebruik van het `fields` en `expand` element is mutual exclusive."
+                ),
+                code="invalid_field",
             )
             raise serializers.ValidationError({api_settings.NON_FIELD_ERRORS_KEY: err})
 
@@ -542,13 +638,6 @@ class ZaakViewSet(
             vertrouwelijkheidaanduiding=instance.vertrouwelijkheidaanduiding,
             zaaktype=str(instance.zaaktype),
         )
-
-    def get_search_input(self):
-        serializer = self.get_search_input_serializer_class()(
-            data=self.request.data, context={"request": self.request}
-        )
-        serializer.is_valid(raise_exception=True)
-        return serializer.validated_data
 
 
 @extend_schema_view(
@@ -942,11 +1031,9 @@ class ZaakInformatieObjectViewSet(
     Opvragen en bewerken van ZAAK-INFORMATIEOBJECT relaties.
     """
 
-    queryset = (
-        ZaakInformatieObject.objects.select_related("zaak", "_informatieobject")
-        .prefetch_related("_informatieobject__enkelvoudiginformatieobject_set")
-        .order_by("-pk")
-    )
+    queryset = ZaakInformatieObject.objects.select_related(
+        "zaak", "_informatieobject__latest_version"
+    ).order_by("-pk")
     filterset_class = ZaakInformatieObjectFilter
     serializer_class = ZaakInformatieObjectSerializer
     lookup_field = "uuid"

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 
-from django.db.models import Prefetch
+from django.db.models import Prefetch, QuerySet
 from django.utils.module_loading import import_string
 
 from dictdiffer import diff
@@ -11,7 +11,12 @@ from rest_framework_inclusions.renderer import (
 from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.models import APIMixin as _APIMixin
 
-from .expansion import EXPAND_QUERY_PARAM, ExpandJSONRenderer
+from .expansion import (
+    EXPAND_QUERY_PARAM,
+    ExpandJSONRenderer,
+    fields_at_path,
+    limit_serializer_fields,
+)
 from .permissions import ExpandAuthRequired
 
 EXPAND_SUPPORTED_ACTIONS = ["list", "_zoek", "retrieve"]
@@ -77,6 +82,61 @@ class ExpandMixin:
         current.pop(parts[-1], None)
         return qs
 
+    def _prefetch_inclusion(
+        self, queryset: QuerySet, lookup: str, related_queryset: QuerySet
+    ) -> QuerySet:
+        """Update the queryset to fetch the requested related objects in advance"""
+
+        current_prefetches = queryset._prefetch_related_lookups
+        parent_lookup, separator, child_lookup = lookup.partition("__")
+
+        # Prefetch nested relations recursively to avoid queries per object
+        if separator:
+            for index, prefetch in enumerate(current_prefetches):
+                if (
+                    isinstance(prefetch, Prefetch)
+                    and prefetch.queryset is not None
+                    and parent_lookup
+                    in (prefetch.prefetch_through, prefetch.prefetch_to)
+                ):
+                    prefetches = list(current_prefetches)
+                    prefetches[index] = Prefetch(
+                        prefetch.prefetch_through,
+                        queryset=self._prefetch_inclusion(
+                            prefetch.queryset, child_lookup, related_queryset
+                        ),
+                        to_attr=prefetch.to_attr,
+                    )
+                    return queryset.prefetch_related(None).prefetch_related(*prefetches)
+
+        # Replace this relation's prefetch, keeping all unrelated prefetches
+        prefetches = []
+        existing = None
+        child_prefix = f"{lookup}__"
+        for prefetch in current_prefetches:
+            source = getattr(prefetch, "prefetch_through", prefetch)
+            destination = getattr(prefetch, "prefetch_to", prefetch)
+            if isinstance(prefetch, Prefetch) and lookup in (source, destination):
+                existing = prefetch
+                continue
+
+            if source != lookup and not destination.startswith(child_prefix):
+                prefetches.append(prefetch)
+
+        # Preserve aliases and ordering from the existing prefetch
+        to_attr = None
+        if existing is not None:
+            lookup = existing.prefetch_through
+            to_attr = existing.to_attr
+            if existing.queryset is not None:
+                related_queryset = related_queryset.order_by(
+                    *existing.queryset.query.order_by
+                )
+
+        queryset = self._remove_select_related(queryset, lookup)
+        prefetches.append(Prefetch(lookup, queryset=related_queryset, to_attr=to_attr))
+        return queryset.prefetch_related(None).prefetch_related(*prefetches)
+
     def get_queryset(self):
         qs = super().get_queryset()
 
@@ -90,59 +150,27 @@ class ExpandMixin:
         inclusion_viewsets = self.inclusion_viewsets
 
         if inclusions and inclusion_viewsets:
-            prefetches = list(qs._prefetch_related_lookups)
+            inclusions = list(set(map(str.strip, inclusions.split(","))) - {""})
 
-            inclusions = [inclusion.strip() for inclusion in inclusions.split(",")]
-
-            # Sort parent lookups before nested lookups
-            inclusions.sort(
-                key=lambda inclusion: "__"
-                in (
-                    inclusion_viewsets[inclusion][0]
-                    if inclusion in inclusion_viewsets
-                    and isinstance(inclusion_viewsets[inclusion], tuple)
-                    else inclusion
-                )
-            )
+            # Sort parent lookups before nested lookups.
+            inclusions.sort(key=lambda inclusion: (inclusion.count("."), inclusion))
 
             for inclusion in inclusions:
                 related_viewset = inclusion_viewsets.get(inclusion)
                 if not related_viewset:
                     continue
 
-                # The API expand name can differ from the lookup for reverse relations
+                # The API expand name can differ from the lookup for reverse relations.
                 if isinstance(related_viewset, tuple):
                     lookup, viewset_path = related_viewset
                 else:
                     lookup = inclusion
                     viewset_path = related_viewset
 
-                # If the inclusion replaces a select_related lookup, remove that lookup
-                qs = self._remove_select_related(qs, lookup)
-
                 related_viewset = import_string(viewset_path)
-
-                # Build a list of the prefetches from the base queryset for all attributes that are not expanded
-                prefetches = [
-                    prefetch
-                    for prefetch in prefetches
-                    if not (
-                        prefetch == lookup
-                        or getattr(prefetch, "prefetch_to", prefetch).startswith(
-                            f"{lookup}__"
-                        )
-                    )
-                ]
-
-                # Add the base queryset from the related viewset (including all select_relateds and prefetches) as a prefetch
-                prefetches.append(
-                    Prefetch(
-                        lookup,
-                        queryset=related_viewset.queryset.order_by(),
-                    )
+                qs = self._prefetch_inclusion(
+                    qs, lookup, related_viewset.queryset.all()
                 )
-            # Clear the existing prefetches so the modified prefetch list can replace them
-            qs = qs.prefetch_related(None).prefetch_related(*prefetches)
 
         return qs
 
@@ -154,6 +182,12 @@ class ExpandMixin:
 
     def include_allowed(self):
         return self.action in EXPAND_SUPPORTED_ACTIONS
+
+    def has_expand(self, request) -> bool:
+        return (
+            self.expand_param in request.data
+            or self.expand_param in request.query_params
+        )
 
     def get_requested_inclusions(self, request):
         # Pull expand parameter from request body and/or query_param in case of _zoek operation
@@ -185,6 +219,58 @@ class ExpandMixin:
             permissions.append(ExpandAuthRequired(expand_serializers))
 
         return permissions
+
+
+class FieldsMixin:
+    """
+    Validate and cache search filters and field selections.
+    Limit serializer fields and provide selected expansion paths.
+    Place before ExpandMixin and SearchMixin in the viewset's bases.
+    """
+
+    _search_input: dict | None = None
+    _selected_fields: dict | None = None
+    _selected_inclusions: tuple[str, ...] | None = None
+
+    def has_fields(self, request) -> bool:
+        """Check whether the zoek request includes a fields selection"""
+        return getattr(self, "action", None) == "_zoek" and "fields" in request.data
+
+    def get_search_input(self):
+        """Validate the request once, store the selected fields, and return search filters"""
+        if self._search_input is None:
+            serializer = self.get_search_input_serializer_class()(
+                data=self.request.data, context=self.get_serializer_context()
+            )
+            serializer.is_valid(raise_exception=True)
+            self._search_input = serializer.validated_data.copy()
+            self._selected_fields = self._search_input.pop("fields", None)
+        return self._search_input
+
+    def get_requested_inclusions(self, request):
+        """Return expansion paths for nested field selections"""
+
+        if not self.has_fields(request):
+            return super().get_requested_inclusions(request)
+
+        if self._selected_fields is None:
+            self.get_search_input()
+
+        if self._selected_inclusions is None:
+            self._selected_inclusions = tuple(
+                path
+                for path in self.get_serializer_class().inclusion_serializers
+                if fields_at_path(self._selected_fields, path.split(".")) is not None
+            )
+
+        return ",".join(self._selected_inclusions)
+
+    def get_serializer(self, *args, **kwargs):
+        serializer = super().get_serializer(*args, **kwargs)
+
+        if self._selected_fields is not None:
+            limit_serializer_fields(serializer, self._selected_fields)
+        return serializer
 
 
 class CacheQuerysetMixin:
