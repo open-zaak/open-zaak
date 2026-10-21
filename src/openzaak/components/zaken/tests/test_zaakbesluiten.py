@@ -6,19 +6,31 @@ import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.authorizations.utils import generate_jwt
+from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
+from openzaak.components.besluiten.api.scopes import (
+    SCOPE_BESLUITEN_AANMAKEN,
+    SCOPE_BESLUITEN_ALLES_LEZEN,
+)
 from openzaak.components.besluiten.models import Besluit
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.besluiten.tests.utils import get_besluit_response
+from openzaak.components.catalogi.tests.factories import (
+    ZaakTypeFactory,
+)
+from openzaak.components.zaken.models import ZaakBesluit
 from openzaak.components.zaken.tests.utils import ZAAK_READ_KWARGS
 from openzaak.tests.utils import JWTAuthMixin, mock_brc_oas_get
 
-from ..models import ZaakBesluit
-from .factories import ZaakFactory
+from ..api.scopes import SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_CREATE
+from .factories import (
+    ZaakFactory,
+)
 
 
 class BesluitenSignals(APITestCase):
@@ -400,3 +412,70 @@ class ZaakInformatieObjectenExpandTests(JWTAuthMixin, APITestCase):
                     get_validation_errors(response, "expand")["code"],
                     "invalid_choice",
                 )
+
+
+@tag("expand-authorization")
+@override_settings(ALLOWED_HOSTS=["testserver"])
+class ZaakBesluitenIncludePermissionsTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = False
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create(concept=False)
+        cls.zaak = ZaakFactory.create(zaaktype=cls.zaaktype)
+        cls.besluit = BesluitFactory.create(zaak=cls.zaak)
+        cls.zaakbesluit = ZaakBesluit.objects.get(zaak=cls.zaak, besluit=cls.besluit)
+        cls.list_url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": cls.zaak.uuid})
+        cls.detail_url = reverse(
+            "zaakbesluit-detail",
+            kwargs={"zaak_uuid": cls.zaak.uuid, "uuid": cls.zaakbesluit.uuid},
+        )
+        super().setUpTestData()
+
+    def test_expand_besluit_permissions(self):
+        """Expanding besluit requires SCOPE_BESLUITEN_ALLES_LEZEN"""
+        params = {"expand": "besluit"}
+        for url in (self.list_url, self.detail_url):
+            with self.subTest(url=url):
+                # No scopes access is denied
+                self.autorisatie.scopes = []
+                self.autorisatie.save()
+                response = self.client.get(url, params, **ZAAK_READ_KWARGS)
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+                # SCOPE_ZAKEN_CREATE does not grant access
+                self.autorisatie.scopes = [SCOPE_ZAKEN_CREATE]
+                self.autorisatie.save()
+                response = self.client.get(url, params, **ZAAK_READ_KWARGS)
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+                # SCOPE_ZAKEN_ALLES_LEZEN permits access to its own resource
+                self.autorisatie.scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
+                self.autorisatie.save()
+                response = self.client.get(url, **ZAAK_READ_KWARGS)
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+                # Besluiten expansion requires SCOPE_BESLUITEN_ALLES_LEZEN
+                response = self.client.get(url, params, **ZAAK_READ_KWARGS)
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+                # Only SCOPE_BESLUITEN_AANMAKEN is insufficient.
+                besluiten_auth = Autorisatie.objects.create(
+                    applicatie=self.applicatie,
+                    component=ComponentTypes.brc,
+                    scopes=[SCOPE_BESLUITEN_AANMAKEN],
+                )
+                response = self.client.get(url, params, **ZAAK_READ_KWARGS)
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+                # Adding SCOPE_BESLUITEN_ALLES_LEZEN access permits the expansion
+                besluiten_auth.scopes = [SCOPE_BESLUITEN_ALLES_LEZEN]
+                besluiten_auth.save()
+                response = self.client.get(url, params, **ZAAK_READ_KWARGS)
+                besluiten_auth.delete()  # remove auth for the next use
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                data = response.json()
+                if url == self.list_url:
+                    data = data[0]
+                self.assertIn("besluit", data["_expand"])

@@ -6,7 +6,8 @@ import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.constants import RolTypes
+from vng_api_common.authorizations.models import Autorisatie
+from vng_api_common.constants import ComponentTypes, RolTypes
 from vng_api_common.tests import (
     TypeCheckMixin,
     get_validation_errors,
@@ -16,12 +17,20 @@ from vng_api_common.tests import (
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
-from openzaak.components.catalogi.tests.factories import RolTypeFactory
-from openzaak.components.catalogi.tests.factories.statustype import StatusTypeFactory
-from openzaak.components.catalogi.tests.factories.zaaktype import ZaakTypeFactory
+from openzaak.components.catalogi.api.scopes import (
+    SCOPE_CATALOGI_READ,
+    SCOPE_CATALOGI_WRITE,
+)
+from openzaak.components.catalogi.tests.factories import (
+    RolTypeFactory,
+    StatusTypeFactory,
+    ZaakTypeFactory,
+)
 from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
+from openzaak.utils.expansion import EXPAND_QUERY_PARAM
 
+from ..api.scopes import SCOPE_ZAKEN_CREATE
 from ..constants import IndicatieMachtiging
 from ..models import (
     Adres,
@@ -32,7 +41,11 @@ from ..models import (
     SubVerblijfBuitenland,
     Vestiging,
 )
-from .factories import RolFactory, StatusFactory, ZaakFactory
+from .factories import (
+    RolFactory,
+    StatusFactory,
+    ZaakFactory,
+)
 from .utils import ZAAK_READ_KWARGS, get_roltype_response, get_zaaktype_response
 
 BETROKKENE = (
@@ -1006,3 +1019,87 @@ class RollenExpandTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(
                     response_data["results"], [{**rol_data, "_expand": {}}]
                 )
+
+
+@tag("expand-authorization")
+@override_settings(ALLOWED_HOSTS=["testserver"])
+class RollenIncludePermissionsTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = False
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create(concept=False)
+        cls.zaak = ZaakFactory.create(zaaktype=cls.zaaktype)
+        cls.rol = RolFactory.create(
+            zaak=cls.zaak, roltype=RolTypeFactory.create(zaaktype=cls.zaaktype)
+        )
+        cls.status = StatusFactory.create(
+            zaak=cls.zaak,
+            statustype=StatusTypeFactory.create(zaaktype=cls.zaaktype),
+            gezetdoor=cls.rol,
+        )
+        cls.list_url = reverse("rol-list")
+        cls.detail_url = reverse(cls.rol)
+        super().setUpTestData()
+
+    def _test_expand_auth(self, params: dict[str, str]):
+        """Check the expanded resources auth for both list and detail requests"""
+
+        for url in (self.list_url, self.detail_url):
+            with self.subTest(url=url):
+                expanded_field = params.get(EXPAND_QUERY_PARAM, "").split(",")[0]
+
+                # No scopes access is denied
+                self.autorisatie.scopes = []
+                self.autorisatie.save()
+                response = self.client.get(url, params, **ZAAK_READ_KWARGS)
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+                # SCOPE_ZAKEN_CREATE does not grant access
+                self.autorisatie.scopes = [SCOPE_ZAKEN_CREATE]
+                self.autorisatie.save()
+                response = self.client.get(url, params, **ZAAK_READ_KWARGS)
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+                # SCOPE_ZAKEN_ALLES_LEZEN permits access to its own resource
+                self.autorisatie.scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
+                self.autorisatie.save()
+                response = self.client.get(url, {"expand": "zaak"}, **ZAAK_READ_KWARGS)
+                self.assertEqual(
+                    response.status_code, status.HTTP_200_OK, response.data
+                )
+
+                # Catalogi expansion requires SCOPE_CATALOGI_READ
+                response = self.client.get(url, params, **ZAAK_READ_KWARGS)
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+                # Only SCOPE_CATALOGI_WRITE is insufficient
+                catalogi_auth = Autorisatie.objects.create(
+                    applicatie=self.applicatie,
+                    component=ComponentTypes.ztc,
+                    scopes=[SCOPE_CATALOGI_WRITE],
+                )
+                response = self.client.get(url, params, **ZAAK_READ_KWARGS)
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+                # Adding SCOPE_CATALOGI_READ access permits the expansion
+                catalogi_auth.scopes = [SCOPE_CATALOGI_READ]
+                catalogi_auth.save()
+                response = self.client.get(url, params, **ZAAK_READ_KWARGS)
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                catalogi_auth.delete()  # remove auth for the next use
+
+                data = response.json()
+                if url == self.list_url:
+                    data = data["results"][0]
+                self.assertIn(expanded_field, data["_expand"])
+
+    def test_expand_roltype_permissions(self):
+        """Expanding roltype requires SCOPE_CATALOGI_READ"""
+        params = {"expand": "roltype"}
+        self._test_expand_auth(params)
+
+    def test_expand_statussen_statustype_permissions(self):
+        """Expanding statussen,statussen.statustype requires SCOPE_CATALOGI_READ"""
+        params = {"expand": "statussen,statussen.statustype"}
+        self._test_expand_auth(params)
