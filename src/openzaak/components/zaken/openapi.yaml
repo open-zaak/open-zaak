@@ -13399,7 +13399,8 @@ components:
           readOnly: true
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
         omschrijvingGeneriek:
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
           readOnly: true
           description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
             \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
@@ -13617,7 +13618,8 @@ components:
           readOnly: true
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
         omschrijvingGeneriek:
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
           readOnly: true
           description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
             \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
@@ -13827,7 +13829,8 @@ components:
           readOnly: true
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
         omschrijvingGeneriek:
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
           readOnly: true
           description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
             \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
@@ -16416,6 +16419,17 @@ components:
       required:
       - avgAard
       - identificatie
+    OmschrijvingGeneriekEnum:
+      enum:
+      - adviseur
+      - behandelaar
+      - belanghebbende
+      - beslisser
+      - initiator
+      - klantcontacter
+      - zaakcoordinator
+      - mede_initiator
+      type: string
     OneOrMultipleZaakIdentificaties:
       oneOf:
       - $ref: '#/components/schemas/ReserveZaakIdentificatie'
