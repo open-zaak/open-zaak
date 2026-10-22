@@ -1,13 +1,21 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from uuid import UUID
+
 from django.conf import settings
+from django.db.models import Manager
 from django.utils.translation import gettext_lazy as _
 
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework.serializers import (
     DateField,
     HyperlinkedModelSerializer,
+    ListSerializer,
     ModelSerializer,
+    SerializerMethodField,
+    SlugRelatedField,
 )
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import (
@@ -42,11 +50,70 @@ class ReferentieProcesSerializer(GegevensGroepSerializer):
         gegevensgroep = "referentieproces"
 
 
+ZAAKTYPE_IDENTIFICATIE_CACHE_KEY = "_zaaktype_identificatie_cache"
+
+
+def _get_uuid_from_url(url: str) -> UUID | None:
+    try:
+        return UUID(url.rstrip("/").rsplit("/", 1)[-1])
+    except ValueError:
+        return None
+
+
+class ZaakTypenRelatieListSerializer(ListSerializer):
+    """
+    Resolve the identificaties of all related ZAAKTYPEs in a single query.
+
+    ``gerelateerd_zaaktype`` is a plain URL which may point to an external ZTC, so
+    it can't be prefetched like a regular relation.
+    """
+
+    def to_representation(self, data):
+        relaties = data.all() if isinstance(data, Manager) else list(data)
+        cache = self.context.setdefault(ZAAKTYPE_IDENTIFICATIE_CACHE_KEY, {})
+
+        uuids = {
+            uuid
+            for relatie in relaties
+            if (uuid := _get_uuid_from_url(relatie.gerelateerd_zaaktype))
+            and uuid not in cache
+        }
+        if uuids:
+            found = dict(
+                ZaakType.objects.filter(uuid__in=uuids).values_list(
+                    "uuid", "identificatie"
+                )
+            )
+            # also cache the misses (external zaaktypen) to avoid repeated lookups
+            cache.update({uuid: found.get(uuid, "") for uuid in uuids})
+
+        return super().to_representation(relaties)
+
+
 class ZaakTypenRelatieSerializer(ModelSerializer):
+    zaaktype_identificatie = SerializerMethodField(
+        help_text=_("Identificatie van het gerelateerde zaaktype."),
+    )
+
     class Meta:
         model = ZaakTypenRelatie
-        fields = ("zaaktype", "aard_relatie", "toelichting")
+        list_serializer_class = ZaakTypenRelatieListSerializer
+        fields = (
+            "zaaktype",
+            "zaaktype_identificatie",
+            "aard_relatie",
+            "toelichting",
+        )
         extra_kwargs = {"zaaktype": {"source": "gerelateerd_zaaktype"}}
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_zaaktype_identificatie(self, obj: ZaakTypenRelatie) -> str:
+        """
+        The identificatie is empty if the related ZAAKTYPE is not known locally.
+        """
+        uuid = _get_uuid_from_url(obj.gerelateerd_zaaktype)
+        cache = self.context.get(ZAAKTYPE_IDENTIFICATIE_CACHE_KEY, {})
+        return cache.get(uuid, "")
 
     def get_fields(self):
         fields = super().get_fields()
@@ -110,6 +177,16 @@ class ZaakTypeSerializer(
         ),
     )
 
+    informatieobjecttype_omschrijving = SlugRelatedField(
+        many=True,
+        read_only=True,
+        source="informatieobjecttypen",
+        slug_field="omschrijving",
+        help_text=_(
+            "Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE."
+        ),
+    )
+
     statustypen = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
@@ -162,6 +239,15 @@ class ZaakTypeSerializer(
             "URL-referenties naar de BESLUITTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
         ),
     )
+
+    besluittype_omschrijving = SlugRelatedField(
+        many=True,
+        read_only=True,
+        source="besluittypen",
+        slug_field="omschrijving",
+        help_text=_("Omschrijving van de aard van BESLUITen van het BESLUITTYPE."),
+    )
+
     zaakobjecttypen = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
@@ -179,6 +265,16 @@ class ZaakTypeSerializer(
     einde_object = DateField(
         read_only=True,
         help_text=_("De datum van de aller laatste versie van het object."),
+    )
+    deelzaaktype_identificaties = SlugRelatedField(
+        source="deelzaaktypen",
+        many=True,
+        read_only=True,
+        slug_field="identificatie",
+        help_text=_(
+            "Unieke identificaties van de ZAAKTYPE(n) waaronder ZAAKen als "
+            "deelzaak kunnen voorkomen bij ZAAKen van dit ZAAKTYPE."
+        ),
     )
     inclusion_serializers = {
         "zaakobjecttypen": "openzaak.components.catalogi.api.serializers.ZaakObjectTypeSerializer",
@@ -235,9 +331,12 @@ class ZaakTypeSerializer(
             "resultaattypen",
             "eigenschappen",
             "informatieobjecttypen",
+            "informatieobjecttype_omschrijving",
             "roltypen",
             "besluittypen",
+            "besluittype_omschrijving",
             "deelzaaktypen",
+            "deelzaaktype_identificaties",
             "gerelateerde_zaaktypen",
             "zaakobjecttypen",
         )
