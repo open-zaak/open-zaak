@@ -641,7 +641,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             )
 
     def test_queries_with_no_deelzaken(self):
-        with self.assertNumQueries(67):
+        with self.assertNumQueries(68):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -757,7 +757,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         self._generate_deelzaken(10, True)
         self._generate_deelzaken(10, False)
 
-        with self.assertNumQueries(166):
+        with self.assertNumQueries(165):
             response = self.client.post(
                 self.status_list_url,
                 {

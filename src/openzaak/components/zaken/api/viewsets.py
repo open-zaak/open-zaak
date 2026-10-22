@@ -120,7 +120,7 @@ from .filters import (
     ZaakVerzoekFilter,
 )
 from .kanalen import KANAAL_ZAKEN
-from .mixins import ClosedZaakMixin, UpdateOnlyModelMixin
+from .mixins import BatchedWritesMixin, ClosedZaakMixin, UpdateOnlyModelMixin
 from .permissions import (
     ZaakActionAuthRequired,
     ZaakAuthRequired,
@@ -589,6 +589,7 @@ class StatusViewSet(
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
+    BatchedWritesMixin,
     mixins.CreateModelMixin,
     viewsets.ReadOnlyModelViewSet,
 ):
@@ -702,6 +703,7 @@ class SubStatusViewSet(
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
+    BatchedWritesMixin,
     mixins.CreateModelMixin,
     viewsets.ReadOnlyModelViewSet,
 ):
@@ -801,6 +803,7 @@ class ZaakObjectViewSet(
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
     ClosedZaakMixin,
+    BatchedWritesMixin,
     viewsets.ModelViewSet,
 ):
     """
@@ -1406,6 +1409,7 @@ class ResultaatViewSet(
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
     ClosedZaakMixin,
+    BatchedWritesMixin,
     viewsets.ModelViewSet,
 ):
     """

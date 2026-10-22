@@ -8,15 +8,18 @@ import time
 
 from django.contrib.sites.models import Site
 from django.db import connection, transaction
-from django.test import tag
+from django.test import override_settings, tag
 from django.test.utils import CaptureQueriesContext
 
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.constants import ZaakobjectTypes
 from vng_api_common.tests import CacheMixin, JWTAuthMixin, reverse, reverse_lazy
 
 from openzaak.components.catalogi.tests.factories import (
+    ResultaatTypeFactory,
+    StatusTypeFactory,
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
 )
@@ -29,7 +32,7 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.tests.utils import get_spec
 
-from ..models import ZaakInformatieObject
+from ..models import Resultaat, Status, SubStatus, ZaakInformatieObject, ZaakObject
 from .factories import (
     ResultaatFactory,
     RolFactory,
@@ -37,6 +40,7 @@ from .factories import (
     ZaakEigenschapFactory,
     ZaakFactory,
     ZaakInformatieObjectFactory,
+    ZaakObjectFactory,
 )
 from .utils import ZAAK_READ_KWARGS, ZAAK_WRITE_KWARGS
 
@@ -237,11 +241,11 @@ class ZaakInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
 
 
 @tag("gh-2577")
-class ZaakInformatieObjectLockOrderTests(JWTAuthMixin, APITestCase):
+class ZaakLockOrderTests(JWTAuthMixin, APITestCase):
     """
-    A ZIO write saves its zaak too. It must update the zaak's row before it writes
-    the zaak's stored ETag, as a save of the zaak does; the other way round, the two
-    deadlock.
+    The writes of ZIOs, statussen, substatussen, resultaten and zaakobjecten save
+    their zaak too. They must update the zaak's row before they write the zaak's
+    stored ETag, as a save of the zaak does; the other way round, the two deadlock.
     """
 
     heeft_alle_autorisaties = True
@@ -260,7 +264,7 @@ class ZaakInformatieObjectLockOrderTests(JWTAuthMixin, APITestCase):
         self.assertTrue(etag_writes)
         self.assertLess(zaak_updates[0], etag_writes[0])
 
-    def test_create(self):
+    def test_zio_create(self):
         zaak = ZaakFactory.create()
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
@@ -281,7 +285,7 @@ class ZaakInformatieObjectLockOrderTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertZaakUpdatedBeforeStoredETags(queries)
 
-    def test_update(self):
+    def test_zio_update(self):
         zaak = ZaakFactory.create()
         io = EnkelvoudigInformatieObjectFactory.create()
         ZaakTypeInformatieObjectTypeFactory.create(
@@ -297,11 +301,115 @@ class ZaakInformatieObjectLockOrderTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertZaakUpdatedBeforeStoredETags(queries)
 
-    def test_destroy(self):
+    def test_zio_destroy(self):
         zio = ZaakInformatieObjectFactory.create()
 
         with CaptureQueriesContext(connection) as queries:
             response = self.client.delete(reverse(zio))
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertZaakUpdatedBeforeStoredETags(queries)
+
+    def test_status_create(self):
+        zaak = ZaakFactory.create()
+        statustype, _ = StatusTypeFactory.create_batch(2, zaaktype=zaak.zaaktype)
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.post(
+                reverse(Status),
+                {
+                    "zaak": f"http://testserver{reverse(zaak)}",
+                    "statustype": f"http://testserver{reverse(statustype)}",
+                    "datumStatusGezet": "2026-01-01T12:00:00Z",
+                },
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertZaakUpdatedBeforeStoredETags(queries)
+
+    def test_substatus_create(self):
+        status_ = StatusFactory.create()
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.post(
+                reverse(SubStatus),
+                {
+                    "zaak": f"http://testserver{reverse(status_.zaak)}",
+                    "status": f"http://testserver{reverse(status_)}",
+                    "omschrijving": "foo",
+                },
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertZaakUpdatedBeforeStoredETags(queries)
+
+    def test_resultaat_create(self):
+        zaak = ZaakFactory.create()
+        resultaattype = ResultaatTypeFactory.create(zaaktype=zaak.zaaktype)
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.post(
+                reverse(Resultaat),
+                {
+                    "zaak": f"http://testserver{reverse(zaak)}",
+                    "resultaattype": f"http://testserver{reverse(resultaattype)}",
+                },
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertZaakUpdatedBeforeStoredETags(queries)
+
+    def test_resultaat_update(self):
+        resultaat = ResultaatFactory.create()
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.patch(reverse(resultaat), {"toelichting": "new"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertZaakUpdatedBeforeStoredETags(queries)
+
+    def test_resultaat_destroy(self):
+        resultaat = ResultaatFactory.create()
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.delete(reverse(resultaat))
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertZaakUpdatedBeforeStoredETags(queries)
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    def test_zaakobject_create(self):
+        zaak = ZaakFactory.create()
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.post(
+                reverse(ZaakObject),
+                {
+                    "zaak": f"http://testserver{reverse(zaak)}",
+                    "object": "http://example.org/api/zaakobjecten/1",
+                    "objectType": ZaakobjectTypes.besluit,
+                },
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertZaakUpdatedBeforeStoredETags(queries)
+
+    def test_zaakobject_update(self):
+        zaakobject = ZaakObjectFactory.create()
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.patch(
+                reverse(zaakobject), {"relatieomschrijving": "new"}
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertZaakUpdatedBeforeStoredETags(queries)
+
+    def test_zaakobject_destroy(self):
+        zaakobject = ZaakObjectFactory.create()
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.delete(reverse(zaakobject))
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertZaakUpdatedBeforeStoredETags(queries)
