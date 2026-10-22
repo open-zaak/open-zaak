@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import copy
 import json
+import time
 from inspect import getmembers
 from typing import Any, Dict
 
@@ -11,48 +13,82 @@ import requests
 from django_loose_fk.loaders import BaseLoader, FetchError, FetchJsonError
 from django_loose_fk.virtual_models import virtual_model_factory
 from djangorestframework_camel_case.util import underscoreize
+from vng_api_common.client import NoServiceConfigured, get_client
 from vng_api_common.descriptors import GegevensGroepType
-
-from openzaak.utils.auth import get_auth
 
 
 class AuthorizedRequestsLoader(BaseLoader):
     """
-    Fetch external API objects with Authorization header.
+    Fetch external API objects through the client of their configured Service.
+
+    Fetched data is cached per URL together with its ETag, at class level:
+    - within ``revalidate_after`` seconds it is reused without a request;
+    - after that it's revalidated with ``If-None-Match``;
+    - an HTTP error drops the cached entry.
     """
 
-    @staticmethod
-    def fetch_object(url: str, do_underscoreize=True) -> dict:
-        # TODO should we replace it with Service.get_client() and use it instead of requests?
-        # but in this case we couldn't catch separate FetchJsonError
-        headers = get_auth(url)
+    revalidate_after = 5  # seconds
+    max_cached = 1000
 
-        try:
-            response = requests.get(url, headers=headers)
-        except requests.exceptions.RequestException as exc:
-            raise FetchError(exc.args[0]) from exc
+    # url -> (validated_at, etag, data)
+    _cache: dict[str, tuple[float, str, dict]] = {}
 
-        try:
-            response.raise_for_status()
-        except requests.HTTPError as exc:
-            raise FetchError(exc.args[0]) from exc
+    @classmethod
+    def fetch_object(cls, url: str, do_underscoreize=True) -> dict:
+        now = time.monotonic()
+        cached = cls._cache.get(url)
 
-        try:
-            data = response.json()
-        except json.JSONDecodeError as exc:
-            raise FetchJsonError(exc.args[0]) from exc
+        if cached is not None and now - cached[0] < cls.revalidate_after:
+            data = copy.deepcopy(cached[2])
+
+        else:
+            headers = {}
+            if cached is not None:
+                headers["If-None-Match"] = cached[1]
+
+            try:
+                with get_client(url, raise_exceptions=True) as client:
+                    response = client.get(url, headers=headers)
+            except NoServiceConfigured as exc:
+                raise FetchError(exc.args[0]) from exc
+            except requests.exceptions.RequestException as exc:
+                raise FetchError(exc.args[0]) from exc
+
+            if response.status_code == 304 and cached is not None:
+                cls._cache[url] = (now, cached[1], cached[2])
+                data = copy.deepcopy(cached[2])
+            else:
+                try:
+                    response.raise_for_status()
+                except requests.HTTPError as exc:
+                    cls._cache.pop(url, None)
+                    raise FetchError(exc.args[0]) from exc
+
+                try:
+                    data = response.json()
+                except json.JSONDecodeError as exc:
+                    cls._cache.pop(url, None)
+                    raise FetchJsonError(exc.args[0]) from exc
+
+                etag = response.headers.get("ETag")
+                if etag:
+                    cls._cache[url] = (now, etag, copy.deepcopy(data))
+                    while len(cls._cache) > cls.max_cached:
+                        try:
+                            evicted = next(iter(cls._cache))
+                            cls._cache.pop(evicted, None)
+                        except (StopIteration, RuntimeError):
+                            break
+                else:
+                    cls._cache.pop(url, None)
 
         if not do_underscoreize:
             return data
-
         return underscoreize(data)
 
     def load(self, url: str, model: ModelBase) -> models.Model:
         if self.is_local_url(url):
-            # print(url)
-            # assert False, "Stopped here"
             return self.load_local_object(url, model)
-
         data = self.fetch_object(url)
         return get_model_instance_with_gegevensgroeps(model, data, loader=self)
 
