@@ -6,7 +6,9 @@ Test that the caching mechanisms are in place.
 
 from uuid import uuid4
 
+from django.db import connection
 from django.test import tag
+from django.test.utils import CaptureQueriesContext
 
 from privates.test import temp_private_root
 from rest_framework import status
@@ -182,6 +184,45 @@ class GebruiksrechtenCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+@tag("gh-2577")
+class GebruiksrechtenLockOrderTests(JWTAuthMixin, APITestCase):
+    """
+    Deleting the last gebruiksrecht of a document saves the document too. It must
+    update the document before it writes stored ETags, as a lock or unlock of the
+    document writes the document's and its gebruiksrechten's together; the other way
+    round, the two deadlock.
+    """
+
+    heeft_alle_autorisaties = True
+
+    def test_destroy(self):
+        gebruiksrecht = GebruiksrechtenFactory.create()
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.delete(reverse(gebruiksrecht))
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        sqls = [query["sql"] for query in queries]
+        document_updates = [
+            i
+            for i, sql in enumerate(sqls)
+            if sql.startswith('UPDATE "documenten_enkelvoudiginformatieobject"')
+        ]
+        etag_writes = [
+            i
+            for i, sql in enumerate(sqls)
+            if sql.startswith(
+                (
+                    'INSERT INTO "vng_api_common_storedetag"',
+                    'DELETE FROM "vng_api_common_storedetag"',
+                )
+            )
+        ]
+        self.assertTrue(document_updates)
+        self.assertTrue(etag_writes)
+        self.assertLess(document_updates[0], etag_writes[0])
 
 
 @temp_private_root()

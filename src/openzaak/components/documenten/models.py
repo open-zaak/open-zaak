@@ -13,6 +13,7 @@ from django.utils.translation import gettext_lazy as _
 
 from privates.fields import PrivateMediaFileField
 from rest_framework.reverse import reverse
+from vng_api_common.caching import batched_invalidation
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from zgw_consumers.models import ServiceUrlField
@@ -629,7 +630,8 @@ class Gebruiksrechten(APIMixin, models.Model):
     def __str__(self):
         return str(self.informatieobject.latest_version)
 
-    @transaction.atomic
+    # a batch, as these save the document too
+    @batched_invalidation()
     def save(self, *args, **kwargs):
         informatieobject_versie = self.informatieobject.latest_version
         # ensure the indication is set properly on the IO
@@ -638,7 +640,7 @@ class Gebruiksrechten(APIMixin, models.Model):
             informatieobject_versie.save()
         super().save(*args, **kwargs)
 
-    @transaction.atomic
+    @batched_invalidation()
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
         informatieobject = self.informatieobject
