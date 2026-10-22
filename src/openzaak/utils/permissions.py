@@ -1,20 +1,27 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from typing import Sequence
+from __future__ import annotations
+
+from collections.abc import Collection, Mapping, Sequence
 from urllib.parse import urlparse
 
 from django.core.exceptions import (
     ImproperlyConfigured,
     ValidationError as DjangoValidationError,
 )
-from django.db.models import ObjectDoesNotExist
+from django.db.models import Model, ObjectDoesNotExist
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
 import structlog
 from rest_framework import exceptions, permissions
 from rest_framework.request import Request
-from rest_framework.serializers import ValidationError, as_serializer_error
+from rest_framework.serializers import (
+    BaseSerializer,
+    ValidationError,
+    as_serializer_error,
+)
+from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSetMixin
 from vng_api_common.permissions import bypass_permissions, get_required_scopes
 from vng_api_common.scopes import Scope
@@ -29,23 +36,30 @@ class AuthRequired(permissions.BasePermission):
     and check that they are present in the AC for this client
     """
 
-    permission_fields = ()
-    main_resource = None
+    permission_fields: Sequence[str] = ()
+    main_resource: str | None = None
 
     def get_component(self, view) -> str:
         return view.queryset.model._meta.app_label
 
-    def get_fields(self, data, permission_fields):
+    def get_fields(
+        self, data: object, permission_fields: Sequence[str]
+    ) -> dict[str, object]:
         if not isinstance(data, dict):
             raise exceptions.ParseError()
         return {field: data.get(field) for field in permission_fields}
 
-    def format_data(self, obj, request, main_resource) -> dict:
+    def format_data(
+        self,
+        obj: object,
+        request: Request,
+        main_resource: type,
+    ) -> Mapping[str, object]:
         serializer_class = main_resource.serializer_class
         serializer = serializer_class(obj, context={"request": request})
         return serializer.data
 
-    def get_main_resource(self, main_resource):
+    def get_main_resource(self, main_resource: str | None):
         if not main_resource:
             raise ImproperlyConfigured(
                 "'%s' should either include a `main_resource` "
@@ -54,22 +68,23 @@ class AuthRequired(permissions.BasePermission):
             )
         return import_string(main_resource)
 
-    def get_main_object(self, obj, permission_main_object):
+    def get_main_object(self, obj: Model, permission_main_object: str) -> Model:
         return getattr(obj, permission_main_object)
 
-    def has_handler(self, request, view):
+    def has_handler(self, request: Request, view) -> None:
+        assert request.method
         if not hasattr(view, request.method.lower()):
             view.http_method_not_allowed(request)
 
     def validate_create(
         self,
-        request,
+        request: Request,
         view,
-        main_object_data,
-        permission_fields,
-        main_resource,
-        serializer_class,
-    ):
+        main_object_data: object,
+        permission_fields: Sequence[str],
+        main_resource: type,
+        serializer_class: type[BaseSerializer],
+    ) -> dict[str, object]:
         if view.__class__ is main_resource:
             fields = self.get_fields(main_object_data, permission_fields)
             # validate fields, since it's a user input
@@ -85,6 +100,7 @@ class AuthRequired(permissions.BasePermission):
         else:
             resource = None
             try:
+                assert isinstance(main_object_data, Mapping)
                 main_object_url = main_object_data[view.permission_main_object]
                 main_object_path = urlparse(main_object_url).path
                 main_object = get_resource_for_path(main_object_path)
@@ -109,7 +125,7 @@ class AuthRequired(permissions.BasePermission):
                 )
             except DjangoValidationError as exc:
                 err_dict = as_serializer_error(
-                    ValidationError({view.permission_main_object: exc})
+                    ValidationError({view.permission_main_object: exc})  # pyright: ignore[reportArgumentType]
                 )
                 raise ValidationError(err_dict)
 
@@ -141,28 +157,28 @@ class AuthRequired(permissions.BasePermission):
         component = self.get_component(view)
 
         if not self.permission_fields:
-            return request.jwt_auth.has_auth(scopes_required, component)
+            return request.jwt_auth.has_auth(scopes_required, component)  # pyright: ignore[reportAttributeAccessIssue]
 
-        if view.action == "create":
+        if view.action == "create":  # pyright: ignore[reportAttributeAccessIssue]
             fields = self.validate_create(
                 request,
                 view,
                 request.data,
                 self.permission_fields,
                 self.get_main_resource(self.main_resource),
-                view.get_serializer_class(),
+                view.get_serializer_class(),  # pyright: ignore[reportAttributeAccessIssue]
             )
-            return request.jwt_auth.has_auth(scopes_required, component, **fields)
+            return request.jwt_auth.has_auth(scopes_required, component, **fields)  # pyright: ignore[reportAttributeAccessIssue]
 
         # detect if this is an unsupported method - if it's a viewset and the
         # action was not mapped, it's not supported and DRF will catch it
-        if view.action is None and isinstance(view, ViewSetMixin):
+        if view.action is None and isinstance(view, ViewSetMixin):  # pyright: ignore[reportAttributeAccessIssue]
             return True
 
         # by default - check if the action is allowed at all
-        return request.jwt_auth.has_auth(scopes_required, component)
+        return request.jwt_auth.has_auth(scopes_required, component)  # pyright: ignore[reportAttributeAccessIssue]
 
-    def has_object_permission(self, request: Request, view, obj) -> bool:
+    def has_object_permission(self, request: Request, view, obj: Model) -> bool:
         if bypass_permissions(request):
             return True
 
@@ -170,32 +186,32 @@ class AuthRequired(permissions.BasePermission):
         component = self.get_component(view)
 
         if not self.permission_fields:
-            return request.jwt_auth.has_auth(scopes_required, component)
+            return request.jwt_auth.has_auth(scopes_required, component)  # pyright: ignore[reportAttributeAccessIssue]
 
         main_resource = self.get_main_resource(self.main_resource)
 
         if view.__class__ is main_resource:
             main_object = obj
         else:
-            main_object = self.get_main_object(obj, view.permission_main_object)
+            main_object = self.get_main_object(obj, view.permission_main_object)  # pyright: ignore[reportAttributeAccessIssue]
 
         main_object_data = self.format_data(main_object, request, main_resource)
         fields = self.get_fields(main_object_data, self.permission_fields)
-        return request.jwt_auth.has_auth(scopes_required, component, **fields)
+        return request.jwt_auth.has_auth(scopes_required, component, **fields)  # pyright: ignore[reportAttributeAccessIssue]
 
 
 class MultipleObjectsAuthRequired(AuthRequired):
-    permission_fields: dict[str, Sequence[str]]
-    main_resources: dict
+    permission_fields: dict[str, Sequence[str]]  # pyright: ignore[reportIncompatibleVariableOverride]
+    main_resources: dict[str, str]
     actions: dict[str, str]
 
-    def get_field_viewset(self, viewset, action):
+    def get_field_viewset(self, viewset: str, action: str | None):
         field_viewset = import_string(viewset)()
         field_viewset.action = action
 
         return field_viewset
 
-    def has_permission(self, request, view):
+    def has_permission(self, request: Request, view) -> bool:
         self.has_handler(request, view)
 
         if bypass_permissions(request):
@@ -211,8 +227,8 @@ class MultipleObjectsAuthRequired(AuthRequired):
 
         for field, viewset in view.viewset_classes.items():
             # CatalogusAutorisatie (_autorisaties) is cached in JWTAuth
-            if hasattr(request.jwt_auth, "_autorisaties"):
-                del request.jwt_auth._autorisaties
+            if hasattr(request.jwt_auth, "_autorisaties"):  # pyright: ignore[reportAttributeAccessIssue]
+                del request.jwt_auth._autorisaties  # pyright: ignore[reportAttributeAccessIssue]
 
             fieldset_view = self.get_field_viewset(
                 viewset,
@@ -222,7 +238,8 @@ class MultipleObjectsAuthRequired(AuthRequired):
             scopes_required = get_required_scopes(request, fieldset_view)
 
             if hasattr(view, "extra_scopes") and view.extra_scopes.get(field):
-                scopes_required &= view.extra_scopes.get(field)
+                assert scopes_required is not None
+                scopes_required &= view.extra_scopes[field]
 
             component = self.get_component(fieldset_view)
             fields = {}
@@ -233,18 +250,20 @@ class MultipleObjectsAuthRequired(AuthRequired):
                 fields = self.validate_create(
                     request,
                     fieldset_view,
-                    request.data.get(field, {}),
+                    request.data.get(field, {}),  # pyright: ignore[reportAttributeAccessIssue]
                     permission_fields,
                     self.get_main_resource(self.main_resources.get(field)),
                     fieldset_view.get_serializer_class(),
                 )
 
-            if not request.jwt_auth.has_auth(scopes_required, component, **fields):
+            if not request.jwt_auth.has_auth(scopes_required, component, **fields):  # pyright: ignore[reportAttributeAccessIssue]
                 return False
 
         return True  # all field viewsets where valid
 
-    def has_object_permission(self, request: Request, view, obj) -> bool:
+    def has_object_permission(
+        self, request: Request, view, obj: Model | Mapping[str, Model]
+    ) -> bool:
         if bypass_permissions(request):
             return True
 
@@ -260,7 +279,8 @@ class MultipleObjectsAuthRequired(AuthRequired):
             scopes_required = get_required_scopes(request, fieldset_view)
 
             if hasattr(view, "extra_scopes") and view.extra_scopes.get(field):
-                scopes_required &= view.extra_scopes.get(field)
+                assert scopes_required is not None
+                scopes_required &= view.extra_scopes[field]
 
             component = self.get_component(fieldset_view)
             fields = {}
@@ -274,12 +294,13 @@ class MultipleObjectsAuthRequired(AuthRequired):
                     main_object = obj
                 else:
                     # currently unused by convenience endpoints that use MultipleObjectsAuthRequired
+                    assert isinstance(obj, Mapping)
                     main_object = obj.get(view.permission_main_object)
 
                 main_object_data = self.format_data(main_object, request, main_resource)
                 fields = self.get_fields(main_object_data, permission_fields)
 
-            if not request.jwt_auth.has_auth(scopes_required, component, **fields):
+            if not request.jwt_auth.has_auth(scopes_required, component, **fields):  # pyright: ignore[reportAttributeAccessIssue]
                 return False
 
         return True
@@ -294,7 +315,7 @@ class AuthScopesRequired(permissions.BasePermission):
 
     """
 
-    def has_permission(self, request: Request, view) -> bool:
+    def has_permission(self, request: Request, view: APIView) -> bool:
         component = getattr(view, "component", None)
         assert component, f"View {view=} should define a component!"
 
@@ -302,7 +323,7 @@ class AuthScopesRequired(permissions.BasePermission):
             return True
 
         scopes_required = get_required_scopes(request, view)
-        return request.jwt_auth.has_auth(scopes_required, component=component)
+        return request.jwt_auth.has_auth(scopes_required, component=component)  # pyright: ignore[reportAttributeAccessIssue]
 
 
 class ExpandAuthRequired(permissions.BasePermission):
@@ -315,11 +336,13 @@ class ExpandAuthRequired(permissions.BasePermission):
     for each component associated with the expanded resource.
     """
 
-    def __init__(self, expand_serializers: list | None = None):
+    def __init__(
+        self, expand_serializers: Collection[type[BaseSerializer]] | None = None
+    ):
         self.expand_serializers = expand_serializers or []
 
     @staticmethod
-    def get_component_from_serializer(serializer) -> str | None:
+    def get_component_from_serializer(serializer: type[BaseSerializer]) -> str | None:
         model = getattr(getattr(serializer, "Meta", None), "model", None)
 
         if model is None:
@@ -330,7 +353,7 @@ class ExpandAuthRequired(permissions.BasePermission):
 
         return model._meta.app_label
 
-    def has_permission(self, request: Request, view) -> bool:
+    def has_permission(self, request: Request, view: APIView) -> bool:
         """Check whether the request has read permissions for expanded serializers."""
         if bypass_permissions(request):
             return True
@@ -347,11 +370,13 @@ class ExpandAuthRequired(permissions.BasePermission):
         for component in components:
             # The "expand" query parameter is only allowed on read requests,
             # so the required scope is always the read scope (.lezen)
-            if not request.jwt_auth.has_auth(Scope(f"{component}.lezen"), component):
+            if not request.jwt_auth.has_auth(Scope(f"{component}.lezen"), component):  # pyright: ignore[reportAttributeAccessIssue]
                 return False
 
         return True
 
-    def has_object_permission(self, request: Request, view, obj) -> bool:
+    def has_object_permission(
+        self, request: Request, view: APIView, obj: Model
+    ) -> bool:
         """Allow object-level permission checks after permissions were validated."""
         return True

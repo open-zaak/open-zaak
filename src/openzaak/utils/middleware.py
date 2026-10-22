@@ -43,8 +43,8 @@ def override_request_host(request: HttpRequest) -> None:
             del request.META["HTTP_X_FORWARDED_HOST"]
 
         # for logging/debugging purposes: track the original host
-        request._raw_host = request._get_raw_host()
-        request.META["HTTP_X_ORIGINAL_HOST"] = request._raw_host
+        request._raw_host = request._get_raw_host()  # pyright: ignore[reportAttributeAccessIssue]
+        request.META["HTTP_X_ORIGINAL_HOST"] = request._raw_host  # pyright: ignore[reportAttributeAccessIssue]
         # overwrite with our own host information
         request.META["HTTP_HOST"] = settings.OPENZAAK_DOMAIN
         request.__dict__.pop("_current_scheme_host", None)
