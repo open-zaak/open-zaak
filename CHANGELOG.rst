@@ -21,6 +21,9 @@ Unreleased
 * [:open-zaak:`2577`] Writes no longer recalculate ETags: they only invalidate the ETags of
   the resources they change, and the first ``GET`` after a write calculates the ``ETag``.
   Adding documents to a zaak no longer gets slower the more documents it has.
+* [:open-zaak:`2577`] A request that PostgreSQL cancels to resolve a deadlock with a
+  concurrent request gets a ``503 Service Unavailable`` with ``Retry-After: 1`` instead
+  of a ``500``. Nothing of it was written, so it can be retried.
 
 **Project maintenance**
 
