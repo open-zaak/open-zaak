@@ -39,7 +39,7 @@ from vng_api_common.audittrails.viewsets import (
     AuditTrailMixin,
     AuditTrailViewsetMixin,
 )
-from vng_api_common.caching import conditional_retrieve
+from vng_api_common.caching import batched_invalidation, conditional_retrieve
 from vng_api_common.client import to_internal_data
 from vng_api_common.constants import CommonResourceAction
 from vng_api_common.filters_backend import Backend
@@ -1000,6 +1000,8 @@ class ZaakInformatieObjectViewSet(
             client_id=self.request.jwt_auth.client_id,
         )
 
+    # a batch, as the ZIO's signals save its zaak too
+    @batched_invalidation()
     def perform_update(self, serializer):
         super().perform_update(serializer)
 
@@ -1017,7 +1019,8 @@ class ZaakInformatieObjectViewSet(
         uuid = str(instance.uuid)
         zaak_uuid = str(instance.zaak.uuid)
 
-        with transaction.atomic():
+        # a batch, as the ZIO's signals save its zaak too
+        with batched_invalidation():
             super().perform_destroy(instance)
 
         if (
@@ -1028,7 +1031,7 @@ class ZaakInformatieObjectViewSet(
                 delete_remote_oio(instance._objectinformatieobject_url)
             except Exception:
                 # bring back the instance
-                with transaction.atomic():
+                with batched_invalidation():
                     instance.save()
                 raise ValidationError(
                     {"informatieobject": _("Could not delete remote relation")},

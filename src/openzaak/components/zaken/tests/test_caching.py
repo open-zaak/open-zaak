@@ -236,6 +236,77 @@ class ZaakInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+@tag("gh-2577")
+class ZaakInformatieObjectLockOrderTests(JWTAuthMixin, APITestCase):
+    """
+    A ZIO write saves its zaak too. It must update the zaak's row before it writes
+    the zaak's stored ETag, as a save of the zaak does; the other way round, the two
+    deadlock.
+    """
+
+    heeft_alle_autorisaties = True
+
+    def assertZaakUpdatedBeforeStoredETags(self, queries):
+        sqls = [query["sql"] for query in queries]
+        zaak_updates = [
+            i for i, sql in enumerate(sqls) if sql.startswith('UPDATE "zaken_zaak"')
+        ]
+        etag_writes = [
+            i
+            for i, sql in enumerate(sqls)
+            if sql.startswith('INSERT INTO "vng_api_common_storedetag"')
+        ]
+        self.assertTrue(zaak_updates)
+        self.assertTrue(etag_writes)
+        self.assertLess(zaak_updates[0], etag_writes[0])
+
+    def test_create(self):
+        zaak = ZaakFactory.create()
+        io = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__concept=False
+        )
+        ZaakTypeInformatieObjectTypeFactory.create(
+            informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
+        )
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.post(
+                reverse(ZaakInformatieObject),
+                {
+                    "zaak": f"http://testserver{reverse(zaak)}",
+                    "informatieobject": f"http://testserver{reverse(io)}",
+                },
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertZaakUpdatedBeforeStoredETags(queries)
+
+    def test_update(self):
+        zaak = ZaakFactory.create()
+        io = EnkelvoudigInformatieObjectFactory.create()
+        ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaak.zaaktype, informatieobjecttype=io.informatieobjecttype
+        )
+        zio = ZaakInformatieObjectFactory.create(
+            zaak=zaak, informatieobject=io.canonical
+        )
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.patch(reverse(zio), {"titel": "new"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertZaakUpdatedBeforeStoredETags(queries)
+
+    def test_destroy(self):
+        zio = ZaakInformatieObjectFactory.create()
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.delete(reverse(zio))
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertZaakUpdatedBeforeStoredETags(queries)
+
+
 class ZaakEigenschapCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 

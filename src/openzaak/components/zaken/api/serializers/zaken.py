@@ -1212,7 +1212,9 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         }
 
     def create(self, validated_data):
-        with transaction.atomic():
+        # a batch, as the ZIO's signals save its zaak too: see
+        # zaak_related_resource_trigger_zaak_gemuteerd
+        with batched_invalidation():
             zio = super().create(validated_data)
 
         # we now expect to be in autocommit mode, i.e. - the transaction before has been
@@ -1242,7 +1244,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         try:
             response = create_remote_oio(io_url, zaak_url)
         except Exception:
-            with transaction.atomic():
+            with batched_invalidation():
                 zio.delete()
             logger.exception(
                 "Could not create remote relation due to an unexpected error"
@@ -1257,7 +1259,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             )
         else:
             zio._objectinformatieobject_url = response["url"]
-            with transaction.atomic():
+            with batched_invalidation():
                 zio.save(update_fields=["_objectinformatieobject_url"])
 
         return zio
