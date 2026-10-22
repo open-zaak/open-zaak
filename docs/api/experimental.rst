@@ -15,13 +15,6 @@ additions for the convenience of the clients. Below is the full list of deviatio
 Zaken API
 =========
 
-Notities
---------
-
-The ``zaaknotities`` endpoint has been added to the Zaken API and supports GET, POST, PUT, PATCH and DELETE operations.
-
-* ``/api/v1/zaaknotities``
-
 Notifications
 -------------
 
@@ -115,8 +108,6 @@ Endpoints
 New endpoints are added:
 
 * PUT ``/api/v1/rollen/{uuid}``
-* POST ``/api/v1/zaaknummer_reserveren`` – reserve a zaaknummer (identificatie) in combination with a bronorganisatie.
-  The optional ``amount`` attribute can be specified to reserve identifications in bulk
 * POST ``/api/v1/zaak_registreren`` – create a zaak in combination with a status, rollen, zaakinformatieobjecten & zaakobjecten to immediately link them to this zaak.
 * POST ``/api/v1/zaak_opschorten/{uuid}`` - suspend a zaak and set a new status for the zaak
 * POST ``/api/v1/zaak_verlengen/{uuid}`` - extend a zaak and set a new status for the zaak
@@ -127,12 +118,6 @@ New endpoints are added:
 
 Attributes
 ----------
-
-* ``ZaakEigenschap``:
-
-    * ``waarde`` attribute is changed: an extra validation is added against
-      ``eigenschap.specificatie`` value if ``ZAAK_EIGENSCHAP_WAARDE_VALIDATION``
-      env variable is turned on
 
 * Request body of ``/api/v1/zaken/_zoek``:
 
