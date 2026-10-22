@@ -93,6 +93,9 @@ def sync_zaakbesluit(sender: ModelBase, instance: Besluit, **kwargs) -> None:
     # loading fixtures -> skip
     if kwargs["raw"]:
         return
+    # Skip saving when only the ETag is being updated
+    if kwargs.get("update_fields") == frozenset({"_etag"}):
+        return
 
     created = kwargs["created"]
 
