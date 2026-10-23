@@ -109,13 +109,20 @@ from .cloudevents import (
 )
 from .filters import (
     KlantContactFilter,
+    ResultaatDetailFilter,
     ResultaatFilter,
+    RolDetailFilter,
     RolFilter,
+    StatusDetailFilter,
     StatusFilter,
+    ZaakBesluitDetailFilter,
+    ZaakBesluitFilter,
     ZaakContactMomentFilter,
     ZaakDetailFilter,
     ZaakFilter,
+    ZaakInformatieObjectDetailFilter,
     ZaakInformatieObjectFilter,
+    ZaakObjectDetailFilter,
     ZaakObjectFilter,
     ZaakVerzoekFilter,
 )
@@ -585,6 +592,7 @@ class ZaakViewSet(
 @conditional_retrieve()
 class StatusViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
@@ -598,13 +606,41 @@ class StatusViewSet(
     """
 
     queryset = (
-        Status.objects.select_related("_statustype", "zaak", "gezetdoor")
+        Status.objects.select_related(
+            "_statustype",
+            "zaak",
+            "gezetdoor",
+        )
         .prefetch_related("zaakinformatieobjecten")
         .annotate_with_max_datum_status_gezet()
         .order_by("-datum_status_gezet", "-pk")
     )
+    inclusion_viewsets = {
+        "zaak": ("zaak", "openzaak.components.zaken.api.viewsets.ZaakViewSet"),
+        "zaak.zaaktype": (
+            "zaak___zaaktype",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "statustype": (
+            "_statustype",
+            "openzaak.components.catalogi.api.viewsets.statustype.StatusTypeViewSet",
+        ),
+        "gezetdoor": ("gezetdoor", "openzaak.components.zaken.api.viewsets.RolViewSet"),
+        "gezetdoor.roltype": (
+            "gezetdoor___roltype",
+            "openzaak.components.catalogi.api.viewsets.roltype.RolTypeViewSet",
+        ),
+        "zaakinformatieobjecten": (
+            "zaakinformatieobjecten",
+            "openzaak.components.zaken.api.viewsets.ZaakInformatieObjectViewSet",
+        ),
+        "zaakinformatieobjecten.informatieobject": (
+            "zaakinformatieobjecten___informatieobject__latest_version",
+            "openzaak.components.documenten.api.viewsets.EnkelvoudigInformatieObjectViewSet",
+        ),
+    }
+
     serializer_class = StatusSerializer
-    filterset_class = StatusFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
 
@@ -619,6 +655,15 @@ class StatusViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return StatusDetailFilter
+        return StatusFilter
 
     def perform_create(self, serializer):
         """
@@ -797,6 +842,7 @@ class SubStatusViewSet(
 )
 class ZaakObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     CheckQueryParamsMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
@@ -813,8 +859,18 @@ class ZaakObjectViewSet(
     queryset = ZaakObject.objects.select_related("zaak", "_zaakobjecttype").order_by(
         "-pk"
     )
+    inclusion_viewsets = {
+        "zaak": ("zaak", "openzaak.components.zaken.api.viewsets.ZaakViewSet"),
+        "zaak.zaaktype": (
+            "zaak___zaaktype",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "zaakobjecttype": (
+            "_zaakobjecttype",
+            "openzaak.components.catalogi.api.viewsets.zaakobjecttype.ZaakObjectTypeViewSet",
+        ),
+    }
     serializer_class = ZaakObjectSerializer
-    filterset_class = ZaakObjectFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
 
@@ -834,6 +890,15 @@ class ZaakObjectViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return ZaakObjectDetailFilter
+        return ZaakObjectFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -935,6 +1000,7 @@ class ZaakObjectViewSet(
 @conditional_retrieve()
 class ZaakInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationCreateMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -947,11 +1013,32 @@ class ZaakInformatieObjectViewSet(
     """
 
     queryset = (
-        ZaakInformatieObject.objects.select_related("zaak", "_informatieobject")
+        ZaakInformatieObject.objects.select_related(
+            "zaak", "status", "_informatieobject"
+        )
         .prefetch_related("_informatieobject__enkelvoudiginformatieobject_set")
         .order_by("-pk")
     )
-    filterset_class = ZaakInformatieObjectFilter
+    inclusion_viewsets = {
+        "zaak": ("zaak", "openzaak.components.zaken.api.viewsets.ZaakViewSet"),
+        "zaak.zaaktype": (
+            "zaak___zaaktype",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "status": ("status", "openzaak.components.zaken.api.viewsets.StatusViewSet"),
+        "status.statustype": (
+            "status___statustype",
+            "openzaak.components.catalogi.api.viewsets.statustype.StatusTypeViewSet",
+        ),
+        "status.gezetdoor": (
+            "status__gezetdoor",
+            "openzaak.components.zaken.api.viewsets.RolViewSet",
+        ),
+        "informatieobject": (
+            "_informatieobject__latest_version",
+            "openzaak.components.documenten.api.viewsets.EnkelvoudigInformatieObjectViewSet",
+        ),
+    }
     serializer_class = ZaakInformatieObjectSerializer
     lookup_field = "uuid"
     notifications_kanaal = KANAAL_ZAKEN
@@ -971,6 +1058,15 @@ class ZaakInformatieObjectViewSet(
         | SCOPE_ZAKEN_ALLES_VERWIJDEREN,
     }
     audit = AUDIT_ZRC
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return ZaakInformatieObjectDetailFilter
+        return ZaakInformatieObjectFilter
 
     @property
     def notifications_wrap_in_atomic_block(self):
@@ -1281,6 +1377,7 @@ class KlantContactViewSet(
 @conditional_retrieve()
 class RolViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -1296,7 +1393,7 @@ class RolViewSet(
     """
 
     queryset = (
-        Rol.objects.select_related("_roltype", "zaak")
+        Rol.objects.select_related("_roltype", "zaak", "zaak___zaaktype")
         .prefetch_related(
             "natuurlijkpersoon",
             "nietnatuurlijkpersoon",
@@ -1304,11 +1401,26 @@ class RolViewSet(
             "organisatorischeeenheid",
             "medewerker",
             "statussen",
+            "statussen___statustype",
         )
         .order_by("-pk")
     )
+    inclusion_viewsets = {
+        "zaak": ("zaak", "openzaak.components.zaken.api.viewsets.ZaakViewSet"),
+        "zaak.zaaktype": (
+            "zaak___zaaktype",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "roltype": (
+            "_roltype",
+            "openzaak.components.catalogi.api.viewsets.roltype.RolTypeViewSet",
+        ),
+        "statussen": (
+            "statussen",
+            "openzaak.components.zaken.api.viewsets.StatusViewSet",
+        ),
+    }
     serializer_class = RolSerializer
-    filterset_class = RolFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
 
@@ -1323,6 +1435,15 @@ class RolViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return RolDetailFilter
+        return RolFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -1404,6 +1525,7 @@ class RolViewSet(
 @conditional_retrieve()
 class ResultaatViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -1419,8 +1541,18 @@ class ResultaatViewSet(
     queryset = Resultaat.objects.select_related("_resultaattype", "zaak").order_by(
         "-pk"
     )
+    inclusion_viewsets = {
+        "zaak": ("zaak", "openzaak.components.zaken.api.viewsets.ZaakViewSet"),
+        "zaak.zaaktype": (
+            "zaak___zaaktype",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "resultaattype": (
+            "_resultaattype",
+            "openzaak.components.catalogi.api.viewsets.resultaattype.ResultaatTypeViewSet",
+        ),
+    }
     serializer_class = ResultaatSerializer
-    filterset_class = ResultaatFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
 
@@ -1436,6 +1568,15 @@ class ResultaatViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return ResultaatDetailFilter
+        return ResultaatFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -1530,6 +1671,8 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
 )
 class ZaakBesluitViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
+    CheckQueryParamsMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
@@ -1543,7 +1686,13 @@ class ZaakBesluitViewSet(
     Opvragen en beheren van zaak-besluiten.
     """
 
-    queryset = ZaakBesluit.objects.order_by("-pk")
+    queryset = ZaakBesluit.objects.select_related("zaak", "_besluit").order_by("-pk")
+    inclusion_viewsets = {
+        "besluit": (
+            "_besluit",
+            "openzaak.components.besluiten.api.viewsets.BesluitViewSet",
+        ),
+    }
     serializer_class = ZaakBesluitSerializer
     lookup_field = "uuid"
     parent_retrieve_kwargs = {"zaak_uuid": "uuid"}
@@ -1557,8 +1706,19 @@ class ZaakBesluitViewSet(
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
 
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return ZaakBesluitDetailFilter
+        return ZaakBesluitFilter
+
     def get_queryset(self):
-        if not self.kwargs:  # this happens during schema generation, and causes crashes
+        if (
+            "zaak_uuid" not in self.kwargs
+        ):  # this happens during schema generation, and causes crashes
             return self.queryset.none()
         return super().get_queryset()
 
@@ -1570,7 +1730,7 @@ class ZaakBesluitViewSet(
     def get_serializer_context(self):
         context = super().get_serializer_context()
         # DRF introspection
-        if not self.kwargs:
+        if not getattr(self, "kwargs", None) or "zaak_uuid" not in self.kwargs:
             return context
 
         context["parent_object"] = self._get_zaak()

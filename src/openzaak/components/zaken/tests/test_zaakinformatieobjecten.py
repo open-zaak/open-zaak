@@ -14,16 +14,32 @@ from freezegun import freeze_time
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
-from vng_api_common.constants import RelatieAarden
+from vng_api_common.authorizations.models import Autorisatie
+from vng_api_common.constants import (
+    ComponentTypes,
+    RelatieAarden,
+    VertrouwelijkheidsAanduiding,
+)
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from vng_api_common.validators import IsImmutableValidator
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 from zgw_consumers.test.factories import ServiceFactory
 
+from openzaak.components.catalogi.api.scopes import (
+    SCOPE_CATALOGI_READ,
+    SCOPE_CATALOGI_WRITE,
+)
 from openzaak.components.catalogi.tests.factories import (
     InformatieObjectTypeFactory,
+    RolTypeFactory,
+    StatusTypeFactory,
+    ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
+)
+from openzaak.components.documenten.api.scopes import (
+    SCOPE_DOCUMENTEN_AANMAKEN,
+    SCOPE_DOCUMENTEN_ALLES_LEZEN,
 )
 from openzaak.components.documenten.models import ObjectInformatieObject
 from openzaak.components.documenten.tests.factories import (
@@ -34,11 +50,19 @@ from openzaak.components.documenten.tests.utils import (
     get_informatieobjecttype_response,
     get_oio_response,
 )
+from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
 from openzaak.tests.utils import JWTAuthMixin, get_eio_response, mock_drc_oas_get
+from openzaak.utils.expansion import EXPAND_QUERY_PARAM
 
+from ..api.scopes import SCOPE_ZAKEN_CREATE
 from ..models import Zaak, ZaakInformatieObject
-from .factories import StatusFactory, ZaakFactory, ZaakInformatieObjectFactory
-from .utils import get_zaaktype_response
+from .factories import (
+    RolFactory,
+    StatusFactory,
+    ZaakFactory,
+    ZaakInformatieObjectFactory,
+)
+from .utils import ZAAK_READ_KWARGS, get_zaaktype_response
 
 
 @temp_private_root()
@@ -205,7 +229,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "vernietigingsdatum": None,
         }
 
-        self.assertEqual(response.json(), expected)
+        self.assertEqual(response.json(), {**expected, "_expand": {}})
 
     def test_filter_by_zaak(self):
         zio = ZaakInformatieObjectFactory.create()
@@ -1086,3 +1110,252 @@ class ExternalInformatieObjectSameDomainTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["zaak"], zaak_url)
         self.assertEqual(response.data[0]["informatieobject"], document)
+
+
+@tag("expand")
+class ZaakInformatieObjectenExpandTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    scopes = [str(SCOPE_ZAKEN_ALLES_LEZEN)]
+    maxDiff = None
+    url = reverse_lazy("zaakinformatieobject-list")
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.zaaktype = ZaakTypeFactory.create(concept=False)
+        cls.roltype = RolTypeFactory.create(zaaktype=cls.zaaktype)
+        cls.statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
+        cls.zaak = ZaakFactory.create(
+            zaaktype=cls.zaaktype,
+        )
+        cls.rol = RolFactory.create(zaak=cls.zaak, roltype=cls.roltype)
+        cls.zio = ZaakInformatieObjectFactory.create(
+            with_status=True,
+            status__statustype=cls.statustype,
+            status__gezetdoor=cls.rol,
+        )
+        cls.zaakinformatieobject = cls.zio.informatieobject.latest_version
+
+    def get_resource(self, resource):
+        """Resource without `_expand`"""
+        response = self.client.get(reverse(resource), **ZAAK_READ_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        # The detail responses also include the _expand attribute, but the list response
+        # only has a _expand attribute at the root level (no _expand nested inside _expand)
+        data.pop("_expand", None)
+        return data
+
+    def test_zio_list_expand_include_all_resources_with_query_count(self):
+        zio_data = self.get_resource(self.zio)
+        zaak_data = self.get_resource(self.zio.zaak)
+        status_data = self.get_resource(self.zio.status)
+
+        expected_result = [
+            {
+                **zio_data,
+                "_expand": {
+                    "zaak": {
+                        **zaak_data,
+                        "_expand": {
+                            "zaaktype": self.get_resource(self.zio.zaak.zaaktype)
+                        },
+                    },
+                    "status": {
+                        **status_data,
+                        "_expand": {
+                            "statustype": self.get_resource(self.zio.status.statustype),
+                            "gezetdoor": self.get_resource(self.zio.status.gezetdoor),
+                        },
+                    },
+                    "informatieobject": self.get_resource(self.zaakinformatieobject),
+                },
+            }
+        ]
+
+        with self.assertNumQueries(43):
+            response = self.client.get(
+                self.url,
+                {
+                    "expand": "zaak,zaak.zaaktype,status,status.statustype,status.gezetdoor,informatieobject"
+                },
+                **ZAAK_READ_KWARGS,
+            )
+            data = response.json()
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(data, expected_result)
+
+    def test_invalid_expansion(self):
+        for expand in (
+            "unknown",
+            "informatieobject.unknown",
+            "zaak.zaaktype.catalogus",
+        ):
+            with self.subTest(expand=expand):
+                response = self.client.get(
+                    self.url, {"expand": expand}, **ZAAK_READ_KWARGS
+                )
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertEqual(
+                    get_validation_errors(response, "expand")["code"],
+                    "invalid_choice",
+                )
+
+    def test_nested_expansion_requires_parent(self):
+        response = self.client.get(self.url, {"expand": "status.statustype"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        expected_result = [{**self.get_resource(self.zio), "_expand": {}}]
+        self.assertEqual(data, expected_result)
+
+    def test_document_expansion_requires_document_read_scope(self):
+        self.applicatie.heeft_alle_autorisaties = False
+        self.applicatie.save()
+
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=[SCOPE_ZAKEN_ALLES_LEZEN],
+            zaaktype=f"{self.host_prefix}{reverse(self.zio.zaak.zaaktype)}",
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        response = self.client.get(self.url, {"expand": "informatieobject"})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.drc,
+            scopes=[SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_DOCUMENTEN_ALLES_LEZEN],
+            informatieobjecttype=f"{self.host_prefix}{reverse(self.zaakinformatieobject.informatieobjecttype)}",
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        response = self.client.get(self.url, {"expand": "informatieobject"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        expected_result = [
+            {
+                **self.get_resource(self.zio),
+                "_expand": {
+                    "informatieobject": self.get_resource(self.zaakinformatieobject)
+                },
+            }
+        ]
+        self.assertEqual(data, expected_result)
+
+
+@tag("expand-authorization")
+@override_settings(ALLOWED_HOSTS=["testserver"])
+class ZaakInformatieObjectenIncludePermissionsTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = False
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create(concept=False)
+        cls.zaak = ZaakFactory.create(zaaktype=cls.zaaktype)
+        cls.rol = RolFactory.create(
+            zaak=cls.zaak, roltype=RolTypeFactory.create(zaaktype=cls.zaaktype)
+        )
+        cls.status = StatusFactory.create(
+            zaak=cls.zaak,
+            statustype=StatusTypeFactory.create(zaaktype=cls.zaaktype),
+            gezetdoor=cls.rol,
+        )
+        cls.zaakinformatieobject = ZaakInformatieObjectFactory.create(
+            zaak=cls.zaak, status=cls.status
+        )
+        cls.list_url = reverse("zaakinformatieobject-list")
+        cls.detail_url = reverse(cls.zaakinformatieobject)
+        super().setUpTestData()
+
+    def _test_expand_auth(self, params: dict[str, str], informatieobject: bool = False):
+        """Check the expanded resources auth for both list and detail requests"""
+
+        for url in (self.list_url, self.detail_url):
+            with self.subTest(url=url):
+                expanded_field = params.get(EXPAND_QUERY_PARAM, "").split(",")[0]
+
+                # No scopes access is denied
+                self.autorisatie.scopes = []
+                self.autorisatie.save()
+                response = self.client.get(url, params, **ZAAK_READ_KWARGS)
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+                # SCOPE_ZAKEN_CREATE does not grant access
+                self.autorisatie.scopes = [SCOPE_ZAKEN_CREATE]
+                self.autorisatie.save()
+                response = self.client.get(url, params, **ZAAK_READ_KWARGS)
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+                # SCOPE_ZAKEN_ALLES_LEZEN permits access to its own resource
+                self.autorisatie.scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
+                self.autorisatie.save()
+                response = self.client.get(url, {"expand": "zaak"}, **ZAAK_READ_KWARGS)
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+                if informatieobject:
+                    # For informatieobjecten expansion requires SCOPE_DOCUMENTEN_ALLES_LEZEN
+                    response = self.client.get(
+                        url,
+                        params,
+                        **ZAAK_READ_KWARGS,
+                    )
+                    self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+                    # Only SCOPE_DOCUMENTEN_AANMAKEN is insufficient
+                    documenten_auth = Autorisatie.objects.create(
+                        applicatie=self.applicatie,
+                        component=ComponentTypes.drc,
+                        scopes=[SCOPE_DOCUMENTEN_AANMAKEN],
+                    )
+                    response = self.client.get(
+                        url,
+                        params,
+                        **ZAAK_READ_KWARGS,
+                    )
+                    self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+                    # Adding SCOPE_DOCUMENTEN_ALLES_LEZEN read access permits the expansion
+                    documenten_auth.scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
+                    documenten_auth.save()
+                    response = self.client.get(
+                        url,
+                        params,
+                        **ZAAK_READ_KWARGS,
+                    )
+                    self.assertEqual(response.status_code, status.HTTP_200_OK)
+                    documenten_auth.delete()  # remove auth for the next use
+                else:
+                    # Catalogi expansion requires SCOPE_CATALOGI_READ
+                    response = self.client.get(url, params, **ZAAK_READ_KWARGS)
+                    self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+                    # Only SCOPE_CATALOGI_WRITE is insufficient
+                    catalogi_auth = Autorisatie.objects.create(
+                        applicatie=self.applicatie,
+                        component=ComponentTypes.ztc,
+                        scopes=[SCOPE_CATALOGI_WRITE],
+                    )
+                    response = self.client.get(url, params, **ZAAK_READ_KWARGS)
+                    self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+                    # Adding SCOPE_CATALOGI_READ access permits the expansion
+                    catalogi_auth.scopes = [SCOPE_CATALOGI_READ]
+                    catalogi_auth.save()
+                    response = self.client.get(url, params, **ZAAK_READ_KWARGS)
+                    self.assertEqual(response.status_code, status.HTTP_200_OK)
+                    catalogi_auth.delete()  # remove auth for the next use
+
+                data = response.json()
+                if url == self.list_url:
+                    data = data[0]
+                self.assertIn(expanded_field, data["_expand"])
+
+    def test_expand_informatieobject_permissions(self):
+        """Expanding informatieobject requires SCOPE_DOCUMENTEN_ALLES_LEZEN"""
+        params = {"expand": "informatieobject"}
+        self._test_expand_auth(params, informatieobject=True)
+
+    def test_expand_status_statustype_permissions(self):
+        """Expanding status,status.statustype requires SCOPE_CATALOGI_READ"""
+        params = {"expand": "status,status.statustype"}
+        self._test_expand_auth(params)

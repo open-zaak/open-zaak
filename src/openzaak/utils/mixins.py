@@ -122,13 +122,57 @@ class ExpandMixin:
 
                 related_viewset = import_string(viewset_path)
 
+                # A parent queryset may already load a nested relation.
+                # Remove that default loading before adding the explicit expansion below,
+                # otherwise Django can encounter two querysets for the same relation
+                for index, parent_prefetch in enumerate(prefetches):
+                    if (
+                        not isinstance(parent_prefetch, Prefetch)
+                        or parent_prefetch.queryset is None
+                    ):
+                        continue
+
+                    # For lookup "zaak___zaaktype", the parent lookup is "zaak"
+                    # and the lookup relative to that parent is "_zaaktype".
+                    parent_lookup = parent_prefetch.prefetch_through
+                    parent_prefix = f"{parent_lookup}__"
+                    if not lookup.startswith(parent_prefix):
+                        continue
+                    nested_lookup = lookup[len(parent_prefix) :]
+
+                    # Keep unrelated prefetches. Drop the nested relation and its
+                    # descendants so the explicit expansion can replace them
+                    remaining_prefetches = []
+                    for item in parent_prefetch.queryset._prefetch_related_lookups:
+                        item_lookup = getattr(item, "prefetch_through", item)
+                        if item_lookup == nested_lookup or item_lookup.startswith(
+                            f"{nested_lookup}__"
+                        ):
+                            continue
+                        remaining_prefetches.append(item)
+
+                    # Also remove any join that would bypass the nested prefetch
+                    parent_queryset = self._remove_select_related(
+                        parent_prefetch.queryset.prefetch_related(None), nested_lookup
+                    )
+
+                    # Replace this request's parent prefetch, preserving its to_attr
+                    # destination and all unrelated relation loading
+                    prefetches[index] = Prefetch(
+                        parent_lookup,
+                        queryset=parent_queryset.prefetch_related(
+                            *remaining_prefetches
+                        ),
+                        to_attr=parent_prefetch.to_attr,
+                    )
+
                 # Build a list of the prefetches from the base queryset for all attributes that are not expanded
                 prefetches = [
                     prefetch
                     for prefetch in prefetches
                     if not (
-                        prefetch == lookup
-                        or getattr(prefetch, "prefetch_to", prefetch).startswith(
+                        getattr(prefetch, "prefetch_through", prefetch) == lookup
+                        or getattr(prefetch, "prefetch_through", prefetch).startswith(
                             f"{lookup}__"
                         )
                     )
