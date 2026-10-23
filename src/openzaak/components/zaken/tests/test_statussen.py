@@ -465,7 +465,7 @@ class StatussenExpandTests(JWTAuthMixin, APITestCase):
         )
         cls.status = cls.zio.status
 
-    def test_status_list_include_all_resources(self):
+    def test_status_list_include_all_resources_with_query_count(self):
         zaak_data = self.client.get(reverse(self.zaak), **ZAAK_READ_KWARGS).json()
         zaaktype_data = self.client.get(reverse(self.zaaktype)).json()
         statustype_data = self.client.get(reverse(self.statustype)).json()
@@ -477,17 +477,6 @@ class StatussenExpandTests(JWTAuthMixin, APITestCase):
         informatieobject_data.pop("_expand", None)
         status_data = self.client.get(reverse(self.status)).json()
 
-        response = self.client.get(
-            self.url,
-            {
-                "expand": "zaak,zaak.zaaktype,statustype,gezetdoor,gezetdoor.roltype,"
-                "zaakinformatieobjecten,zaakinformatieobjecten.informatieobject"
-            },
-            **ZAAK_READ_KWARGS,
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
         # The detail responses also include the _expand attribute, but the list response
         # only has a _expand attribute at the root level (no _expand nested inside _expand)
         del zaak_data["_expand"]
@@ -495,7 +484,6 @@ class StatussenExpandTests(JWTAuthMixin, APITestCase):
         del gezetdoor_roltype_data["_expand"]
         del statustype_data["_expand"]
 
-        data = response.json()["results"]
         expected_results = [
             {
                 **status_data,
@@ -521,7 +509,19 @@ class StatussenExpandTests(JWTAuthMixin, APITestCase):
             },
         ]
 
-        self.assertEqual(data, expected_results)
+        with self.assertNumQueries(44):
+            response = self.client.get(
+                self.url,
+                {
+                    "expand": "zaak,zaak.zaaktype,statustype,gezetdoor,gezetdoor.roltype,"
+                    "zaakinformatieobjecten,zaakinformatieobjecten.informatieobject"
+                },
+                **ZAAK_READ_KWARGS,
+            )
+            data = response.json()["results"]
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(data, expected_results)
 
     def test_status_retrieve_zaakinformatieobjecten(self):
         response = self.client.get(reverse(self.status), **ZAAK_READ_KWARGS)

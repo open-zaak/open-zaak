@@ -227,7 +227,7 @@ class ResultatenExpandTests(JWTAuthMixin, APITestCase):
 
         super().setUpTestData()
 
-    def test_resultaat_include_all_resources(self):
+    def test_resultaat_include_all_resources_with_query_count(self):
         """Return zaak, zaaktype and resultaattype together."""
         resultaat_data = self.client.get(reverse(self.resultaat)).json()
         zaak_data = self.client.get(reverse(self.zaak), **ZAAK_READ_KWARGS).json()
@@ -247,15 +247,17 @@ class ResultatenExpandTests(JWTAuthMixin, APITestCase):
                 "resultaattype": resultaattype_data,
             },
         }
-        response = self.client.get(
-            self.url,
-            {"expand": "zaak,zaak.zaaktype,resultaattype"},
-            **ZAAK_READ_KWARGS,
-        )
-        response_data = response.json()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response_data["results"], [expected])
+        with self.assertNumQueries(29):
+            response = self.client.get(
+                self.url,
+                {"expand": "zaak,zaak.zaaktype,resultaattype"},
+                **ZAAK_READ_KWARGS,
+            )
+            response_data = response.json()
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response_data["results"], [expected])
 
     def test_resultaat_include_each_resource(self):
         """Request each direct relation without including the others."""

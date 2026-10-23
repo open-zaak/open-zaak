@@ -380,14 +380,7 @@ class ZaakInformatieObjectenExpandTests(JWTAuthMixin, APITestCase):
         data.pop("_expand", None)
         return data
 
-    def test_besluit_list_expand_include_all_resources(self):
-        response = self.client.get(
-            self.url,
-            {"expand": "besluit"},
-            **ZAAK_READ_KWARGS,
-        )
-        data = response.json()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    def test_besluit_list_expand_include_all_resources_with_query_count(self):
         zaakbesluit_url = f"{self.host_prefix}{self.url}/{self.zaakbesluit.uuid}"
         expected_result = [
             {
@@ -399,7 +392,16 @@ class ZaakInformatieObjectenExpandTests(JWTAuthMixin, APITestCase):
                 },
             }
         ]
-        self.assertEqual(data, expected_result)
+
+        with self.assertNumQueries(18):
+            response = self.client.get(
+                self.url,
+                {"expand": "besluit"},
+                **ZAAK_READ_KWARGS,
+            )
+            data = response.json()
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(data, expected_result)
 
     def test_invalid_expansion(self):
         for expand in ("unknown", "besluit.unknown", "zaak"):
