@@ -2,7 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import concurrent.futures
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
 from django.db import close_old_connections
@@ -34,6 +34,7 @@ from openzaak.components.documenten.tests.utils import (
     get_informatieobjecttype_response,
     get_oio_response,
 )
+from openzaak.loaders import AuthorizedRequestsLoader
 from openzaak.tests.utils import JWTAuthMixin, get_eio_response, mock_drc_oas_get
 
 from ..models import Zaak, ZaakInformatieObject
@@ -1086,3 +1087,313 @@ class ExternalInformatieObjectSameDomainTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["zaak"], zaak_url)
         self.assertEqual(response.data[0]["informatieobject"], document)
+
+
+@temp_private_root()
+@tag("external-urls")
+@override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
+class ExternalInformatieObjectAPIRequestsTest(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    base = "https://external.documenten.nl/api/v1/"
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        ServiceFactory.create(
+            api_type=APITypes.drc,
+            api_root=cls.base,
+            label="external documents",
+            auth_type=AuthTypes.no_auth,
+        )
+
+    def setUp(self):
+        super().setUp()
+        AuthorizedRequestsLoader._cache.clear()
+        self.addCleanup(AuthorizedRequestsLoader._cache.clear)
+
+    def _get_zaak_url_and_iotype_url(self) -> tuple[str, str]:
+        zio_type = ZaakTypeInformatieObjectTypeFactory.create()
+        zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
+        zaak_url = f"http://openzaak.nl{reverse(zaak)}"
+        iotype_url = f"http://testserver{reverse(zio_type.informatieobjecttype)}"
+        return zaak_url, iotype_url
+
+    def _eio(self, document: str, iotype_url: str, etag: str | None = None) -> dict:
+        response = {"json": get_eio_response(document, informatieobjecttype=iotype_url)}
+        if etag:
+            response["headers"] = {"ETag": etag}
+        return response
+
+    def _mock_oio(self, m, *documents_and_zaken: tuple[str, str]) -> None:
+        m.post(
+            f"{self.base}objectinformatieobjecten",
+            [
+                {"json": get_oio_response(document, zaak_url), "status_code": 201}
+                for document, zaak_url in documents_and_zaken
+            ],
+        )
+
+    def _total_document_requests(self, m, document: str) -> int:
+        return sum(
+            req.method == "GET" and req.url == document for req in m.request_history
+        )
+
+    def test_create_zio_fetches_document_once(self):
+        zaak_url, iotype_url = self._get_zaak_url_and_iotype_url()
+        document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+
+        with requests_mock.Mocker() as m:
+            m.get(document, [self._eio(document, iotype_url, etag="v1")])
+            self._mock_oio(m, (document, zaak_url))
+
+            response = self.client.post(
+                reverse(ZaakInformatieObject),
+                {"zaak": zaak_url, "informatieobject": document},
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        self.assertEqual(self._total_document_requests(m, document), 1)
+        self.assertIn(document, AuthorizedRequestsLoader._cache)
+
+    def test_create_zio_without_etag_fetches_every_time(self):
+        zaak_url, iotype_url = self._get_zaak_url_and_iotype_url()
+        document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+
+        with requests_mock.Mocker() as m:
+            m.get(document, [self._eio(document, iotype_url)])
+            self._mock_oio(m, (document, zaak_url))
+
+            response = self.client.post(
+                reverse(ZaakInformatieObject),
+                {"zaak": zaak_url, "informatieobject": document},
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertGreater(self._total_document_requests(m, document), 1)
+        self.assertNotIn(document, AuthorizedRequestsLoader._cache)
+
+    def test_update_zio_reuses_cached_document(self):
+        zaak_url, iotype_url = self._get_zaak_url_and_iotype_url()
+        document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+
+        with requests_mock.Mocker() as m:
+            m.get(document, [self._eio(document, iotype_url, etag="v1")])
+            self._mock_oio(m, (document, zaak_url))
+
+            create_response = self.client.post(
+                reverse(ZaakInformatieObject),
+                {"zaak": zaak_url, "informatieobject": document},
+            )
+            zio = ZaakInformatieObject.objects.get(_informatieobject_url=document)
+            update_response = self.client.put(
+                reverse(zio),
+                {
+                    "zaak": zaak_url,
+                    "informatieobject": document,
+                    "titel": "updated title",
+                },
+            )
+
+        self.assertEqual(
+            create_response.status_code, status.HTTP_201_CREATED, create_response.data
+        )
+        self.assertEqual(
+            update_response.status_code, status.HTTP_200_OK, update_response.data
+        )
+        self.assertEqual(update_response.data["titel"], "updated title")
+        # call external document once
+        self.assertEqual(self._total_document_requests(m, document), 1)
+
+    def test_revalidate_not_modified(self):
+        zaak_url, iotype_url = self._get_zaak_url_and_iotype_url()
+        document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+
+        with (
+            requests_mock.Mocker() as m,
+            patch.object(AuthorizedRequestsLoader, "revalidate_after", 0),
+        ):
+            # first a full response, then 304 for every following request
+            m.get(
+                document,
+                [self._eio(document, iotype_url, etag="v1"), {"status_code": 304}],
+            )
+            self._mock_oio(m, (document, zaak_url))
+
+            response = self.client.post(
+                reverse(ZaakInformatieObject),
+                {"zaak": zaak_url, "informatieobject": document},
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        self.assertGreater(self._total_document_requests(m, document), 1)
+
+    def test_revalidate_after_expiry(self):
+        zaak_url, iotype_url = self._get_zaak_url_and_iotype_url()
+        document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+
+        with freeze_time() as frozen, requests_mock.Mocker() as m:
+            m.get(
+                document,
+                [self._eio(document, iotype_url, etag="v1"), {"status_code": 304}],
+            )
+            self._mock_oio(m, (document, zaak_url))
+
+            # t = 0s: first request with post and stored in the cache
+            create_response = self.client.post(
+                reverse(ZaakInformatieObject),
+                {"zaak": zaak_url, "informatieobject": document},
+            )
+            self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
+
+            requests_after_create = self._total_document_requests(m, document)
+
+            # t = 3s: still within revalidate_after, served from the cache
+            frozen.tick(timedelta(seconds=3))
+            zio = ZaakInformatieObject.objects.get(_informatieobject_url=document)
+            cached_response = self.client.put(
+                reverse(zio),
+                {
+                    "zaak": zaak_url,
+                    "informatieobject": document,
+                    "titel": "within revalidate_after",
+                },
+            )
+            self.assertEqual(cached_response.status_code, status.HTTP_200_OK)
+            self.assertEqual(cached_response.data["titel"], "within revalidate_after")
+            requests_after_cached = self._total_document_requests(m, document)
+
+            # t = 6s: expired, revalidated with If-None-Match -> 304 without body
+            frozen.tick(timedelta(seconds=3))
+            zio = ZaakInformatieObject.objects.get(_informatieobject_url=document)
+            revalidated_response = self.client.put(
+                reverse(zio),
+                {
+                    "zaak": zaak_url,
+                    "informatieobject": document,
+                    "titel": "after revalidate_after",
+                },
+            )
+
+            self.assertEqual(revalidated_response.status_code, status.HTTP_200_OK)
+            self.assertEqual(
+                revalidated_response.data["titel"], "after revalidate_after"
+            )
+
+            requests_final = self._total_document_requests(m, document)
+
+        # first create a single full request
+        self.assertEqual(requests_after_create, 1)
+
+        # update within 5 seconds no new request at all
+        self.assertEqual(requests_after_cached, 1)
+
+        # update after 5 seconds exactly one revalidation, answered with 304
+        self.assertEqual(requests_final, 2)
+
+    def test_revalidate_modified(self):
+        """
+        The document changed remotely and has a new ETag.
+        """
+        zaak_url, iotype_url = self._get_zaak_url_and_iotype_url()
+        document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+
+        version_1 = self._eio(document, iotype_url, etag="v1")
+        version_1["json"]["titel"] = "original title"
+        version_2 = self._eio(document, iotype_url, etag="v2")
+        version_2["json"]["titel"] = "changed remotely"
+
+        with freeze_time() as frozen, requests_mock.Mocker() as m:
+            m.get(document, [version_1, version_2])
+            self._mock_oio(m, (document, zaak_url))
+
+            create_response = self.client.post(
+                reverse(ZaakInformatieObject),
+                {"zaak": zaak_url, "informatieobject": document},
+            )
+            requests_after_create = self._total_document_requests(m, document)
+            etag_after_create = AuthorizedRequestsLoader._cache[document][1]
+            titel_after_create = AuthorizedRequestsLoader._cache[document][2]["titel"]
+
+            self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
+            self.assertEqual(requests_after_create, 1)
+            self.assertEqual(etag_after_create, "v1")
+            self.assertEqual(titel_after_create, "original title")
+
+            # the cache has expired
+            frozen.tick(timedelta(seconds=6))
+
+            # new etag, makes new requests with full body
+            zio = ZaakInformatieObject.objects.get(_informatieobject_url=document)
+            update_response = self.client.put(
+                reverse(zio),
+                {
+                    "zaak": zaak_url,
+                    "informatieobject": document,
+                    "titel": "updated title",
+                },
+            )
+            etag_after_update = AuthorizedRequestsLoader._cache[document][1]
+            titel_after_update = AuthorizedRequestsLoader._cache[document][2]["titel"]
+
+            self.assertEqual(update_response.status_code, status.HTTP_200_OK)
+            self.assertEqual(etag_after_update, "v2")
+            self.assertEqual(titel_after_update, "changed remotely")
+            self.assertEqual(self._total_document_requests(m, document), 2)
+
+    def test_document_not_found(self):
+        """
+        The document is deleted remotely after it was cached.
+        """
+        zaak_url, iotype_url = self._get_zaak_url_and_iotype_url()
+        document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+
+        with requests_mock.Mocker() as m:
+            m.get(
+                document,
+                [
+                    {"status_code": 404, "json": {"detail": "Not found"}},
+                ],
+            )
+            self._mock_oio(m, (document, zaak_url))
+
+            response = self.client.post(
+                reverse(ZaakInformatieObject),
+                {"zaak": zaak_url, "informatieobject": document},
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIsNotNone(get_validation_errors(response, "informatieobject"))
+
+    def test_max_cached_evicts_oldest(self):
+        zaak_url, iotype_url = self._get_zaak_url_and_iotype_url()
+        document_1 = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+        document_2 = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+
+        with (
+            requests_mock.Mocker() as m,
+            patch.object(AuthorizedRequestsLoader, "max_cached", 1),
+        ):
+            m.get(document_1, [self._eio(document_1, iotype_url, etag="v1")])
+            m.get(document_2, [self._eio(document_2, iotype_url, etag="v1")])
+            self._mock_oio(m, (document_1, zaak_url), (document_2, zaak_url))
+
+            response_1 = self.client.post(
+                reverse(ZaakInformatieObject),
+                {"zaak": zaak_url, "informatieobject": document_1},
+            )
+            response_2 = self.client.post(
+                reverse(ZaakInformatieObject),
+                {"zaak": zaak_url, "informatieobject": document_2},
+            )
+
+        self.assertEqual(
+            response_1.status_code, status.HTTP_201_CREATED, response_1.data
+        )
+        self.assertEqual(
+            response_2.status_code, status.HTTP_201_CREATED, response_2.data
+        )
+        self.assertNotIn(document_1, AuthorizedRequestsLoader._cache)
+        self.assertIn(document_2, AuthorizedRequestsLoader._cache)
