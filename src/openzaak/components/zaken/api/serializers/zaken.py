@@ -919,7 +919,7 @@ class ZaakZoekSerializer(serializers.Serializer):
     fields = ZaakZoekFieldsSerializer(
         required=False,
         help_text=_(
-            "De elementen (fields) die worden teruggegeven in de repons"
+            "De elementen (fields) die worden teruggegeven in de response"
             " conform het expand-mechanisme. Het voorbeeld geeft aan hoe het werkt."
             ' Hierin betekent "*" dat alle elementen van een resource worden teruggegeven.'
             "\n\nVoor gerelateerde resources uit de Catalogi API is `catalogi.lezen` nodig;"
