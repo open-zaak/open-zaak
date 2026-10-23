@@ -390,6 +390,7 @@ class ZaakViewSet(
             "rol_set___roltype",
             "openzaak.components.catalogi.api.viewsets.RolTypeViewSet",
         ),
+        # Use for _zoek endpoint
         "zaaktype.catalogus": (
             "_zaaktype__catalogus",
             "openzaak.components.catalogi.api.viewsets.CatalogusViewSet",

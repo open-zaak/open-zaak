@@ -12667,7 +12667,7 @@ paths:
                     processobject:
                     - identificatie
                   description: |-
-                    De elementen (fields) die worden teruggegeven in de repons conform het expand-mechanisme. Het voorbeeld geeft aan hoe het werkt. Hierin betekent "*" dat alle elementen van een resource worden teruggegeven.
+                    De elementen (fields) die worden teruggegeven in de response conform het expand-mechanisme. Het voorbeeld geeft aan hoe het werkt. Hierin betekent "*" dat alle elementen van een resource worden teruggegeven.
 
                     Voor gerelateerde resources uit de Catalogi API is `catalogi.lezen` nodig; voor informatieobjecten uit de Documenten API is `documenten.lezen` nodig.
 
