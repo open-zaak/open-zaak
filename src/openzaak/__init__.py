@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from .celery import app as celery_app
+# defined before importing celery, which loads the settings that read the version
+__version__ = "1.31.1"
+
+from .celery import app as celery_app  # noqa: E402
 
 __all__ = ("celery_app",)
-__version__ = "1.31.0"
 __author__ = "Maykin"
 __homepage__ = "https://github.com/open-zaak/open-zaak"

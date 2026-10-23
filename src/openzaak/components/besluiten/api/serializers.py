@@ -217,14 +217,16 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         try:
             response = create_remote_oio(io_url, besluit_url, "besluit")
         except Exception:
-            bio.delete()
+            with transaction.atomic():
+                bio.delete()
             raise serializers.ValidationError(
                 {"informatieobject": _("Could not create remote relation")},
                 code="pending-relations",
             )
         else:
             bio._objectinformatieobject_url = response["url"]
-            bio.save()
+            with transaction.atomic():
+                bio.save(update_fields=["_objectinformatieobject_url"])
         return bio
 
 

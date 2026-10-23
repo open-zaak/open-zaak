@@ -1,6 +1,45 @@
 Changelog
 =========
 
+1.31.1 (2026-10-23)
+-------------------
+
+**Bugfixes**
+
+* [:open-zaak:`2577`] Fix responses with a stale ``ETag``, so a conditional request could
+  get a ``304 Not Modified`` for a changed resource. This happened after:
+
+  * deleting a related object, such as a rol or the resultaat of a zaak;
+  * closing a hoofdzaak, for the ETags of its deelzaken;
+  * adding a bestandsdeel to a document;
+  * unlocking documents or resetting a zaaktype's selectielijst in the admin;
+  * a deploy that changes how resources are represented.
+
+* [:open-zaak:`2577`] Responses to requests with ``?expand=`` no longer have an ``ETag``,
+  and are never a ``304 Not Modified``. Their ``ETag`` was that of the representation
+  without ``expand``.
+* [:open-zaak:`2577`] Writes no longer recalculate ETags: they only invalidate the ETags of
+  the resources they change, and the first ``GET`` after a write calculates the ``ETag``.
+  Adding documents to a zaak no longer gets slower the more documents it has.
+* [:open-zaak:`2577`] A request that PostgreSQL cancels to resolve a deadlock with a
+  concurrent request gets a ``503 Service Unavailable`` with ``Retry-After: 1`` instead
+  of a ``500``. Nothing of it was written, so it can be retried.
+* [:open-zaak:`2607`] Fix a ``500`` when updating a document's ``informatieobjecttype``
+  from an external to a local one, or the other way round.
+
+**Project maintenance**
+
+* [:open-zaak:`2577`] Upgrade ``commonground-api-common`` to 3.1.1
+* [`commonground-api-common#190`_] Remove the ``LIST_SERIALIZER_ERRORS_AS_DICT`` workaround,
+  now that ``commonground-api-common`` handles DRF 3.18's list-serializer errors
+* [:open-zaak:`2607`] Upgrade ``django-loose-fk`` to 2.0.1
+* [:open-zaak:`2577`] Upgrade ``certifi`` to 2026.10.19, which no longer trusts the
+  eMudhra root certificates
+* [:open-zaak:`2577`] Record the S3 test cassettes against moto instead of MinIO, whose
+  community edition is abandoned
+
+.. _commonground-api-common#190: https://github.com/maykinmedia/commonground-api-common/issues/190
+
 1.31.0 (2026-10-09)
 -------------------
 

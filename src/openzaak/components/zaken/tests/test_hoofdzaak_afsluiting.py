@@ -31,6 +31,7 @@ from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
 )
 from openzaak.components.zaken.tests.utils import (
+    ZAAK_READ_KWARGS,
     get_catalogus_response,
     get_resultaattype_response,
     get_statustype_response,
@@ -427,6 +428,45 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             self.zaak.startdatum_bewaartermijn + relativedelta(years=5),
         )
 
+    @tag("gh-2577")
+    def test_zaak_afsluiten_invalidates_deelzaak_etag(self):
+        """
+        Closing the hoofdzaak updates its deelzaken without signals, so the update
+        must invalidate their ETags itself.
+        """
+        deelzaak = ZaakFactory.create(zaaktype=self.int_zaaktype, hoofdzaak=self.zaak)
+        StatusFactory.create(
+            zaak=deelzaak,
+            statustype=self.int_statustype2,
+            datum_status_gezet=utcdatetime(2024, 4, 5),
+        )
+        ResultaatFactory.create(
+            zaak=deelzaak,
+            resultaattype=ResultaatTypeFactory.create(
+                zaaktype=self.int_zaaktype,
+                archiefactietermijn=relativedelta(years=10),
+                brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.hoofdzaak,
+            ),
+        )
+        deelzaak_url = reverse(deelzaak)
+        etag = self.client.get(deelzaak_url, **ZAAK_READ_KWARGS)["ETag"]
+
+        response = self.client.post(
+            self.status_list_url,
+            {
+                "zaak": self.zaak_url,
+                "statustype": f"http://testserver{self.int_statustype2_url}",
+                "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.get(
+            deelzaak_url, headers={"if-none-match": etag}, **ZAAK_READ_KWARGS
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNotNone(response.json()["archiefactiedatum"])
+
     @tag("external-urls")
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_zaak_afsluiten_with_closed_deelzaak_with_external_catalogi(self):
@@ -601,7 +641,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             )
 
     def test_queries_with_no_deelzaken(self):
-        with self.assertNumQueries(73):
+        with self.assertNumQueries(68):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -627,7 +667,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         (8) 77: archiving recalculation query
         (9) 78: savepoints transaction management for archiving update
         """
-        with self.assertNumQueries(78):
+        with self.assertNumQueries(75):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -655,7 +695,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         (17) 87-91: archiving recalculation query
         """
         self._generate_deelzaken(1, False)
-        with self.assertNumQueries(91):
+        with self.assertNumQueries(82):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -681,7 +721,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         (10) 78: savepoint transaction management for archiving update
         """
         self._generate_deelzaken(10, True)
-        with self.assertNumQueries(78):
+        with self.assertNumQueries(75):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -696,11 +736,11 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_queries_with_many_deelzaken_with_external_catalogi(self):
         """
-        A single deelzaak with external catalogi has 13 extra queries over an internal catalogi.
-        78 + (10*13) = 208
+        A single deelzaak with external catalogi costs 82 queries, and each further one 9.
+        82 + (9*9) = 163
         """
         self._generate_deelzaken(10, False)
-        with self.assertNumQueries(208):
+        with self.assertNumQueries(163):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -717,7 +757,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         self._generate_deelzaken(10, True)
         self._generate_deelzaken(10, False)
 
-        with self.assertNumQueries(208):
+        with self.assertNumQueries(165):
             response = self.client.post(
                 self.status_list_url,
                 {

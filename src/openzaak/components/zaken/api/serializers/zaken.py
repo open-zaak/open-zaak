@@ -30,7 +30,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
 from rest_framework_gis.fields import GeometryField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
-from vng_api_common.caching.etags import track_object_serializer
+from vng_api_common.caching import batched_invalidation, invalidating_update
 from vng_api_common.constants import (
     Archiefnominatie,
     Archiefstatus,
@@ -689,12 +689,15 @@ class ZaakSerializer(
                 startdatum + zaaktype.doorlooptijd_behandeling
             )
 
-        obj = super().create(validated_data)
-        track_object_serializer(obj, self)
+        # the nested relations, and their reverse relations, would each invalidate
+        # the zaak's ETag on their own
+        with batched_invalidation(savepoint=False):
+            obj = super().create(validated_data)
 
         # ⚡️ - a just created zaak cannot have a result, so we can avoid this DB query
-        # by assigning the descriptor already
-        obj.resultaat = None
+        # by caching it as absent. Assigning None to a reverse one-to-one descriptor
+        # clears its cache instead.
+        type(obj).resultaat.related.set_cached_value(obj, None)
         # ⚡️ - avoid status query for just created zaak
         obj.current_status_uuid = None
 
@@ -1055,9 +1058,10 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             ),
         )
 
-        qs.filter(
-            resultaat___resultaattype__brondatum_archiefprocedure_afleidingswijze=Afleidingswijze.hoofdzaak
-        ).update(
+        invalidating_update(
+            qs.filter(
+                resultaat___resultaattype__brondatum_archiefprocedure_afleidingswijze=Afleidingswijze.hoofdzaak
+            ),
             # If the hoofdzaak is closed with `blijvend_bewaren`, the brondatum will be
             # empty, but the `archiefnominatie` still has to be set for deelzaken
             archiefnominatie=F("resultaattype_archiefnominatie")
@@ -1067,6 +1071,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             startdatum_bewaartermijn=brondatum,
         )
 
+    @batched_invalidation(savepoint=False)
     def _update_deelzaken_with_external_catalogi(
         self, hoofdzaak_closed: bool, qs, brondatum: date | None
     ):
@@ -1207,7 +1212,9 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         }
 
     def create(self, validated_data):
-        with transaction.atomic():
+        # a batch, as the ZIO's signals save its zaak too: see
+        # zaak_related_resource_trigger_zaak_gemuteerd
+        with batched_invalidation():
             zio = super().create(validated_data)
 
         # we now expect to be in autocommit mode, i.e. - the transaction before has been
@@ -1237,7 +1244,8 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         try:
             response = create_remote_oio(io_url, zaak_url)
         except Exception:
-            zio.delete()
+            with batched_invalidation():
+                zio.delete()
             logger.exception(
                 "Could not create remote relation due to an unexpected error"
             )
@@ -1251,7 +1259,8 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             )
         else:
             zio._objectinformatieobject_url = response["url"]
-            zio.save()
+            with batched_invalidation():
+                zio.save(update_fields=["_objectinformatieobject_url"])
 
         return zio
 

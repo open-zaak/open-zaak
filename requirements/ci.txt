@@ -106,10 +106,11 @@ celery==5.5.3
     #   django-celery-beat
     #   flower
     #   notifications-api-common
-certifi==2024.7.4
+certifi==2026.10.19
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   commonground-api-common
     #   elastic-apm
     #   requests
     #   self-certifi
@@ -154,7 +155,7 @@ cloudevents==1.12.0
     #   -r requirements/base.txt
 codecov==2.1.13
     # via -r requirements/test-tools.in
-commonground-api-common==3.0.0
+commonground-api-common==3.1.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -333,7 +334,7 @@ django-log-outgoing-requests==0.9.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
-django-loose-fk==2.0.0
+django-loose-fk==2.0.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
