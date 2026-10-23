@@ -518,11 +518,11 @@ class PerformanceTests(
         Breakdown of expected queries:
 
              1:   Consult own internal service config (SELECT FROM config_internalservice)
-             2:   Look up secret for auth client ID (SELECT FROM vng_api_common_jwtsecret)
-           3-4:   Lookup zaaktype, done by AuthRequired check of authorization fields
-           5-8:   Check feature flag config (PublishValidator) (savepoint, select, insert
+           2-3:   Lookup zaaktype, done by AuthRequired check of authorization fields
+           4-7:   Check feature flag config (PublishValidator) (select, savepoint, insert
                   and savepoint release)
-             9:   Lookup zaaktype for permission checks
+             8:   Lookup zaaktype for permission checks
+             9:   Look up secret for auth client ID (SELECT FROM vng_api_common_jwtsecret)
          10-13:   Application/CatalogusAutorisatie/Autorisatie lookup for permission checks
             14:   Begin transaction (savepoint) (from NotificationsCreateMixin)
             15:   Savepoint for zaakidentificatie generation
@@ -535,32 +535,30 @@ class PerformanceTests(
          22-23:   Lookup zaaktype for validation and cache it in serializer context
             24:   Select feature flag config (PublishValidator)
             25:   Lookup zaaktype (again), done by loose_fk.drf.FKOrURLField.run_validation
-            26:   update zaakidentificatie record (from serializer context and earlier
+            26:   select previous einddatum when saving Zaak (archiving recalculation logic)
+            27:   lock the zaak row before saving it (vng_api_common.caching.signals); it
+                  finds none, so the save is an insert and no ETags are invalidated first
+            28:   update zaakidentificatie record (from serializer context and earlier
                   generation)
-            27:   insert zaken_zaak record
-         28-33:   query related objects for etag update that may be affected (should be
-                  skipped, it's create of root resource!) vng_api_common.caching.signals
-            34:   select zaak relevantezaakrelatie (nested inline create, can't avoid this)
-            35:   select zaak zaakrelatie (nested inline create, can't avoid this)
-            36:   select zaak rollen
-            37:   select zaak status
-            38:   select zaak zaakinformatieobjecten
-            39:   select zaak zaakobjecten
-            40:   select zaak kenmerken (nested inline create, can't avoid this)
-            41:   insert audit trail
-         42-43:   notifications, select created zaak (?), notifs config
-            44:   release savepoint (from NotificationsCreateMixin)
-            45:   savepoint create transaction.on_commit ETag handler (start new transaction)
-            46:   update ETag column of zaak
-            47:   release savepoint (commit transaction)
-            48:   select previous einddatum when saving Zaak (archiving recalculation logic)
+            29:   insert zaken_zaak record
+            30:   invalidate the stored ETag of the new zaak
+            31:   select zaak relevantezaakrelatie (nested inline create, can't avoid this)
+            32:   select zaak zaakrelatie (nested inline create, can't avoid this)
+            33:   select zaak rollen
+            34:   select zaak status
+            35:   select zaak zaakinformatieobjecten
+            36:   select zaak zaakobjecten
+            37:   select zaak kenmerken (nested inline create, can't avoid this)
+            38:   insert audit trail
+         39-40:   notifications, notifs config, select created zaak
+            41:   release savepoint (from NotificationsCreateMixin)
 
         """
         # create a random zaak to get some other initial setup queries out of the way
         # (most notable figuring out the PG/postgres version)
         ZaakFactory.create()
 
-        EXPECTED_NUM_QUERIES = 48
+        EXPECTED_NUM_QUERIES = 41
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")
@@ -596,9 +594,10 @@ class PerformanceTests(
             num_gerelateerde_zaken, zaaktype=zaaktype
         )
 
-        # Two additional queries when there are any number of related zaken specified
-        # and 9 per specified related zaak
-        EXPECTED_NUM_QUERIES = 48 + 2 + (9 * num_gerelateerde_zaken)
+        # Three additional queries when there are any number of related zaken specified
+        # and 9 per specified related zaak. The ETags the relations affect are
+        # invalidated in one batch, with the zaak's own.
+        EXPECTED_NUM_QUERIES = 41 + 3 + (9 * num_gerelateerde_zaken)
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")

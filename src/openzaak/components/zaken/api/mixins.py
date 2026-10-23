@@ -6,6 +6,7 @@ from django.db import models
 
 from rest_framework import serializers
 from rest_framework.response import Response
+from vng_api_common.caching import batched_invalidation
 from vng_api_common.constants import ComponentTypes
 
 from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN
@@ -13,6 +14,28 @@ from openzaak.components.zaken.models import Zaak
 
 from .exceptions import ZaakClosed
 from .serializers import ZaakSerializer
+
+
+class BatchedWritesMixin:
+    """
+    Write in a batch, for resources whose signals save their zaak too: see
+    ``zaak_related_resource_trigger_zaak_gemuteerd``.
+
+    Outside a batch, such a write locks the zaak's stored ETag before the zaak's row,
+    and deadlocks with a save of the zaak, which locks them the other way round.
+    """
+
+    def perform_create(self, serializer: serializers.ModelSerializer) -> None:
+        with batched_invalidation():
+            super().perform_create(serializer)
+
+    def perform_update(self, serializer: serializers.ModelSerializer) -> None:
+        with batched_invalidation():
+            super().perform_update(serializer)
+
+    def perform_destroy(self, instance: models.Model) -> None:
+        with batched_invalidation():
+            super().perform_destroy(instance)
 
 
 class ClosedZaakMixin:
