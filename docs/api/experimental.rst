@@ -27,6 +27,48 @@ Notifications
 
 For ``zaken`` notification channel a new "kenmerk" ``zaaktype.catalogus`` is added.
 
+Zoek fields
+------------------------
+
+The ``fields`` parameter of ``/api/v1/zaken/_zoek`` accepts nested field selections,
+including ``*`` for all fields at a selected level. Open Zaak validates selected
+fields against its response serializers and supports nested expansion only for
+registered expansion paths. This limits the depth and available relations compared
+with arbitrary nested selections.
+
+This restriction is a deviation from the standard: a nested selection that is
+valid according to the API specification can be rejected by Open Zaak if its
+expansion path is not registered. Such selections return HTTP 400 with the
+``not_nested`` validation error code. The validation error codes and messages
+are implementation details; the deviation concerns the supported nesting paths
+and depth.
+
+The field selection validator defines the following ``default_error_messages``:
+
+.. code-block:: python
+
+    default_error_messages = {
+        "invalid_selection": _("Expected an array of field names or nested selections."),
+        "unknown_field": _("Unknown response field: {name}."),
+        "not_nested": _("Field {name} does not support nested selection."),
+    }
+
+Here, ``_()`` marks messages for translation and ``{name}`` is replaced with the
+field path in camelCase.
+
+Open Zaak supports ``zaaktype.catalogus`` for both nested ``fields`` selections
+and ``expand`` requests.
+
+At every level, a nested selection includes the related resource under
+``_expand`` without adding its URL to the containing object. To include both, select
+the relation name separately, for example ``["zaaktype", {"zaaktype": ["url", "omschrijving"]}]``.
+Selecting ``url`` inside an expanded resource does not select the main resource's
+``url``. A ``*`` selection includes all fields at that level, including URLs.
+
+Selecting fields from Catalogi API resources requires the ``catalogi.lezen`` scope.
+Selecting information objects from the Documenten API requires ``documenten.lezen``.
+The same scopes apply when using ``expand`` for those resources.
+
 .. _cloud_events:
 
 Cloud events
