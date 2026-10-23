@@ -1128,11 +1128,6 @@ paths:
           \ \n\n"
         explode: false
         style: form
-      - in: query
-        name: resultaattype
-        schema:
-          type: string
-        description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
       - in: path
         name: uuid
         schema:
@@ -1140,12 +1135,6 @@ paths:
           format: uuid
           description: Unieke resource identifier (UUID4)
         required: true
-      - in: query
-        name: zaak
-        schema:
-          type: string
-          format: uri
-        description: URL-referentie naar de ZAAK.
       tags:
       - resultaten
       security:
@@ -2323,88 +2312,6 @@ paths:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
             summary: Meerdere ETag-waardes
       - in: query
-        name: betrokkene
-        schema:
-          type: string
-        description: URL-referentie naar een betrokkene gerelateerd aan de ZAAK.
-      - in: query
-        name: betrokkeneIdentificatie__medewerker__identificatie
-        schema:
-          type: string
-        description: Een unieke aanduiding van de MEDEWERKER.
-      - in: query
-        name: betrokkeneIdentificatie__natuurlijkPersoon__anpIdentificatie
-        schema:
-          type: string
-        description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
-          NATUURLIJK PERSOON
-      - in: query
-        name: betrokkeneIdentificatie__natuurlijkPersoon__inpA_nummer
-        schema:
-          type: string
-        description: Het administratienummer van de persoon, bedoeld in de Wet BRP
-      - in: query
-        name: betrokkeneIdentificatie__natuurlijkPersoon__inpBsn
-        schema:
-          type: string
-        description: Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene
-          bepalingen burgerservicenummer.
-      - in: query
-        name: betrokkeneIdentificatie__nietNatuurlijkPersoon__annIdentificatie
-        schema:
-          type: string
-        description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
-          NIET-NATUURLIJK PERSOON
-      - in: query
-        name: betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId
-        schema:
-          type: string
-        description: Het door een kamer toegekend RSIN voor de INGESCHREVEN NIET-NATUURLIJK
-          PERSOON
-      - in: query
-        name: betrokkeneIdentificatie__nietNatuurlijkPersoon__kvkNummer
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** Een uniek nummer toegekend door de Kamer van
-          Koophandel'
-      - in: query
-        name: betrokkeneIdentificatie__nietNatuurlijkPersoon__vestigingsNummer
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de Vestiging.'
-      - in: query
-        name: betrokkeneIdentificatie__organisatorischeEenheid__identificatie
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** Een korte identificatie van de organisatorische
-          eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters zijn
-          toegestaan in plaats van 24'
-      - in: query
-        name: betrokkeneIdentificatie__vestiging__kvkNummer
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** **DEPRECATED** Een uniek nummer gekoppeld
-          aan de onderneming.'
-      - in: query
-        name: betrokkeneIdentificatie__vestiging__vestigingsNummer
-        schema:
-          type: string
-        description: '**EXPERIMENTEEL** **DEPRECATED** Een korte unieke aanduiding
-          van de Vestiging.'
-      - in: query
-        name: betrokkeneType
-        schema:
-          type: string
-          enum:
-          - medewerker
-          - natuurlijk_persoon
-          - niet_natuurlijk_persoon
-          - organisatorische_eenheid
-          - vestiging
-        description: |+
-          Type van de `betrokkene`.
-
-      - in: query
         name: expand
         schema:
           type: array
@@ -2420,72 +2327,6 @@ paths:
           \ \n\n"
         explode: false
         style: form
-      - in: query
-        name: machtiging
-        schema:
-          type: string
-          enum:
-          - eigen
-          - gemachtigde
-          - machtiginggever
-        description: |+
-          **EXPERIMENTEEL** filter objecten op basis van `indicatieMachtiging`:
-          * `eigen`: Toon objecten waarvan het attribuut `indicatieMachtiging` leeg is.
-          * `gemachtigde`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'gemachtigde' is.
-          * `machtiginggever`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'machtiginggever'
-
-
-      - in: query
-        name: machtiging__loa
-        schema:
-          type: string
-          enum:
-          - urn:etoegang:core:assurance-class:loa1
-          - urn:etoegang:core:assurance-class:loa2
-          - urn:etoegang:core:assurance-class:loa2plus
-          - urn:etoegang:core:assurance-class:loa3
-          - urn:etoegang:core:assurance-class:loa4
-          - urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract
-          - urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
-          - urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard
-          - urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI
-        description: "**EXPERIMENTEEL** Rollen met een 'authenticatieContext.levelOfAssurance'\
-          \ die lager of gelijk is dan de aangegeven aanduiding worden teruggeven\
-          \ als resultaten.\n \n **Digid:** \n* `urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport`\
-          \ - DigiD Basis\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract`\
-          \ - DigiD Midden\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard` -\
-          \ DigiD Substantieel\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI`\
-          \ - DigiD Hoog\n \n **eHerkenning:** \n* `urn:etoegang:core:assurance-class:loa1`\
-          \ - Niet bestaand (1)\n* `urn:etoegang:core:assurance-class:loa2` - Laag\
-          \ (2)\n* `urn:etoegang:core:assurance-class:loa2plus` - Laag (2+)\n* `urn:etoegang:core:assurance-class:loa3`\
-          \ - Substantieel (3)\n* `urn:etoegang:core:assurance-class:loa4` - Hoog\
-          \ (4)\n\n"
-      - in: query
-        name: omschrijving
-        schema:
-          type: string
-        description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
-      - in: query
-        name: omschrijvingGeneriek
-        schema:
-          type: string
-          enum:
-          - adviseur
-          - behandelaar
-          - belanghebbende
-          - beslisser
-          - initiator
-          - klantcontacter
-          - mede_initiator
-          - zaakcoordinator
-        description: |+
-          Algemeen gehanteerde benaming van de aard van de ROL, afgeleid uit het ROLTYPE.
-
-      - in: query
-        name: roltype
-        schema:
-          type: string
-        description: URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.
       - in: path
         name: uuid
         schema:
@@ -2493,12 +2334,6 @@ paths:
           format: uuid
           description: Unieke resource identifier (UUID4)
         required: true
-      - in: query
-        name: zaak
-        schema:
-          type: string
-          format: uri
-        description: URL-referentie naar de ZAAK.
       tags:
       - rollen
       security:
@@ -3386,17 +3221,6 @@ paths:
           \ \n\n"
         explode: false
         style: form
-      - in: query
-        name: indicatieLaatstGezetteStatus
-        schema:
-          type: boolean
-        description: Het gegeven is afleidbaar uit de historie van de attribuutsoort
-          Datum status gezet van van alle statussen bij de desbetreffende zaak.
-      - in: query
-        name: statustype
-        schema:
-          type: string
-        description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
       - in: path
         name: uuid
         schema:
@@ -3404,12 +3228,6 @@ paths:
           format: uuid
           description: Unieke resource identifier (UUID4)
         required: true
-      - in: query
-        name: zaak
-        schema:
-          type: string
-          format: uri
-        description: URL-referentie naar de ZAAK.
       tags:
       - statussen
       security:
@@ -5494,12 +5312,6 @@ paths:
           \ \n\n"
         explode: false
         style: form
-      - in: query
-        name: informatieobject
-        schema:
-          type: string
-        description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten API),
-          waar ook de relatieinformatie opgevraagd kan worden.
       - in: path
         name: uuid
         schema:
@@ -5507,12 +5319,6 @@ paths:
           format: uuid
           description: Unieke resource identifier (UUID4)
         required: true
-      - in: query
-        name: zaak
-        schema:
-          type: string
-          format: uri
-        description: URL-referentie naar de ZAAK.
       tags:
       - zaakinformatieobjecten
       security:
@@ -7779,51 +7585,6 @@ paths:
           \ \n\n"
         explode: false
         style: form
-      - in: query
-        name: object
-        schema:
-          type: string
-        description: URL-referentie naar de resource die het OBJECT beschrijft.
-      - in: query
-        name: objectType
-        schema:
-          type: string
-          enum:
-          - adres
-          - besluit
-          - buurt
-          - enkelvoudig_document
-          - gemeente
-          - gemeentelijke_openbare_ruimte
-          - huishouden
-          - inrichtingselement
-          - kadastrale_onroerende_zaak
-          - kunstwerkdeel
-          - maatschappelijke_activiteit
-          - medewerker
-          - natuurlijk_persoon
-          - niet_natuurlijk_persoon
-          - openbare_ruimte
-          - organisatorische_eenheid
-          - overige
-          - pand
-          - product
-          - spoorbaandeel
-          - status
-          - terrein_gebouwd_object
-          - terreindeel
-          - vestiging
-          - waterdeel
-          - wegdeel
-          - wijk
-          - woonplaats
-          - woz_deelobject
-          - woz_object
-          - woz_waarde
-          - zakelijk_recht
-        description: |+
-          Beschrijft het type OBJECT gerelateerd aan de ZAAK. Als er geen passend type is, dan moet het type worden opgegeven onder `objectTypeOverige`.
-
       - in: path
         name: uuid
         schema:
@@ -7831,12 +7592,6 @@ paths:
           format: uuid
           description: Unieke resource identifier (UUID4)
         required: true
-      - in: query
-        name: zaak
-        schema:
-          type: string
-          format: uri
-        description: URL-referentie naar de ZAAK.
       tags:
       - zaakobjecten
       security:
@@ -11459,11 +11214,6 @@ paths:
       summary: Een specifiek ZAAKBESLUIT opvragen.
       parameters:
       - in: query
-        name: besluit
-        schema:
-          type: string
-        description: URL-referentie naar het BESLUIT (in de Besluiten API).
-      - in: query
         name: expand
         schema:
           type: array
@@ -11482,12 +11232,6 @@ paths:
           format: uuid
           description: Unieke resource identifier (UUID4)
         required: true
-      - in: query
-        name: zaak
-        schema:
-          type: string
-          format: uri
-        description: URL-referentie naar de ZAAK.
       - in: path
         name: zaak_uuid
         schema:
