@@ -371,8 +371,6 @@ class ZaakDetailFilter(FilterSet):
 
 
 class RolFilter(FilterSet):
-    expand = ExpandFilter(serializer_class=RolSerializer)
-
     betrokkene_identificatie__natuurlijk_persoon__inp_bsn = filters.CharFilter(
         field_name="natuurlijkpersoon__inp_bsn",
         help_text=get_help_text("zaken.NatuurlijkPersoon", "inp_bsn"),
@@ -444,6 +442,7 @@ class RolFilter(FilterSet):
             "aangegeven aanduiding worden teruggeven als resultaten."
         ),
     )
+    expand = ExpandFilter(serializer_class=RolSerializer)
 
     class Meta:
         model = Rol
@@ -470,9 +469,11 @@ class RolFilter(FilterSet):
         )
 
 
-class StatusFilter(FilterSet):
-    expand = ExpandFilter(serializer_class=StatusSerializer)
+class RolDetailFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=RolSerializer)
 
+
+class StatusFilter(FilterSet):
     indicatie_laatst_gezette_status = filters.BooleanFilter(
         method="filter_is_last_status",
         help_text=_(
@@ -480,6 +481,7 @@ class StatusFilter(FilterSet):
             "status gezet van van alle statussen bij de desbetreffende zaak."
         ),
     )
+    expand = ExpandFilter(serializer_class=StatusSerializer)
 
     class Meta:
         model = Status
@@ -499,6 +501,10 @@ class StatusFilter(FilterSet):
         return queryset.none()
 
 
+class StatusDetailFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=StatusSerializer)
+
+
 class ResultaatFilter(FilterSet):
     expand = ExpandFilter(serializer_class=ResultaatSerializer)
 
@@ -507,18 +513,25 @@ class ResultaatFilter(FilterSet):
         fields = ("zaak", "resultaattype")
 
 
-class ZaakInformatieObjectFilter(FilterSet):
-    expand = ExpandFilter(serializer_class=ZaakInformatieObjectSerializer)
+class ResultaatDetailFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=ResultaatSerializer)
 
+
+class ZaakInformatieObjectFilter(FilterSet):
     informatieobject = FkOrUrlFieldFilter(
         queryset=ZaakInformatieObject.objects.all(),
         instance_path="canonical",
         help_text=get_help_text("zaken.ZaakInformatieObject", "informatieobject"),
     )
+    expand = ExpandFilter(serializer_class=ZaakInformatieObjectSerializer)
 
     class Meta:
         model = ZaakInformatieObject
         fields = ("zaak", "informatieobject")
+
+
+class ZaakInformatieObjectDetailFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=ZaakInformatieObjectSerializer)
 
 
 class ZaakObjectFilter(FilterSet):
@@ -529,12 +542,20 @@ class ZaakObjectFilter(FilterSet):
         fields = ("zaak", "object", "object_type")
 
 
+class ZaakObjectDetailFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=ZaakObjectSerializer)
+
+
 class ZaakBesluitFilter(FilterSet):
     expand = ExpandFilter(serializer_class=ZaakBesluitSerializer)
 
     class Meta:
         model = ZaakBesluit
         fields = ("zaak", "besluit")
+
+
+class ZaakBesluitDetailFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=ZaakBesluitSerializer)
 
 
 class KlantContactFilter(FilterSet):

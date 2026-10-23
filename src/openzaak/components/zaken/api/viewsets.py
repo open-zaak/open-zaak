@@ -109,14 +109,20 @@ from .cloudevents import (
 )
 from .filters import (
     KlantContactFilter,
+    ResultaatDetailFilter,
     ResultaatFilter,
+    RolDetailFilter,
     RolFilter,
+    StatusDetailFilter,
     StatusFilter,
+    ZaakBesluitDetailFilter,
     ZaakBesluitFilter,
     ZaakContactMomentFilter,
     ZaakDetailFilter,
     ZaakFilter,
+    ZaakInformatieObjectDetailFilter,
     ZaakInformatieObjectFilter,
+    ZaakObjectDetailFilter,
     ZaakObjectFilter,
     ZaakVerzoekFilter,
 )
@@ -635,7 +641,6 @@ class StatusViewSet(
     }
 
     serializer_class = StatusSerializer
-    filterset_class = StatusFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
 
@@ -650,6 +655,15 @@ class StatusViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return StatusDetailFilter
+        return StatusFilter
 
     def perform_create(self, serializer):
         """
@@ -857,7 +871,6 @@ class ZaakObjectViewSet(
         ),
     }
     serializer_class = ZaakObjectSerializer
-    filterset_class = ZaakObjectFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
 
@@ -877,6 +890,15 @@ class ZaakObjectViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return ZaakObjectDetailFilter
+        return ZaakObjectFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -1017,7 +1039,6 @@ class ZaakInformatieObjectViewSet(
             "openzaak.components.documenten.api.viewsets.EnkelvoudigInformatieObjectViewSet",
         ),
     }
-    filterset_class = ZaakInformatieObjectFilter
     serializer_class = ZaakInformatieObjectSerializer
     lookup_field = "uuid"
     notifications_kanaal = KANAAL_ZAKEN
@@ -1037,6 +1058,15 @@ class ZaakInformatieObjectViewSet(
         | SCOPE_ZAKEN_ALLES_VERWIJDEREN,
     }
     audit = AUDIT_ZRC
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return ZaakInformatieObjectDetailFilter
+        return ZaakInformatieObjectFilter
 
     @property
     def notifications_wrap_in_atomic_block(self):
@@ -1391,7 +1421,6 @@ class RolViewSet(
         ),
     }
     serializer_class = RolSerializer
-    filterset_class = RolFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
 
@@ -1406,6 +1435,15 @@ class RolViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return RolDetailFilter
+        return RolFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -1515,7 +1553,6 @@ class ResultaatViewSet(
         ),
     }
     serializer_class = ResultaatSerializer
-    filterset_class = ResultaatFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
 
@@ -1531,6 +1568,15 @@ class ResultaatViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return ResultaatDetailFilter
+        return ResultaatFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -1648,7 +1694,6 @@ class ZaakBesluitViewSet(
         ),
     }
     serializer_class = ZaakBesluitSerializer
-    filterset_class = ZaakBesluitFilter
     lookup_field = "uuid"
     parent_retrieve_kwargs = {"zaak_uuid": "uuid"}
     permission_classes = (ZaakNestedAuthRequired,)
@@ -1660,6 +1705,15 @@ class ZaakBesluitViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return ZaakBesluitDetailFilter
+        return ZaakBesluitFilter
 
     def get_queryset(self):
         if (
