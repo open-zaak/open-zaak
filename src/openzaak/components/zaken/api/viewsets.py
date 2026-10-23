@@ -39,7 +39,7 @@ from vng_api_common.audittrails.viewsets import (
     AuditTrailMixin,
     AuditTrailViewsetMixin,
 )
-from vng_api_common.caching import conditional_retrieve
+from vng_api_common.caching import batched_invalidation, conditional_retrieve
 from vng_api_common.client import to_internal_data
 from vng_api_common.constants import CommonResourceAction
 from vng_api_common.filters_backend import Backend
@@ -64,6 +64,7 @@ from openzaak.utils.api import (
 )
 from openzaak.utils.cloudevents import get_url, process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.expansion import EXPAND_QUERY_PARAM
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import (
     CacheQuerysetMixin,
@@ -119,7 +120,7 @@ from .filters import (
     ZaakVerzoekFilter,
 )
 from .kanalen import KANAAL_ZAKEN
-from .mixins import ClosedZaakMixin, UpdateOnlyModelMixin
+from .mixins import BatchedWritesMixin, ClosedZaakMixin, UpdateOnlyModelMixin
 from .permissions import (
     ZaakActionAuthRequired,
     ZaakAuthRequired,
@@ -276,7 +277,7 @@ ZAAK_UUID_PARAMETER = OpenApiParameter(
         ),
     ),
 )
-@conditional_retrieve(extra_depends_on={"status"})
+@conditional_retrieve(extra_depends_on={"status"}, variant_params={EXPAND_QUERY_PARAM})
 class ZaakViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     ExpandMixin,
@@ -588,6 +589,7 @@ class StatusViewSet(
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
+    BatchedWritesMixin,
     mixins.CreateModelMixin,
     viewsets.ReadOnlyModelViewSet,
 ):
@@ -701,6 +703,7 @@ class SubStatusViewSet(
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
+    BatchedWritesMixin,
     mixins.CreateModelMixin,
     viewsets.ReadOnlyModelViewSet,
 ):
@@ -800,6 +803,7 @@ class ZaakObjectViewSet(
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
     ClosedZaakMixin,
+    BatchedWritesMixin,
     viewsets.ModelViewSet,
 ):
     """
@@ -999,6 +1003,8 @@ class ZaakInformatieObjectViewSet(
             client_id=self.request.jwt_auth.client_id,
         )
 
+    # a batch, as the ZIO's signals save its zaak too
+    @batched_invalidation()
     def perform_update(self, serializer):
         super().perform_update(serializer)
 
@@ -1016,7 +1022,8 @@ class ZaakInformatieObjectViewSet(
         uuid = str(instance.uuid)
         zaak_uuid = str(instance.zaak.uuid)
 
-        with transaction.atomic():
+        # a batch, as the ZIO's signals save its zaak too
+        with batched_invalidation():
             super().perform_destroy(instance)
 
         if (
@@ -1027,7 +1034,8 @@ class ZaakInformatieObjectViewSet(
                 delete_remote_oio(instance._objectinformatieobject_url)
             except Exception:
                 # bring back the instance
-                instance.save()
+                with batched_invalidation():
+                    instance.save()
                 raise ValidationError(
                     {"informatieobject": _("Could not delete remote relation")},
                     code="pending-relations",
@@ -1401,6 +1409,7 @@ class ResultaatViewSet(
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
     ClosedZaakMixin,
+    BatchedWritesMixin,
     viewsets.ModelViewSet,
 ):
     """

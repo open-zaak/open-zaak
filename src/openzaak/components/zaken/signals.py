@@ -170,7 +170,6 @@ def send_zaak_gemuteerd_event(sender, instance, created, **kwargs):
     if kwargs.get("update_fields") in (
         frozenset({"laatst_gemuteerd"}),
         frozenset({"laatst_geopend"}),
-        frozenset({"_etag"}),
     ):
         return
 
@@ -188,7 +187,6 @@ def send_zaak_verwijderd_event(sender, instance, **kwargs):
 
 def zaak_related_resource_trigger_zaak_gemuteerd(sender, instance, **kwargs):
     if kwargs.get("update_fields") in (
-        frozenset({"_etag"}),
         frozenset({"laatst_gemuteerd"}),
         frozenset({"laatst_geopend"}),
     ):
