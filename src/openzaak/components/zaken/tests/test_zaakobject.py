@@ -1724,6 +1724,8 @@ class ZaakObjectExpandTests(JWTAuthMixin, APITestCase):
             zaak=cls.zaak,
             zaakobjecttype=cls.objecttype,
             zaak__zaaktype=cls.objecttype.zaaktype,
+            # Types without an addiotional kwargs in serializer execute one fewer query
+            object_type=ZaakobjectTypes.adres,
         )
 
     def get_resource(self, resource):
@@ -1736,13 +1738,7 @@ class ZaakObjectExpandTests(JWTAuthMixin, APITestCase):
         data.pop("_expand", None)
         return data
 
-    def test_zaakobject_list_expand_include_all_resources(self):
-        response = self.client.get(
-            self.url,
-            {"expand": "zaak,zaak.zaaktype,zaakobjecttype"},
-        )
-        data = response.json()["results"]
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    def test_zaakobject_list_expand_include_all_resources_with_query_count(self):
         expected_result = [
             {
                 **self.get_resource(self.zaakobject),
@@ -1757,7 +1753,15 @@ class ZaakObjectExpandTests(JWTAuthMixin, APITestCase):
                 },
             }
         ]
-        self.assertEqual(data, expected_result)
+
+        with self.assertNumQueries(29):
+            response = self.client.get(
+                self.url,
+                {"expand": "zaak,zaak.zaaktype,zaakobjecttype"},
+            )
+            data = response.json()["results"]
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(data, expected_result)
 
     def test_invalid_expansion(self):
         for expand in (

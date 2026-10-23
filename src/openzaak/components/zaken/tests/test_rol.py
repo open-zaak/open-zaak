@@ -911,7 +911,7 @@ class RollenExpandTests(JWTAuthMixin, APITestCase):
 
         super().setUpTestData()
 
-    def test_rol_include_all_resources(self):
+    def test_rol_include_all_resources_with_query_count(self):
         """Return zaak, zaaktype, roltype, statussen and statustype together."""
 
         rol_data = self.client.get(reverse(self.rol)).json()
@@ -938,15 +938,17 @@ class RollenExpandTests(JWTAuthMixin, APITestCase):
                 ],
             },
         }
-        response = self.client.get(
-            self.url,
-            {"expand": "zaak,zaak.zaaktype,roltype,statussen,statussen.statustype"},
-            **ZAAK_READ_KWARGS,
-        )
-        data = response.json()["results"]
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(data, [expected])
+        with self.assertNumQueries(41):
+            response = self.client.get(
+                self.url,
+                {"expand": "zaak,zaak.zaaktype,roltype,statussen,statussen.statustype"},
+                **ZAAK_READ_KWARGS,
+            )
+            data = response.json()["results"]
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(data, [expected])
 
     def test_rol_include_each_resource(self):
         """Request each direct relation without including the others."""

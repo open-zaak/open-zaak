@@ -1146,19 +1146,11 @@ class ZaakInformatieObjectenExpandTests(JWTAuthMixin, APITestCase):
         data.pop("_expand", None)
         return data
 
-    def test_zio_list_expand_include_all_resources(self):
+    def test_zio_list_expand_include_all_resources_with_query_count(self):
         zio_data = self.get_resource(self.zio)
         zaak_data = self.get_resource(self.zio.zaak)
         status_data = self.get_resource(self.zio.status)
-        response = self.client.get(
-            self.url,
-            {
-                "expand": "zaak,zaak.zaaktype,status,status.statustype,status.gezetdoor,informatieobject"
-            },
-            **ZAAK_READ_KWARGS,
-        )
-        data = response.json()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
         expected_result = [
             {
                 **zio_data,
@@ -1180,7 +1172,18 @@ class ZaakInformatieObjectenExpandTests(JWTAuthMixin, APITestCase):
                 },
             }
         ]
-        self.assertEqual(data, expected_result)
+
+        with self.assertNumQueries(43):
+            response = self.client.get(
+                self.url,
+                {
+                    "expand": "zaak,zaak.zaaktype,status,status.statustype,status.gezetdoor,informatieobject"
+                },
+                **ZAAK_READ_KWARGS,
+            )
+            data = response.json()
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(data, expected_result)
 
     def test_invalid_expansion(self):
         for expand in (
