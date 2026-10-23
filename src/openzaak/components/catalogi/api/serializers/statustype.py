@@ -8,7 +8,11 @@ from vng_api_common.serializers import CachedHyperlinkedRelatedField
 from vng_api_common.utils import get_help_text
 
 from ...models import CheckListItem, StatusType
-from ..validators import StartBeforeEndValidator, ZaakTypeConceptValidator
+from ..validators import (
+    ReferentiecodeUniqueValidator,
+    StartBeforeEndValidator,
+    ZaakTypeConceptValidator,
+)
 
 
 class CheckListItemSerializer(serializers.ModelSerializer):
@@ -115,6 +119,7 @@ class StatusTypeSerializer(
             "einde_geldigheid",
             "begin_object",
             "einde_object",
+            "referentiecode",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
@@ -124,5 +129,13 @@ class StatusTypeSerializer(
             "zaaktype": {"lookup_field": "uuid"},
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
+            "referentiecode": {"default": None},
         }
-        validators = [ZaakTypeConceptValidator(), StartBeforeEndValidator()]
+        validators = [
+            ReferentiecodeUniqueValidator("statustypevolgnummer"),
+            ZaakTypeConceptValidator(),
+            StartBeforeEndValidator(),
+        ]
+
+    def validate_referentiecode(self, value):
+        return value or None

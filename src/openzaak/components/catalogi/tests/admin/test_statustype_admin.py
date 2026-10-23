@@ -41,6 +41,80 @@ class StatusTypeAdminTests(AdminTestMixin, WebTest):
         )
         self.assertEqual(StatusType.objects.count(), 0)
 
+    def _add_statustype(self, zaaktype, volgnummer, referentiecode=""):
+        response = self.app.get(reverse("admin:catalogi_statustype_add"))
+        form = response.forms["statustype_form"]
+        form["statustype_omschrijving"] = f"status {volgnummer}"
+        form["statustypevolgnummer"] = volgnummer
+        form["zaaktype"] = zaaktype.id
+        form["referentiecode"] = referentiecode
+        return form.submit()
+
+    def test_empty_referentiecode_stored_as_null(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+
+        for volgnummer in (1, 2):
+            with self.subTest(volgnummer=volgnummer):
+                response = self._add_statustype(zaaktype, volgnummer)
+
+                self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(StatusType.objects.filter(referentiecode=None).count(), 2)
+
+    def test_duplicate_referentiecode_same_zaaktype_not_allowed(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        StatusTypeFactory.create(zaaktype=zaaktype, referentiecode="A1")
+
+        response = self._add_statustype(zaaktype, 5, referentiecode="A1")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("referentiecode", response.context["adminform"].form.errors)
+        self.assertEqual(StatusType.objects.count(), 1)
+
+    def test_same_referentiecode_other_zaaktype_family_not_allowed(self):
+        StatusTypeFactory.create(referentiecode="A1", statustypevolgnummer=1)
+        zaaktype = ZaakTypeFactory.create(concept=True)
+
+        response = self._add_statustype(zaaktype, 1, referentiecode="A1")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("referentiecode", response.context["adminform"].form.errors)
+        self.assertEqual(StatusType.objects.count(), 1)
+
+    def test_same_referentiecode_new_zaaktype_version_allowed(self):
+        old = StatusTypeFactory.create(referentiecode="A1", statustypevolgnummer=1)
+        new_zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            catalogus=old.zaaktype.catalogus,
+            identificatie=old.zaaktype.identificatie,
+        )
+
+        response = self._add_statustype(new_zaaktype, 1, referentiecode="A1")
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(StatusType.objects.filter(referentiecode="A1").count(), 2)
+
+    def test_referentiecode_of_other_statustype_in_new_version_not_allowed(self):
+        old = StatusTypeFactory.create(referentiecode="A1", statustypevolgnummer=1)
+        new_zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            catalogus=old.zaaktype.catalogus,
+            identificatie=old.zaaktype.identificatie,
+        )
+
+        response = self._add_statustype(new_zaaktype, 2, referentiecode="A1")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("referentiecode", response.context["adminform"].form.errors)
+
+    def test_referentiecode_max_length(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+
+        response = self._add_statustype(zaaktype, 1, referentiecode="x" * 21)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("referentiecode", response.context["adminform"].form.errors)
+
 
 @tag("gh-1877")
 @disable_admin_mfa()
