@@ -1173,7 +1173,7 @@ class ZaakInformatieObjectenExpandTests(JWTAuthMixin, APITestCase):
             }
         ]
 
-        with self.assertNumQueries(43):
+        with self.assertNumQueries(42):
             response = self.client.get(
                 self.url,
                 {
