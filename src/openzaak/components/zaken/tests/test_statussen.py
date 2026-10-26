@@ -509,7 +509,7 @@ class StatussenExpandTests(JWTAuthMixin, APITestCase):
             },
         ]
 
-        with self.assertNumQueries(44):
+        with self.assertNumQueries(43):
             response = self.client.get(
                 self.url,
                 {
