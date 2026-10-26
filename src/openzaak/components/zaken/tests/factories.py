@@ -78,6 +78,15 @@ class ZaakInformatieObjectFactory(
     class Meta:
         model = "zaken.ZaakInformatieObject"
 
+    class Params:
+        with_status = factory.Trait(
+            status=factory.SubFactory(
+                "openzaak.components.zaken.tests.factories.StatusFactory",
+                zaak=factory.SelfAttribute("..zaak"),
+                statustype__zaaktype=factory.SelfAttribute("..zaak.zaaktype"),
+            )
+        )
+
 
 class ZaakEigenschapFactory(
     FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory
