@@ -10877,11 +10877,6 @@ paths:
       summary: Alle ZAAKBESLUITen opvragen.
       parameters:
       - in: query
-        name: besluit
-        schema:
-          type: string
-        description: URL-referentie naar het BESLUIT (in de Besluiten API).
-      - in: query
         name: expand
         schema:
           type: array
@@ -10893,12 +10888,6 @@ paths:
           \ \n\n"
         explode: false
         style: form
-      - in: query
-        name: zaak
-        schema:
-          type: string
-          format: uri
-        description: URL-referentie naar de ZAAK.
       - in: path
         name: zaak_uuid
         schema:

@@ -37,7 +37,6 @@ from ..models import (
     Rol,
     Status,
     Zaak,
-    ZaakBesluit,
     ZaakContactMoment,
     ZaakInformatieObject,
     ZaakObject,
@@ -547,14 +546,6 @@ class ZaakObjectDetailFilter(FilterSet):
 
 
 class ZaakBesluitFilter(FilterSet):
-    expand = ExpandFilter(serializer_class=ZaakBesluitSerializer)
-
-    class Meta:
-        model = ZaakBesluit
-        fields = ("zaak", "besluit")
-
-
-class ZaakBesluitDetailFilter(FilterSet):
     expand = ExpandFilter(serializer_class=ZaakBesluitSerializer)
 
 

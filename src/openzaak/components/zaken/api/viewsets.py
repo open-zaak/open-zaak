@@ -115,7 +115,6 @@ from .filters import (
     RolFilter,
     StatusDetailFilter,
     StatusFilter,
-    ZaakBesluitDetailFilter,
     ZaakBesluitFilter,
     ZaakContactMomentFilter,
     ZaakDetailFilter,
@@ -1694,6 +1693,7 @@ class ZaakBesluitViewSet(
         ),
     }
     serializer_class = ZaakBesluitSerializer
+    filterset_class = ZaakBesluitFilter
     lookup_field = "uuid"
     parent_retrieve_kwargs = {"zaak_uuid": "uuid"}
     permission_classes = (ZaakNestedAuthRequired,)
@@ -1705,15 +1705,6 @@ class ZaakBesluitViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
-
-    @property
-    def filterset_class(self):
-        """
-        support expand in the detail endpoint
-        """
-        if self.detail:
-            return ZaakBesluitDetailFilter
-        return ZaakBesluitFilter
 
     def get_queryset(self):
         if (
