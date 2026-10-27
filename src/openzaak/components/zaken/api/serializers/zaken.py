@@ -490,6 +490,7 @@ class ZaakSerializer(
             "laatst_geopend",
             "communicatiekanaal",
             "communicatiekanaal_naam",
+            "tsaverwijzing",
             # TODO: add shape validator once we know the shape
             "producten_of_diensten",
             "vertrouwelijkheidaanduiding",
