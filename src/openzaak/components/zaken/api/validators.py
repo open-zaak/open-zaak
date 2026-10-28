@@ -33,6 +33,7 @@ from openzaak.utils.jq_wrappers import (
     JQInvalidExpressionError,
     get_first_jq_result,
 )
+from openzaak.utils.middleware import add_x_warning
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
 
 from ...catalogi.models import StatusType
@@ -665,9 +666,6 @@ class ZaakEigenschapValueValidator:
     requires_context = True
 
     def __call__(self, attrs, serializer):
-        if not settings.ZAAK_EIGENSCHAP_WAARDE_VALIDATION:
-            return
-
         eigenschap = get_from_serializer_data_or_instance(
             "eigenschap", attrs, serializer
         )
@@ -680,10 +678,16 @@ class ZaakEigenschapValueValidator:
         if not spec:
             return
 
-        if not match_eigenschap_specificatie(spec, waarde):
-            raise serializers.ValidationError(
-                self.message.format(spec=spec), code=self.code
-            )
+        if match_eigenschap_specificatie(spec, waarde):
+            return
+
+        message = self.message.format(spec=spec)
+        # strict mode: reject the zaakeigenschap
+        if settings.ZAAK_EIGENSCHAP_WAARDE_VALIDATION:
+            raise serializers.ValidationError(message, code=self.code)
+
+        # standard (Zaken API 1.7): save the zaakeigenschap and warn the client
+        add_x_warning(serializer.context["request"], message)
 
 
 class AuthContextMandateValidator:

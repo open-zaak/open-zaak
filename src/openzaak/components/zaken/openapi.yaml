@@ -11660,7 +11660,7 @@ paths:
 
         **Er wordt gevalideerd op**
 
-        - `waarde` moet worden gevalideerd tegen `eigenschap.specificatie` indien `ZAAK_EIGENSCHAP_WAARDE_VALIDATION` op `True` staat.
+        - `waarde` wordt gevalideerd tegen `eigenschap.specificatie`. Voldoet de `waarde` niet, dan wordt de ZAAKEIGENSCHAP toch opgeslagen en wordt een waarschuwing teruggegeven in de `X-Warning` response header. Staat `ZAAK_EIGENSCHAP_WAARDE_VALIDATION` op `True`, dan wordt de ZAAKEIGENSCHAP in dat geval afgewezen met een `waarde-incorrect-format` fout.
       summary: Maak een ZAAKEIGENSCHAP aan.
       parameters:
       - in: header
@@ -11712,6 +11712,11 @@ paths:
                 type: string
                 format: uri
               description: URL waar de resource leeft.
+            X-Warning:
+              schema:
+                type: string
+              description: Waarschuwing indien `waarde` niet voldoet aan `eigenschap.specificatie`.
+                De ZAAKEIGENSCHAP is in dat geval wel opgeslagen.
           content:
             application/json:
               schema:
@@ -12042,6 +12047,11 @@ paths:
                 type: string
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
+            X-Warning:
+              schema:
+                type: string
+              description: Waarschuwing indien `waarde` niet voldoet aan `eigenschap.specificatie`.
+                De ZAAKEIGENSCHAP is in dat geval wel opgeslagen.
           content:
             application/json:
               schema:
@@ -12215,6 +12225,11 @@ paths:
                 type: string
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
+            X-Warning:
+              schema:
+                type: string
+              description: Waarschuwing indien `waarde` niet voldoet aan `eigenschap.specificatie`.
+                De ZAAKEIGENSCHAP is in dat geval wel opgeslagen.
           content:
             application/json:
               schema:
