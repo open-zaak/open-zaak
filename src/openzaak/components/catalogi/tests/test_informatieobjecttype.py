@@ -74,7 +74,7 @@ class InformatieObjectTypeAPITests(APITestCase):
             "concept": True,
             "trefwoord": ["abc", "def"],
             "besluittypen": [],
-            "besluittypeOmschrijving": [],
+            "besluittypeOmschrijvingen": [],
             "omschrijvingGeneriek": {
                 "informatieobjecttypeOmschrijvingGeneriek": iotype.omschrijving_generiek_informatieobjecttype,
                 "definitieInformatieobjecttypeOmschrijvingGeneriek": iotype.omschrijving_generiek_definitie,
@@ -86,12 +86,11 @@ class InformatieObjectTypeAPITests(APITestCase):
             "zaaktypen": [],
             "beginObject": "2019-01-01",
             "eindeObject": None,
-            "zaaktypeIdentificaties": [],
             "_expand": {},
         }
         self.assertEqual(expected, response.json())
 
-    def test_get_detail_besluittype_omschrijving(self):
+    def test_get_detail_besluittype_omschrijvingen(self):
         iotype = InformatieObjectTypeFactory.create(
             catalogus=self.catalogus, zaaktypen=None
         )
@@ -109,45 +108,9 @@ class InformatieObjectTypeAPITests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(
-            response.json()["besluittypeOmschrijving"],
+            response.json()["besluittypeOmschrijvingen"],
             [besluittype1.omschrijving, besluittype2.omschrijving],
         )
-
-    def test_get_detail_zaaktype_identificaties(self):
-        iotype = InformatieObjectTypeFactory.create(
-            catalogus=self.catalogus, zaaktypen=None
-        )
-        zaaktype1 = ZaakTypeFactory.create(catalogus=self.catalogus)
-        zaaktype2 = ZaakTypeFactory.create(catalogus=self.catalogus)
-        ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=zaaktype1, informatieobjecttype=iotype
-        )
-        ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=zaaktype2, informatieobjecttype=iotype
-        )
-
-        response = self.client.get(
-            get_operation_url("informatieobjecttype_read", uuid=iotype.uuid)
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertCountEqual(
-            response.json()["zaaktypeIdentificaties"],
-            [zaaktype1.identificatie, zaaktype2.identificatie],
-        )
-
-    def test_zaaktype_identificaties_is_read_only(self):
-        iotype = InformatieObjectTypeFactory.create(
-            catalogus=self.catalogus, zaaktypen=None
-        )
-
-        response = self.client.patch(
-            get_operation_url("informatieobjecttype_update", uuid=iotype.uuid),
-            {"zaaktypeIdentificaties": ["other"]},
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["zaaktypeIdentificaties"], [])
 
     def test_create_informatieobjecttype(self):
         data = {

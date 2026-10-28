@@ -119,13 +119,13 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "omschrijving": zaaktype.zaaktype_omschrijving,
             "eigenschappen": [],
             "informatieobjecttypen": [],
-            "informatieobjecttypeOmschrijving": [],
+            "informatieobjecttypeOmschrijvingen": [],
             "gerelateerdeZaaktypen": [],
             "statustypen": [],
             "resultaattypen": [],
             "roltypen": [],
             "besluittypen": [],
-            "besluittypeOmschrijving": [],
+            "besluittypeOmschrijvingen": [],
             "beginGeldigheid": "2018-01-01",
             "eindeGeldigheid": None,
             "versiedatum": "2018-01-01",
@@ -185,7 +185,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             },
         )
 
-    def test_get_detail_besluittype_and_informatieobjecttype_omschrijving(self):
+    def test_get_detail_besluittype_and_informatieobjecttype_omschrijvingen(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
         besluittype1 = BesluitTypeFactory.create(catalogus=self.catalogus)
         besluittype2 = BesluitTypeFactory.create(catalogus=self.catalogus)
@@ -204,11 +204,11 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
         self.assertCountEqual(
-            data["besluittypeOmschrijving"],
+            data["besluittypeOmschrijvingen"],
             [besluittype1.omschrijving, besluittype2.omschrijving],
         )
         self.assertCountEqual(
-            data["informatieobjecttypeOmschrijving"],
+            data["informatieobjecttypeOmschrijvingen"],
             [iotype1.omschrijving, iotype2.omschrijving],
         )
 
@@ -220,15 +220,15 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         response = self.client.patch(
             reverse(zaaktype),
             {
-                "besluittypeOmschrijving": ["other"],
-                "informatieobjecttypeOmschrijving": ["other"],
+                "besluittypeOmschrijvingen": ["other"],
+                "informatieobjecttypeOmschrijvingen": ["other"],
             },
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
-        self.assertEqual(data["besluittypeOmschrijving"], [besluittype.omschrijving])
-        self.assertEqual(data["informatieobjecttypeOmschrijving"], [])
+        self.assertEqual(data["besluittypeOmschrijvingen"], [besluittype.omschrijving])
+        self.assertEqual(data["informatieobjecttypeOmschrijvingen"], [])
 
     def test_get_list_omschrijving_does_not_add_queries_per_zaaktype(self):
         url = get_operation_url("zaaktype_list")
@@ -2004,7 +2004,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype.besluittypen.add(besluit_type)
         zaaktype.deelzaaktypen.add(deelzaaktype)
 
-        with self.assertNumQueries(96):
+        with self.assertNumQueries(79):
             response = self.client.get(
                 reverse(zaaktype),
                 {
