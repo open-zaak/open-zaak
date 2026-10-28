@@ -14,6 +14,7 @@ from openzaak.client import fetch_object
 from openzaak.components.catalogi.api.scopes import SCOPE_CATALOGI_FORCED_WRITE
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
 
+from ..models.validators import REFERENTIECODE_IN_USE_MESSAGE, is_referentiecode_in_use
 from ..utils import has_overlapping_objects
 from ..validators import (
     validate_brondatumarchiefprocedure,
@@ -533,3 +534,35 @@ class NonZeroRelativeDeltaValidator:
     def __call__(self, value):
         if value == relativedelta():
             raise ValidationError(self.message, code=self.code)
+
+
+class ReferentiecodeUniqueValidator:
+    """
+    Validate that the referentiecode is globally unique, except between the versions
+    of the same object (same zaaktype family and same ``identity_field``, which is
+    the name of a serializer field).
+    """
+
+    code = "unique"
+    requires_context = True
+
+    def __init__(self, identity_field: str):
+        self.identity_field = identity_field
+
+    def __call__(self, attrs, serializer):
+        instance = serializer.instance
+
+        def get(field):
+            return get_from_serializer_data_or_instance(field, attrs, serializer)
+
+        if is_referentiecode_in_use(
+            serializer.Meta.model,
+            zaaktype=get("zaaktype"),
+            referentiecode=get("referentiecode"),
+            identity_field=serializer.fields[self.identity_field].source,
+            identity_value=get(self.identity_field),
+            pk=instance.pk if instance else None,
+        ):
+            raise ValidationError(
+                {"referentiecode": REFERENTIECODE_IN_USE_MESSAGE}, code=self.code
+            )

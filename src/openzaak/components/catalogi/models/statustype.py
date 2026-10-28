@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -9,10 +10,15 @@ from django.utils.translation import gettext_lazy as _
 from vng_api_common.caching import ETagMixin
 
 from openzaak.utils.fields import DurationField
+from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import APIMixin
 
 from .mixins import OptionalGeldigheidMixin
-from .validators import validate_zaaktype_concept
+from .validators import (
+    REFERENTIECODE_IN_USE_MESSAGE,
+    is_referentiecode_in_use,
+    validate_zaaktype_concept,
+)
 
 
 class StatusType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
@@ -102,6 +108,19 @@ class StatusType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
         help_text=_("Een eventuele toelichting op dit STATUSTYPE."),
     )
 
+    referentiecode = models.CharField(
+        _("referentiecode"),
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text=mark_experimental(
+            _(
+                "Code waarmee dit statustype in een extern systeem wordt geïdentificeerd. "
+                "Moet uniek zijn, behalve tussen de versies van hetzelfde statustype."
+            )
+        ),
+    )
+
     @property
     def concept(self):
         """
@@ -112,6 +131,12 @@ class StatusType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
 
     class Meta:
         unique_together = ("zaaktype", "statustypevolgnummer")
+        constraints = [
+            models.UniqueConstraint(
+                fields=("zaaktype", "referentiecode"),
+                name="unique_statustype_referentiecode_per_zaaktype",
+            )
+        ]
         verbose_name = _("Statustype")
         verbose_name_plural = _("Statustypen")
         ordering = ("zaaktype", "-statustypevolgnummer")
@@ -120,6 +145,18 @@ class StatusType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
         super().clean()
 
         validate_zaaktype_concept(self.zaaktype)
+
+        if is_referentiecode_in_use(
+            type(self),
+            zaaktype=self.zaaktype,
+            referentiecode=self.referentiecode,
+            identity_field="statustypevolgnummer",
+            identity_value=self.statustypevolgnummer,
+            pk=self.pk,
+        ):
+            raise ValidationError(
+                {"referentiecode": REFERENTIECODE_IN_USE_MESSAGE}, code="unique"
+            )
 
     def is_eindstatus(self):
         """

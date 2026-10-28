@@ -58,6 +58,7 @@ class ResultaatTypeAdmin(
                     "zaaktype",
                     "omschrijving",
                     "omschrijving_generiek",
+                    "referentiecode",
                     "toelichting",
                     "datum_begin_geldigheid",
                     "datum_einde_geldigheid",

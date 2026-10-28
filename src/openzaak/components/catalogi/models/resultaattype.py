@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -18,10 +19,15 @@ from vng_api_common.constants import (
 from vng_api_common.descriptors import GegevensGroepType
 
 from openzaak.utils.fields import DurationField
+from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import APIMixin
 
 from .mixins import OptionalGeldigheidMixin
-from .validators import validate_zaaktype_concept
+from .validators import (
+    REFERENTIECODE_IN_USE_MESSAGE,
+    is_referentiecode_in_use,
+    validate_zaaktype_concept,
+)
 
 logger: FilteringBoundLogger = get_logger(__name__)
 
@@ -286,6 +292,19 @@ class ResultaatType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
         ),
     )
 
+    referentiecode = models.CharField(
+        _("referentiecode"),
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text=mark_experimental(
+            _(
+                "Code waarmee dit resultaattype in een extern systeem wordt geïdentificeerd. "
+                "Moet uniek zijn, behalve tussen de versies van hetzelfde resultaattype."
+            )
+        ),
+    )
+
     @property
     def concept(self):
         """
@@ -296,6 +315,12 @@ class ResultaatType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
 
     class Meta:
         unique_together = ("zaaktype", "omschrijving")
+        constraints = [
+            models.UniqueConstraint(
+                fields=("zaaktype", "referentiecode"),
+                name="unique_resultaattype_referentiecode_per_zaaktype",
+            )
+        ]
         verbose_name = _("resultaattype")
         verbose_name_plural = _("resultaattypen")
 
@@ -348,6 +373,18 @@ class ResultaatType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
         super().clean()
 
         validate_zaaktype_concept(self.zaaktype)
+
+        if is_referentiecode_in_use(
+            type(self),
+            zaaktype=self.zaaktype,
+            referentiecode=self.referentiecode,
+            identity_field="omschrijving",
+            identity_value=self.omschrijving,
+            pk=self.pk,
+        ):
+            raise ValidationError(
+                {"referentiecode": REFERENTIECODE_IN_USE_MESSAGE}, code="unique"
+            )
 
     def __str__(self):
         return f"{self.zaaktype} - {self.omschrijving}"
