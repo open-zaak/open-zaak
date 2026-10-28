@@ -132,7 +132,7 @@ class StatusTypeSerializer(
             "referentiecode": {"default": None},
         }
         validators = [
-            ReferentiecodeUniqueValidator("statustypevolgnummer"),
+            ReferentiecodeUniqueValidator("volgnummer"),
             ZaakTypeConceptValidator(),
             StartBeforeEndValidator(),
         ]
