@@ -28,11 +28,13 @@ class EIOZoekTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()["results"]
-        data = sorted(data, key=lambda eio: eio["identificatie"])
-
-        self.assertEqual(len(data), 2)
-        self.assertEqual(data[0]["url"], f"http://testserver{reverse(eio1)}")
-        self.assertEqual(data[1]["url"], f"http://testserver{reverse(eio2)}")
+        self.assertCountEqual(
+            [item["url"] for item in data],
+            [
+                f"http://testserver{reverse(eio1)}",
+                f"http://testserver{reverse(eio2)}",
+            ],
+        )
 
     @tag("gh-2406")
     @unittest.expectedFailure
