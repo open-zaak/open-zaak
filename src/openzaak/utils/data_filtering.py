@@ -13,6 +13,8 @@ class ListFilterByAuthorizationsMixin:
     :class:`openzaak.utils.query.LooseFkAuthorizationsFilterMixin`
     """
 
+    gereed_voor_publicatie_filter_field = None
+
     def get_queryset(self):
         base = super().get_queryset()
 
@@ -30,6 +32,16 @@ class ListFilterByAuthorizationsMixin:
 
         # get the auth apps that are relevant for this particular request
         apps = self.request.jwt_auth.applicaties
+        component = base.model._meta.app_label
+
+        # Autorisaties API 1.1.0 introduced `alleen_is_gereed_voor_publicatie`
+        # When enabled, only include documents with `is_gereed_voor_publicatie=True`
+        if (
+            self.action in ("list", "_zoek")
+            and self.gereed_voor_publicatie_filter_field
+            and any(app.alleen_is_gereed_voor_publicatie for app in apps)
+        ):
+            base = base.filter(**{self.gereed_voor_publicatie_filter_field: True})
 
         # as soon as there's one matching app that gives you all permissions,
         # you're good - no further detailed data filtering is applied
@@ -37,7 +49,6 @@ class ListFilterByAuthorizationsMixin:
             return base
 
         scope_needed = self.required_scopes[self.action]
-        component = base.model._meta.app_label
         authorizations = self.request.jwt_auth.get_autorisaties(component)
         catalogus_authorizations = self.request.jwt_auth.get_catalogus_autorisaties(
             component
