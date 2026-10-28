@@ -15,11 +15,11 @@ permissions:
 jobs:
   dump_data:
     name: Test dump_data.sh
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     services:
       postgres:
-        image: postgis/postgis:16-3.5
+        image: postgis/postgis:17-3.5
         env:
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
