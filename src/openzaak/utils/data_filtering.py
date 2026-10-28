@@ -30,6 +30,15 @@ class ListFilterByAuthorizationsMixin:
 
         # get the auth apps that are relevant for this particular request
         apps = self.request.jwt_auth.applicaties
+        component = base.model._meta.app_label
+
+        # Autorisaties API 1.1.0 introduced `alleen_is_gereed_voor_publicatie`
+        # When enabled, only include documents with `is_gereed_voor_publicatie=True`
+        if (
+            component == "documenten"
+            and any(app.alleen_is_gereed_voor_publicatie for app in apps)
+        ):
+            base = base.filter(is_gereed_voor_publicatie=True)
 
         # as soon as there's one matching app that gives you all permissions,
         # you're good - no further detailed data filtering is applied
@@ -37,7 +46,6 @@ class ListFilterByAuthorizationsMixin:
             return base
 
         scope_needed = self.required_scopes[self.action]
-        component = base.model._meta.app_label
         authorizations = self.request.jwt_auth.get_autorisaties(component)
         catalogus_authorizations = self.request.jwt_auth.get_catalogus_autorisaties(
             component
