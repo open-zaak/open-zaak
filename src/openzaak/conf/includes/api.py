@@ -9,7 +9,7 @@ AUTORISATIES_API_VERSION = "1.0.0"
 BESLUITEN_API_VERSION = "1.1.0"
 CATALOGI_API_VERSION = "1.3.1"
 DOCUMENTEN_API_VERSION = "1.7.0"
-ZAKEN_API_VERSION = "1.5.1"
+ZAKEN_API_VERSION = "1.7.0"
 
 # Stored ETags are recalculated after a release, which may represent resources
 # differently

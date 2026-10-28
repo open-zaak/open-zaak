@@ -4,6 +4,16 @@ Changelog
 Unreleased
 ----------
 
+**New features**
+
+* [:open-zaak:`2471`] Upgrade the Zaken API to version 1.7.0.
+
+  * ``ZaakEigenschap.waarde`` is now always validated against ``Eigenschap.specificatie``.
+    If it does not match, the zaakeigenschap is still saved and a warning is returned in
+    the ``X-Warning`` response header, as described in the standard. With
+    ``ZAAK_EIGENSCHAP_WAARDE_VALIDATION=true`` a mismatch is still rejected with a
+    ``waarde-incorrect-format`` error.
+
 **Bugfixes**
 
 * [:open-zaak:`2577`] Fix responses with a stale ``ETag``, so a conditional request could

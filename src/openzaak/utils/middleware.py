@@ -22,6 +22,7 @@ from .constants import COMPONENT_MAPPING
 logger = structlog.stdlib.get_logger(__name__)
 
 WARNING_HEADER = "Warning"
+X_WARNING_HEADER = "X-Warning"
 DEPRECATION_WARNING_CODE = 299
 
 
@@ -171,6 +172,20 @@ class Warning:
         return f'{self.code} "{self.agent}" "{self.text}"'
 
 
+def add_x_warning(request, text: str) -> None:
+    """
+    Register a warning that is returned in the ``X-Warning`` response header.
+
+    ``request`` may be a DRF request, in which case the underlying Django request is
+    used, because that is what the middleware sees.
+    """
+    request = getattr(request, "_request", request)
+    warnings = getattr(request, "_x_warnings", None)
+    if warnings is None:
+        warnings = request._x_warnings = []
+    warnings.append(text)
+
+
 class DeprecationMiddleware:
     """
     Include a header outputting a deprecation warning.
@@ -188,6 +203,10 @@ class DeprecationMiddleware:
         warning = getattr(request, "_warning", None)
         if warning:
             response[WARNING_HEADER] = str(warning)
+
+        x_warnings = getattr(request, "_x_warnings", None)
+        if x_warnings and response.status_code < 400:
+            response[X_WARNING_HEADER] = "; ".join(x_warnings)
 
         return response
 
