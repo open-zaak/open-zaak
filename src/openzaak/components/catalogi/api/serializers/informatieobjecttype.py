@@ -64,22 +64,12 @@ class InformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
         read_only=True,
         help_text=_("De datum van de aller laatste versie van het object."),
     )
-    zaaktype_identificaties = serializers.SlugRelatedField(
-        source="zaaktypen",
-        many=True,
-        read_only=True,
-        slug_field="identificatie",
-        help_text=_(
-            "Unieke identificaties van de ZAAKTYPEn binnen de CATALOGUS waarin "
-            "het ZAAKTYPE voorkomt, die gebruik maken van dit INFORMATIEOBJECTTYPE."
-        ),
-    )
     inclusion_serializers = {
         "catalogus": "openzaak.components.catalogi.api.serializers.CatalogusSerializer",
         "zaaktypen": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
         "besluittypen": "openzaak.components.catalogi.api.serializers.BesluitTypeSerializer",
     }
-    besluittype_omschrijving = serializers.SlugRelatedField(
+    besluittype_omschrijvingen = serializers.SlugRelatedField(
         many=True,
         read_only=True,
         source="besluittypen",
@@ -117,14 +107,13 @@ class InformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
             "einde_geldigheid",
             "concept",
             "besluittypen",
-            "besluittype_omschrijving",
+            "besluittype_omschrijvingen",
             "informatieobjectcategorie",
             "trefwoord",
             "omschrijving_generiek",
             "zaaktypen",
             "begin_object",
             "einde_object",
-            "zaaktype_identificaties",
         )
         validators = [
             GeldigheidValidator(),

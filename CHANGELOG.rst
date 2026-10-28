@@ -4,6 +4,18 @@ Changelog
 Unreleased
 ----------
 
+**New features**
+
+* [:open-zaak:`2479`] Upgrade the Catalogi API to version 1.3.3. The following read-only
+  attributes are added:
+
+  * ``zaaktypeIdentificaties`` on ``/besluittypen``
+  * ``besluittypeOmschrijvingen`` on ``/catalogussen``, ``/zaaktypen`` and
+    ``/informatieobjecttypen``
+  * ``informatieobjecttypeOmschrijvingen`` on ``/catalogussen`` and ``/zaaktypen``
+  * ``deelzaaktypeIdentificaties`` on ``/zaaktypen``
+  * ``zaaktypeIdentificatie`` on the ``zaaktypenrelaties`` of a zaaktype
+
 **Bugfixes**
 
 * [:open-zaak:`2577`] Fix responses with a stale ``ETag``, so a conditional request could

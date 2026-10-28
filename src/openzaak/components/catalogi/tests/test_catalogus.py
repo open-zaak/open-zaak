@@ -41,10 +41,10 @@ class CatalogusAPITests(APITestCase):
             "contactpersoonBeheerNaam": self.catalogus.contactpersoon_beheer_naam,
             "contactpersoonBeheerEmailadres": self.catalogus.contactpersoon_beheer_emailadres,
             "informatieobjecttypen": [],
-            "informatieobjecttypeOmschrijving": [],
+            "informatieobjecttypeOmschrijvingen": [],
             "zaaktypen": [],
             "besluittypen": [],
-            "besluittypeOmschrijving": [],
+            "besluittypeOmschrijvingen": [],
             "naam": self.catalogus.naam,
             "versie": "",
             "begindatumVersie": None,
@@ -52,7 +52,7 @@ class CatalogusAPITests(APITestCase):
         }
         self.assertEqual(response.json(), expected)
 
-    def test_get_detail_besluittype_and_informatieobjecttype_omschrijving(self):
+    def test_get_detail_besluittype_and_informatieobjecttype_omschrijvingen(self):
         catalogus = CatalogusFactory.create()
         besluittype1 = BesluitTypeFactory.create(catalogus=catalogus)
         besluittype2 = BesluitTypeFactory.create(catalogus=catalogus)
@@ -66,11 +66,11 @@ class CatalogusAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
         self.assertCountEqual(
-            data["besluittypeOmschrijving"],
+            data["besluittypeOmschrijvingen"],
             [besluittype1.omschrijving, besluittype2.omschrijving],
         )
         self.assertCountEqual(
-            data["informatieobjecttypeOmschrijving"],
+            data["informatieobjecttypeOmschrijvingen"],
             [iotype1.omschrijving, iotype2.omschrijving],
         )
         self.assertEqual(len(data["besluittypen"]), 2)
@@ -83,15 +83,15 @@ class CatalogusAPITests(APITestCase):
         response = self.client.patch(
             reverse(catalogus),
             {
-                "besluittypeOmschrijving": ["other"],
-                "informatieobjecttypeOmschrijving": ["other"],
+                "besluittypeOmschrijvingen": ["other"],
+                "informatieobjecttypeOmschrijvingen": ["other"],
             },
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
-        self.assertEqual(data["besluittypeOmschrijving"], ["besluittype"])
-        self.assertEqual(data["informatieobjecttypeOmschrijving"], [])
+        self.assertEqual(data["besluittypeOmschrijvingen"], ["besluittype"])
+        self.assertEqual(data["informatieobjecttypeOmschrijvingen"], [])
 
     def test_get_list_omschrijving_does_not_add_queries_per_catalogus(self):
         def count_list_queries() -> int:

@@ -177,7 +177,7 @@ class ZaakTypeSerializer(
         ),
     )
 
-    informatieobjecttype_omschrijving = SlugRelatedField(
+    informatieobjecttype_omschrijvingen = SlugRelatedField(
         many=True,
         read_only=True,
         source="informatieobjecttypen",
@@ -240,7 +240,7 @@ class ZaakTypeSerializer(
         ),
     )
 
-    besluittype_omschrijving = SlugRelatedField(
+    besluittype_omschrijvingen = SlugRelatedField(
         many=True,
         read_only=True,
         source="besluittypen",
@@ -331,10 +331,10 @@ class ZaakTypeSerializer(
             "resultaattypen",
             "eigenschappen",
             "informatieobjecttypen",
-            "informatieobjecttype_omschrijving",
+            "informatieobjecttype_omschrijvingen",
             "roltypen",
             "besluittypen",
-            "besluittype_omschrijving",
+            "besluittype_omschrijvingen",
             "deelzaaktypen",
             "deelzaaktype_identificaties",
             "gerelateerde_zaaktypen",

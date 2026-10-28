@@ -31,7 +31,7 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
         ),
     )
 
-    besluittype_omschrijving = serializers.SlugRelatedField(
+    besluittype_omschrijvingen = serializers.SlugRelatedField(
         many=True,
         read_only=True,
         source="besluittype_set",
@@ -49,7 +49,7 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
             "URL-referenties naar INFORMATIEOBJECTTYPEn die in deze CATALOGUS worden ontsloten."
         ),
     )
-    informatieobjecttype_omschrijving = serializers.SlugRelatedField(
+    informatieobjecttype_omschrijvingen = serializers.SlugRelatedField(
         many=True,
         read_only=True,
         source="informatieobjecttype_set",
@@ -76,9 +76,9 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
             "contactpersoon_beheer_emailadres",
             "zaaktypen",
             "besluittypen",
-            "besluittype_omschrijving",
+            "besluittype_omschrijvingen",
             "informatieobjecttypen",
-            "informatieobjecttype_omschrijving",
+            "informatieobjecttype_omschrijvingen",
             "naam",
             "versie",
             "begindatum_versie",
