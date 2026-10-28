@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.test import tag
 from django.urls import reverse
 
 from django_webtest import WebTest
@@ -31,6 +32,8 @@ class ApplicationsTests(WebTest):
         form = response.forms["applicatie_form"]
         form["label"] = "foo"
 
+        self.assertFalse(form["alleen_is_gereed_voor_publicatie"].checked)
+        form["alleen_is_gereed_voor_publicatie"].checked = True
         form["credentials-0-identifier"] = "foo"
         form["credentials-0-secret"] = "bar"
 
@@ -43,8 +46,59 @@ class ApplicationsTests(WebTest):
         credential = JWTSecret.objects.get()
 
         self.assertEqual(applicatie.client_ids, ["foo"])
+        self.assertTrue(applicatie.alleen_is_gereed_voor_publicatie)
         self.assertEqual(credential.identifier, "foo")
         self.assertEqual(credential.secret, "bar")
+
+    @tag("gh-2452")
+    def test_change_alleen_is_gereed_voor_publicatie(self):
+        application = ApplicatieFactory.create(
+            client_ids=[], alleen_is_gereed_voor_publicatie=False
+        )
+        url = reverse("admin:authorizations_applicatie_change", args=(application.pk,))
+
+        for ready_for_publication in (True, False):
+            with self.subTest(ready_for_publication=ready_for_publication):
+                form = self.app.get(url).forms["applicatie_form"]
+                self.assertEqual(
+                    form["alleen_is_gereed_voor_publicatie"].checked,
+                    application.alleen_is_gereed_voor_publicatie,
+                )
+                form[
+                    "alleen_is_gereed_voor_publicatie"
+                ].checked = ready_for_publication
+
+                form.submit().follow()
+
+                application.refresh_from_db()
+                self.assertEqual(
+                    application.alleen_is_gereed_voor_publicatie,
+                    ready_for_publication,
+                )
+
+    @tag("gh-2452")
+    def test_filter_by_alleen_is_gereed_voor_publicatie(self):
+        ready_for_publication_only = ApplicatieFactory.create(
+            alleen_is_gereed_voor_publicatie=True
+        )
+        all_documents = ApplicatieFactory.create(alleen_is_gereed_voor_publicatie=False)
+        response = self.app.get(reverse("admin:authorizations_applicatie_changelist"))
+
+        self.assertCountEqual(
+            response.context["cl"].result_list,
+            [ready_for_publication_only, all_documents],
+        )
+        self.assertIsNotNone(
+            response.html.select_one("th.column-alleen_is_gereed_voor_publicatie")
+        )
+        for value, application in ((1, ready_for_publication_only), (0, all_documents)):
+            with self.subTest(value=value):
+                filtered = response.click(
+                    href=rf"\?alleen_is_gereed_voor_publicatie__exact={value}$"
+                )
+                self.assertQuerySetEqual(
+                    filtered.context["cl"].result_list, [application]
+                )
 
     def test_delete_applicatie_cascade_inline_credentials(self):
         JWTSecret.objects.create(identifier="testid", secret="bla")

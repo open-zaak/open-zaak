@@ -45,7 +45,12 @@ class ApplicatieForm(forms.ModelForm):
         model = Applicatie
         # removed `client_ids arrayfield - replaced by and inline
         # doing stuff with JWTSecret
-        fields = ("uuid", "label", "heeft_alle_autorisaties")
+        fields = (
+            "uuid",
+            "label",
+            "heeft_alle_autorisaties",
+            "alleen_is_gereed_voor_publicatie",
+        )
 
     def save(self, *args, **kwargs):
         if self.instance.client_ids is None:
