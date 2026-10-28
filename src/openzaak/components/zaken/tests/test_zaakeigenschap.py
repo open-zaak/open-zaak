@@ -731,7 +731,7 @@ class ZaakEigenschapWaardeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "waarde-incorrect-format")
 
     @override_settings(ZAAK_EIGENSCHAP_WAARDE_VALIDATION=False)
-    def test_incorrect_but_env_var_false(self):
+    def test_incorrect_but_env_var_false_returns_x_warning(self):
         eigenschap = EigenschapFactory.create(
             zaaktype=self.zaaktype,
             specificatie_van_eigenschap__formaat=FormaatChoices.tekst,
@@ -746,3 +746,24 @@ class ZaakEigenschapWaardeTests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertIn("X-Warning", response)
+        self.assertIn("waarde", response["X-Warning"])
+        self.assertEqual(response.data["waarde"], "some text")
+
+    @override_settings(ZAAK_EIGENSCHAP_WAARDE_VALIDATION=False)
+    def test_correct_has_no_x_warning(self):
+        eigenschap = EigenschapFactory.create(
+            zaaktype=self.zaaktype,
+            specificatie_van_eigenschap__formaat=FormaatChoices.tekst,
+            specificatie_van_eigenschap__lengte="10",
+        )
+        data = {
+            "zaak": self.zaak_url,
+            "eigenschap": f"http://testserver{reverse(eigenschap)}",
+            "waarde": "some text",
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertNotIn("X-Warning", response)

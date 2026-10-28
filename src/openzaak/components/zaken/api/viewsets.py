@@ -176,6 +176,17 @@ ZAAK_UUID_PARAMETER = OpenApiParameter(
     description="Unieke resource identifier (UUID4)",
 )
 
+X_WARNING_PARAMETER = OpenApiParameter(
+    name="X-Warning",
+    type=OpenApiTypes.STR,
+    location=OpenApiParameter.HEADER,
+    description=(
+        "Waarschuwing indien `waarde` niet voldoet aan `eigenschap.specificatie`. "
+        "De ZAAKEIGENSCHAP is in dat geval wel opgeslagen."
+    ),
+    response=[200, 201],
+)
+
 
 @extend_schema_view(
     list=extend_schema(
@@ -1254,22 +1265,27 @@ class ZaakInformatieObjectViewSet(
             "\n"
             "**Er wordt gevalideerd op**\n"
             "\n"
-            "- `waarde` moet worden gevalideerd tegen "
-            "`eigenschap.specificatie` indien `ZAAK_EIGENSCHAP_WAARDE_VALIDATION` "
-            "op `True` staat."
+            "- `waarde` wordt gevalideerd tegen `eigenschap.specificatie`. Voldoet "
+            "de `waarde` niet, dan wordt de ZAAKEIGENSCHAP toch opgeslagen en wordt "
+            "een waarschuwing teruggegeven in de `X-Warning` response header. Staat "
+            "`ZAAK_EIGENSCHAP_WAARDE_VALIDATION` op `True`, dan wordt de ZAAKEIGENSCHAP "
+            "in dat geval afgewezen met een `waarde-incorrect-format` fout."
         ),
+        parameters=[X_WARNING_PARAMETER],
     ),
     update=extend_schema(
         summary="Werk een ZAAKEIGENSCHAP in zijn geheel bij.",
         description=(
             "**Er wordt gevalideerd op**\n\n- Alleen de WAARDE mag gewijzigd worden"
         ),
+        parameters=[X_WARNING_PARAMETER],
     ),
     partial_update=extend_schema(
         summary="Werk een ZAAKEIGENSCHAP deels bij.",
         description=(
             "**Er wordt gevalideerd op**\n\n- Alleen de WAARDE mag gewijzigd worden"
         ),
+        parameters=[X_WARNING_PARAMETER],
     ),
     destroy=extend_schema(
         summary="Verwijder een ZAAKEIGENSCHAP.",
