@@ -69,6 +69,13 @@ class InformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
         "zaaktypen": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
         "besluittypen": "openzaak.components.catalogi.api.serializers.BesluitTypeSerializer",
     }
+    besluittype_omschrijvingen = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        source="besluittypen",
+        slug_field="omschrijving",
+        help_text=_("Omschrijving van de aard van BESLUITen van het BESLUITTYPE."),
+    )
 
     class Meta:
         model = InformatieObjectType
@@ -100,6 +107,7 @@ class InformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
             "einde_geldigheid",
             "concept",
             "besluittypen",
+            "besluittype_omschrijvingen",
             "informatieobjectcategorie",
             "trefwoord",
             "omschrijving_generiek",

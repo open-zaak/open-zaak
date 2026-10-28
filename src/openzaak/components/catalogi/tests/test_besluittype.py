@@ -86,9 +86,51 @@ class BesluitTypeAPITests(APITestCase):
             "resultaattypenOmschrijving": [resultaattype.omschrijving],
             "beginObject": "2018-01-01",
             "eindeObject": None,
+            "zaaktypeIdentificaties": [zaaktype.identificatie],
+            "informatieobjecttypeOmschrijvingen": [],
             "_expand": {},
         }
         self.assertEqual(response.json(), expected)
+
+    def test_get_detail_identificaties_and_omschrijvingen(self):
+        besluittype = BesluitTypeFactory.create(
+            catalogus=self.catalogus, zaaktypen=None
+        )
+        zaaktype1 = ZaakTypeFactory.create(catalogus=self.catalogus)
+        zaaktype2 = ZaakTypeFactory.create(catalogus=self.catalogus)
+        besluittype.zaaktypen.set([zaaktype1, zaaktype2])
+        iot = InformatieObjectTypeFactory.create(catalogus=self.catalogus)
+        besluittype.informatieobjecttypen.add(iot)
+
+        response = self.client.get(
+            reverse("besluittype-detail", kwargs={"uuid": besluittype.uuid})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertCountEqual(
+            data["zaaktypeIdentificaties"],
+            [zaaktype1.identificatie, zaaktype2.identificatie],
+        )
+        self.assertEqual(data["informatieobjecttypeOmschrijvingen"], [iot.omschrijving])
+        self.assertEqual(len(data["zaaktypen"]), 2)
+
+    def test_identificaties_and_omschrijvingen_are_read_only(self):
+        besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
+        zaaktype = besluittype.zaaktypen.get()
+
+        response = self.client.patch(
+            reverse("besluittype-detail", kwargs={"uuid": besluittype.uuid}),
+            {
+                "zaaktypeIdentificaties": ["other"],
+                "informatieobjecttypeOmschrijvingen": ["other"],
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["zaaktypeIdentificaties"], [zaaktype.identificatie])
+        self.assertEqual(data["informatieobjecttypeOmschrijvingen"], [])
 
     def test_get_detail_related_informatieobjecttypen(self):
         """Retrieve the details of a single `BesluitType` object with related informatieonnjecttype."""
