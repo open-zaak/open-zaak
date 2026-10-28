@@ -30,6 +30,7 @@ from openzaak.utils.validators import ResourceValidator
 
 from ..models import (
     BesluitType,
+    BesluitTypeInformatieObjectType,
     InformatieObjectType,
     ResultaatType,
     ZaakType,
@@ -527,12 +528,6 @@ class BesluitTypeAdminForm(forms.ModelForm):
                 admin_site=site,
                 catalogus_pk=catalogus_pk,
             )
-        if "informatieobjecttypen" in self.fields:
-            self.fields["informatieobjecttypen"].widget = CatalogusFilterM2MRawIdWidget(
-                rel=BesluitType.informatieobjecttypen.rel,
-                admin_site=site,
-                catalogus_pk=catalogus_pk,
-            )
 
 
 class ZaakTypeInformatieObjectTypeAdminForm(forms.ModelForm):
@@ -540,19 +535,73 @@ class ZaakTypeInformatieObjectTypeAdminForm(forms.ModelForm):
         model = ZaakTypeInformatieObjectType
         fields = "__all__"
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get("_informatieobjecttype") and not cleaned_data.get(
+            "_iotype_base_url"
+        ):
+            raise forms.ValidationError(
+                _(
+                    "Je moet een informatieobjecttype opgeven: "
+                    "selecteer een informatieobjecttype of vul een externe URL in."
+                )
+            )
+
+        return cleaned_data
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        catalogus_pk = (
-            kwargs["instance"].informatieobjecttype.catalogus.pk
-            if kwargs.get("instance")
-            else kwargs.get("initial", {}).get("catalogus")
-        )
+        instance = kwargs.get("instance")
+        if instance and instance._informatieobjecttype is not None:
+            catalogus_pk = instance._informatieobjecttype.catalogus.pk
+        else:
+            catalogus_pk = kwargs.get("initial", {}).get("catalogus")
 
         if "zaaktype" in self.fields:
             self.fields["zaaktype"].widget = CatalogusFilterFKRawIdWidget(
                 rel=ZaakTypeInformatieObjectType._meta.get_field(
                     "zaaktype"
+                ).remote_field,
+                admin_site=site,
+                catalogus_pk=catalogus_pk,
+            )
+
+
+class BesluitTypeInformatieObjectTypeAdminForm(forms.ModelForm):
+    class Meta:
+        model = BesluitTypeInformatieObjectType
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get("_informatieobjecttype") and not cleaned_data.get(
+            "_iotype_base_url"
+        ):
+            raise forms.ValidationError(
+                _(
+                    "Je moet een informatieobjecttype opgeven: "
+                    "selecteer een informatieobjecttype of vul een externe URL in."
+                )
+            )
+
+        return cleaned_data
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        instance = kwargs.get("instance")
+        if instance and instance._informatieobjecttype is not None:
+            catalogus_pk = instance._informatieobjecttype.catalogus.pk
+        else:
+            catalogus_pk = kwargs.get("initial", {}).get("catalogus")
+
+        if "besluittype" in self.fields:
+            self.fields["besluittype"].widget = CatalogusFilterFKRawIdWidget(
+                rel=BesluitTypeInformatieObjectType._meta.get_field(
+                    "besluittype"
                 ).remote_field,
                 admin_site=site,
                 catalogus_pk=catalogus_pk,

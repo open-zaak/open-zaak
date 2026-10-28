@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.apps import apps
 from django.contrib import admin
+from django.db.models import Q
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
 
@@ -134,8 +135,9 @@ class CatalogusAdmin(
             )
         resources["ZaakTypeInformatieObjectType"] = list(
             ZaakTypeInformatieObjectType.objects.filter(
+                Q(_informatieobjecttype__in=resources["InformatieObjectType"])
+                | Q(_informatieobjecttype__isnull=True),
                 zaaktype__in=resources["ZaakType"],
-                informatieobjecttype__in=resources["InformatieObjectType"],
             ).values_list("pk", flat=True)
         )
 

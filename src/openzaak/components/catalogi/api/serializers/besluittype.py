@@ -1,17 +1,20 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.db import transaction
 from django.utils.text import gettext_lazy as _
 
 from rest_framework import serializers
 from vng_api_common.serializers import CachedHyperlinkedRelatedField
 from vng_api_common.utils import get_help_text
 
-from openzaak.utils.serializer_fields import (
-    DeprecatedNamespaceCachedHyperlinkedRelatedField,
-)
 from openzaak.utils.serializers import DeprecatedNamespaceHyperlinkedModelSerializer
 
-from ...models import BesluitType, InformatieObjectType
+from ...models import BesluitType
+from ..fields import (
+    BesluitTypeInformatieObjectTypenField,
+    get_url,
+    is_local,
+)
 from ..validators import (
     ConceptUpdateValidator,
     GeldigheidPublishValidator,
@@ -23,12 +26,11 @@ from ..validators import (
 
 
 class BesluitTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializer):
-    informatieobjecttypen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
-        view_name="documenten:informatieobjecttype-detail",
-        many=True,
-        lookup_field="uuid",
-        queryset=InformatieObjectType.objects.all(),
-        help_text=get_help_text("catalogi.BesluitType", "informatieobjecttypen"),
+    informatieobjecttypen = BesluitTypeInformatieObjectTypenField(
+        help_text=_(
+            "URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten waarin besluiten van dit "
+            "BESLUITTYPE worden vastgelegd. Let op: voor een extern INFORMATIEOBJECTTYPE wordt niet gecontroleerd of dit een concept is of gepubliceerd."
+        ),
     )
 
     zaaktypen = CachedHyperlinkedRelatedField(
@@ -58,13 +60,15 @@ class BesluitTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializer):
         help_text=_("Omschrijving van de aard van resultaten van het RESULTAATTYPE."),
     )
 
+    # TODO: external informatieobjecttypen are not included, their omschrijving
+    # is not available without fetching the external resource
     vastgelegd_in = serializers.SlugRelatedField(
         many=True,
         source="informatieobjecttypen",
         read_only=True,
         slug_field="omschrijving",
         help_text=_(
-            "Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE."
+            "Omschrijving van de aard van interne informatieobjecten van dit INFORMATIEOBJECTTYPE."
         ),
     )
     begin_object = serializers.DateField(
@@ -117,6 +121,25 @@ class BesluitTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializer):
             M2MConceptCreateValidator(["informatieobjecttypen"]),
             M2MConceptUpdateValidator(["informatieobjecttypen"]),
         ]
+
+    @transaction.atomic
+    def create(self, validated_data):
+        informatieobjecttypen = validated_data.pop("informatieobjecttypen", [])
+        instance = super().create(validated_data)
+        instance.set_informatieobjecttypen(
+            [i if is_local(i) else get_url(i) for i in informatieobjecttypen]
+        )
+        return instance
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        informatieobjecttypen = validated_data.pop("informatieobjecttypen", None)
+        instance = super().update(instance, validated_data)
+        if informatieobjecttypen is not None:
+            instance.set_informatieobjecttypen(
+                [i if is_local(i) else get_url(i) for i in informatieobjecttypen]
+            )
+        return instance
 
 
 class BesluitTypePublishSerializer(serializers.HyperlinkedModelSerializer):

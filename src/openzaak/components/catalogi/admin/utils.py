@@ -87,14 +87,12 @@ def retrieve_besluittypen(catalogus_pk, import_file_content):
                 entry["zaaktypen"] = []
 
                 # Since the InformatieObjectTypen are not created yet, the
-                # UUIDs have to be stored and the relations have to be created
+                # URLs have to be stored and the relations have to be created
                 # later
-                related_iotypen_uuids = [
-                    iotype.split("/")[-1] for iotype in entry["informatieobjecttypen"]
-                ]
+                related_iotypen_urls = list(entry["informatieobjecttypen"])
                 entry["informatieobjecttypen"] = []
 
-                besluittypen.append((entry, related_iotypen_uuids))
+                besluittypen.append((entry, related_iotypen_urls))
     return besluittypen
 
 
@@ -140,7 +138,7 @@ def construct_besluittypen(
     for (
         (
             imported,
-            related_iotypen_uuids,
+            related_iotypen_urls,
         ),
         form_data,
         form,
@@ -172,8 +170,11 @@ def construct_besluittypen(
 
         # Recreate the BesluitType-InformatieObjectType relations
         # from the import file
-        related_iotypen = [iotypen_uuid_mapping[uuid] for uuid in related_iotypen_uuids]
-        chosen_object.informatieobjecttypen.set(related_iotypen)
+        # informatieobjecttypen that are not part of the import are external
+        related_iotypen = []
+        for url in related_iotypen_urls:
+            related_iotypen.append(iotypen_uuid_mapping.get(url.split("/")[-1], url))
+        chosen_object.set_informatieobjecttypen(related_iotypen)
     return besluittypen_uuid_mapping
 
 

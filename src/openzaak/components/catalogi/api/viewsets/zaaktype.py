@@ -182,7 +182,9 @@ class ZaakTypeViewSet(
             "worden. Na het publiceren van een zaaktype zijn geen inhoudelijke wijzigingen "
             "meer mogelijk - ook niet de statustypen, eigenschappen... etc. Indien er na het "
             "publiceren nog wat gewijzigd moet worden, dan moet je een nieuwe versie "
-            "aanmaken."
+            "aanmaken.\n\n"
+            "Voor externe INFORMATIEOBJECTTYPEn wordt niet gecontroleerd of deze "
+            "gepubliceerd zijn."
         ),
         request=None,
         responses={

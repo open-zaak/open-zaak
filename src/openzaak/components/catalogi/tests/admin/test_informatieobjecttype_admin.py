@@ -141,7 +141,7 @@ class AddZiotAdminTests(WebTest):
         form["volgnummer"] = 1
         form["richting"] = "intern"
         form["zaaktype"] = self.zaaktype.id
-        form["informatieobjecttype"] = iot.id
+        form["_informatieobjecttype"] = iot.id
 
         response = form.submit()
 
