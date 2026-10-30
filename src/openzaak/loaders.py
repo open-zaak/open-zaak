@@ -8,39 +8,75 @@ from django.db import models
 from django.db.models.base import ModelBase
 
 import requests
+import structlog
+from ape_pie import APIClient
 from django_loose_fk.loaders import BaseLoader, FetchError, FetchJsonError
 from django_loose_fk.virtual_models import virtual_model_factory
 from djangorestframework_camel_case.util import underscoreize
 from vng_api_common.descriptors import GegevensGroepType
 
-from openzaak.utils.auth import get_auth
+from openzaak.utils.snapshot import JSON, ETag, NotModified, Ok, fetch
+
+logger = structlog.stdlib.get_logger(__name__)
+
+
+def get_service_client(url: str) -> APIClient:
+    """
+    A client configured from the ``Service`` that ``url`` belongs to: auth, mTLS,
+    timeout and NLX. Without such a service, an unauthenticated client, as before.
+    """
+    from zgw_consumers.client import build_client
+    from zgw_consumers.models import Service
+
+    if service := Service.get_service(url):
+        return build_client(service)
+
+    logger.warning("no_service_found_for_url", url=url)
+    return APIClient(url)
+
+
+def get_from_service(url: str, /, *, if_none_match: ETag | None) -> Ok | NotModified:
+    """
+    The ``Transport`` for :func:`openzaak.utils.snapshot.fetch`.
+    """
+    headers = {} if if_none_match is None else {"If-None-Match": if_none_match}
+
+    try:
+        with get_service_client(url) as client:
+            response = client.get(url, headers=headers)
+    except requests.exceptions.RequestException as exc:
+        raise FetchError(exc.args[0]) from exc
+
+    # only when asked: a 304 without an entry to fall back on has no body to parse
+    if if_none_match is not None and response.status_code == 304:
+        return NotModified()
+
+    try:
+        response.raise_for_status()
+    except requests.HTTPError as exc:
+        raise FetchError(exc.args[0]) from exc
+
+    try:
+        data: JSON = response.json()
+    except json.JSONDecodeError as exc:
+        raise FetchJsonError(exc.args[0]) from exc
+
+    return Ok(etag=response.headers.get("ETag"), body=data)
 
 
 class AuthorizedRequestsLoader(BaseLoader):
     """
     Fetch external API objects with Authorization header.
+
+    Within a :func:`openzaak.utils.snapshot.snapshot_scope`, repeated fetches of a
+    URL are served from the scope's snapshot.
     """
 
     @staticmethod
     def fetch_object(url: str, do_underscoreize=True) -> dict:
-        # TODO should we replace it with Service.get_client() and use it instead of requests?
-        # but in this case we couldn't catch separate FetchJsonError
-        headers = get_auth(url)
-
-        try:
-            response = requests.get(url, headers=headers)
-        except requests.exceptions.RequestException as exc:
-            raise FetchError(exc.args[0]) from exc
-
-        try:
-            response.raise_for_status()
-        except requests.HTTPError as exc:
-            raise FetchError(exc.args[0]) from exc
-
-        try:
-            data = response.json()
-        except json.JSONDecodeError as exc:
-            raise FetchJsonError(exc.args[0]) from exc
+        data = fetch(get_from_service, url)
+        if not isinstance(data, dict):
+            raise FetchJsonError(f"Expected a JSON object from {url}")
 
         if not do_underscoreize:
             return data
