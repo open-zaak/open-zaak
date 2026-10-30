@@ -14,6 +14,7 @@ from django_loose_fk.loaders import BaseLoader, FetchError, FetchJsonError
 from django_loose_fk.virtual_models import virtual_model_factory
 from djangorestframework_camel_case.util import underscoreize
 from vng_api_common.descriptors import GegevensGroepType
+from vng_api_common.geo import DEFAULT_CRS, HEADER_ACCEPT
 
 from openzaak.utils.snapshot import JSON, ETag, NotModified, Ok, fetch
 
@@ -29,10 +30,14 @@ def get_service_client(url: str) -> APIClient:
     from zgw_consumers.models import Service
 
     if service := Service.get_service(url):
-        return build_client(service)
+        client = build_client(service)
+    else:
+        logger.warning("no_service_found_for_url", url=url)
+        client = APIClient(url)
 
-    logger.warning("no_service_found_for_url", url=url)
-    return APIClient(url)
+    # a Zaken API answers 412 without it on resources with geo fields; others ignore it
+    client.headers[HEADER_ACCEPT] = DEFAULT_CRS
+    return client
 
 
 def get_from_service(url: str, /, *, if_none_match: ETag | None) -> Ok | NotModified:
