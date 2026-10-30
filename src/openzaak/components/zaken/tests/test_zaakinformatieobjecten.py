@@ -51,7 +51,12 @@ from openzaak.components.documenten.tests.utils import (
     get_oio_response,
 )
 from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
-from openzaak.tests.utils import JWTAuthMixin, get_eio_response, mock_drc_oas_get
+from openzaak.tests.utils import (
+    JWTAuthMixin,
+    get_eio_response,
+    mock_drc_oas_get,
+    mock_get_with_etag,
+)
 from openzaak.utils.expansion import EXPAND_QUERY_PARAM
 
 from ..api.scopes import SCOPE_ZAKEN_CREATE
@@ -540,6 +545,47 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
             self.assertEqual(len(data), 1)
             self.assertEqual(data[0]["informatieobject"], document)
+
+    @tag("gh-2572")
+    def test_relate_external_document_reads_it_once_per_epoch(self):
+        # Mocked, unlike the recorded BIO variant (test_besluitinformatieobjecten_e2e):
+        # a released Open Zaak as foreign Documenten API loads our zaak without
+        # Accept-Crs, so it can't verify the relation (412) until it has the fix in
+        # openzaak.loaders.
+        document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+        zio_type = ZaakTypeInformatieObjectTypeFactory.create(
+            informatieobjecttype__concept=False, zaaktype__concept=False
+        )
+        zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
+        zaak_url = f"http://openzaak.nl{reverse(zaak)}"
+        eio_response = get_eio_response(
+            document,
+            informatieobjecttype=f"http://testserver{reverse(zio_type.informatieobjecttype)}",
+        )
+
+        with requests_mock.Mocker() as m:
+            mock_get_with_etag(m, document, eio_response)
+            m.post(
+                f"{self.base}objectinformatieobjecten",
+                json=get_oio_response(document, zaak_url),
+                status_code=201,
+            )
+
+            response = self.client.post(
+                reverse(ZaakInformatieObject),
+                {"zaak": zaak_url, "informatieobject": document},
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        # a plain GET, then one revalidation after our own POST
+        self.assertEqual(
+            [
+                (req.method, req.headers.get("If-None-Match"))
+                for req in m.request_history
+                if req.url == document or req.method == "POST"
+            ],
+            [("GET", None), ("POST", None), ("GET", '"1"')],
+        )
 
     def test_create_zio_fail_bad_url(self):
         zaak = ZaakFactory.create(zaaktype__concept=False)
