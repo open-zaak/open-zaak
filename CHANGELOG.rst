@@ -22,7 +22,8 @@ Changelog
   * ``zaaktypeIdentificaties`` on ``/besluittypen``
   * ``besluittypeOmschrijvingen`` on ``/catalogussen``, ``/zaaktypen`` and
     ``/informatieobjecttypen``
-  * ``informatieobjecttypeOmschrijvingen`` on ``/catalogussen`` and ``/zaaktypen``
+  * ``informatieobjecttypeOmschrijvingen`` on ``/besluittypen``, ``/catalogussen`` and
+    ``/zaaktypen``
   * ``deelzaaktypeIdentificaties`` on ``/zaaktypen``
   * ``zaaktypeIdentificatie`` on the ``zaaktypenrelaties`` of a zaaktype
 
