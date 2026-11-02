@@ -173,3 +173,14 @@ class BesluitRemoveZaakTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertFalse(ZaakBesluit.objects.filter(zaak=zaak1).exists())
         self.assertEqual(ZaakBesluit.objects.filter(zaak=zaak2).count(), 1)
+
+    def test_remove_zaak_when_zaakbesluit_already_deleted(self):
+        zaak = ZaakFactory.create()
+        besluit = BesluitFactory.create(zaak=zaak)
+        ZaakBesluit.objects.get(zaak=zaak, _besluit=besluit).delete()
+        besluit = Besluit.objects.get(pk=besluit.pk)
+
+        besluit.zaak = None
+        besluit.save()  # must not raise DoesNotExist
+
+        self.assertFalse(ZaakBesluit.objects.filter(zaak=zaak).exists())

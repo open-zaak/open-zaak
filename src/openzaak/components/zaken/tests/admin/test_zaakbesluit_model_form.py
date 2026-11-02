@@ -82,3 +82,20 @@ class TestZaakBesluitAdminDelete(WebTest):
         self.assertEqual(trail.resource, "zaakbesluit")
         self.assertEqual(trail.hoofd_object, trail.resource_url)
         self.assertIn(str(zaak.uuid), trail.hoofd_object)
+        besluit.refresh_from_db()
+        self.assertIsNone(besluit.zaak)
+
+    def test_delete_zaakbesluit_removes_zaak_from_besluit(self):
+        zaak = ZaakFactory.create()
+        besluit = BesluitFactory.create(
+            besluittype__catalogus=zaak.zaaktype.catalogus, zaak=zaak
+        )
+        zaakbesluit = ZaakBesluit.objects.get(zaak=zaak, _besluit=besluit)
+        url = reverse("admin:zaken_zaakbesluit_delete", args=(zaakbesluit.pk,))
+
+        response = self.app.get(url, user=self.user)
+        response.forms[1].submit()
+
+        self.assertFalse(ZaakBesluit.objects.filter(pk=zaakbesluit.pk).exists())
+        besluit.refresh_from_db()
+        self.assertIsNone(besluit.zaak)
