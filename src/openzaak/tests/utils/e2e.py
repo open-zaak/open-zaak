@@ -101,7 +101,7 @@ class ForeignSystemTestCase(
         )
 
     def tearDown(self):
-        if not RECORDING:
+        if not RECORDING:  # pragma: no branch  # always taken in CI
             # together with VCR refusing repeats: exactly the recorded requests
             self.assertTrue(self.cassette.all_played, "not all requests were made")
         super().tearDown()
@@ -119,7 +119,7 @@ class ForeignSystemTestCase(
         def ours_only(request):
             # the live server answers the foreign system's callbacks, which only
             # happen while recording: on replay its responses come from the cassette
-            if threading.current_thread() is not test_thread:
+            if threading.current_thread() is not test_thread:  # pragma: no cover
                 return None
             return hook(request)
 
@@ -171,7 +171,9 @@ class ForeignSystemTestCase(
         self.foreign_publish(informatieobjecttype)
         return informatieobjecttype
 
-    def create_foreign_zaaktype(self, catalogus: str, informatieobjecttype: str) -> str:
+    def create_foreign_zaaktype(
+        self, catalogus: str, informatieobjecttype: str
+    ) -> str:  # pragma: no cover  # ZIO is mocked for now, because of bug in `latest`
         zaaktype = self.foreign_post(
             APITypes.ztc,
             "zaaktypen",
