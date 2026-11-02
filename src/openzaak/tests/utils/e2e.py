@@ -13,19 +13,16 @@ import random
 import string
 import threading
 from base64 import b64encode
-from collections.abc import Iterator
-from contextlib import contextmanager
-from unittest.mock import patch
 
 from django.conf import settings
 from django.db.models import Model
 from django.test import override_settings, tag
 
-import requests
 import yaml
 from maykin_common.vcr import VCRMixin
 from rest_framework.test import APILiveServerTestCase
-from vcr.config import RecordMode
+from vcr.config import VCR, RecordMode
+from vcr.request import Request
 from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.models import JWTSecret
 from vng_api_common.oas import fetcher
@@ -45,6 +42,11 @@ E2E_HOST = "host.docker.internal"
 E2E_LIVE_SERVER_PORT = 8765
 
 RECORDING = VCRMixin.VCR_RECORD_MODE != RecordMode.NONE
+
+
+def conditional(r1: Request, r2: Request) -> None:
+    """VCR matcher: a conditional request is only replayed by a conditional one."""
+    assert ("If-None-Match" in r1.headers) == ("If-None-Match" in r2.headers)
 
 
 @tag("e2e", "external-urls")
@@ -104,35 +106,31 @@ class ForeignSystemTestCase(
             self.assertTrue(self.cassette.all_played, "not all requests were made")
         super().tearDown()
 
+    def _get_vcr(self, **kwargs) -> VCR:
+        vcr = super()._get_vcr(**kwargs)
+        vcr.register_matcher("conditional", conditional)
+        return vcr
+
     def _get_vcr_kwargs(self, **kwargs):
+        kwargs = super()._get_vcr_kwargs(**kwargs)
+        hook = kwargs.get("before_record_request") or (lambda request: request)
         test_thread = threading.current_thread()
 
         def ours_only(request):
-            # requests from the live server answer the foreign system's callbacks,
-            # which aren't replayed
-            return request if threading.current_thread() is test_thread else None
+            # the live server answers the foreign system's callbacks, which only
+            # happen while recording: on replay its responses come from the cassette
+            if threading.current_thread() is not test_thread:
+                return None
+            return hook(request)
 
-        return super()._get_vcr_kwargs(**kwargs) | {"before_record_request": ours_only}
+        match_on = kwargs.get("match_on", VCR().match_on)
+        return kwargs | {
+            "before_record_request": ours_only,
+            "match_on": (*match_on, "conditional"),
+        }
 
     def our_url(self, instance: Model) -> str:
         return f"http://{self.our_host}{reverse(instance)}"
-
-    @contextmanager
-    def sent_requests(self) -> Iterator[list[requests.PreparedRequest]]:
-        """
-        The requests this test sends, in order, both when recording and replaying.
-        """
-        sent: list[requests.PreparedRequest] = []
-        send = requests.Session.send
-        test_thread = threading.current_thread()
-
-        def spy(session, request, **kwargs):
-            if threading.current_thread() is test_thread:
-                sent.append(request)
-            return send(session, request, **kwargs)
-
-        with patch.object(requests.Session, "send", spy):
-            yield sent
 
     # the foreign resources, created over the standard APIs
 

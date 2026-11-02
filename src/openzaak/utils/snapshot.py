@@ -89,13 +89,12 @@ class Transport(Protocol):
 
 
 class Store(Protocol):
-    def get(self, url: URL, /) -> Entry | None: ...
+    def get(self, url: URL, /) -> Entry | None: ...  # pragma: no cover
 
-    def put(self, url: URL, entry: Entry, /) -> None: ...
+    def put(self, url: URL, entry: Entry, /) -> None: ...  # pragma: no cover
 
     def drop(self, url: URL, /) -> None:
         """Remove the entry for ``url``, if any."""
-        ...
 
 
 @dataclass(slots=True)
@@ -195,5 +194,5 @@ def fetch(transport: Transport, url: URL) -> JSON:
             assert scope
             scope.validated[url] = scope.epoch
             return copy.deepcopy(entry.body)
-        case oops:
-            assert_never(oops)
+        case ever:
+            assert_never(ever)
