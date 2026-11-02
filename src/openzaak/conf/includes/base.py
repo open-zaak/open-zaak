@@ -17,6 +17,7 @@ from openzaak.components.documenten.constants import DocumentenBackendTypes
 from openzaak.utils.monitoring import filter_sensitive_data
 
 from maykin_common.health_checks import default_health_check_apps
+from vng_api_common.settings import COMMONGROUND_API_COMMON
 
 from .api import *  # noqa
 from .plugins import PLUGIN_INSTALLED_APPS
@@ -890,3 +891,20 @@ AWS_S3_CUSTOM_DOMAIN = config(
         group="Documenten API S3 Storage",
     ),
 )
+
+
+# COMMONGROUND-API-COMMON SETTINGS
+#
+# URN settings
+#
+URN_NAMESPACE_LABEL = "openzaak"
+COMMONGROUND_API_COMMON.update({"URN_NAMESPACE": URN_NAMESPACE_LABEL})
+URN_NAMESPACE = {
+    config(
+        "URN_NAMESPACE",
+        default=URN_NAMESPACE_LABEL,
+        documentation=DocumentationParams(
+            help_text=("**EXPERIMENTAL**: Namespace used in URNs schemas."),
+        ),
+    )
+}
