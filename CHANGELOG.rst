@@ -136,6 +136,7 @@ Changelog
 * [:open-archiefbeheer:`1071`] Fixed a related zaakobject without an end date preventing a zaak from being closed
 * [:open-zaak:`2506`] Fix 500 error for writes to ``/statustypen`` with a valid doorlooptijd
 * [:open-zaak:`2426`] Fix 500 error that occurred when attempting to add a new service via the Service configuration view in the admin
+* [:open-zaak:`2519`] Add constraint to allow only users with change permission to publish data
 
 **Project maintenance**
 
