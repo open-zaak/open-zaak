@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Unreleased
-----------
+1.31.1 (2026-10-23)
+-------------------
 
 **Bugfixes**
 
@@ -24,14 +24,21 @@ Unreleased
 * [:open-zaak:`2577`] A request that PostgreSQL cancels to resolve a deadlock with a
   concurrent request gets a ``503 Service Unavailable`` with ``Retry-After: 1`` instead
   of a ``500``. Nothing of it was written, so it can be retried.
+* [:open-zaak:`2607`] Fix a ``500`` when updating a document's ``informatieobjecttype``
+  from an external to a local one, or the other way round.
 
 **Project maintenance**
 
 * [:open-zaak:`2577`] Upgrade ``commonground-api-common`` to 3.1.1
+* [`commonground-api-common#190`_] Remove the ``LIST_SERIALIZER_ERRORS_AS_DICT`` workaround,
+  now that ``commonground-api-common`` handles DRF 3.18's list-serializer errors
+* [:open-zaak:`2607`] Upgrade ``django-loose-fk`` to 2.0.1
 * [:open-zaak:`2577`] Upgrade ``certifi`` to 2026.10.19, which no longer trusts the
   eMudhra root certificates
 * [:open-zaak:`2577`] Record the S3 test cassettes against moto instead of MinIO, whose
   community edition is abandoned
+
+.. _commonground-api-common#190: https://github.com/maykinmedia/commonground-api-common/issues/190
 
 1.31.0 (2026-10-09)
 -------------------
