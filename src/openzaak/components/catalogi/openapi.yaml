@@ -10943,8 +10943,7 @@ components:
             type: string
             format: uri
           readOnly: true
-          description: '**DEPRECATED** Gebruik `zaaktypeIdentificaties`. ZAAKTYPE
-            met ZAAKen die relevant kunnen zijn voor dit BESLUITTYPE'
+          description: ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit BESLUITTYPE
         omschrijving:
           type: string
           description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
@@ -11873,8 +11872,8 @@ components:
                 items:
                   $ref: '#/components/schemas/ZaakType'
                 readOnly: true
-                description: '**DEPRECATED** Gebruik `zaaktypeIdentificaties`. ZAAKTYPE
-                  met ZAAKen die relevant kunnen zijn voor dit BESLUITTYPE'
+                description: ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit
+                  BESLUITTYPE
               informatieobjecttypen:
                 type: array
                 items:

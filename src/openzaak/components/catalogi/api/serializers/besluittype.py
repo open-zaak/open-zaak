@@ -6,8 +6,6 @@ from rest_framework import serializers
 from vng_api_common.serializers import CachedHyperlinkedRelatedField
 from vng_api_common.utils import get_help_text
 
-from openzaak.utils.help_text import mark_deprecated
-
 from ...models import BesluitType, InformatieObjectType
 from ..validators import (
     ConceptUpdateValidator,
@@ -33,10 +31,7 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
         view_name="zaaktype-detail",
         lookup_field="uuid",
         read_only=True,
-        help_text=mark_deprecated(
-            _("Gebruik `zaaktypeIdentificaties`. ")
-            + get_help_text("catalogi.BesluitType", "zaaktypen")
-        ),
+        help_text=get_help_text("catalogi.BesluitType", "zaaktypen"),
     )
 
     resultaattypen = CachedHyperlinkedRelatedField(
