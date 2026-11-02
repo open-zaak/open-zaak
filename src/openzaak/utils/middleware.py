@@ -204,10 +204,6 @@ class DeprecationMiddleware:
         if warning:
             response[WARNING_HEADER] = str(warning)
 
-        x_warnings = getattr(request, "_x_warnings", None)
-        if x_warnings and response.status_code < 400:
-            response[X_WARNING_HEADER] = "; ".join(x_warnings)
-
         return response
 
     def process_view(self, request, callback, callback_args, callback_kwargs):
@@ -227,6 +223,30 @@ class DeprecationMiddleware:
         )
 
         return None
+
+
+class XWarningMiddleware:
+    """
+    Include the warnings registered with ``add_x_warning`` in the ``X-Warning`` header.
+
+    The header is only set on successful responses, as the warnings concern data that
+    was processed.
+    """
+
+    def __init__(self, get_response=None):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if self.get_response is None:
+            return None
+
+        response = self.get_response(request)
+
+        x_warnings = getattr(request, "_x_warnings", None)
+        if x_warnings and response.status_code < 400:
+            response[X_WARNING_HEADER] = "; ".join(x_warnings)
+
+        return response
 
 
 class PyInstrumentMiddleware:  # pragma:no cover

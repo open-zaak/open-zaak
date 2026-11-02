@@ -5,7 +5,7 @@ from django.test import RequestFactory, SimpleTestCase
 
 from rest_framework.request import Request
 
-from openzaak.utils.middleware import DeprecationMiddleware, add_x_warning
+from openzaak.utils.middleware import XWarningMiddleware, add_x_warning
 
 
 class XWarningTests(SimpleTestCase):
@@ -33,14 +33,14 @@ class XWarningTests(SimpleTestCase):
             add_x_warning(request, "second")
             return HttpResponse()
 
-        response = DeprecationMiddleware(view)(request)
+        response = XWarningMiddleware(view)(request)
 
         self.assertEqual(response["X-Warning"], "first; second")
 
     def test_middleware_without_warnings_sets_no_header(self):
         request = RequestFactory().get("/")
 
-        response = DeprecationMiddleware(lambda request: HttpResponse())(request)
+        response = XWarningMiddleware(lambda request: HttpResponse())(request)
 
         self.assertNotIn("X-Warning", response)
 
@@ -51,6 +51,13 @@ class XWarningTests(SimpleTestCase):
             add_x_warning(request, "first")
             return HttpResponse(status=400)
 
-        response = DeprecationMiddleware(view)(request)
+        response = XWarningMiddleware(view)(request)
 
         self.assertNotIn("X-Warning", response)
+
+    def test_middleware_without_get_response_returns_none(self):
+        request = RequestFactory().get("/")
+
+        response = XWarningMiddleware()(request)
+
+        self.assertIsNone(response)

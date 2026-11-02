@@ -148,6 +148,7 @@ MIDDLEWARE = [
     "csp.middleware.CSPMiddleware",
     "openzaak.utils.middleware.APIVersionHeaderMiddleware",
     "openzaak.utils.middleware.DeprecationMiddleware",
+    "openzaak.utils.middleware.XWarningMiddleware",
     "openzaak.utils.middleware.EnabledMiddleware",
     "axes.middleware.AxesMiddleware",
 ]
