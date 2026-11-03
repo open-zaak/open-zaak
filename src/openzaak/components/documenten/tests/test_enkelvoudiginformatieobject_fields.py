@@ -5,6 +5,7 @@ from django.test import tag
 from django_loose_fk.virtual_models import get_model_instance
 from rest_framework.test import APITestCase
 
+from openzaak.loaders import AuthorizedRequestsLoader
 from openzaak.tests.utils.auth import JWTAuthMixin
 
 from ..api.fields import EnkelvoudigInformatieObjectField
@@ -29,7 +30,7 @@ class EnkelvoudigInformatieObjectFieldsTests(JWTAuthMixin, APITestCase):
                 "url": "https://documenten.example.com/documenten/1",
                 "bestandsnaam": "report.pdf",
             },
-            loader=None,
+            loader=AuthorizedRequestsLoader(),
         )
 
         self.assertIs(

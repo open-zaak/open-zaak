@@ -85,7 +85,7 @@ def sync_zaakbesluit(sender: ModelBase, instance: Besluit, **kwargs) -> None:
     * updates are not allowed
     * creating a Besluit with zaak creates the ZaakBesluit
     * deleting a Besluit with zaak deletes the ZaakBesluit. This is not done here:
-      ``ZaakBesluit._besluit`` has ``on_delete=CASCADE``. Depending on the other
+      ``ZaakBesluit.besluit`` has ``on_delete=CASCADE``. Depending on the other
       objects related to the Besluit, the ZaakBesluit is already deleted before the
       ``post_delete`` signal of the Besluit is sent, so it can't be looked up then.
     """

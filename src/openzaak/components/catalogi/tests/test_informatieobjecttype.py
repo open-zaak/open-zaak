@@ -30,6 +30,8 @@ class InformatieObjectTypeAPITests(APITestCase):
     scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
     NAMESPACE = "catalogi"
+    # namespace of the besluittype urls in the responses
+    BESLUITTYPE_NAMESPACE = "catalogi"
 
     def test_get_list_default_definitief(self):
         InformatieObjectTypeFactory.create(concept=True)
@@ -698,7 +700,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         )
 
         response = self.client.get(
-            reverse(informatieobjecttype),
+            reverse(informatieobjecttype, namespace=self.NAMESPACE),
             {"expand": "catalogus"},
         )
 
@@ -722,7 +724,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         )
 
         response = self.client.get(
-            reverse(informatieobjecttype),
+            reverse(informatieobjecttype, namespace=self.NAMESPACE),
             {"expand": "zaaktypen"},
         )
 
@@ -751,7 +753,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype.besluittypen.add(besluittype)
 
         response = self.client.get(
-            reverse(informatieobjecttype),
+            reverse(informatieobjecttype, namespace=self.NAMESPACE),
             {"expand": "besluittypen"},
         )
 
@@ -762,7 +764,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         self.assertIn("besluittypen", data["_expand"])
         self.assertEqual(
             data["_expand"]["besluittypen"][0]["url"],
-            f"http://testserver{reverse(besluittype)}",
+            f"http://testserver{reverse(besluittype, namespace=self.BESLUITTYPE_NAMESPACE)}",
         )
 
     def test_get_detail_expand_multiple(self):
@@ -781,7 +783,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype.besluittypen.add(besluittype)
 
         response = self.client.get(
-            reverse(informatieobjecttype),
+            reverse(informatieobjecttype, namespace=self.NAMESPACE),
             {"expand": "catalogus,zaaktypen,besluittypen"},
         )
 
@@ -799,7 +801,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         )
 
         response = self.client.get(
-            reverse(informatieobjecttype),
+            reverse(informatieobjecttype, namespace=self.NAMESPACE),
             {"expand": "catalogus.zaaktypen"},
         )
 
@@ -813,7 +815,9 @@ class InformatieObjectTypeAPITests(APITestCase):
     def test_get_detail_without_expand(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
-        response = self.client.get(reverse(informatieobjecttype))
+        response = self.client.get(
+            reverse(informatieobjecttype, namespace=self.NAMESPACE)
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()["_expand"], {})
