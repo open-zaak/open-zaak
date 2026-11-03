@@ -7,7 +7,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from vng_api_common.caching import ETagMixin
-from vng_api_common.fields import DaysDurationField
+
+from openzaak.utils.fields import DurationField
 
 from .mixins import OptionalGeldigheidMixin
 from .validators import validate_zaaktype_concept
@@ -65,7 +66,7 @@ class StatusType(ETagMixin, OptionalGeldigheidMixin, models.Model):
             "Een volgnummer voor statussen van het STATUSTYPE binnen een zaak."
         ),
     )
-    doorlooptijd = DaysDurationField(
+    doorlooptijd = DurationField(
         _("doorlooptijd"),
         blank=True,
         null=True,

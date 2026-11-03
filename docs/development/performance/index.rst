@@ -74,8 +74,12 @@ OZ version             Role      Relative change to median time compared to prev
 1.28.0 (fuzzy on)      Regular   +0.00%
 1.29.0 (fuzzy on)      Superuser +0.00%
 1.29.0 (fuzzy on)      Regular   +5.88%
-1.30.0 (fuzzy on)      Superuser -11.76% (response time: 150ms)
-1.30.0 (fuzzy on)      Regular   -9.09% (response time: 200ms)
+1.30.0 (fuzzy on)      Superuser -11.76%
+1.30.0 (fuzzy on)      Regular   -9.09%
+1.30.0 (fuzzy off)     Superuser -
+1.30.0 (fuzzy off)     Regular   -
+1.31.0 (fuzzy off)     Superuser -15.15%
+1.31.0 (fuzzy off)     Regular   0.00%
 ====================== ========= ======================
 
 16 users
@@ -108,8 +112,12 @@ OZ version             Role      Relative change to median time (compared to pre
 1.28.0 (fuzzy on)      Regular   +6.90%
 1.29.0 (fuzzy on)      Superuser 0.00%
 1.29.0 (fuzzy on)      Regular   +3.23%
-1.30.0 (fuzzy on)      Superuser -0.00% (response time: 430ms)
-1.30.0 (fuzzy on)      Regular   -0.00% (response time: 320ms)
+1.30.0 (fuzzy on)      Superuser -0.00%
+1.30.0 (fuzzy on)      Regular   -0.00%
+1.30.0 (fuzzy off)     Superuser -
+1.30.0 (fuzzy off)     Regular   -
+1.31.0 (fuzzy off)     Superuser +5.56%
+1.31.0 (fuzzy off)     Regular   -
 ====================== ========= ======================
 
 Historical results for instance running in Docker

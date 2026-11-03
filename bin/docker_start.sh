@@ -7,9 +7,17 @@ set -ex
 export PGHOST=${DB_HOST:-db}
 export PGPORT=${DB_PORT:-5432}
 
+# Deliberately not named UWSGI_PORT: uwsgi parses every UWSGI_* envvar as a
+# config option, and "port" is not a valid one, so --strict would abort startup.
 uwsgi_port=${OPENZAAK_PORT:-8000}
-uwsgi_processes=${UWSGI_PROCESSES:-4}
-uwsgi_threads=${UWSGI_THREADS:-4}
+
+# uwsgi reads UWSGI_* environment variables natively, but explicit CLI flags take
+# precedence over them - so export defaults instead of passing flags, allowing the
+# infra-layer to override any of these without code changes.
+# processes & threads are needed for concurrency without nginx sitting inbetween.
+export UWSGI_PROCESSES=${UWSGI_PROCESSES:-4}
+export UWSGI_THREADS=${UWSGI_THREADS:-4}
+export UWSGI_BUFFER_SIZE=${UWSGI_BUFFER_SIZE:-65535}
 
 mountpoint=${SUBPATH:-/}
 
@@ -58,7 +66,4 @@ exec uwsgi \
     --enable-threads \
     --single-interpreter \
     --die-on-term \
-    --need-app \
-    --processes $uwsgi_processes \
-    --threads $uwsgi_threads \
-    --buffer-size=65535
+    --need-app

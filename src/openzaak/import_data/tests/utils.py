@@ -5,13 +5,11 @@ import shutil
 import tempfile
 from pathlib import Path
 from unittest import TestCase
-from unittest.mock import patch
 
 from django.conf import settings
 from django.test import override_settings
 
 from celery.utils.text import StringIO
-from privates.storages import private_media_storage
 
 from openzaak.components.documenten.constants import DocumentenBackendTypes
 from openzaak.import_data.tests.factories import ImportFactory
@@ -33,24 +31,6 @@ class ImportTestMixin(TestCase):
             shutil.rmtree(self.temp_dir)
 
         self.addCleanup(_remove_temp_dir)
-
-        # django-privates `temp_private_root` now writes to memory instead, so we can't
-        # rely on shutil.copy2 since that explicitly expects files
-        def copy_to_mem(src, dst, *, follow_symlinks=True):
-            src = Path(src)
-            dst = Path(dst)
-
-            name = dst.relative_to(private_media_storage.base_location)
-
-            with src.open("rb") as source:
-                private_media_storage.save(name, source)
-
-            return dst
-
-        self.shutil_mocker = patch(
-            "openzaak.components.documenten.tasks.shutil.copy2", side_effect=copy_to_mem
-        )
-        self.shutil_mock = self.shutil_mocker.start()
 
     @classmethod
     def _get_import_dir(cls) -> Path:

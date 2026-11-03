@@ -92,8 +92,6 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
 
         document_row = _import_document_row(row, 0, identifier, [], {}, self.request)
 
-        self.shutil_mock.assert_called_once()
-
         eio = document_row.instance
 
         self.assertIs(type(eio), EnkelvoudigInformatieObject)
@@ -157,6 +155,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             informatieobjecttype=self.informatieobjecttype,
             zaak_uuid=str(zaak.uuid),
             trefwoorden='"foo,bar"',
+            inhoud_is_vervallen="",
         )
 
         identifier = generate_unique_identification(
@@ -207,6 +206,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         )
         self.assertEqual(eio.informatieobjecttype, self.informatieobjecttype_obj)
         self.assertEqual(eio.trefwoorden, ["foo", "bar"])
+        self.assertIsNone(eio.inhoud_is_vervallen)
 
         with private_media_storage.open(imported_path, "r") as file:
             self.assertEqual(file.read(), import_file_content)
@@ -529,7 +529,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
 
         self.assertFalse(imported_path.exists())
 
-    @patch("openzaak.components.documenten.tasks.shutil.copy2")
+    @patch("openzaak.components.documenten.tasks.copy_file_to_storage")
     def test_unable_to_copy_file(self, patched_copy):
         patched_copy.side_effect = FileNotFoundError
 

@@ -8,6 +8,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.tests import get_validation_errors
 
+from openzaak.components.besluiten.models import Besluit
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
@@ -31,6 +32,18 @@ class BesluitenSignals(APITestCase):
 
         self.assertEqual(zaakbesluit.besluit, besluit)
         self.assertEqual(zaakbesluit.zaak, besluit.zaak)
+
+    def test_create_besluit_with_zaak_raw(self):
+        besluit = BesluitFactory.create(for_zaak=True)
+        pk = besluit.pk
+        besluit.delete()
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
+        besluit.pk = pk
+
+        besluit.save_base(raw=True, force_insert=True)
+
+        self.assertTrue(Besluit.objects.filter(pk=pk).exists())
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
 
     def test_delete_besluit_without_zaak(self):
         besluit = BesluitFactory.create(for_zaak=False)

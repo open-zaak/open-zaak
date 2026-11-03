@@ -16650,7 +16650,8 @@ components:
           readOnly: true
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
         omschrijvingGeneriek:
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
           readOnly: true
           description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
             \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
@@ -16868,7 +16869,8 @@ components:
           readOnly: true
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
         omschrijvingGeneriek:
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
           readOnly: true
           description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
             \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
@@ -17078,7 +17080,8 @@ components:
           readOnly: true
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
         omschrijvingGeneriek:
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
           readOnly: true
           description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
             \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
@@ -26633,11 +26636,12 @@ components:
           readOnly: true
         informatieobjecttype:
           type: string
-          format: uri
           title: Informatie object type
-          description: URL-referentie naar het INFORMATIEOBJECTTYPE.
+          description: 'URL-referentie naar het INFORMATIEOBJECTTYPE. Let op: voor
+            een extern INFORMATIEOBJECTTYPE wordt niet gecontroleerd of dit een concept
+            is of gepubliceerd.'
+          format: uri
           maxLength: 1000
-          minLength: 1
         volgnummer:
           type: integer
           maximum: 999

@@ -3,6 +3,7 @@
 from unittest.mock import patch
 
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.test import TestCase, tag
 
 from maykin_common.vcr import VCRMixin
@@ -37,3 +38,47 @@ class S3torageTests(VCRMixin, S3torageMixin, TestCase):
         self.assertIn("AWSAccessKeyId=minioadmin", url)
         self.assertIn("Expires=", url)
         self.assertIn("Signature=", url)
+
+
+@tag("gh-2592", "s3-storage")
+class S3ConcurrentSaveTests(VCRMixin, S3torageMixin, TestCase):
+    s3_overwrite_files = False  # the Open Zaak default
+
+    # VCR matches requests on URL, which contains the alternative name
+    @patch("django.core.files.storage.base.get_random_string", return_value="gh2592a")
+    def test_concurrent_saves_with_the_same_name_do_not_overwrite_each_other(
+        self, _get_random_string
+    ):
+        """
+        Two documents with the same name, saved at the same time, must end up in
+        different objects; or one of them must fail explicitly.
+        """
+        name = "uploads/test/besluit.txt"
+        documenten_storage.delete(name)
+        storage = documenten_storage._wrapped
+        get_available_name = storage.get_available_name
+        saved = {}
+        racing = True
+
+        def get_available_name_and_save_second(name, max_length=None):
+            nonlocal racing
+            available = get_available_name(name, max_length=max_length)
+            if racing:
+                racing = False
+                # the second save completes after the first one picked its name,
+                # but before the first one's upload finished
+                saved["second"] = storage.save(name, ContentFile(b"second"))
+            return available
+
+        with patch.object(
+            storage, "get_available_name", get_available_name_and_save_second
+        ):
+            saved["first"] = storage.save(name, ContentFile(b"first"))
+
+        for key in saved:
+            self.addCleanup(storage.delete, saved[key])
+
+        for key in ["first", "second"]:
+            with self.subTest(key), storage.open(saved[key], "rb") as f:
+                self.assertEqual(f.read(), key.encode())
+        self.assertNotEqual(saved["first"], saved["second"])
