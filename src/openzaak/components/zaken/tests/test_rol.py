@@ -6,9 +6,14 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RolTypes
-from vng_api_common.tests import TypeCheckMixin, get_validation_errors
+from vng_api_common.tests import (
+    TypeCheckMixin,
+    get_validation_errors,
+)
 
-from openzaak.components.catalogi.tests.factories import RolTypeFactory
+from openzaak.components.catalogi.tests.factories import (
+    RolTypeFactory,
+)
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
@@ -22,7 +27,11 @@ from ..models import (
     SubVerblijfBuitenland,
     Vestiging,
 )
-from .factories import RolFactory, StatusFactory, ZaakFactory
+from .factories import (
+    RolFactory,
+    StatusFactory,
+    ZaakFactory,
+)
 
 BETROKKENE = (
     "http://www.zamora-silva.org/api/betrokkene/8768c581-2817-4fe5-933d-37af92d819dd"
@@ -133,6 +142,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 "authenticatieContext": None,
                 "beginGeldigheid": None,
                 "eindeGeldigheid": None,
+                "_expand": {},
             },
         )
 
@@ -225,6 +235,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 "statussen": [],
                 "beginGeldigheid": None,
                 "eindeGeldigheid": None,
+                "_expand": {},
             },
         )
 
@@ -313,6 +324,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 "statussen": [],
                 "beginGeldigheid": None,
                 "eindeGeldigheid": None,
+                "_expand": {},
             },
         )
 

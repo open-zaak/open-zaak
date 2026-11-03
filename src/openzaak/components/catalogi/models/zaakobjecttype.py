@@ -7,11 +7,13 @@ from django.utils.translation import gettext_lazy as _
 
 from vng_api_common.caching import ETagMixin
 
+from openzaak.utils.mixins import APIMixin
+
 from .mixins import OptionalGeldigheidMixin
 from .validators import validate_zaaktype_concept
 
 
-class ZaakObjectType(ETagMixin, OptionalGeldigheidMixin, models.Model):
+class ZaakObjectType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
     uuid = models.UUIDField(
         unique=True, default=uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )

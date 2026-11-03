@@ -46,6 +46,7 @@ class ZaakObjectZaakobjecttypeTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
+                "_expand": {},
                 "url": f"http://testserver{url}",
                 "uuid": str(zaakobject.uuid),
                 "zaak": f"http://testserver{reverse(zaak)}",

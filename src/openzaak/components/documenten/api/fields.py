@@ -22,6 +22,11 @@ class EnkelvoudigInformatieObjectField(FKOrServiceUrlField):
     store the uuid
     """
 
+    def get_inclusion_instance(self, value):
+        if isinstance(value, EnkelvoudigInformatieObjectCanonical):
+            return value.latest_version
+        return value
+
     def to_representation(self, value):
         if not isinstance(value, EnkelvoudigInformatieObjectCanonical):
             return super().to_representation(value)

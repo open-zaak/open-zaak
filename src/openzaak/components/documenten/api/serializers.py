@@ -346,7 +346,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
     )
     bestandsdelen = BestandsDeelSerializer(
         many=True,
-        source="get_bestandsdelen",
+        source="canonical.bestandsdelen",
         read_only=True,
     )
 
@@ -386,6 +386,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "trefwoorden",
             "inhoud_is_vervallen",
             "tonen_aan_initiator",
+            "is_gereed_voor_publicatie",
         )
         extra_kwargs = {
             "taal": {"min_length": 3},
@@ -568,6 +569,11 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         return eio
 
     def to_representation(self, instance):
+        if isinstance(instance, EnkelvoudigInformatieObjectCanonical):
+            # Expanded document relations expose the latest document version.
+            instance = instance.latest_version
+            self.instance = instance
+
         # instance is used in by AnyBase64File.to_representation
         if not self.instance:
             self.instance = instance
@@ -593,7 +599,9 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         ]
         for field in instance._meta.get_fields():
             # Ignore latest_version_of since it is a reverse relation
-            if field.name == "latest_version_of":
+            # TODO: remove the `field.name.startswith("_")` bit when the django-loose-fk
+            #  library gets removed from the project.
+            if field.name == "latest_version_of" or field.name.startswith("_"):
                 continue
             if field.name not in validated_data_field_names and (
                 self.partial or field.name not in updatable_field_names

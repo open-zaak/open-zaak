@@ -142,7 +142,7 @@ class BesluitViewSet(
 ):
     """Opvragen en bewerken van BESLUITen."""
 
-    queryset = Besluit.objects.select_related("besluittype").order_by("-pk")
+    queryset = Besluit.objects.select_related("besluittype", "zaak").order_by("-pk")
     serializer_class = BesluitSerializer
     filterset_class = BesluitFilter
     lookup_field = "uuid"
@@ -371,7 +371,8 @@ class BesluitInformatieObjectViewSet(
                     error=str(exception),
                     objectinformatieobject_url=instance._objectinformatieobject_url,
                 )
-                instance.save()
+                with transaction.atomic():
+                    instance.save()
                 raise ValidationError(
                     {"informatieobject": _("Could not delete remote relation")},
                     code="pending-relations",
