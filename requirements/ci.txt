@@ -848,7 +848,7 @@ platformdirs==4.3.8
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   requests-cache
-playwright==1.57.0
+playwright==1.64.1
     # via -r requirements/test-tools.in
 pluggy==1.5.0
     # via pytest
