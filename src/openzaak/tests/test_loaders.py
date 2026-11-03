@@ -17,18 +17,15 @@ class AuthorizedRequestsLoaderTests(TestCase):
         """
         A Zaken API answers 412 without ``Accept-Crs`` on zaken, which have geo fields.
         """
-        for configured in (False, True):
-            with self.subTest(service_configured=configured):
-                if configured:
-                    ServiceFactory.create(
-                        api_type=APITypes.zrc,
-                        api_root=ZAKEN_API,
-                        auth_type=AuthTypes.no_auth,
-                    )
+        ServiceFactory.create(
+            api_type=APITypes.zrc,
+            api_root=ZAKEN_API,
+            auth_type=AuthTypes.no_auth,
+        )
 
-                with requests_mock.Mocker() as m:
-                    # the last match registered is tried first
-                    m.get(ZAAK, status_code=412, json={})
-                    m.get(ZAAK, request_headers={"Accept-Crs": "EPSG:4326"}, json={})
+        with requests_mock.Mocker() as m:
+            # the last match registered is tried first
+            m.get(ZAAK, status_code=412, json={})
+            m.get(ZAAK, request_headers={"Accept-Crs": "EPSG:4326"}, json={})
 
-                    AuthorizedRequestsLoader.fetch_object(ZAAK)
+            AuthorizedRequestsLoader.fetch_object(ZAAK)

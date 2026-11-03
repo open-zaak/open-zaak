@@ -9,10 +9,10 @@ from django.db.models.base import ModelBase
 
 import requests
 import structlog
-from ape_pie import APIClient
 from django_loose_fk.loaders import BaseLoader, FetchError, FetchJsonError
 from django_loose_fk.virtual_models import virtual_model_factory
 from djangorestframework_camel_case.util import underscoreize
+from vng_api_common.client import get_client
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.geo import DEFAULT_CRS, HEADER_ACCEPT
 
@@ -21,33 +21,19 @@ from openzaak.utils.snapshot import JSON, ETag, NotModified, Ok, fetch
 logger = structlog.stdlib.get_logger(__name__)
 
 
-def get_service_client(url: str) -> APIClient:
-    """
-    A client configured from the ``Service`` that ``url`` belongs to: auth, mTLS,
-    timeout and NLX. Without such a service, an unauthenticated client, as before.
-    """
-    from zgw_consumers.client import build_client
-    from zgw_consumers.models import Service
-
-    if service := Service.get_service(url):
-        client = build_client(service)
-    else:
-        logger.warning("no_service_found_for_url", url=url)
-        client = APIClient(url)
-
-    # a Zaken API answers 412 without it on resources with geo fields; others ignore it
-    client.headers[HEADER_ACCEPT] = DEFAULT_CRS
-    return client
-
-
 def get_from_service(url: str, /, *, if_none_match: ETag | None) -> Ok | NotModified:
     """
     The ``Transport`` for :func:`openzaak.utils.snapshot.fetch`.
     """
-    headers = {} if if_none_match is None else {"If-None-Match": if_none_match}
+    client = get_client(url, raise_exceptions=True)
+
+    # a Zaken API answers 412 without it on resources with geo fields; others ignore it
+    headers = {HEADER_ACCEPT: DEFAULT_CRS} | (
+        {} if if_none_match is None else {"If-None-Match": if_none_match}
+    )
 
     try:
-        with get_service_client(url) as client:
+        with client:
             response = client.get(url, headers=headers)
     except requests.exceptions.RequestException as exc:
         raise FetchError(exc.args[0]) from exc
@@ -90,8 +76,6 @@ class AuthorizedRequestsLoader(BaseLoader):
 
     def load(self, url: str, model: ModelBase) -> models.Model:
         if self.is_local_url(url):
-            # print(url)
-            # assert False, "Stopped here"
             return self.load_local_object(url, model)
 
         data = self.fetch_object(url)

@@ -15,6 +15,7 @@ from ape_pie import APIClient
 from djangorestframework_camel_case.util import underscoreize
 from hypothesis import given, settings, strategies as st
 from hypothesis.extra.django import TestCase as HypothesisTestCase
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.loaders import AuthorizedRequestsLoader
 from openzaak.utils.snapshot import JSON, snapshot_scope
@@ -41,6 +42,11 @@ camel_bodies: st.SearchStrategy[JSON] = st.dictionaries(
 
 
 class LoaderSnapshotTests(HypothesisTestCase):
+    @classmethod
+    def setUpTestData(cls) -> None:
+        ServiceFactory.create(api_root=API_ROOT)
+        return super().setUpTestData()
+
     # database queries and mocked HTTP have uneven timings
     @settings(deadline=None)
     @given(body=camel_bodies, raw_reads=st.lists(st.booleans(), min_size=1, max_size=4))
