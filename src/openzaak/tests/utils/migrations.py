@@ -35,9 +35,9 @@ class TestMigrations(TestCase):
 
         # Reverse to the original migration
         old_migrate_state = executor.migrate(self.migrate_from)
-        old_apps = old_migrate_state.apps
+        self.old_apps = old_migrate_state.apps
 
-        self.setUpBeforeMigration(old_apps)
+        self.setUpBeforeMigration(self.old_apps)
 
         if self.execute_in_setup:
             self.execute()

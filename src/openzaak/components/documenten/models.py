@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from __future__ import annotations
+
 import uuid as _uuid
 from urllib.parse import urlparse
 
@@ -186,6 +188,27 @@ class InformatieObject(models.Model):
             "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API)."
         ),
     )
+    inhoud_is_vervallen = models.BooleanField(
+        _("inhoud is vervallen"),
+        default=None,
+        blank=True,
+        null=True,
+        help_text=_(
+            "Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet "
+            "vervallen, dus niet langer geldig is.\n"
+            "* `true` De inhoud van het INFORMATIEOBJECT is vervallen.\n"
+            "* `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.\n"
+            "* `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is."
+        ),
+    )
+    tonen_aan_initiator = models.BooleanField(
+        _("tonen aan initiator"),
+        default=False,
+        help_text=_(
+            "Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de "
+            "initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen."
+        ),
+    )
 
     objects = InformatieobjectQuerySet.as_manager()
 
@@ -249,6 +272,8 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
         null=True,
         editable=False,
     )
+    # inverse defined on BestandsDeel
+    bestandsdelen: BestandsDeelQuerySet
 
     def __str__(self):
         try:
@@ -613,7 +638,7 @@ class Gebruiksrechten(DocumentETagMixin, APIMixin, models.Model):
         return f"({informatieobject.unique_representation()}) - {self.omschrijving_voorwaarden[:50]}"
 
 
-class ObjectInformatieObject(DocumentETagMixin, models.Model):
+class ObjectInformatieObject(DocumentETagMixin, APIMixin, models.Model):
     uuid = models.UUIDField(
         unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
@@ -877,7 +902,6 @@ class Verzending(DocumentETagMixin, APIMixin, models.Model):
             " ontvangen of verzonden zijn waarbij die personen niet deel uit"
             " maken van de behandeling van de zaak waarin het document een rol"
             " speelt. Vervangt het gelijknamige attribuut uit Informatieobject."
-            " Verplicht gevuld wanneer aardRelatie de waarde 'geadresseerde' heeft."
         ),
         blank=True,
         null=True,

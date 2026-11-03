@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import uuid
+
 from django.test import override_settings, tag
 
 from rest_framework import status
@@ -10,6 +12,7 @@ from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.catalogi.tests.utils import (
     get_operation_url as get_catalogus_operation_url,
 )
+from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
@@ -38,6 +41,72 @@ class ListFilterLocalFKTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data["count"], 3)
+
+    def test_filter_besluittype_not_found(self):
+        url = reverse(Besluit, namespace=self.NAMESPACE)
+        type1, type2 = BesluitTypeFactory.create_batch(2)
+        BesluitFactory.create_batch(1, besluittype=type1)
+        type2_url = reverse(type2)
+
+        with self.subTest("besluitype exists"):
+            response = self.client.get(
+                url,
+                {"besluittype": f"http://openzaak.nl{type2_url}"},
+                headers={"host": "openzaak.nl"},
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(response.data["count"], 0)
+
+        with self.subTest("local besluitype does not exist"):
+            response = self.client.get(
+                url,
+                {
+                    "besluittype": f"http://openzaak.nl/catalogi/api/v1/besluittypen/{uuid.uuid4()}"
+                },
+                headers={"host": "openzaak.nl"},
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(response.data["count"], 0)
+
+    def test_filter_zaak(self):
+        url = reverse(Besluit, namespace=self.NAMESPACE)
+        zaak1, zaak2 = ZaakFactory.create_batch(2)
+        BesluitFactory.create_batch(3, zaak=zaak1)
+        BesluitFactory.create_batch(1, zaak=zaak2)
+        zaak1_url = reverse(zaak1)
+
+        response = self.client.get(
+            url,
+            {"zaak": f"http://openzaak.nl{zaak1_url}"},
+            headers={"host": "openzaak.nl"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data["count"], 3)
+
+    def test_filter_zaak_not_found(self):
+        url = reverse(Besluit, namespace=self.NAMESPACE)
+        zaak1, zaak2 = ZaakFactory.create_batch(2)
+        BesluitFactory.create(zaak=zaak1)
+        zaak2_url = reverse(zaak2)
+
+        with self.subTest("zaak exists"):
+            response = self.client.get(
+                url,
+                {"zaak": f"http://openzaak.nl{zaak2_url}"},
+                headers={"host": "openzaak.nl"},
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(response.data["count"], 0)
+
+        with self.subTest("local zaak does not exist"):
+            response = self.client.get(
+                url,
+                {"zaak": f"http://openzaak.nl/zaken/api/v1/zaken/{uuid.uuid4()}"},
+                headers={"host": "openzaak.nl"},
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(response.data["count"], 0)
 
 
 class BesluitAPIFilterTests(JWTAuthMixin, APITestCase):

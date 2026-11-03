@@ -2667,7 +2667,7 @@ class ZaakInzageViewSet(
         models.Prefetch(
             "zaaktype__zaaktypeinformatieobjecttype_set",
             queryset=ZaakTypeInformatieObjectType.objects.select_related(
-                "informatieobjecttype"
+                "_informatieobjecttype"
             ),
         ),
         "zaaktype__deelzaaktypen",

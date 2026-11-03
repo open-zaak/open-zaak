@@ -15,6 +15,8 @@ from openzaak.utils.exceptions import DetermineProcessEndDateException
 
 from .models import Zaak
 
+MISSING = object()
+
 
 class BrondatumCalculator:
     def __init__(self, zaak: Zaak, datum_status_gezet: datetime, *, force=False):
@@ -153,17 +155,19 @@ def get_brondatum(
         for zaak_object in zaak.zaakobject_set.filter(object_type=objecttype):
             if zaak_object.object:
                 remote_object = zaak_object._get_object()
-                value = glom(remote_object, datum_kenmerk_path, default=None)
+                value = glom(remote_object, datum_kenmerk_path, default=MISSING)
             else:
                 local_object = getattr(zaak_object, objecttype.replace("_", ""))
-                value = glom(local_object, datum_kenmerk_path, default=None)
+                value = glom(local_object, datum_kenmerk_path, default=MISSING)
 
-            if value is None:
+            if value is MISSING:
                 raise DetermineProcessEndDateException(
                     _("{} geen geldig attribuut voor ZaakObject van type {}").format(
                         datum_kenmerk, objecttype
                     )
                 )
+            elif value is None:
+                return None
 
             try:
                 dates.append(parse_isodatetime(value).date())

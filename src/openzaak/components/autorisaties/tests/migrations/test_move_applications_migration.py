@@ -2,10 +2,13 @@
 # Copyright (C) 2026 Dimpact
 from datetime import date, timedelta
 
+from django.test import override_settings
+
 from openzaak.tests.utils import TestMigrations
 from openzaak.utils.urls import reverse
 
 
+@override_settings(ALLOWED_HOSTS=["testserver"])
 class TestMoveApplicationsMigrations(TestMigrations):
     migrate_from = "0015_applicatie_alter_catalogusautorisatie_applicatie_and_more"
     migrate_to = "0016_move_applications"

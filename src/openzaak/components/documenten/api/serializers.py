@@ -6,6 +6,7 @@ Serializers of the Document Registratie Component REST API
 
 import binascii
 import math
+import tempfile
 import uuid
 from base64 import b64decode
 from pathlib import Path
@@ -21,6 +22,7 @@ from django.utils.translation import gettext_lazy as _
 import structlog
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
+from privates.fields import PrivateMediaFileField
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from storages.backends.azure_storage import AzureStorage
@@ -382,6 +384,8 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "locked",
             "bestandsdelen",
             "trefwoorden",
+            "inhoud_is_vervallen",
+            "tonen_aan_initiator",
         )
         extra_kwargs = {
             "taal": {"min_length": 3},
@@ -777,7 +781,7 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
     model
     """
 
-    class Meta:
+    class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]
         model = EnkelvoudigInformatieObjectCanonical
         fields = ("lock",)
         extra_kwargs = {"lock": {"required": False, "write_only": True}}
@@ -790,6 +794,10 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
             return valid_attrs
 
         lock = valid_attrs.get("lock", "")
+
+        # even though Meta.model is EIOCanonical, we get passed an EIO to our
+        # constructor
+        assert isinstance(self.instance, EnkelvoudigInformatieObject)
         if lock != self.instance.canonical.lock:
             raise serializers.ValidationError(
                 _("Lock id is not correct"), code="incorrect-lock-id"
@@ -817,6 +825,9 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
         # Because it is a large file upload, the document is immediately locked after
         # creation.
         force_unlock = self.context["force_unlock"]
+        # even though Meta.model is EIOCanonical, we get passed an EIO to our
+        # constructor
+        assert isinstance(self.instance, EnkelvoudigInformatieObject)
         self.instance.canonical.unlock_document(
             doc_uuid=self.context["uuid"],
             lock=self.context["request"].data.get("lock"),
@@ -837,18 +848,19 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
             # create the name of target file using the storage backend to the serializer
             name = create_filename(self.instance.bestandsnaam)
             file_field = self.instance._meta.get_field("inhoud")
+            assert isinstance(file_field, PrivateMediaFileField)
             rel_path = file_field.generate_filename(self.instance, name)
             file_name = Path(rel_path).name
-            # merge files
+            # merge files into a uniquely named file; documents with the same
+            # bestandsnaam may be unlocked concurrently
             file_dir = Path(settings.PRIVATE_MEDIA_ROOT)
-            target_file = merge_files(part_files, file_dir, file_name)
-            # save full file to the instance FileField
-            with open(target_file, "rb") as file_obj:
-                self.instance.inhoud = File(file_obj, name=file_name)
+            file_dir.mkdir(exist_ok=True)
+            with tempfile.NamedTemporaryFile(dir=file_dir) as merged:
+                merge_files(part_files, merged)
+                merged.seek(0)
+                # save full file to the instance FileField
+                self.instance.inhoud = File(merged, name=file_name)
                 self.instance.save()
-
-            # Remove the merged file
-            target_file.unlink()
         else:
             self.instance.bestandsomvang = None
             self.instance.save()
@@ -913,6 +925,11 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             "URL-referentie naar het gerelateerde OBJECT (in deze of een andere API)."
         ),
     )
+
+    inclusion_serializers = {
+        "informatieobject": f"{oz}.documenten.api.serializers.EnkelvoudigInformatieObjectSerializer",
+        "informatieobject.informatieobjecttype": f"{oz}.catalogi.api.serializers.InformatieObjectTypeSerializer",
+    }
 
     class Meta:
         model = ObjectInformatieObject

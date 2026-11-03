@@ -93,4 +93,4 @@ anyway, in alphabetical order.
 * ``zgw-consumers==0.18.0`` library maintained by Maykin. Together with
   gemma-zds-client, preparations are in the works for a 1.0 version.
 
-.. _`requirements`: https://github.com/open-zaak/open-zaak/blob/master/requirements/base.txt
+.. _`requirements`: https://github.com/open-zaak/open-zaak/blob/main/requirements/base.txt

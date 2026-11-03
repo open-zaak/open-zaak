@@ -1,21 +1,25 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from contextlib import contextmanager
 
 from django.conf import settings
-from django.db import DatabaseError, transaction
+from django.db import DatabaseError
 from django.http import HttpRequest
 
 from cloudevents.http import CloudEvent
 from rest_framework.exceptions import ValidationError
 from rest_framework.reverse import reverse
 from structlog.stdlib import get_logger
-from vng_api_common.constants import ZaakobjectTypes
+from vng_api_common.constants import (
+    BrondatumArchiefprocedureAfleidingswijze,
+    ZaakobjectTypes,
+)
 
 from openzaak.components.zaken.api.serializers.zaakobjecten import ZaakObjectSerializer
 from openzaak.components.zaken.models import Zaak, ZaakObject
 from openzaak.notifications.viewsets import CloudEventWebhook
 from openzaak.utils.cloudevents import get_url, process_cloudevent
+
+from ..archiving import try_calculate_archiving
 
 logger = get_logger(__name__)
 
@@ -29,6 +33,7 @@ ZAAK_OPGESCHORT = "nl.overheid.zaken.zaak-opgeschort"
 ZAAK_BIJGEWERKT = "nl.overheid.zaken.zaak-bijgewerkt"
 ZAAK_VERLENGD = "nl.overheid.zaken.zaak-verlengd"
 ZAAK_AFGESLOTEN = "nl.overheid.zaken.zaak-afgesloten"
+ZAAKOBJECT_BIJGEWERKT = "nl.overheid.zaken.zaakobject-bijgewerkt"
 
 
 def _resolve_zaak_uri(uri: str) -> str | None:
@@ -132,20 +137,61 @@ def handle_zaak_ontkoppeld(event: CloudEvent):
         logger.warning("incoming_cloud_event_error", exc_info=e)
 
 
-@contextmanager
-def _fake_atomic():
-    yield
+@CloudEventWebhook.register_handler
+def handle_zaakobject_bijgewerkt(event: CloudEvent):
+    if event["type"] != ZAAKOBJECT_BIJGEWERKT:
+        return
+
+    if not (event_data := event.get_data()):
+        logger.warning("incoming_cloud_event_error", code="missing-data")
+        return
+
+    if not (zaak := _resolve_zaak(event_data.get("zaak", ""))):
+        logger.warning("incoming_cloud_event_error", code="unknown-zaak")
+        return
+
+    if not (link_to := event_data.get("linkTo")):
+        logger.warning("incoming_cloud_event_error", code="missing-linkTo")
+        return
+
+    if not (fields := event_data.get("fields")):
+        logger.warning("incoming_cloud_event_error", code="missing-fields")
+        return
+
+    if not zaak.einddatum or not (resultaat := getattr(zaak, "resultaat", None)):
+        # Don't have to do anything if the zaak wasn't closed yet.
+        return
+
+    procedure = resultaat.resultaattype.brondatum_archiefprocedure
+    # Sanity check: this object should exist if the zaak-gekoppeld cloudevents were
+    # sent/processed correctly.
+    if not ZaakObject.objects.filter(
+        zaak=zaak, object=link_to, object_type=procedure.get("objecttype")
+    ).exists():
+        logger.warning(
+            "incoming_cloud_event_error",
+            code="unknown-zaakobject",
+            zaak=zaak,
+            object=link_to,
+            object_type=procedure.get("objecttype"),
+        )
+        return
+
+    if (
+        procedure.get("afleidingswijze")
+        == BrondatumArchiefprocedureAfleidingswijze.zaakobject
+        and procedure.get("datumkenmerk") in fields
+    ):
+        try_calculate_archiving(zaak, force=True)
+        logger.info(
+            "incoming_cloud_event_handled",
+            code="zaakobject-bijgewerkt",
+            action="archiving-data-recalculated",
+        )
 
 
 class CloudEventException(Exception):
     pass
-
-
-def conditional_atomic(wrap: bool = True):
-    """
-    Wrap either a fake or real atomic transaction context manager.
-    """
-    return transaction.atomic if wrap else _fake_atomic
 
 
 def send_zaak_cloudevent(event_type: str, zaak: Zaak, request: HttpRequest):

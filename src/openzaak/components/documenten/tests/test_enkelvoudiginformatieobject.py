@@ -61,6 +61,8 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "vertrouwelijkheidaanduiding": "openbaar",
             "verschijningsvorm": "Vorm A",
             "trefwoorden": ["some", "other"],
+            "inhoudIsVervallen": False,
+            "tonenAanInitiator": True,
         }
 
         # Send to the API
@@ -90,6 +92,8 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(stored_object.vertrouwelijkheidaanduiding, "openbaar")
         self.assertEqual(stored_object.verschijningsvorm, "Vorm A")
         self.assertEqual(stored_object.trefwoorden, ["some", "other"])
+        self.assertFalse(stored_object.inhoud_is_vervallen)
+        self.assertTrue(stored_object.tonen_aan_initiator)
 
         expected_url = reverse(stored_object)
         expected_file_url = get_operation_url(
@@ -171,6 +175,8 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "vertrouwelijkheidaanduiding": "openbaar",
             "verschijningsvorm": "Vorm A",
             "trefwoorden": ["some", "other"],
+            "inhoudIsVervallen": None,
+            "tonenAanInitiator": False,
         }
 
         # Send to the API
@@ -200,6 +206,8 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(stored_object.vertrouwelijkheidaanduiding, "openbaar")
         self.assertEqual(stored_object.verschijningsvorm, "Vorm A")
         self.assertEqual(stored_object.trefwoorden, ["some", "other"])
+        self.assertIsNone(stored_object.inhoud_is_vervallen)
+        self.assertFalse(stored_object.tonen_aan_initiator)
 
         expected_url = reverse(stored_object)
         expected_file_url = get_operation_url(
@@ -227,6 +235,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                 "locked": False,
                 "lock": "",
                 "verschijningsvorm": "Vorm A",
+                "inhoudIsVervallen": None,
             }
         )
 
@@ -376,6 +385,8 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "verschijningsvorm": "",
             "trefwoorden": [],
             "_expand": {},
+            "inhoudIsVervallen": test_object.inhoud_is_vervallen,
+            "tonenAanInitiator": test_object.tonen_aan_initiator,
         }
 
         response_data = response.json()
@@ -832,6 +843,23 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         first_version = eios[1]
         self.assertEqual(first_version.versie, 1)
         self.assertEqual(first_version.beschrijving, "beschrijving1")
+
+    def test_eio_partial_update_tonen_aan_initiator(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(tonen_aan_initiator=False)
+
+        eio_url = reverse(
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+        )
+        lock = self.client.post(f"{eio_url}/lock").data["lock"]
+        response = self.client.patch(eio_url, {"tonenAanInitiator": True, "lock": lock})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.json()["tonenAanInitiator"])
+
+        latest_version = EnkelvoudigInformatieObject.objects.filter(
+            uuid=eio.uuid
+        ).latest("versie")
+        self.assertTrue(latest_version.tonen_aan_initiator)
 
     def test_eio_delete(self):
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")

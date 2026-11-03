@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2022 Dimpact
 from urllib.parse import urlparse
 
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import URLValidator
 from django.db import models
 from django.db.models import OuterRef, Subquery
@@ -10,6 +9,7 @@ from django.urls.exceptions import Resolver404
 from django.utils.translation import gettext_lazy as _
 
 from django_filters import filters
+from django_loose_fk.exception import LocalResourceNotFound
 from django_loose_fk.filters import FkOrUrlFieldFilter
 from django_loose_fk.utils import get_resource_for_path
 from drf_spectacular.plumbing import build_choice_description_list
@@ -332,7 +332,7 @@ class ZaakFilter(FilterSetWithGroups):
         parsed = urlparse(value)
         try:
             resource = get_resource_for_path(parsed.path)
-        except (ObjectDoesNotExist, Resolver404):
+        except (LocalResourceNotFound, Resolver404):
             return queryset.none()
 
         statustype_id = resource.id
@@ -351,7 +351,7 @@ class ZaakFilter(FilterSetWithGroups):
         parsed = urlparse(value)
         try:
             resource = get_resource_for_path(parsed.path)
-        except (ObjectDoesNotExist, Resolver404):
+        except (LocalResourceNotFound, Resolver404):
             return queryset.none()
 
         return queryset.filter(resultaat__resultaattype=resource)

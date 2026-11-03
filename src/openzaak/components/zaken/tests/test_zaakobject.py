@@ -5,6 +5,7 @@ from django.test import override_settings, tag
 import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
+from simple_certmanager.test.factories import CertificateFactory
 from vng_api_common.constants import ZaakobjectTypes
 from vng_api_common.tests import get_validation_errors
 from zgw_consumers.constants import APITypes, AuthTypes
@@ -1419,6 +1420,51 @@ class ZaakObjectBagPandTests(JWTAuthMixin, APITestCase):
             "http://outway.nlx:8443/kadaster/bag/panden/0344100000011708?geldigOp=2020-03-04",
         )
         self.assertNotIn("X-Api-Key", m.last_request.headers)
+
+    @tag("gh-2313")
+    @requests_mock.Mocker()
+    def test_create_zaakobject_bag_mtls(self, m):
+        """
+        If the BAG service requires TLS, the configured server and client
+        certificates must be used when the object URL is validated.
+        """
+        object_url = "https://bag.basisregistraties.overheid.nl/api/v1/panden/0344100000011708?geldigOp=2020-03-04"
+        mock_pand_get(m, object_url)
+        server_certificate = CertificateFactory.create()
+        client_certificate = CertificateFactory.create(with_private_key=True)
+        ServiceFactory.create(
+            api_root="https://bag.basisregistraties.overheid.nl/api/v1/",
+            api_type=APITypes.orc,
+            auth_type=AuthTypes.no_auth,
+            label="BAG",
+            server_certificate=server_certificate,
+            client_certificate=client_certificate,
+        )
+
+        url = get_operation_url("zaakobject_create")
+        zaak = ZaakFactory.create()
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "objectType": ZaakobjectTypes.pand,
+            "relatieomschrijving": "",
+            "object": object_url,
+        }
+
+        resp = self.client.post(url, data)
+
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED, resp.data)
+        self.assertEqual(m.last_request.url, object_url)
+        self.assertEqual(
+            m.last_request.verify, server_certificate.public_certificate.path
+        )
+        self.assertEqual(
+            m.last_request.cert,
+            (
+                client_certificate.public_certificate.path,
+                client_certificate.private_key.path,
+            ),
+        )
 
 
 class ZaakObjectProductTests(JWTAuthMixin, APITestCase):
