@@ -163,9 +163,16 @@ class ExpandLoader(InclusionLoader):
             if isinstance(serializer.instance, (list, models.QuerySet))
             else [serializer.instance]
         )
+        # Use the urls as the serializers render them to link the nodes: moved
+        # resources (like besluittypen) are served under multiple namespaces, so
+        # `get_absolute_api_url` can differ from the url in the response
+        urls: dict[tuple[str, object], str] = {}
+        url_field = getattr(serializer, "child", serializer).fields["url"]
         for instance in instances:
+            url = url_field.to_representation(instance)
+            urls[(instance._meta.label, instance.pk)] = url
             tree.add_node(
-                id=instance.get_absolute_api_url(request=request),
+                id=url,
                 label="",
                 value={},
                 many=False,
@@ -196,12 +203,14 @@ class ExpandLoader(InclusionLoader):
                         limit_serializer_fields(child_serializer, fields)
                     self._serialized[cache_key] = child_serializer.data
                 data = self._serialized[cache_key]
+                urls[(obj._meta.label, obj.pk)] = data["url"]
             tree.add_node(
                 id=data["url"],
                 value=data,
                 label=path[-1],
                 many=many,
-                parent_id=parent.get_absolute_api_url(request=request),
+                parent_id=urls.get((parent._meta.label, parent.pk))
+                or parent.get_absolute_api_url(request=request),
             )
 
         result = tree.display_tree()
@@ -258,7 +267,9 @@ class ExpandLoader(InclusionLoader):
         if isinstance(inclusion_serializer, str):
             inclusion_serializer = import_string(inclusion_serializer)
 
-        many = hasattr(field, "child_relation")
+        many = hasattr(field, "child_relation") or isinstance(
+            field, serializers.ListField
+        )
 
         for obj in self._some_related_field_inclusions(
             new_path, field, instance, inclusion_serializer
@@ -281,13 +292,15 @@ class ExpandLoader(InclusionLoader):
         inclusion_serializer: Type[Serializer],
     ) -> Iterator[models.Model]:
         """
-        add handler for FKOrServiceUrlField fields
+        add handlers for FKOrServiceUrlField fields and lists of them
         """
 
         if self.allowed_paths is not None and path not in self.allowed_paths:
             return []
 
-        if isinstance(field, FKOrServiceUrlField):
+        if isinstance(field, FKOrServiceUrlField) or (
+            isinstance(field, serializers.ListField) and hasattr(field, "get_relations")
+        ):
             return self._loose_fk_field_inclusions(
                 path, field, instance, inclusion_serializer
             )
@@ -304,7 +317,9 @@ class ExpandLoader(InclusionLoader):
         inclusion_serializer: Type[Serializer],
     ) -> Iterator[models.Model]:
         """
-        handler for loose-fk-field
+        handler for loose-fk-fields, and lists of them (like
+        besluittype.informatieobjecttypen) whose references are stored on through-model
+        rows returned by ``field.get_relations``
 
         For a local target, peek at the raw FK id first (a plain attribute,
         never a query) so a target already seen for another parent object can
@@ -312,45 +327,48 @@ class ExpandLoader(InclusionLoader):
         existing ``_seen_external`` cache below, which only covers external
         (URL-based) targets.
         """
-        model_field = field._get_model_and_field()[1]
-        url_value = getattr(instance, model_field.url_field)
-
-        if not url_value:
-            local_pk = getattr(instance, f"{model_field.fk_field}_id", None)
-            if local_pk is not None:
-                cache_key = (inclusion_serializer, local_pk)
-                if (
-                    cache_key in self._seen_local
-                    and model_field.fk_field not in instance._state.fields_cache
-                ):
-                    yield self._seen_local[cache_key]
-                    return
-
-        obj = field.get_attribute(instance)
-        if hasattr(field, "get_inclusion_instance"):
-            obj = field.get_inclusion_instance(obj)
-
-        if obj is None:
-            return
-
-        # external
-        if isinstance(obj, str):
-            # check in cache
-            if obj in self._seen_external:
-                yield self._seen_external[obj]
-
-            else:
-                try:
-                    # model field descriptor uses loader for external urls
-                    instance = getattr(instance, field.field_name)
-                except FetchError:
-                    return
-                else:
-                    self._seen_external[obj] = instance
-                    yield instance
-
-        # local
+        if isinstance(field, serializers.ListField):
+            loose_fk_field = field.child
+            rows = field.get_relations(instance)
         else:
+            loose_fk_field = field
+            rows = [instance]
+
+        model_field = loose_fk_field._get_model_and_field()[1]
+
+        for row in rows:
+            url = getattr(row, model_field.url_field)
+
+            # external
+            if url:
+                if url not in self._seen_external:
+                    try:
+                        # model field descriptor uses loader for external urls
+                        self._seen_external[url] = getattr(row, model_field.name)
+                    except FetchError:
+                        continue
+                yield self._seen_external[url]
+                continue
+
+            # local
+            local_pk = getattr(row, f"{model_field.fk_field}_id", None)
+            if local_pk is None:
+                continue
+
+            cache_key = (inclusion_serializer, local_pk)
+            if (
+                cache_key in self._seen_local
+                and model_field.fk_field not in row._state.fields_cache
+            ):
+                yield self._seen_local[cache_key]
+                continue
+
+            obj = getattr(row, model_field.fk_field)
+            if hasattr(loose_fk_field, "get_inclusion_instance"):
+                obj = loose_fk_field.get_inclusion_instance(obj)
+            if obj is None:
+                continue
+
             if obj.pk is not None:
                 self._seen_local[(inclusion_serializer, obj.pk)] = obj
             yield obj

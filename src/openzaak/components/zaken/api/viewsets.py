@@ -2908,9 +2908,7 @@ class ZaakInzageViewSet(
             "zaaktype__besluittypen",
             queryset=BesluitType.objects.select_related("catalogus")
             .with_dates()
-            .prefetch_related(
-                "informatieobjecttypen", "zaaktypen", "resultaattypen"
-            ),
+            .prefetch_related("informatieobjecttypen", "zaaktypen", "resultaattypen"),
         ),
         models.Prefetch(
             "zaaktype__eigenschap_set",
