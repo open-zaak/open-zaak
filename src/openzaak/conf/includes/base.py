@@ -148,6 +148,7 @@ MIDDLEWARE = [
     "csp.middleware.CSPMiddleware",
     "openzaak.utils.middleware.APIVersionHeaderMiddleware",
     "openzaak.utils.middleware.DeprecationMiddleware",
+    "openzaak.utils.middleware.XWarningMiddleware",
     "openzaak.utils.middleware.EnabledMiddleware",
     "axes.middleware.AxesMiddleware",
 ]
@@ -557,8 +558,11 @@ ZAAK_EIGENSCHAP_WAARDE_VALIDATION = config(
     default=False,
     documentation=DocumentationParams(
         help_text=(
-            "if this variable is set to ``true``, ``yes`` or ``1``, ``ZaakEigenschap.waarde`` "
-            "property would be validated against the related ``Eigenschap.specificatie``."
+            "``ZaakEigenschap.waarde`` is always validated against the related "
+            "``Eigenschap.specificatie``. By default a mismatch is saved and reported in the "
+            "``X-Warning`` response header (as in the Zaken API 1.7 standard). If this variable "
+            "is set to ``true``, ``yes`` or ``1``, a mismatch is rejected with a "
+            "``waarde-incorrect-format`` error instead."
         )
     ),
 )
