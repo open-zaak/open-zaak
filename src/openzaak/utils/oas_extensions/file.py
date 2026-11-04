@@ -11,14 +11,16 @@ class Base64FileFileFieldExtension(OpenApiSerializerFieldExtension):
     target_class = "drf_extra_fields.fields.Base64FileField"
     match_subclasses = True
 
-    def map_serializer_field(self, auto_schema, direction):
+    def map_serializer_field(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, auto_schema, direction
+    ):
         base64_schema = {
-            **build_basic_type(OpenApiTypes.BYTE),
+            **build_basic_type(OpenApiTypes.BYTE),  # pyright: ignore[reportGeneralTypeIssues]
             "description": _("Base64 encoded binary content."),
         }
 
         uri_schema = {
-            **build_basic_type(OpenApiTypes.URI),
+            **build_basic_type(OpenApiTypes.URI),  # pyright: ignore[reportGeneralTypeIssues]
             "description": _("Download URL of the binary content."),
         }
 

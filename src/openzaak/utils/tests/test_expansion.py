@@ -48,9 +48,13 @@ class FieldSelectionTests(SimpleTestCase):
         serializer = ParentSerializer(many=True)
         limit_serializer_fields(serializer, {"children": {"name": None}})
 
-        self.assertEqual(set(serializer.child.fields), {"url", "children"})
         self.assertEqual(
-            set(serializer.child.fields["children"].child.fields), {"url", "name"}
+            set(serializer.child.fields),  # pyright: ignore[reportAttributeAccessIssue]
+            {"url", "children"},
+        )
+        self.assertEqual(
+            set(serializer.child.fields["children"].child.fields),  # pyright: ignore[reportAttributeAccessIssue]
+            {"url", "name"},
         )
 
     def test_wildcard_keeps_all_fields(self):

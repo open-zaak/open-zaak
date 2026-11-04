@@ -1,10 +1,13 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from __future__ import annotations
 
 from django.db.models import Prefetch, QuerySet
 from django.utils.module_loading import import_string
 
 from dictdiffer import diff
+from rest_framework.renderers import BaseRenderer
+from rest_framework.viewsets import GenericViewSet
 from rest_framework_inclusions.renderer import (
     get_allowed_paths,
 )
@@ -33,7 +36,7 @@ def format_dict_diff(changes):
     return res
 
 
-class AuditTrailMixin:
+class AuditTrailMixin(_APIMixin):
     @property
     def audittrail(self):
         qs = AuditTrail.objects.filter(
@@ -55,9 +58,9 @@ class APIMixin(_APIMixin):
         return super().get_absolute_api_url(request=request, **kwargs)
 
 
-class ExpandMixin:
+class ExpandMixin(GenericViewSet):
     expand_param = EXPAND_QUERY_PARAM
-    inclusion_viewsets = None
+    inclusion_viewsets: dict[str, str | tuple[str, str]] | None = None
 
     def _remove_select_related(self, qs, lookup):
         """
@@ -87,7 +90,7 @@ class ExpandMixin:
     ) -> QuerySet:
         """Update the queryset to fetch the requested related objects in advance"""
 
-        current_prefetches = queryset._prefetch_related_lookups
+        current_prefetches = queryset._prefetch_related_lookups  # pyright: ignore[reportAttributeAccessIssue]
         parent_lookup, separator, child_lookup = lookup.partition("__")
 
         # Prefetch nested relations recursively to avoid queries per object
@@ -174,10 +177,11 @@ class ExpandMixin:
 
         return qs
 
-    def get_renderers(self):
+    def get_renderers(self) -> list[BaseRenderer]:
         # Only use the expand renderer for actions that support expansion.
         if self.action in EXPAND_SUPPORTED_ACTIONS:
-            return [ExpandJSONRenderer()]
+            renderers: list[BaseRenderer] = [ExpandJSONRenderer()]
+            return renderers
         return super().get_renderers()
 
     def include_allowed(self):
@@ -206,6 +210,7 @@ class ExpandMixin:
             self.get_serializer(), "inclusion_serializers", {}
         )
         inclusions = get_allowed_paths(self.request, view=self)
+        assert inclusions is not None
 
         expand_serializers = set()
 
@@ -239,19 +244,22 @@ class FieldsMixin:
     def get_search_input(self):
         """Validate the request once, store the selected fields, and return search filters"""
         if self._search_input is None:
-            serializer = self.get_search_input_serializer_class()(
-                data=self.request.data, context=self.get_serializer_context()
+            serializer = self.get_search_input_serializer_class()(  # pyright: ignore[reportAttributeAccessIssue]
+                data=self.request.data,  # pyright: ignore[reportAttributeAccessIssue]
+                context=self.get_serializer_context(),  # pyright: ignore[reportAttributeAccessIssue]
             )
             serializer.is_valid(raise_exception=True)
             self._search_input = serializer.validated_data.copy()
-            self._selected_fields = self._search_input.pop("fields", None)
+            self._selected_fields = self._search_input.pop(  # pyright: ignore[reportOptionalMemberAccess]
+                "fields", None
+            )
         return self._search_input
 
     def get_requested_inclusions(self, request):
         """Return expansion paths for nested field selections"""
 
         if not self.has_fields(request):
-            return super().get_requested_inclusions(request)
+            return super().get_requested_inclusions(request)  # pyright: ignore[reportAttributeAccessIssue]
 
         if self._selected_fields is None:
             self.get_search_input()
@@ -259,14 +267,14 @@ class FieldsMixin:
         if self._selected_inclusions is None:
             self._selected_inclusions = tuple(
                 path
-                for path in self.get_serializer_class().inclusion_serializers
+                for path in self.get_serializer_class().inclusion_serializers  # pyright: ignore[reportAttributeAccessIssue]
                 if fields_at_path(self._selected_fields, path.split(".")) is not None
             )
 
         return ",".join(self._selected_inclusions)
 
     def get_serializer(self, *args, **kwargs):
-        serializer = super().get_serializer(*args, **kwargs)
+        serializer = super().get_serializer(*args, **kwargs)  # pyright: ignore[reportAttributeAccessIssue]
 
         if self._selected_fields is not None:
             limit_serializer_fields(serializer, self._selected_fields)
@@ -295,5 +303,5 @@ class CacheQuerysetMixin:
         # the result on the ViewSet instance which is a different instance for every request,
         # so this caching will only be applied for the same request
         if self._cached_queryset is None:
-            self._cached_queryset = super().get_queryset()
+            self._cached_queryset = super().get_queryset()  # pyright: ignore[reportAttributeAccessIssue]
         return self._cached_queryset

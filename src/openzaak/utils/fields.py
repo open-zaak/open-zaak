@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.admin.options import FORMFIELD_FOR_DBFIELD_DEFAULTS
 from django.core import checks, exceptions, validators
 from django.db import models
-from django.db.models.base import Options
+from django.db.models.options import Options
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -27,7 +27,10 @@ class DurationField(RelativeDeltaField):
         return super().formfield(form_class=form_class, **kwargs)
 
 
-class AliasMixin:
+class AliasMixin(models.Field):
+    source_field: models.Field
+    allow_write_when: Callable
+
     def contribute_to_class(self, cls, name, private_only=False):
         super().contribute_to_class(cls, name, private_only=True)
         setattr(cls, name, self)
@@ -95,6 +98,8 @@ class FkOrServiceUrlField(FkOrURLField):
     Support :class:`zgw_consumers.ServiceUrlField` as 'url_field'
     """
 
+    _url_field: ServiceUrlField  # pyright: ignore[reportIncompatibleVariableOverride]
+
     def _add_check_constraint(
         self, options, name="{prefix}{fk_field}_or_{url_base_field}_filled"
     ) -> None:
@@ -117,21 +122,23 @@ class FkOrServiceUrlField(FkOrURLField):
         fk_filled = ~empty_fk_field & empty_url_base_field
         url_filled = empty_fk_field & ~empty_url_base_field
 
-        constraint = models.CheckConstraint(
+        constraint = models.CheckConstraint(  # pyright: ignore[reportCallIssue]
             name=name.format(
                 prefix=f"{options.app_label}_{options.model_name}_",
                 fk_field=self.fk_field,
                 url_base_field=url_base_field,
             ),
-            check=fk_filled | url_filled,
+            check=fk_filled | url_filled,  # pyright: ignore[reportCallIssue]
         )
-        options.constraints.append(constraint)
+        options.constraints.append(constraint)  # pyright: ignore[reportAttributeAccessIssue]
         # ensure this can be picked up by migrations by making it "explicitly defined"
         if "constraints" not in options.original_attrs:
             options.original_attrs["constraints"] = options.constraints
         return
 
-    def check(self, **kwargs) -> List[checks.Error]:
+    def check(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, **kwargs
+    ) -> List[checks.Error]:
         errors = []
         if not isinstance(self._fk_field, models.ForeignKey):
             errors.append(
@@ -213,8 +220,9 @@ class NLPostcodeField(models.CharField):
 
 def get_default_path(field: models.FileField) -> Path:
     storage = field.storage
-    storage._setup()
-    storage_location = Path(storage.location)
+    storage._setup()  # pyright: ignore[reportAttributeAccessIssue]
+    storage_location = Path(storage.location)  # pyright: ignore[reportAttributeAccessIssue]
+    assert isinstance(field.upload_to, str)
     path = Path(storage_location / field.upload_to)
     match settings.DOCUMENTEN_API_BACKEND:
         case DocumentenBackendTypes.azure_blob_storage:
