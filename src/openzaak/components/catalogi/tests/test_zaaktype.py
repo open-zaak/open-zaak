@@ -3,7 +3,9 @@
 import uuid
 from datetime import date
 
+from django.db import connection
 from django.test import TestCase, override_settings, tag
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse as django_reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -117,16 +119,19 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "omschrijving": zaaktype.zaaktype_omschrijving,
             "eigenschappen": [],
             "informatieobjecttypen": [],
+            "informatieobjecttypeOmschrijvingen": [],
             "gerelateerdeZaaktypen": [],
             "statustypen": [],
             "resultaattypen": [],
             "roltypen": [],
             "besluittypen": [],
+            "besluittypeOmschrijvingen": [],
             "beginGeldigheid": "2018-01-01",
             "eindeGeldigheid": None,
             "versiedatum": "2018-01-01",
             "concept": True,
             "deelzaaktypen": [],
+            "deelzaaktypeIdentificaties": [],
             "zaakobjecttypen": [],
             "verantwoordelijke": zaaktype.verantwoordelijke,
             "beginObject": "2018-01-01",
@@ -136,6 +141,120 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "_expand": {},
         }
         self.assertEqual(response_data, expected)
+
+    def test_get_detail_deelzaaktype_identificaties(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        deelzaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        zaaktype.deelzaaktypen.add(deelzaaktype)
+
+        response = self.client.get(
+            get_operation_url("zaaktype_read", uuid=zaaktype.uuid)
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["deelzaaktypeIdentificaties"], [deelzaaktype.identificatie]
+        )
+
+    def test_get_detail_gerelateerde_zaaktypen_identificatie(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        local = ZaakTypeFactory.create(catalogus=self.catalogus)
+        ZaakTypenRelatieFactory.create(
+            zaaktype=zaaktype,
+            gerelateerd_zaaktype=f"http://testserver{reverse(local)}",
+        )
+        ZaakTypenRelatieFactory.create(
+            zaaktype=zaaktype,
+            gerelateerd_zaaktype="https://external.example.com/catalogi/api/v1/zaaktypen/b6cbb4e3-0a6a-4bd0-95a0-bb2ab77a1c0e",
+        )
+
+        response = self.client.get(
+            get_operation_url("zaaktype_read", uuid=zaaktype.uuid)
+        )
+
+        self.assertEqual(response.status_code, 200)
+        identificaties = {
+            relatie["zaaktype"].rsplit("/", 1)[-1]: relatie["zaaktypeIdentificatie"]
+            for relatie in response.json()["gerelateerdeZaaktypen"]
+        }
+        self.assertEqual(
+            identificaties,
+            {
+                str(local.uuid): local.identificatie,
+                "b6cbb4e3-0a6a-4bd0-95a0-bb2ab77a1c0e": "",
+            },
+        )
+
+    def test_get_detail_besluittype_and_informatieobjecttype_omschrijvingen(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        besluittype1 = BesluitTypeFactory.create(catalogus=self.catalogus)
+        besluittype2 = BesluitTypeFactory.create(catalogus=self.catalogus)
+        BesluitTypeFactory.create(catalogus=self.catalogus)
+        zaaktype.besluittypen.add(besluittype1, besluittype2)
+        iotype1 = InformatieObjectTypeFactory.create(catalogus=self.catalogus)
+        iotype2 = InformatieObjectTypeFactory.create(catalogus=self.catalogus)
+        InformatieObjectTypeFactory.create(catalogus=self.catalogus)
+        for iotype in (iotype1, iotype2):
+            ZaakTypeInformatieObjectTypeFactory.create(
+                zaaktype=zaaktype, informatieobjecttype=iotype
+            )
+
+        response = self.client.get(reverse(zaaktype))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertCountEqual(
+            data["besluittypeOmschrijvingen"],
+            [besluittype1.omschrijving, besluittype2.omschrijving],
+        )
+        self.assertCountEqual(
+            data["informatieobjecttypeOmschrijvingen"],
+            [iotype1.omschrijving, iotype2.omschrijving],
+        )
+
+    def test_omschrijving_fields_are_read_only(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus, concept=True)
+        besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
+        zaaktype.besluittypen.add(besluittype)
+
+        response = self.client.patch(
+            reverse(zaaktype),
+            {
+                "besluittypeOmschrijvingen": ["other"],
+                "informatieobjecttypeOmschrijvingen": ["other"],
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertEqual(data["besluittypeOmschrijvingen"], [besluittype.omschrijving])
+        self.assertEqual(data["informatieobjecttypeOmschrijvingen"], [])
+
+    def test_get_list_omschrijving_does_not_add_queries_per_zaaktype(self):
+        url = get_operation_url("zaaktype_list")
+
+        def count_list_queries() -> int:
+            with CaptureQueriesContext(connection) as ctx:
+                response = self.client.get(url)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            return len(ctx)
+
+        count_list_queries()
+        baseline = count_list_queries()
+
+        for __ in range(3):
+            zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+            zaaktype.besluittypen.add(
+                BesluitTypeFactory.create(catalogus=self.catalogus)
+            )
+            ZaakTypeInformatieObjectTypeFactory.create(
+                zaaktype=zaaktype,
+                informatieobjecttype=InformatieObjectTypeFactory.create(
+                    catalogus=self.catalogus
+                ),
+            )
+
+        self.assertEqual(count_list_queries(), baseline)
 
     def test_get_detail_404(self):
         ZaakTypeFactory.create(catalogus=self.catalogus)
@@ -214,6 +333,15 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "http://example.com/zaaktype/1",
         )
         self.assertEqual(zaaktype.concept, True)
+
+        # ``deelzaaktypen`` is optional on POST (Catalogi API 1.3.3)
+        response_data = response.json()
+        self.assertEqual(response_data["deelzaaktypen"], [])
+        self.assertEqual(response_data["deelzaaktypeIdentificaties"], [])
+        # the related zaaktype is external, so its identificatie is unknown
+        self.assertEqual(
+            response_data["gerelateerdeZaaktypen"][0]["zaaktypeIdentificatie"], ""
+        )
 
     @tag("gh-1306")
     def test_create_zaaktype_identificatie_all_characters_allowed(self):
@@ -1876,7 +2004,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype.besluittypen.add(besluit_type)
         zaaktype.deelzaaktypen.add(deelzaaktype)
 
-        with self.assertNumQueries(68):
+        with self.assertNumQueries(79):
             response = self.client.get(
                 reverse(zaaktype),
                 {

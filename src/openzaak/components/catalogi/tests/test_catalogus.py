@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
+
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse
 
@@ -38,14 +41,74 @@ class CatalogusAPITests(APITestCase):
             "contactpersoonBeheerNaam": self.catalogus.contactpersoon_beheer_naam,
             "contactpersoonBeheerEmailadres": self.catalogus.contactpersoon_beheer_emailadres,
             "informatieobjecttypen": [],
+            "informatieobjecttypeOmschrijvingen": [],
             "zaaktypen": [],
             "besluittypen": [],
+            "besluittypeOmschrijvingen": [],
             "naam": self.catalogus.naam,
             "versie": "",
             "begindatumVersie": None,
             "_expand": {},
         }
         self.assertEqual(response.json(), expected)
+
+    def test_get_detail_besluittype_and_informatieobjecttype_omschrijvingen(self):
+        catalogus = CatalogusFactory.create()
+        besluittype1 = BesluitTypeFactory.create(catalogus=catalogus)
+        besluittype2 = BesluitTypeFactory.create(catalogus=catalogus)
+        iotype1 = InformatieObjectTypeFactory.create(catalogus=catalogus)
+        iotype2 = InformatieObjectTypeFactory.create(catalogus=catalogus)
+        BesluitTypeFactory.create()
+        InformatieObjectTypeFactory.create()
+
+        response = self.client.get(reverse(catalogus))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertCountEqual(
+            data["besluittypeOmschrijvingen"],
+            [besluittype1.omschrijving, besluittype2.omschrijving],
+        )
+        self.assertCountEqual(
+            data["informatieobjecttypeOmschrijvingen"],
+            [iotype1.omschrijving, iotype2.omschrijving],
+        )
+        self.assertEqual(len(data["besluittypen"]), 2)
+        self.assertEqual(len(data["informatieobjecttypen"]), 2)
+
+    def test_omschrijving_fields_are_read_only(self):
+        catalogus = CatalogusFactory.create()
+        BesluitTypeFactory.create(catalogus=catalogus, omschrijving="besluittype")
+
+        response = self.client.patch(
+            reverse(catalogus),
+            {
+                "besluittypeOmschrijvingen": ["other"],
+                "informatieobjecttypeOmschrijvingen": ["other"],
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertEqual(data["besluittypeOmschrijvingen"], ["besluittype"])
+        self.assertEqual(data["informatieobjecttypeOmschrijvingen"], [])
+
+    def test_get_list_omschrijving_does_not_add_queries_per_catalogus(self):
+        def count_list_queries() -> int:
+            with CaptureQueriesContext(connection) as ctx:
+                response = self.client.get(self.catalogus_list_url)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            return len(ctx)
+
+        count_list_queries()
+        baseline = count_list_queries()
+
+        for _ in range(3):
+            catalogus = CatalogusFactory.create()
+            BesluitTypeFactory.create(catalogus=catalogus)
+            InformatieObjectTypeFactory.create(catalogus=catalogus)
+
+        self.assertEqual(count_list_queries(), baseline)
 
     def test_create_catalogus(self):
         data = {
