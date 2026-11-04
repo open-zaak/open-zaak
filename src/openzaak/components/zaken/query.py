@@ -84,9 +84,9 @@ class ZaakBesluitQuerySet(BlockChangeMixin, ZaakRelatedQuerySet):
         if isinstance(besluit.zaak, ProxyMixin):
             return (0, {})
 
-        # fetch the instance
-        if previous:
-            obj = self.get(zaak=besluit.previous_zaak, besluit=besluit)
-        else:
-            obj = self.get(zaak=besluit.zaak, besluit=besluit)
+        zaak = besluit.previous_zaak if previous else besluit.zaak
+        # the relation can already be deleted, e.g. through the admin
+        obj = self.filter(zaak=zaak, besluit=besluit).first()
+        if obj is None:
+            return (0, {})
         return obj.delete()
