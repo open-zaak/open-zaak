@@ -40,7 +40,7 @@ class ResultaatTypeReferentiecodeCleanTests(TestCase):
 
         resultaattype.clean()
 
-    def test_same_code_other_resultaattype_in_new_version_not_allowed(self):
+    def test_same_code_other_omschrijving_in_new_version_allowed(self):
         old = ResultaatTypeFactory.create(omschrijving="bestaand", referentiecode="A1")
         resultaattype = ResultaatTypeFactory.build(
             zaaktype=_new_version(old.zaaktype),
@@ -48,10 +48,7 @@ class ResultaatTypeReferentiecodeCleanTests(TestCase):
             referentiecode="A1",
         )
 
-        with self.assertRaises(ValidationError) as cm:
-            resultaattype.clean()
-
-        self.assertIn("referentiecode", cm.exception.message_dict)
+        resultaattype.clean()
 
     def test_other_resultaattype_in_same_zaaktype_not_allowed(self):
         old = ResultaatTypeFactory.create(omschrijving="bestaand", referentiecode="A1")
@@ -91,8 +88,6 @@ class IsReferentiecodeInUseTests(TestCase):
                         StatusType,
                         zaaktype=statustype.zaaktype,
                         referentiecode=code,
-                        identity_field="statustypevolgnummer",
-                        identity_value=99,
                     )
                 )
 
@@ -104,13 +99,11 @@ class IsReferentiecodeInUseTests(TestCase):
                 StatusType,
                 zaaktype=statustype.zaaktype,
                 referentiecode="A1",
-                identity_field="statustypevolgnummer",
-                identity_value=statustype.statustypevolgnummer,
                 pk=statustype.pk,
             )
         )
 
-    def test_same_identity_in_other_version_is_excluded(self):
+    def test_other_version_of_zaaktype_is_excluded(self):
         statustype = StatusTypeFactory.create(referentiecode="A1")
 
         self.assertFalse(
@@ -118,34 +111,28 @@ class IsReferentiecodeInUseTests(TestCase):
                 StatusType,
                 zaaktype=_new_version(statustype.zaaktype),
                 referentiecode="A1",
-                identity_field="statustypevolgnummer",
-                identity_value=statustype.statustypevolgnummer,
             )
         )
 
-    def test_other_identity_in_same_family_is_in_use(self):
+    def test_other_object_in_same_zaaktype_is_in_use(self):
         statustype = StatusTypeFactory.create(referentiecode="A1")
 
         self.assertTrue(
             is_referentiecode_in_use(
                 StatusType,
-                zaaktype=_new_version(statustype.zaaktype),
+                zaaktype=statustype.zaaktype,
                 referentiecode="A1",
-                identity_field="statustypevolgnummer",
-                identity_value=statustype.statustypevolgnummer + 1,
             )
         )
 
     def test_other_family_is_in_use(self):
-        statustype = StatusTypeFactory.create(referentiecode="A1")
+        StatusTypeFactory.create(referentiecode="A1")
 
         self.assertTrue(
             is_referentiecode_in_use(
                 StatusType,
                 zaaktype=ZaakTypeFactory.create(),
                 referentiecode="A1",
-                identity_field="statustypevolgnummer",
-                identity_value=statustype.statustypevolgnummer,
             )
         )
 
@@ -157,8 +144,6 @@ class IsReferentiecodeInUseTests(TestCase):
                 StatusType,
                 zaaktype=ZaakTypeFactory.create(),
                 referentiecode="A1",
-                identity_field="statustypevolgnummer",
-                identity_value=1,
             )
         )
         self.assertIs(ResultaatType.objects.filter(referentiecode="A1").exists(), True)

@@ -173,7 +173,7 @@ class ResultaatTypeSerializer(
                 queryset=ResultaatType.objects.all(),
                 fields=["zaaktype", "omschrijving"],
             ),
-            ReferentiecodeUniqueValidator("omschrijving"),
+            ReferentiecodeUniqueValidator(),
             ProcesTypeValidator("selectielijstklasse"),
             ProcestermijnAfleidingswijzeValidator("selectielijstklasse"),
             BrondatumArchiefprocedureValidator(),

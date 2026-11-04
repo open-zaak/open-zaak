@@ -150,8 +150,6 @@ class StatusType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
             type(self),
             zaaktype=self.zaaktype,
             referentiecode=self.referentiecode,
-            identity_field="statustypevolgnummer",
-            identity_value=self.statustypevolgnummer,
             pk=self.pk,
         ):
             raise ValidationError(

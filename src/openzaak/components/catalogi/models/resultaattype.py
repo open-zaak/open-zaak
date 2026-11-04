@@ -378,8 +378,6 @@ class ResultaatType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
             type(self),
             zaaktype=self.zaaktype,
             referentiecode=self.referentiecode,
-            identity_field="omschrijving",
-            identity_value=self.omschrijving,
             pk=self.pk,
         ):
             raise ValidationError(

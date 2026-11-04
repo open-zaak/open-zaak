@@ -99,27 +99,23 @@ REFERENTIECODE_IN_USE_MESSAGE = _(
 )
 
 
-def is_referentiecode_in_use(
-    model, *, zaaktype, referentiecode, identity_field, identity_value, pk=None
-) -> bool:
+def is_referentiecode_in_use(model, *, zaaktype, referentiecode, pk=None) -> bool:
     """
     Check if ``referentiecode`` is used by a different object of ``model``.
 
-    The code must be globally unique, except for the copies of the same object in
-    other versions of the same zaaktype. Those share the zaaktype family
-    (catalogus + zaaktype identificatie) and the object identity (``identity_field``,
-    e.g. the statustypevolgnummer).
+    The code must be globally unique, except that it may be reused by objects in other
+    versions of the same zaaktype (same catalogus + zaaktype identificatie). Within a
+    single zaaktype the code stays unique.
     """
-    if not referentiecode or zaaktype is None or identity_value is None:
+    if not referentiecode or zaaktype is None:
         return False
 
-    same_object_in_family = models.Q(
+    in_other_version_of_zaaktype = models.Q(
         zaaktype__catalogus=zaaktype.catalogus_id,
         zaaktype__identificatie=zaaktype.identificatie,
-        **{identity_field: identity_value},
-    )
+    ) & ~models.Q(zaaktype=zaaktype.pk)
     queryset = model.objects.filter(referentiecode=referentiecode).exclude(
-        same_object_in_family
+        in_other_version_of_zaaktype
     )
     if pk:
         queryset = queryset.exclude(pk=pk)

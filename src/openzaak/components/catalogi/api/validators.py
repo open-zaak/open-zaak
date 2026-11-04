@@ -539,15 +539,11 @@ class NonZeroRelativeDeltaValidator:
 class ReferentiecodeUniqueValidator:
     """
     Validate that the referentiecode is globally unique, except between the versions
-    of the same object (same zaaktype family and same ``identity_field``, which is
-    the name of a serializer field).
+    of the same zaaktype (same catalogus and zaaktype identificatie).
     """
 
     code = "unique"
     requires_context = True
-
-    def __init__(self, identity_field: str):
-        self.identity_field = identity_field
 
     def __call__(self, attrs, serializer):
         instance = serializer.instance
@@ -559,8 +555,6 @@ class ReferentiecodeUniqueValidator:
             serializer.Meta.model,
             zaaktype=get("zaaktype"),
             referentiecode=get("referentiecode"),
-            identity_field=serializer.fields[self.identity_field].source,
-            identity_value=get(self.identity_field),
             pk=instance.pk if instance else None,
         ):
             raise ValidationError(

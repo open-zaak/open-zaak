@@ -347,7 +347,7 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch_resource_validator
     @requests_mock.Mocker()
-    def test_create_resultaattype_referentiecode_of_other_resultaattype_in_new_version(
+    def test_create_resultaattype_referentiecode_of_other_omschrijving_in_new_version(
         self, mock_shape, mock_fetch, m
     ):
         old_resultaattype = ResultaatTypeFactory.create(
@@ -364,9 +364,7 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
             m, new_zaaktype, omschrijving="ander", referentiecode="A1"
         )
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        error = get_validation_errors(response, "referentiecode")
-        self.assertEqual(error["code"], "unique")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch_resource_validator

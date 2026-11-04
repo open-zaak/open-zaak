@@ -225,7 +225,7 @@ class StatusTypeAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_create_statustype_referentiecode_of_other_statustype_in_new_version(self):
+    def test_create_statustype_referentiecode_of_other_volgnummer_in_new_version(self):
         old_statustype = StatusTypeFactory.create(
             referentiecode="A1", statustypevolgnummer=2
         )
@@ -245,9 +245,7 @@ class StatusTypeAPITests(APITestCase):
             },
         )
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        error = get_validation_errors(response, "referentiecode")
-        self.assertEqual(error["code"], "unique")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_filter_referentiecode(self):
         StatusTypeFactory.create(zaaktype__concept=False, referentiecode="A1")
