@@ -20,6 +20,7 @@ from vng_api_common.constants import (
     RelatieAarden,
     VertrouwelijkheidsAanduiding,
 )
+from vng_api_common.oas import fetcher
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from vng_api_common.validators import IsImmutableValidator
 from zgw_consumers.constants import APITypes, AuthTypes
@@ -481,6 +482,12 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             auth_type=AuthTypes.no_auth,
         )
 
+    def setUp(self):
+        super().setUp()
+
+        fetcher.cache.clear()
+        self.addCleanup(fetcher.cache.clear)
+
     def test_relate_external_document(self):
         document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
         zio_type = ZaakTypeInformatieObjectTypeFactory.create(
@@ -496,6 +503,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
         with self.subTest(section="zio-create"):
             with requests_mock.Mocker() as m:
+                mock_drc_oas_get(m)
                 m.get(document, json=eio_response)
                 m.post(
                     "https://external.documenten.nl/api/v1/objectinformatieobjecten",
@@ -552,6 +560,8 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         # a released Open Zaak as foreign Documenten API loads our zaak without
         # Accept-Crs, so it can't verify the relation (412) until it has the fix in
         # openzaak.loaders.
+        # TODO: once *this* PR lands with that fix, refactor these tests to use
+        # VCR recorded against OZ latest as the foreign DRC
         document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
         zio_type = ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype__concept=False, zaaktype__concept=False
@@ -564,6 +574,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         )
 
         with requests_mock.Mocker() as m:
+            mock_drc_oas_get(m)
             mock_get_with_etag(m, document, eio_response)
             m.post(
                 f"{self.base}objectinformatieobjecten",
