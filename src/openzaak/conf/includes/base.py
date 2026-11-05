@@ -212,6 +212,7 @@ MIN_UPLOAD_SIZE = config(
         )
     ),
 )
+# DRF 3.17.2 now enforces DATA_UPLOAD_MAX_MEMORY_SIZE
 DATA_UPLOAD_MAX_MEMORY_SIZE = config(
     "DATA_UPLOAD_MAX_MEMORY_SIZE",
     default=MIN_UPLOAD_SIZE,
