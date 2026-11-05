@@ -40,9 +40,6 @@ class ZaakFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory)
         model = "zaken.Zaak"
 
     class Params:
-        with_etag = factory.Trait(
-            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
-        )
         closed = factory.Trait(
             einddatum=factory.LazyFunction(date.today),
             status_set=factory.RelatedFactory(
@@ -82,8 +79,12 @@ class ZaakInformatieObjectFactory(
         model = "zaken.ZaakInformatieObject"
 
     class Params:
-        with_etag = factory.Trait(
-            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
+        with_status = factory.Trait(
+            status=factory.SubFactory(
+                "openzaak.components.zaken.tests.factories.StatusFactory",
+                zaak=factory.SelfAttribute("..zaak"),
+                statustype__zaaktype=factory.SelfAttribute("..zaak.zaaktype"),
+            )
         )
 
 
@@ -99,11 +100,6 @@ class ZaakEigenschapFactory(
 
     class Meta:
         model = "zaken.ZaakEigenschap"
-
-    class Params:
-        with_etag = factory.Trait(
-            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
-        )
 
 
 class ZaakObjectFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
@@ -134,11 +130,6 @@ class RolFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
     class Meta:
         model = "zaken.Rol"
 
-    class Params:
-        with_etag = factory.Trait(
-            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
-        )
-
 
 class StatusFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
@@ -147,11 +138,6 @@ class StatusFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactor
 
     class Meta:
         model = "zaken.Status"
-
-    class Params:
-        with_etag = factory.Trait(
-            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
-        )
 
 
 class ResultaatFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
@@ -163,11 +149,6 @@ class ResultaatFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFac
 
     class Meta:
         model = "zaken.Resultaat"
-
-    class Params:
-        with_etag = factory.Trait(
-            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
-        )
 
 
 class SubStatusFactory(factory.django.DjangoModelFactory):

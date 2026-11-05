@@ -18,7 +18,7 @@ from django.utils.translation import gettext_lazy as _
 
 import structlog
 from django_loose_fk.loaders import FetchError
-from vng_api_common.caching import ETagMixin
+from vng_api_common.caching import ETagMixin, invalidating_update
 from vng_api_common.constants import (
     Archiefnominatie,
     Archiefstatus,
@@ -496,11 +496,6 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
                 self._original_values[f.attname] = self.__dict__[f.attname]
 
     def save(self, *args, **kwargs):
-        update_fields = kwargs.get("update_fields")
-
-        if update_fields and set(update_fields) == {"_etag"}:
-            return super().save(*args, **kwargs)
-
         if not self.identificatie:
             assert not self.identificatie_ptr_id
             identification_class = get_base_identification_class()
@@ -530,7 +525,7 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
             for field_name, value in self._original_values.items():
                 # These fields do not represent a change that requires updating
                 # `laatst_gemuteerd`
-                if field_name in ["laatst_gemuteerd", "laatst_geopend", "_etag"]:
+                if field_name in ["laatst_gemuteerd", "laatst_geopend"]:
                     continue
 
                 if value != getattr(self, field_name):
@@ -976,7 +971,8 @@ class Resultaat(ETagMixin, APIMixin, models.Model):
         if Resultaat.objects.filter(zaak=zaak).exists():
             try_calculate_archiving(zaak, force=True)
         else:
-            type(zaak).objects.filter(pk=zaak.pk).update(
+            invalidating_update(
+                type(zaak).objects.filter(pk=zaak.pk),
                 archiefactiedatum=None,
                 startdatum_bewaartermijn=None,
             )
@@ -1636,11 +1632,6 @@ class ZaakInformatieObject(ETagMixin, APIMixin, models.Model):
         return f"({zaak_repr}) - {doc_identificatie}"
 
     def save(self, *args, **kwargs):
-        update_fields = kwargs.get("update_fields")
-
-        if update_fields and set(update_fields) == {"_etag"}:
-            return super().save(*args, **kwargs)
-
         # override to set aard_relatie
         self.aard_relatie = RelatieAarden.from_object_type("zaak")
 
@@ -1720,7 +1711,7 @@ class KlantContact(models.Model):
         return f"{self.identificatie}"
 
 
-class ZaakBesluit(models.Model):
+class ZaakBesluit(APIMixin, models.Model):
     uuid = models.UUIDField(
         unique=True, default=uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
@@ -1751,6 +1742,11 @@ class ZaakBesluit(models.Model):
         return _("Relation between {zaak} and {besluit}").format(
             zaak=self.zaak, besluit=self.besluit
         )
+
+    def get_absolute_api_url(self, request=None, **kwargs) -> str:
+        # Add `zaak_uuid` to absolute api url
+        kwargs["zaak_uuid"] = self.zaak.uuid
+        return super().get_absolute_api_url(request=request, **kwargs)
 
     def unique_representation(self):
         zaak_repr = self.zaak.unique_representation()

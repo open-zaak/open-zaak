@@ -53,6 +53,7 @@ from openzaak.notifications.viewsets import (
 )
 from openzaak.utils.cloudevents import get_url, process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.expansion import EXPAND_QUERY_PARAM
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import (
     CacheQuerysetMixin,
@@ -236,7 +237,7 @@ REGISTRATIE_QUERY_PARAM = OpenApiParameter(
         ),
     ),
 )
-@conditional_retrieve()
+@conditional_retrieve(variant_params={EXPAND_QUERY_PARAM})
 class EnkelvoudigInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
@@ -694,7 +695,7 @@ class EnkelvoudigInformatieObjectImportDestroyView(ImportDestroyView):
         ),
     ),
 )
-@conditional_retrieve()
+@conditional_retrieve(variant_params={EXPAND_QUERY_PARAM})
 class GebruiksrechtenViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
@@ -843,7 +844,7 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(AuditTrailViewSet):
         ),
     ),
 )
-@conditional_retrieve()
+@conditional_retrieve(variant_params={EXPAND_QUERY_PARAM})
 class ObjectInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
@@ -1013,7 +1014,7 @@ class BestandsDeelViewSet(UpdateWithoutPartialMixin, viewsets.GenericViewSet):
         summary="Verwijder een VERZENDING.", description="Verwijder een VERZENDING."
     ),
 )
-@conditional_retrieve()
+@conditional_retrieve(variant_params={EXPAND_QUERY_PARAM})
 class VerzendingViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,

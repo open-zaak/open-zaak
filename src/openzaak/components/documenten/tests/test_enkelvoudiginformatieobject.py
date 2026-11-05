@@ -63,6 +63,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "trefwoorden": ["some", "other"],
             "inhoudIsVervallen": False,
             "tonenAanInitiator": True,
+            "isGereedVoorPublicatie": True,
         }
 
         # Send to the API
@@ -94,6 +95,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(stored_object.trefwoorden, ["some", "other"])
         self.assertFalse(stored_object.inhoud_is_vervallen)
         self.assertTrue(stored_object.tonen_aan_initiator)
+        self.assertTrue(stored_object.is_gereed_voor_publicatie)
 
         expected_url = reverse(stored_object)
         expected_file_url = get_operation_url(
@@ -177,6 +179,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "trefwoorden": ["some", "other"],
             "inhoudIsVervallen": None,
             "tonenAanInitiator": False,
+            "isGereedVoorPublicatie": False,
         }
 
         # Send to the API
@@ -208,6 +211,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(stored_object.trefwoorden, ["some", "other"])
         self.assertIsNone(stored_object.inhoud_is_vervallen)
         self.assertFalse(stored_object.tonen_aan_initiator)
+        self.assertFalse(stored_object.is_gereed_voor_publicatie)
 
         expected_url = reverse(stored_object)
         expected_file_url = get_operation_url(
@@ -387,6 +391,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "_expand": {},
             "inhoudIsVervallen": test_object.inhoud_is_vervallen,
             "tonenAanInitiator": test_object.tonen_aan_initiator,
+            "isGereedVoorPublicatie": test_object.is_gereed_voor_publicatie,
         }
 
         response_data = response.json()
@@ -1084,6 +1089,9 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
         iotype_data = self.client.get(
             reverse(eio.informatieobjecttype, namespace="documenten")
         ).json()
+        # Remove _expand because a normal GET adds it, while the query parameter
+        # only adds it when a further expansion is requested.
+        iotype_data.pop("_expand", None)
 
         response = self.client.get(
             self.url,
@@ -1106,6 +1114,9 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
         iotype_data = self.client.get(
             reverse(eio.informatieobjecttype, namespace="documenten")
         ).json()
+        # Remove _expand because a normal GET adds it, while the query parameter
+        # only adds it when a further expansion is requested.
+        iotype_data.pop("_expand", None)
 
         response = self.client.get(
             url,

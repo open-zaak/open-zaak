@@ -52,7 +52,7 @@ def through_to_m2m(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("catalogi", "0029_informatieobjecttype_loose_fk"),
+        ("catalogi", "0030_informatieobjecttype_loose_fk"),
     ]
 
     operations = [

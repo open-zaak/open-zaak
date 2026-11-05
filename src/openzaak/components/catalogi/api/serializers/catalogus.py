@@ -46,6 +46,12 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
         ),
     )
 
+    inclusion_serializers = {
+        "zaaktypen": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "besluittypen": "openzaak.components.catalogi.api.serializers.BesluitTypeSerializer",
+        "informatieobjecttypen": "openzaak.components.catalogi.api.serializers.InformatieObjectTypeSerializer",
+    }
+
     class Meta:
         model = Catalogus
         fields = (

@@ -11,13 +11,17 @@ from rest_framework.exceptions import ValidationError
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
-from openzaak.utils.mixins import CacheQuerysetMixin
+from openzaak.utils.expansion import EXPAND_QUERY_PARAM
+from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 
 from ...models import ZaakTypeInformatieObjectType
 from ..fields import is_concept
-from ..filters import ZaakTypeInformatieObjectTypeFilter
+from ..filters import (
+    ZaakTypeInformatieObjectTypeDetailFilter,
+    ZaakTypeInformatieObjectTypeFilter,
+)
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_DELETE,
     SCOPE_CATALOGI_FORCED_WRITE,
@@ -80,10 +84,11 @@ logger = structlog.stdlib.get_logger(__name__)
         ),
     ),
 )
-@conditional_retrieve()
+@conditional_retrieve(variant_params={EXPAND_QUERY_PARAM})
 class ZaakTypeInformatieObjectTypeViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
+    ExpandMixin,
     ConceptFilterMixin,
     ConceptDestroyMixin,
     viewsets.ModelViewSet,
@@ -100,8 +105,26 @@ class ZaakTypeInformatieObjectTypeViewSet(
         .select_related("zaaktype", "_informatieobjecttype", "zaaktype__catalogus")
         .order_by("-pk")
     )
+
+    inclusion_viewsets = {
+        "zaaktype": (
+            "zaaktype",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "catalogus": (
+            "zaaktype__catalogus",
+            "openzaak.components.catalogi.api.viewsets.catalogus.CatalogusViewSet",
+        ),
+        "informatieobjecttype": (
+            "_informatieobjecttype",
+            "openzaak.components.catalogi.api.viewsets.informatieobjecttype.InformatieObjectTypeViewSet",
+        ),
+        "statustype": (
+            "statustype",
+            "openzaak.components.catalogi.api.viewsets.statustype.StatusTypeViewSet",
+        ),
+    }
     serializer_class = ZaakTypeInformatieObjectTypeSerializer
-    filterset_class = ZaakTypeInformatieObjectTypeFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
     permission_classes = (AuthRequired,)
@@ -113,6 +136,15 @@ class ZaakTypeInformatieObjectTypeViewSet(
         "partial_update": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_WRITE,
         "destroy": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_DELETE,
     }
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return ZaakTypeInformatieObjectTypeDetailFilter
+        return ZaakTypeInformatieObjectTypeFilter
 
     def get_concept(self, instance):
         ziot = self.get_object()

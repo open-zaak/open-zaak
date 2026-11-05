@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2023 Dimpact
-from typing import Dict, Iterator, List, Optional, Tuple, Type, Union
+from typing import Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union
 
 from django.db import models
 from django.utils.module_loading import import_string
@@ -9,6 +9,9 @@ import structlog
 from django_loose_fk.loaders import FetchError
 from django_loose_fk.virtual_models import ProxyMixin
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
+from djangorestframework_camel_case.settings import api_settings
+from djangorestframework_camel_case.util import camel_to_underscore
+from rest_framework import serializers
 from rest_framework.request import Request
 from rest_framework.serializers import BaseSerializer, Field, Serializer
 from rest_framework_inclusions.core import InclusionLoader
@@ -121,12 +124,14 @@ class ExpandLoader(InclusionLoader):
     Since this change affects most of the methods, some copy-pasting is involved here
     """
 
+    selected_fields: dict | None = None  # Use for FieldsMixin
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._seen_external: Dict[str, ProxyMixin] = {}
         self._seen_local: dict[tuple[type[Serializer], int], models.Model] = {}
-        self._serialized: dict[tuple[type[Serializer], int], dict] = {}
+        self._serialized: dict[tuple[type[Serializer], int, str], dict] = {}
 
     def inclusions_dict(self, serializer: Serializer) -> dict:
         """
@@ -158,9 +163,16 @@ class ExpandLoader(InclusionLoader):
             if isinstance(serializer.instance, (list, models.QuerySet))
             else [serializer.instance]
         )
+        # Use the urls as the serializers render them to link the nodes: moved
+        # resources (like besluittypen) are served under multiple namespaces, so
+        # `get_absolute_api_url` can differ from the url in the response
+        urls: dict[tuple[str, object], str] = {}
+        url_field = getattr(serializer, "child", serializer).fields["url"]
         for instance in instances:
+            url = url_field.to_representation(instance)
+            urls[(instance._meta.label, instance.pk)] = url
             tree.add_node(
-                id=instance.get_absolute_api_url(request=request),
+                id=url,
                 label="",
                 value={},
                 many=False,
@@ -168,22 +180,37 @@ class ExpandLoader(InclusionLoader):
 
         entries = self._inclusions((), serializer, serializer.instance)
 
+        self.selected_fields = getattr(
+            serializer.context.get("view"), "_selected_fields", None
+        )
+        selections_by_path = {}
+
         for obj, inclusion_serializer, parent, path, many in entries:
             if isinstance(obj, ProxyMixin):
                 data = obj._initial_data
             else:
-                cache_key = (inclusion_serializer, obj.pk)
+                # Reuse the selection and cache key for every object at this path.
+                if path not in selections_by_path:
+                    fields = fields_at_path(self.selected_fields, path)
+                    selections_by_path[path] = (fields, repr(fields))
+                fields, selection_key = selections_by_path[path]
+                cache_key = (inclusion_serializer, obj.pk, selection_key)
                 if cache_key not in self._serialized:
-                    self._serialized[cache_key] = inclusion_serializer(
+                    child_serializer = inclusion_serializer(
                         instance=obj, context=serializer.context
-                    ).data
+                    )
+                    if fields is not None:
+                        limit_serializer_fields(child_serializer, fields)
+                    self._serialized[cache_key] = child_serializer.data
                 data = self._serialized[cache_key]
+                urls[(obj._meta.label, obj.pk)] = data["url"]
             tree.add_node(
                 id=data["url"],
                 value=data,
                 label=path[-1],
                 many=many,
-                parent_id=parent.get_absolute_api_url(request=request),
+                parent_id=urls.get((parent._meta.label, parent.pk))
+                or parent.get_absolute_api_url(request=request),
             )
 
         result = tree.display_tree()
@@ -202,6 +229,12 @@ class ExpandLoader(InclusionLoader):
         inclusion_serializers = inclusion_serializers or getattr(
             serializer, "inclusion_serializers", {}
         )
+
+        # Keep only the fields requested for the resource at this path
+        fields = fields_at_path(self.selected_fields, path)
+        if fields is not None:
+            limit_serializer_fields(serializer, fields)
+
         for name, field in serializer.fields.items():
             yield from self._field_inclusions(
                 path, field, instance, name, inclusion_serializers
@@ -234,7 +267,9 @@ class ExpandLoader(InclusionLoader):
         if isinstance(inclusion_serializer, str):
             inclusion_serializer = import_string(inclusion_serializer)
 
-        many = hasattr(field, "child_relation")
+        many = hasattr(field, "child_relation") or isinstance(
+            field, serializers.ListField
+        )
 
         for obj in self._some_related_field_inclusions(
             new_path, field, instance, inclusion_serializer
@@ -257,13 +292,15 @@ class ExpandLoader(InclusionLoader):
         inclusion_serializer: Type[Serializer],
     ) -> Iterator[models.Model]:
         """
-        add handler for FKOrServiceUrlField fields
+        add handlers for FKOrServiceUrlField fields and lists of them
         """
 
         if self.allowed_paths is not None and path not in self.allowed_paths:
             return []
 
-        if isinstance(field, FKOrServiceUrlField):
+        if isinstance(field, FKOrServiceUrlField) or (
+            isinstance(field, serializers.ListField) and hasattr(field, "get_relations")
+        ):
             return self._loose_fk_field_inclusions(
                 path, field, instance, inclusion_serializer
             )
@@ -280,7 +317,9 @@ class ExpandLoader(InclusionLoader):
         inclusion_serializer: Type[Serializer],
     ) -> Iterator[models.Model]:
         """
-        handler for loose-fk-field
+        handler for loose-fk-fields, and lists of them (like
+        besluittype.informatieobjecttypen) whose references are stored on through-model
+        rows returned by ``field.get_relations``
 
         For a local target, peek at the raw FK id first (a plain attribute,
         never a query) so a target already seen for another parent object can
@@ -288,40 +327,48 @@ class ExpandLoader(InclusionLoader):
         existing ``_seen_external`` cache below, which only covers external
         (URL-based) targets.
         """
-        model_field = field._get_model_and_field()[1]
-        url_value = getattr(instance, model_field.url_field)
-
-        if not url_value:
-            local_pk = getattr(instance, f"{model_field.fk_field}_id", None)
-            if local_pk is not None:
-                cache_key = (inclusion_serializer, local_pk)
-                if cache_key in self._seen_local:
-                    yield self._seen_local[cache_key]
-                    return
-
-        obj = field.get_attribute(instance)
-
-        if obj is None:
-            return
-
-        # external
-        if isinstance(obj, str):
-            # check in cache
-            if obj in self._seen_external:
-                yield self._seen_external[obj]
-
-            else:
-                try:
-                    # model field descriptor uses loader for external urls
-                    instance = getattr(instance, field.field_name)
-                except FetchError:
-                    return
-                else:
-                    self._seen_external[obj] = instance
-                    yield instance
-
-        # local
+        if isinstance(field, serializers.ListField):
+            loose_fk_field = field.child
+            rows = field.get_relations(instance)
         else:
+            loose_fk_field = field
+            rows = [instance]
+
+        model_field = loose_fk_field._get_model_and_field()[1]
+
+        for row in rows:
+            url = getattr(row, model_field.url_field)
+
+            # external
+            if url:
+                if url not in self._seen_external:
+                    try:
+                        # model field descriptor uses loader for external urls
+                        self._seen_external[url] = getattr(row, model_field.name)
+                    except FetchError:
+                        continue
+                yield self._seen_external[url]
+                continue
+
+            # local
+            local_pk = getattr(row, f"{model_field.fk_field}_id", None)
+            if local_pk is None:
+                continue
+
+            cache_key = (inclusion_serializer, local_pk)
+            if (
+                cache_key in self._seen_local
+                and model_field.fk_field not in row._state.fields_cache
+            ):
+                yield self._seen_local[cache_key]
+                continue
+
+            obj = getattr(row, model_field.fk_field)
+            if hasattr(loose_fk_field, "get_inclusion_instance"):
+                obj = loose_fk_field.get_inclusion_instance(obj)
+            if obj is None:
+                continue
+
             if obj.pk is not None:
                 self._seen_local[(inclusion_serializer, obj.pk)] = obj
             yield obj
@@ -392,10 +439,22 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
         request: Request | None = renderer_context.get("request")
         assert request
 
-        if (
-            EXPAND_QUERY_PARAM not in request.query_params
-            and EXPAND_QUERY_PARAM not in request.data
-        ):
+        has_expand = getattr(view, "has_expand", lambda request: False)
+        get_inclusions = getattr(view, "get_requested_inclusions", lambda request: ())
+
+        if has_expand(request) or get_inclusions(request):
+            inclusion_loader = self.loader_class(get_allowed_paths(request, view=view))
+            inclusions = inclusion_loader.inclusions_dict(serializer)
+
+            if isinstance(serializer_data, list):
+                for record in serializer_data:
+                    if record["url"] in inclusions:
+                        record[EXPAND_KEY] = inclusions[record["url"]]
+
+            if isinstance(serializer_data, dict):
+                if inclusions.get(serializer_data["url"]):
+                    serializer_data[EXPAND_KEY] = inclusions[serializer_data["url"]]
+        else:
             # Always include the empty `_expand` attribute
             if isinstance(serializer_data, list):
                 for record in serializer_data:
@@ -404,21 +463,77 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
             if isinstance(serializer_data, dict):
                 serializer_data[EXPAND_KEY] = {}
 
+        # Skip field filtering unless this is a _zoek request with selected fields
+        has_fields = getattr(view, "has_fields", lambda request: False)
+        selected_fields = getattr(view, "_selected_fields", None)
+        if not has_fields(request) or selected_fields is None:
             return render_data
 
-        inclusion_loader = self.loader_class(get_allowed_paths(request, view=view))
-        inclusions = inclusion_loader.inclusions_dict(serializer)
+        def explicit_paths(entries, path=()):
+            for entry in entries:
+                if isinstance(entry, str):
+                    yield (
+                        *path,
+                        camel_to_underscore(entry, **api_settings.JSON_UNDERSCOREIZE),
+                    )
+                elif isinstance(entry, dict):
+                    for name, children in entry.items():
+                        name = camel_to_underscore(
+                            name, **api_settings.JSON_UNDERSCOREIZE
+                        )
+                        yield from explicit_paths(children, (*path, name))
 
-        if isinstance(serializer_data, list):
-            for record in serializer_data:
-                if record["url"] in inclusions:
-                    record[EXPAND_KEY] = inclusions[record["url"]]
+        explicit_fields = set(explicit_paths(view.request.data["fields"]))
 
-        if isinstance(serializer_data, dict):
-            if inclusions.get(serializer_data["url"]):
-                serializer_data[EXPAND_KEY] = inclusions[serializer_data["url"]]
+        def filter_selected_fields(value, selected_fields, path=()):
+            if selected_fields is None or not isinstance(value, (dict, list)):
+                return value
+            if isinstance(value, list):
+                return [
+                    filter_selected_fields(item, selected_fields, path)
+                    for item in value
+                ]
 
-        return render_data
+            select_all = "*" in selected_fields
+            expanded_fields = value.get(EXPAND_KEY, {})
+            result = value.copy() if select_all else {}
+            result.pop(EXPAND_KEY, None)
+
+            # Include relation URLs only when explicitly selected at this path
+            result.update(
+                {
+                    name: filter_selected_fields(value[name], children, (*path, name))
+                    for name, children in selected_fields.items()
+                    if name in value
+                    and (
+                        name not in expanded_fields
+                        or select_all
+                        or (*path, name) in explicit_fields
+                    )
+                }
+            )
+
+            # Apply each expansion's own field selection
+            filtered_expansions = {
+                name: filter_selected_fields(
+                    item, selected_fields.get(name), (*path, name)
+                )
+                for name, item in expanded_fields.items()
+                if selected_fields.get(name) is not None
+            }
+
+            if filtered_expansions or (
+                select_all and EXPAND_KEY in value and not expanded_fields
+            ):
+                result[EXPAND_KEY] = filtered_expansions
+            return result
+
+        if "results" in render_data:
+            render_data["results"] = filter_selected_fields(
+                render_data["results"], selected_fields
+            )
+            return render_data
+        return filter_selected_fields(render_data, selected_fields)
 
 
 def get_expand_options_for_serializer(
@@ -426,3 +541,34 @@ def get_expand_options_for_serializer(
 ) -> List[tuple]:
     choices = [(opt, opt) for opt in serializer_class.inclusion_serializers]
     return choices
+
+
+def fields_at_path(selected_fields: dict | None, path: Iterable[str]) -> dict | None:
+    """
+    Return the fields selected at this path, or None if it is not expanded
+    """
+    for name in path:
+        if selected_fields is None:
+            return None
+        selected_fields = selected_fields.get(name)
+    return selected_fields
+
+
+def limit_serializer_fields(
+    serializer: BaseSerializer, selected_fields: dict
+) -> BaseSerializer:
+    """
+    Keep only selected fields, including nested fields and any '*' selections
+    """
+    if isinstance(serializer, serializers.ListSerializer):
+        serializer = serializer.child
+    select_all = "*" in selected_fields  # avoid repeated call in the loop
+
+    for name, field in list(serializer.fields.items()):
+        if not select_all and name not in selected_fields and name != "url":
+            del serializer.fields[name]
+            continue
+        children = selected_fields.get(name)
+        if children is not None and isinstance(field, serializers.BaseSerializer):
+            limit_serializer_fields(field, children)
+    return serializer
