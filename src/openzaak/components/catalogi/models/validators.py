@@ -92,3 +92,31 @@ class ConceptStatusValidator:
 
 
 validate_zaaktype_concept = ConceptStatusValidator("catalogi", "ZaakType", "zaaktype")
+
+
+REFERENTIECODE_IN_USE_MESSAGE = _(
+    "Deze referentiecode is al in gebruik door een ander object."
+)
+
+
+def is_referentiecode_in_use(model, *, zaaktype, referentiecode, pk=None) -> bool:
+    """
+    Check if ``referentiecode`` is used by a different object of ``model``.
+
+    The code must be globally unique, except that it may be reused by objects in other
+    versions of the same zaaktype (same catalogus + zaaktype identificatie). Within a
+    single zaaktype the code stays unique.
+    """
+    if not referentiecode or zaaktype is None:
+        return False
+
+    in_other_version_of_zaaktype = models.Q(
+        zaaktype__catalogus=zaaktype.catalogus_id,
+        zaaktype__identificatie=zaaktype.identificatie,
+    ) & ~models.Q(zaaktype=zaaktype.pk)
+    queryset = model.objects.filter(referentiecode=referentiecode).exclude(
+        in_other_version_of_zaaktype
+    )
+    if pk:
+        queryset = queryset.exclude(pk=pk)
+    return queryset.exists()

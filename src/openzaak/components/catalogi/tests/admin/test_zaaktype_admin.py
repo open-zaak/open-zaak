@@ -223,7 +223,9 @@ class ZaaktypeAdminTests(
         )
         # reverse fk relations
         statustype_old = StatusTypeFactory.create(
-            zaaktype=zaaktype_old, datum_begin_geldigheid=startdate_old
+            zaaktype=zaaktype_old,
+            datum_begin_geldigheid=startdate_old,
+            referentiecode="S1",
         )
         resultaattypeomschrijving = "https://example.com/resultaattypeomschrijving/1"
         m.register_uri("GET", resultaattypeomschrijving, json={"omschrijving": "init"})
@@ -232,6 +234,7 @@ class ZaaktypeAdminTests(
             resultaattypeomschrijving=resultaattypeomschrijving,
             selectielijstklasse="",
             datum_begin_geldigheid=startdate_old,
+            referentiecode="R1",
         )
         roltype_old = RolTypeFactory.create(
             zaaktype=zaaktype_old, datum_begin_geldigheid=startdate_old
@@ -274,6 +277,9 @@ class ZaaktypeAdminTests(
         # assert the new relations are created
         self.assertNotEqual(zaaktype_new.statustypen.get().id, statustype_old.id)
         self.assertNotEqual(zaaktype_new.resultaattypen.get().id, resultaattype_old.id)
+        # referentiecodes are unique per zaaktype, so copies may keep them
+        self.assertEqual(zaaktype_new.statustypen.get().referentiecode, "S1")
+        self.assertEqual(zaaktype_new.resultaattypen.get().referentiecode, "R1")
         self.assertNotEqual(zaaktype_new.roltype_set.get().id, roltype_old.id)
         self.assertNotEqual(zaaktype_new.eigenschap_set.get().id, eigenschap_old.id)
         self.assertNotEqual(
