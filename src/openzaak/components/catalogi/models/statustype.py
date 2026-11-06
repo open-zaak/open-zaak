@@ -116,7 +116,7 @@ class StatusType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
         help_text=mark_experimental(
             _(
                 "Code waarmee dit statustype in een extern systeem wordt geïdentificeerd. "
-                "Moet uniek zijn, behalve tussen de versies van hetzelfde statustype."
+                "Moet uniek zijn indien gespecificeerd, behalve tussen de versies van hetzelfde statustype."
             )
         ),
     )
@@ -134,6 +134,8 @@ class StatusType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=("zaaktype", "referentiecode"),
+                condition=models.Q(referentiecode__isnull=False)
+                & ~models.Q(referentiecode=""),
                 name="unique_statustype_referentiecode_per_zaaktype",
             )
         ]

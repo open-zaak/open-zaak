@@ -4485,8 +4485,8 @@ paths:
         schema:
           type: string
         description: '**EXPERIMENTEEL** Code waarmee dit resultaattype in een extern
-          systeem wordt geïdentificeerd. Moet uniek zijn, behalve tussen de versies
-          van hetzelfde resultaattype.'
+          systeem wordt geïdentificeerd. Moet uniek zijn indien gespecificeerd, behalve
+          tussen de versies van hetzelfde resultaattype.'
       - in: query
         name: status
         schema:
@@ -6573,8 +6573,8 @@ paths:
         schema:
           type: string
         description: '**EXPERIMENTEEL** Code waarmee dit statustype in een extern
-          systeem wordt geïdentificeerd. Moet uniek zijn, behalve tussen de versies
-          van hetzelfde statustype.'
+          systeem wordt geïdentificeerd. Moet uniek zijn indien gespecificeerd, behalve
+          tussen de versies van hetzelfde statustype.'
       - in: query
         name: status
         schema:
@@ -13355,8 +13355,8 @@ components:
           type: string
           nullable: true
           description: '**EXPERIMENTEEL** Code waarmee dit resultaattype in een extern
-            systeem wordt geïdentificeerd. Moet uniek zijn, behalve tussen de versies
-            van hetzelfde resultaattype.'
+            systeem wordt geïdentificeerd. Moet uniek zijn indien gespecificeerd,
+            behalve tussen de versies van hetzelfde resultaattype.'
           maxLength: 20
     PatchedRolTypeRequest:
       type: object
@@ -13470,8 +13470,8 @@ components:
           type: string
           nullable: true
           description: '**EXPERIMENTEEL** Code waarmee dit statustype in een extern
-            systeem wordt geïdentificeerd. Moet uniek zijn, behalve tussen de versies
-            van hetzelfde statustype.'
+            systeem wordt geïdentificeerd. Moet uniek zijn indien gespecificeerd,
+            behalve tussen de versies van hetzelfde statustype.'
           maxLength: 20
     PatchedZaakObjectTypeRequest:
       type: object
@@ -13978,8 +13978,8 @@ components:
           type: string
           nullable: true
           description: '**EXPERIMENTEEL** Code waarmee dit resultaattype in een extern
-            systeem wordt geïdentificeerd. Moet uniek zijn, behalve tussen de versies
-            van hetzelfde resultaattype.'
+            systeem wordt geïdentificeerd. Moet uniek zijn indien gespecificeerd,
+            behalve tussen de versies van hetzelfde resultaattype.'
           maxLength: 20
       required:
       - beginObject
@@ -14116,8 +14116,8 @@ components:
           type: string
           nullable: true
           description: '**EXPERIMENTEEL** Code waarmee dit resultaattype in een extern
-            systeem wordt geïdentificeerd. Moet uniek zijn, behalve tussen de versies
-            van hetzelfde resultaattype.'
+            systeem wordt geïdentificeerd. Moet uniek zijn indien gespecificeerd,
+            behalve tussen de versies van hetzelfde resultaattype.'
           maxLength: 20
       required:
       - omschrijving
@@ -14372,8 +14372,8 @@ components:
           type: string
           nullable: true
           description: '**EXPERIMENTEEL** Code waarmee dit statustype in een extern
-            systeem wordt geïdentificeerd. Moet uniek zijn, behalve tussen de versies
-            van hetzelfde statustype.'
+            systeem wordt geïdentificeerd. Moet uniek zijn indien gespecificeerd,
+            behalve tussen de versies van hetzelfde statustype.'
           maxLength: 20
       required:
       - beginObject
@@ -14457,8 +14457,8 @@ components:
           type: string
           nullable: true
           description: '**EXPERIMENTEEL** Code waarmee dit statustype in een extern
-            systeem wordt geïdentificeerd. Moet uniek zijn, behalve tussen de versies
-            van hetzelfde statustype.'
+            systeem wordt geïdentificeerd. Moet uniek zijn indien gespecificeerd,
+            behalve tussen de versies van hetzelfde statustype.'
           maxLength: 20
       required:
       - omschrijving

@@ -147,3 +147,102 @@ class IsReferentiecodeInUseTests(TestCase):
             )
         )
         self.assertIs(ResultaatType.objects.filter(referentiecode="A1").exists(), True)
+
+
+class ResultaatTypeReferentiecodeConstraintTests(TestCase):
+    def test_multiple_null_codes_in_same_zaaktype_allowed(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        ResultaatTypeFactory.create(zaaktype=zaaktype, referentiecode=None)
+        resultaattype = ResultaatTypeFactory.build(
+            zaaktype=zaaktype, referentiecode=None
+        )
+
+        resultaattype.clean()
+        resultaattype.save()
+
+        self.assertEqual(
+            ResultaatType.objects.filter(
+                zaaktype=zaaktype, referentiecode__isnull=True
+            ).count(),
+            2,
+        )
+
+    def test_multiple_empty_string_in_same_zaaktype_allowed(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        ResultaatTypeFactory.create(zaaktype=zaaktype, referentiecode="")
+        resultaattype = ResultaatTypeFactory.build(zaaktype=zaaktype, referentiecode="")
+
+        resultaattype.clean()
+        resultaattype.save()
+
+        self.assertEqual(
+            ResultaatType.objects.filter(zaaktype=zaaktype, referentiecode="").count(),
+            2,
+        )
+
+    def test_same_referentiecode_in_same_zaaktype_not_allowed(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        ResultaatTypeFactory.create(zaaktype=zaaktype, referentiecode="A1")
+        resultaattype = ResultaatTypeFactory.build(
+            zaaktype=zaaktype, referentiecode="A1"
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            resultaattype.clean()
+
+        self.assertIn("referentiecode", cm.exception.message_dict)
+
+
+class StatusTypeReferentiecodeConstraintTests(TestCase):
+    def test_multiple_null_codes_in_same_zaaktype_allowed(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        StatusTypeFactory.create(
+            zaaktype=zaaktype, statustypevolgnummer=1, referentiecode=None
+        )
+        statustype = StatusTypeFactory.build(
+            zaaktype=zaaktype, statustypevolgnummer=2, referentiecode=None
+        )
+
+        statustype.full_clean()
+        statustype.save()
+
+        self.assertEqual(
+            StatusType.objects.filter(
+                zaaktype=zaaktype, referentiecode__isnull=True
+            ).count(),
+            2,
+        )
+
+    def test_multiple_empty_string_in_same_zaaktype_allowed(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        StatusTypeFactory.create(
+            zaaktype=zaaktype, statustypevolgnummer=1, referentiecode=""
+        )
+        statustype = StatusTypeFactory.build(
+            zaaktype=zaaktype, statustypevolgnummer=2, referentiecode=""
+        )
+
+        statustype.full_clean()
+        statustype.save()
+
+        self.assertEqual(
+            StatusType.objects.filter(
+                zaaktype=zaaktype,
+                referentiecode="",
+            ).count(),
+            2,
+        )
+
+    def test_same_referentiecode_not_allowed(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        StatusTypeFactory.create(
+            zaaktype=zaaktype, statustypevolgnummer=1, referentiecode="A1"
+        )
+        statustype = StatusTypeFactory.build(
+            zaaktype=zaaktype, statustypevolgnummer=2, referentiecode="A1"
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            statustype.clean()
+
+        self.assertIn("referentiecode", cm.exception.message_dict)
