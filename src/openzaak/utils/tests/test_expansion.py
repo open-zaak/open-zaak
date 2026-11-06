@@ -337,7 +337,9 @@ class ExpandNamespaceTests(JWTAuthMixin, APITestCase):
                         )["results"]
 
                     self.assertEqual(data["url"], self.url(self.besluittype, namespace))
-                    self.assertExpanded(data, "catalogus", self.url(self.catalogus))
+                    self.assertExpanded(
+                        data, "catalogus", self.url(self.catalogus, namespace)
+                    )
                     self.assertExpanded(
                         data,
                         "informatieobjecttypen",
@@ -350,28 +352,30 @@ class ExpandNamespaceTests(JWTAuthMixin, APITestCase):
             ("catalogi", "catalogi"),
             ("documenten", "zaken"),
         )
-        for namespace, besluittype_namespace in cases:
+        for iot_namespace, namespace in cases:
             for detail in (True, False):
-                with self.subTest(namespace=namespace, detail=detail):
+                with self.subTest(namespace=iot_namespace, detail=detail):
                     if detail:
                         data = self._get(
-                            self.url(self.informatieobjecttype, namespace),
+                            self.url(self.informatieobjecttype, iot_namespace),
                             "catalogus,besluittypen",
                         )
                     else:
                         (data,) = self._get(
-                            reverse(InformatieObjectType, namespace=namespace),
+                            reverse(InformatieObjectType, namespace=iot_namespace),
                             "catalogus,besluittypen",
                         )["results"]
 
                     self.assertEqual(
-                        data["url"], self.url(self.informatieobjecttype, namespace)
+                        data["url"], self.url(self.informatieobjecttype, iot_namespace)
                     )
-                    self.assertExpanded(data, "catalogus", self.url(self.catalogus))
+                    self.assertExpanded(
+                        data, "catalogus", self.url(self.catalogus, namespace)
+                    )
                     self.assertExpanded(
                         data,
                         "besluittypen",
-                        [self.url(self.besluittype, besluittype_namespace)],
+                        [self.url(self.besluittype, namespace)],
                     )
 
     def test_nested_resource(self):
