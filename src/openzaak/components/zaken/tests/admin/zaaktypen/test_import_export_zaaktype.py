@@ -19,12 +19,7 @@ from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
-from openzaak.selectielijst.models import ReferentieLijstConfig
-from openzaak.selectielijst.tests import mock_resource_get
-from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
-from openzaak.tests.utils import patch_resource_validator
-
-from ...models import (
+from openzaak.components.catalogi.models import (
     BesluitType,
     Catalogus,
     Eigenschap,
@@ -35,7 +30,7 @@ from ...models import (
     ZaakType,
     ZaakTypeInformatieObjectType,
 )
-from ..factories import (
+from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
     CatalogusFactory,
     EigenschapFactory,
@@ -46,6 +41,10 @@ from ..factories import (
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
 )
+from openzaak.selectielijst.models import ReferentieLijstConfig
+from openzaak.selectielijst.tests import mock_resource_get
+from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
+from openzaak.tests.utils import patch_resource_validator
 
 
 class MockSelectielijst(SelectieLijstMixin):

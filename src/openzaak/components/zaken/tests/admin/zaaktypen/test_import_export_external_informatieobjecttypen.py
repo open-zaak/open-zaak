@@ -12,23 +12,23 @@ from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.components.documenten.tests.utils import (
-    get_informatieobjecttype_response,
-)
-from openzaak.tests.utils import mock_drc_oas_get, patch_resource_validator
-
-from ...models import (
+from openzaak.components.catalogi.models import (
     BesluitType,
     BesluitTypeInformatieObjectType,
     ZaakType,
     ZaakTypeInformatieObjectType,
 )
-from ..factories import (
+from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
     CatalogusFactory,
     InformatieObjectTypeFactory,
     ZaakTypeFactory,
 )
+from openzaak.components.documenten.tests.utils import (
+    get_informatieobjecttype_response,
+)
+from openzaak.tests.utils import mock_drc_oas_get, patch_resource_validator
+
 from .test_import_export_zaaktype import MockSelectielijst
 
 BASE = "https://external.documenten.nl/api/v1/"
