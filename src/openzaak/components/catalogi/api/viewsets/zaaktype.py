@@ -3,12 +3,12 @@
 
 import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
-from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.notifications.viewsets import MultipleChannelNotificationViewSetMixin
 from openzaak.utils.expansion import EXPAND_QUERY_PARAM
 from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
 from openzaak.utils.pagination import ExactPagination
@@ -92,7 +92,7 @@ class ZaakTypeViewSet(
     ConceptDestroyMixin,
     ConceptFilterMixin,
     M2MConceptDestroyMixin,
-    NotificationViewSetMixin,
+    MultipleChannelNotificationViewSetMixin,
     viewsets.ModelViewSet,
 ):
     """
@@ -172,7 +172,15 @@ class ZaakTypeViewSet(
         "destroy": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_DELETE,
         "publish": SCOPE_CATALOGI_WRITE,
     }
-    notifications_kanaal = KANAAL_ZAAKTYPEN
+    notifications_kanalen = [
+        {
+            "kanaal": KANAAL_ZAAKTYPEN,
+            "namespace": "zaken",
+            "replace_urls_in_kenmerken": [
+                {"field": "catalogus", "namespace": "zaken"},
+            ],
+        },
+    ]
     concept_related_fields = ["besluittypen", "informatieobjecttypen"]
 
     def get_queryset(self):
