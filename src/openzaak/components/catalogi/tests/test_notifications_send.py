@@ -4,7 +4,7 @@
 from django.test import override_settings, tag
 
 import requests_mock
-from freezegun import freeze_time
+import time_machine
 from notifications_api_common.models import FailedNotification, NotificationResponse
 from rest_framework import status
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
@@ -26,7 +26,7 @@ from .utils import get_operation_url
     LOG_NOTIFICATIONS_IN_DB=True,
     CELERY_TASK_ALWAYS_EAGER=True,
 )
-@freeze_time("2019-01-01T12:00:00Z")
+@time_machine.travel("2019-01-01T12:00:00Z", tick=False)
 class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None

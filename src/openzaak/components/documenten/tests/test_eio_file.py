@@ -15,7 +15,7 @@ from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings, tag
 
-from freezegun import freeze_time
+import time_machine
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -271,7 +271,7 @@ class EIOInhoudFilenameTests(TestCase):
             )
             self.assertIsNone(document.pk)
 
-    @freeze_time("2026-10-01T12:00:00")
+    @time_machine.travel("2025-01-01T12:00:00", tick=False)
     def test_stored_filename_is_unchanged(self):
         build = self.build_document
         with self.subTest(model=build.__name__):

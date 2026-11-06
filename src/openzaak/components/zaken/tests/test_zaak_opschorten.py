@@ -6,7 +6,7 @@ from django.test import override_settings, tag
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from freezegun import freeze_time
+import time_machine
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
@@ -43,7 +43,7 @@ from openzaak.tests.utils import JWTAuthMixin
 
 
 @tag("convenience-endpoints")
-@freeze_time("2025-01-01T12:00:00")
+@time_machine.travel("2025-01-01T12:00:00", tick=False)
 @override_settings(
     OPENZAAK_DOMAIN="testserver", LINK_FETCHER="vng_api_common.mocks.link_fetcher_200"
 )
@@ -231,7 +231,7 @@ class ZaakOpschortenAuthTests(JWTAuthMixin, APITestCase):
 
 
 @tag("convenience-endpoints")
-@freeze_time("2025-01-01T12:00:00")
+@time_machine.travel("2025-01-01T12:00:00", tick=False)
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True

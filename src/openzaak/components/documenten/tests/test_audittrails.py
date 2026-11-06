@@ -7,7 +7,7 @@ from datetime import datetime
 
 from django.test import override_settings, tag
 
-from freezegun import freeze_time
+import time_machine
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -34,7 +34,7 @@ from .factories import EnkelvoudigInformatieObjectFactory
 
 
 @temp_private_root()
-@freeze_time("2019-01-01")
+@time_machine.travel("2019-01-01", tick=False)
 class AuditTrailTests(JWTAuthMixin, APITestCase):
     informatieobject_list_url = reverse_lazy(EnkelvoudigInformatieObject)
     gebruiksrechten_list_url = reverse_lazy(Gebruiksrechten)
@@ -384,7 +384,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 class EnkelvoudigInformatieObjectAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    @freeze_time("2019-01-01T12:00:00")
+    @time_machine.travel("2019-01-01T12:00:00", tick=False)
     def setUp(self):
         super().setUp()
         token = generate_jwt(
@@ -396,7 +396,7 @@ class EnkelvoudigInformatieObjectAuditTrailJWTExpiryTests(JWTAuthMixin, APITestC
         self.client.credentials(HTTP_AUTHORIZATION=token)
 
     @override_settings(JWT_EXPIRY=60 * 60)
-    @freeze_time("2019-01-01T13:00:00")
+    @time_machine.travel("2019-01-01T13:00:00", tick=False)
     def test_eio_audittrail_list_jwt_expired(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         url = reverse(eio)
@@ -416,7 +416,7 @@ class EnkelvoudigInformatieObjectAuditTrailJWTExpiryTests(JWTAuthMixin, APITestC
         self.assertEqual(response.data["code"], "jwt-expired")
 
     @override_settings(JWT_EXPIRY=60 * 60)
-    @freeze_time("2019-01-01T13:00:00")
+    @time_machine.travel("2019-01-01T13:00:00", tick=False)
     def test_eio_audittrail_detail_jwt_expired(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         url = reverse(eio)

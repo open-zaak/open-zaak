@@ -10,7 +10,7 @@ from django.test import override_settings, tag
 from django.test.utils import override_script_prefix
 
 import requests_mock
-from freezegun import freeze_time
+import time_machine
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
@@ -71,7 +71,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     list_url = reverse_lazy(ZaakInformatieObject)
     heeft_alle_autorisaties = True
 
-    @freeze_time("2018-09-19T12:25:19+0200")
+    @time_machine.travel("2018-09-19T12:25:19+0200", tick=False)
     def test_create(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
@@ -149,7 +149,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "informatieobject")
         self.assertEqual(error["code"], "bad-url")
 
-    @freeze_time("2018-09-20 12:00:00")
+    @time_machine.travel("2018-09-20 12:00:00", tick=False)
     def test_registratiedatum_ignored(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
@@ -204,7 +204,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unique")
 
-    @freeze_time("2018-09-20 12:00:00")
+    @time_machine.travel("2018-09-20 12:00:00", tick=False)
     def test_read_zaak(self):
         zio = ZaakInformatieObjectFactory.create()
         zio_detail_url = reverse(zio)
@@ -442,7 +442,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(zio.titel, "updated title")
         self.assertEqual(zio.beschrijving, "same")
 
-    @freeze_time("2018-09-19T12:25:19+0200")
+    @time_machine.travel("2018-09-19T12:25:19+0200", tick=False)
     def test_delete(self):
         zio = ZaakInformatieObjectFactory.create()
         zio_url = reverse(zio)

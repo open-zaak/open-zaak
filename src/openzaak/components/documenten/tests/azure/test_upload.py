@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings, tag
 
-from freezegun import freeze_time
+import time_machine
 from maykin_common.vcr import VCRMixin
 from privates.test import temp_private_root
 from rest_framework import status
@@ -34,7 +34,7 @@ from ..utils import get_operation_url, split_file
 from .mixins import AzureBlobStorageMixin
 
 
-@freeze_time("2025-12-01T12:00:00")
+@time_machine.travel("2025-12-01T12:00:00", tick=False)
 @tag("gh-2217", "azure-storage")
 @temp_private_root()
 class SmallFileUpload(JWTAuthMixin, VCRMixin, AzureBlobStorageMixin, APITestCase):
@@ -564,7 +564,7 @@ class SmallFileUpload(JWTAuthMixin, VCRMixin, AzureBlobStorageMixin, APITestCase
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
 
-@freeze_time("2025-12-01T12:00:00")
+@time_machine.travel("2025-12-01T12:00:00", tick=False)
 @tag("gh-2217", "azure-storage")
 @temp_private_root()
 @override_settings(DOCUMENTEN_UPLOAD_CHUNK_SIZE=10)

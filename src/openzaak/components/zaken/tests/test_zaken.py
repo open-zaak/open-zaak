@@ -9,8 +9,8 @@ from django.test import override_settings, tag
 from django.utils import timezone
 
 import requests_mock
+import time_machine
 from dateutil.relativedelta import relativedelta
-from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
@@ -892,7 +892,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.identificatie, zaaknummer)
         self.assertNotEqual(zaak.identificatie_ptr, reserved_zaak_id)
 
-    @freeze_time("2025-01-01")
+    @time_machine.travel("2025-01-01", tick=False)
     def test_reserve_one_zaaknummer(self):
         data = {
             "bronorganisatie": "517439943",
@@ -928,7 +928,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
                 ).exists()
             )
 
-    @freeze_time("2025-01-01")
+    @time_machine.travel("2025-01-01", tick=False)
     def test_reserve_multiple_zaaknummers(self):
         data = {
             "bronorganisatie": "517439943",
@@ -988,7 +988,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
                     ).exists()
                 )
 
-    @freeze_time("2025-01-01")
+    @time_machine.travel("2025-01-01", tick=False)
     def test_reserve_zaaknummers_continues_from_last_identificatie(self):
         ZaakIdentificatie.objects.create(
             identificatie="ZAAK-2025-0000000010", bronorganisatie="517439943"

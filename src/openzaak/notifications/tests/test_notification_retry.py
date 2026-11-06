@@ -5,7 +5,7 @@ from unittest.mock import patch
 from django.test import override_settings, tag
 
 import requests_mock
-from freezegun import freeze_time
+import time_machine
 from notifications_api_common.models import NotificationsConfig
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -25,7 +25,7 @@ VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 @tag("notifications")
 @requests_mock.Mocker()
-@freeze_time("2012-01-14")
+@time_machine.travel("2012-01-14", tick=False)
 @override_settings(NOTIFICATIONS_DISABLED=False, CELERY_TASK_ALWAYS_EAGER=True)
 @patch("notifications_api_common.viewsets.send_notification.retry")
 class NotificationCeleryRetryTestCase(

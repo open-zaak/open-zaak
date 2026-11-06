@@ -10,7 +10,7 @@ from uuid import uuid4
 from django.test import RequestFactory, TestCase, override_settings, tag
 from django.utils import timezone
 
-from freezegun import freeze_time
+import time_machine
 from maykin_common.vcr import VCRMixin
 from vng_api_common.fields import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
@@ -40,7 +40,7 @@ from openzaak.utils.fields import get_default_path
 from ..mixins import AzureBlobStorageMixin
 
 
-@freeze_time("2025-12-01T12:00:00")
+@time_machine.travel("2025-12-01T12:00:00", tick=False)
 @tag("gh-2217", "azure-storage")
 @override_settings(ALLOWED_HOSTS=["testserver"])
 class ImportDocumentRowTests(
@@ -724,7 +724,7 @@ class ImportDocumentRowWithoutOverwriteTests(
 
     # Mock this to ensure the requests made to Azurite match the cassettes
     @patch("django.core.files.storage.base.get_random_string", return_value="1234567")
-    @freeze_time("2030-01-01T12:00:00")
+    @time_machine.travel("2030-01-01T12:00:00", tick=False)
     def test_file_already_exists_in_storage(self, _):
         import_file_path = Path("import-test-files/already_exists.txt")
         import_file_content = b"already exists"

@@ -4,7 +4,7 @@ from django.test import override_settings
 from django.utils import timezone
 
 import jwt
-from freezegun import freeze_time
+import time_machine
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.utils import generate_jwt
@@ -19,7 +19,7 @@ from openzaak.tests.utils import JWTAuthMixin
 class JWTExpiredTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    @freeze_time("2019-01-01T12:00:00")
+    @time_machine.travel("2019-01-01T12:00:00", tick=False)
     def setUp(self):
         super().setUp()
 
@@ -39,7 +39,7 @@ class JWTExpiredTests(JWTAuthMixin, APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=token)
 
     @override_settings(JWT_EXPIRY=60 * 60)
-    @freeze_time("2019-01-01T13:00:00")
+    @time_machine.travel("2019-01-01T13:00:00", tick=False)
     def test_jwt_expired(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
@@ -49,7 +49,7 @@ class JWTExpiredTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.data["code"], "jwt-expired")
 
     @override_settings(JWT_EXPIRY=60 * 60, TIME_LEEWAY=3)
-    @freeze_time("2019-01-01T13:00:01")
+    @time_machine.travel("2019-01-01T13:00:01", tick=False)
     def test_time_leeway_accounts_for_drft(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
@@ -60,7 +60,7 @@ class JWTExpiredTests(JWTAuthMixin, APITestCase):
         self.assertNotEqual(response.data["code"], "jwt-expired")
 
     @override_settings(JWT_EXPIRY=60, TIME_LEEWAY=3)
-    @freeze_time("2019-01-01T11:59:56")
+    @time_machine.travel("2019-01-01T11:59:56", tick=False)
     def test_iat_greater_than_now(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
@@ -73,7 +73,7 @@ class JWTExpiredTests(JWTAuthMixin, APITestCase):
 class JWTLeewayTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    @freeze_time("2019-01-01T12:00:00")
+    @time_machine.travel("2019-01-01T12:00:00", tick=False)
     def setUp(self):
         super().setUp()
 
@@ -92,7 +92,7 @@ class JWTLeewayTests(JWTAuthMixin, APITestCase):
         token: str = f"Bearer {jwt.encode(payload, self.secret, algorithm='HS256')}"
         self.client.credentials(HTTP_AUTHORIZATION=token)
 
-    @freeze_time("2019-01-01T11:59:59")
+    @time_machine.travel("2019-01-01T11:59:59", tick=False)
     def test_time_leeway_zero(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
@@ -103,7 +103,7 @@ class JWTLeewayTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.data["code"], "jwt-immaturesignatureerror")
 
     @override_settings(TIME_LEEWAY=3)
-    @freeze_time("2019-01-01T11:59:59")
+    @time_machine.travel("2019-01-01T11:59:59", tick=False)
     def test_time_leeway_accounts_for_drift(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)

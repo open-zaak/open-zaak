@@ -4,7 +4,7 @@ from django.test import override_settings
 from django.utils.translation import gettext_lazy as _
 
 import requests_mock
-from freezegun import freeze_time
+import time_machine
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
@@ -54,7 +54,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
 
                 self.assertEqual(errors, error_codes)
 
-    @freeze_time("2018-09-06T12:08+0200")
+    @time_machine.travel("2018-09-06T12:08+0200", tick=False)
     def test_future_datum(self):
         response = self.client.post(self.url, {"datum": "2018-09-07"})
 
