@@ -66,9 +66,12 @@ class BesluitTypeFilterTests(JWTAuthMixin, APITestCase):
 
 class EigenschapFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def test_filter_by_invalid_url(self):
-        response = self.client.get(reverse(Eigenschap), {"zaaktype": "bla"})
+        response = self.client.get(
+            reverse(Eigenschap, namespace=self.NAMESPACE), {"zaaktype": "bla"}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -78,7 +81,8 @@ class EigenschapFilterTests(JWTAuthMixin, APITestCase):
     def test_filter_by_valid_url_object_does_not_exist(self):
         EigenschapFactory.create(zaaktype__concept=False)
         response = self.client.get(
-            reverse(Eigenschap), {"zaaktype": "https://google.com"}
+            reverse(Eigenschap, namespace=self.NAMESPACE),
+            {"zaaktype": "https://google.com"},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -89,7 +93,7 @@ class EigenschapFilterTests(JWTAuthMixin, APITestCase):
     def test_filter_with_invalid_status_query_param(self):
         EigenschapFactory.create(zaaktype__concept=False)
 
-        url = f"{reverse(Eigenschap)}?status=alle"
+        url = f"{reverse(Eigenschap, namespace=self.NAMESPACE)}?status=alle"
 
         response = self.client.get(url)
 
@@ -172,9 +176,12 @@ class InformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
 
 class ResultaatTypeFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def test_filter_by_invalid_url(self):
-        response = self.client.get(reverse(ResultaatType), {"zaaktype": "bla"})
+        response = self.client.get(
+            reverse(ResultaatType, namespace=self.NAMESPACE), {"zaaktype": "bla"}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -184,7 +191,8 @@ class ResultaatTypeFilterTests(JWTAuthMixin, APITestCase):
     def test_filter_by_valid_url_object_does_not_exist(self):
         ResultaatTypeFactory.create(zaaktype__concept=False)
         response = self.client.get(
-            reverse(ResultaatType), {"zaaktype": "https://google.com"}
+            reverse(ResultaatType, namespace=self.NAMESPACE),
+            {"zaaktype": "https://google.com"},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -195,7 +203,7 @@ class ResultaatTypeFilterTests(JWTAuthMixin, APITestCase):
     def test_filter_with_invalid_status_query_param(self):
         ResultaatTypeFactory.create(zaaktype__concept=False)
 
-        url = f"{reverse(ResultaatType)}?status=alle"
+        url = f"{reverse(ResultaatType, namespace=self.NAMESPACE)}?status=alle"
 
         response = self.client.get(url)
 
@@ -206,9 +214,12 @@ class ResultaatTypeFilterTests(JWTAuthMixin, APITestCase):
 
 class RolTypeFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def test_filter_by_invalid_url(self):
-        response = self.client.get(reverse(RolType), {"zaaktype": "bla"})
+        response = self.client.get(
+            reverse(RolType, namespace=self.NAMESPACE), {"zaaktype": "bla"}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -217,7 +228,10 @@ class RolTypeFilterTests(JWTAuthMixin, APITestCase):
 
     def test_filter_by_valid_url_object_does_not_exist(self):
         RolTypeFactory.create(zaaktype__concept=False)
-        response = self.client.get(reverse(RolType), {"zaaktype": "https://google.com"})
+        response = self.client.get(
+            reverse(RolType, namespace=self.NAMESPACE),
+            {"zaaktype": "https://google.com"},
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
@@ -227,7 +241,7 @@ class RolTypeFilterTests(JWTAuthMixin, APITestCase):
     def test_filter_with_invalid_status_query_param(self):
         RolTypeFactory.create(zaaktype__concept=False)
 
-        url = f"{reverse(RolType)}?status=alle"
+        url = f"{reverse(RolType, namespace=self.NAMESPACE)}?status=alle"
 
         response = self.client.get(url)
 
@@ -238,9 +252,12 @@ class RolTypeFilterTests(JWTAuthMixin, APITestCase):
 
 class StatusTypeFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def test_filter_by_invalid_url(self):
-        response = self.client.get(reverse(StatusType), {"zaaktype": "bla"})
+        response = self.client.get(
+            reverse(StatusType, namespace=self.NAMESPACE), {"zaaktype": "bla"}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -250,7 +267,8 @@ class StatusTypeFilterTests(JWTAuthMixin, APITestCase):
     def test_filter_by_valid_url_object_does_not_exist(self):
         StatusTypeFactory.create(zaaktype__concept=False)
         response = self.client.get(
-            reverse(StatusType), {"zaaktype": "https://google.com"}
+            reverse(StatusType, namespace=self.NAMESPACE),
+            {"zaaktype": "https://google.com"},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -261,7 +279,7 @@ class StatusTypeFilterTests(JWTAuthMixin, APITestCase):
     def test_filter_with_invalid_status_query_param(self):
         StatusTypeFactory.create(zaaktype__concept=False)
 
-        url = f"{reverse(StatusType)}?status=alle"
+        url = f"{reverse(StatusType, namespace=self.NAMESPACE)}?status=alle"
 
         response = self.client.get(url)
 
@@ -272,12 +290,14 @@ class StatusTypeFilterTests(JWTAuthMixin, APITestCase):
 
 class ZaakTypeInformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def test_filter_by_invalid_url(self):
         for query_param in ["zaaktype", "informatieobjecttype"]:
             with self.subTest(query_param=query_param):
                 response = self.client.get(
-                    reverse(ZaakTypeInformatieObjectType), {query_param: "bla"}
+                    reverse(ZaakTypeInformatieObjectType, namespace=self.NAMESPACE),
+                    {query_param: "bla"},
                 )
 
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -292,7 +312,7 @@ class ZaakTypeInformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
         for query_param in ["zaaktype", "informatieobjecttype"]:
             with self.subTest(query_param=query_param):
                 response = self.client.get(
-                    reverse(ZaakTypeInformatieObjectType),
+                    reverse(ZaakTypeInformatieObjectType, namespace=self.NAMESPACE),
                     {query_param: "https://google.com"},
                 )
 
@@ -305,9 +325,12 @@ class ZaakTypeInformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
 
 class ZaakTypeFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def test_filter_by_invalid_url(self):
-        response = self.client.get(reverse(ZaakType), {"catalogus": "bla"})
+        response = self.client.get(
+            reverse(ZaakType, namespace=self.NAMESPACE), {"catalogus": "bla"}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -319,7 +342,8 @@ class ZaakTypeFilterTests(JWTAuthMixin, APITestCase):
         zaaktype.informatieobjecttypen.clear()
 
         response = self.client.get(
-            reverse(ZaakType), {"catalogus": "https://google.com"}
+            reverse(ZaakType, namespace=self.NAMESPACE),
+            {"catalogus": "https://google.com"},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -331,7 +355,7 @@ class ZaakTypeFilterTests(JWTAuthMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype.informatieobjecttypen.clear()
 
-        url = f"{reverse(ZaakType)}?status=alle"
+        url = f"{reverse(ZaakType, namespace=self.NAMESPACE)}?status=alle"
 
         response = self.client.get(url)
 
@@ -350,7 +374,7 @@ class ZaakTypeFilterTests(JWTAuthMixin, APITestCase):
             zaaktype_omschrijving="Another thing", concept=False
         )
 
-        url = f"{reverse(ZaakType)}?omschrijving__icontains=descript"
+        url = f"{reverse(ZaakType, namespace=self.NAMESPACE)}?omschrijving__icontains=descript"
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -360,16 +384,22 @@ class ZaakTypeFilterTests(JWTAuthMixin, APITestCase):
             for item in response.data["results"]
         ]
         self.assertEqual(response.data["count"], 2)
-        self.assertIn(obj1.get_absolute_api_url(), returned_urls)
-        self.assertIn(obj2.get_absolute_api_url(), returned_urls)
-        self.assertNotIn(obj3.get_absolute_api_url(), returned_urls)
+        self.assertIn(
+            obj1.get_absolute_api_url(namespace=self.NAMESPACE), returned_urls
+        )
+        self.assertIn(
+            obj2.get_absolute_api_url(namespace=self.NAMESPACE), returned_urls
+        )
+        self.assertNotIn(
+            obj3.get_absolute_api_url(namespace=self.NAMESPACE), returned_urls
+        )
 
     def test_filter_by_identificatie_icontains(self):
         obj1 = ZaakTypeFactory.create(identificatie="ABC123", concept=False)
         obj2 = ZaakTypeFactory.create(identificatie="abc456", concept=False)
         obj3 = ZaakTypeFactory.create(identificatie="XYZ789", concept=False)
 
-        url = f"{reverse(ZaakType)}?identificatie__icontains=abc"
+        url = f"{reverse(ZaakType, namespace=self.NAMESPACE)}?identificatie__icontains=abc"
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -378,6 +408,12 @@ class ZaakTypeFilterTests(JWTAuthMixin, APITestCase):
             for item in response.data["results"]
         ]
         self.assertEqual(response.data["count"], 2)
-        self.assertIn(obj1.get_absolute_api_url(), returned_urls)
-        self.assertIn(obj2.get_absolute_api_url(), returned_urls)
-        self.assertNotIn(obj3.get_absolute_api_url(), returned_urls)
+        self.assertIn(
+            obj1.get_absolute_api_url(namespace=self.NAMESPACE), returned_urls
+        )
+        self.assertIn(
+            obj2.get_absolute_api_url(namespace=self.NAMESPACE), returned_urls
+        )
+        self.assertNotIn(
+            obj3.get_absolute_api_url(namespace=self.NAMESPACE), returned_urls
+        )

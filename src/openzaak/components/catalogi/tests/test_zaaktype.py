@@ -12,11 +12,7 @@ from django.utils.translation import gettext_lazy as _
 import requests_mock
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
-from vng_api_common.tests import (
-    TypeCheckMixin,
-    get_validation_errors,
-    reverse_lazy,
-)
+from vng_api_common.tests import TypeCheckMixin, get_validation_errors
 
 from openzaak.components.autorisaties.models import Autorisatie
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
@@ -47,7 +43,6 @@ from .factories import (
     ZaakTypeInformatieObjectTypeFactory,
     ZaakTypenRelatieFactory,
 )
-from .utils import get_operation_url
 
 
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
@@ -56,12 +51,14 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
     heeft_alle_autorisaties = False
     scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
+    NAMESPACE = "catalogi"
+    INFORMATIEOBJECTTYPE_NAMESPACE = "catalogi"
 
     def test_get_list_default_definitief(self):
         zaaktype1 = ZaakTypeFactory.create(concept=True)  # noqa
         zaaktype2 = ZaakTypeFactory.create(concept=False)
-        zaaktype_list_url = get_operation_url("zaaktype_list")
-        zaaktype2_url = get_operation_url("zaaktype_read", uuid=zaaktype2.uuid)
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
+        zaaktype2_url = reverse(zaaktype2, namespace=self.NAMESPACE)
 
         response = self.client.get(zaaktype_list_url)
         self.assertEqual(response.status_code, 200)
@@ -73,7 +70,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_get_detail(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
-        zaaktype_detail_url = get_operation_url("zaaktype_read", uuid=zaaktype.uuid)
+        zaaktype_detail_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         response = self.client.get(zaaktype_detail_url)
 
@@ -101,7 +98,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "aanleiding": zaaktype.aanleiding,
             "verlengingstermijn": None if not zaaktype.verlenging_mogelijk else "P30D",
             "opschortingEnAanhoudingMogelijk": zaaktype.opschorting_en_aanhouding_mogelijk,
-            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "catalogus": f"http://testserver{reverse(self.catalogus, namespace=self.NAMESPACE)}",
             "indicatieInternOfExtern": zaaktype.indicatie_intern_of_extern,
             "verlengingMogelijk": zaaktype.verlenging_mogelijk,
             "handelingBehandelaar": zaaktype.handeling_behandelaar,
@@ -258,7 +255,9 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
     def test_get_detail_404(self):
         ZaakTypeFactory.create(catalogus=self.catalogus)
 
-        url = get_operation_url("zaaktype_read", uuid=uuid.uuid4())
+        url = reverse(
+            f"{self.NAMESPACE}:zaaktype-detail", kwargs={"uuid": uuid.uuid4()}
+        )
 
         response = self.client.get(url)
 
@@ -284,9 +283,9 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_create_zaaktype(self):
         besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
-        besluittype_url = get_operation_url("besluittype_read", uuid=besluittype.uuid)
+        besluittype_url = reverse(besluittype, namespace=self.NAMESPACE)
 
-        zaaktype_list_url = get_operation_url("zaaktype_list")
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
         data = {
             "identificatie": 0,
             "doel": "some test",
@@ -345,9 +344,9 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
     @tag("gh-1306")
     def test_create_zaaktype_identificatie_all_characters_allowed(self):
         besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
-        besluittype_url = get_operation_url("besluittype_read", uuid=besluittype.uuid)
+        besluittype_url = reverse(besluittype, namespace=self.NAMESPACE)
 
-        zaaktype_list_url = get_operation_url("zaaktype_list")
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
         data = {
             "identificatie": "some zääktype",
             "doel": "some test",
@@ -396,9 +395,9 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_create_zaaktype_referentieproces_no_link(self):
         besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
-        besluittype_url = get_operation_url("besluittype_read", uuid=besluittype.uuid)
+        besluittype_url = reverse(besluittype, namespace=self.NAMESPACE)
 
-        zaaktype_list_url = get_operation_url("zaaktype_list")
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
         data = {
             "identificatie": 0,
             "doel": "some test",
@@ -447,9 +446,9 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_create_zaaktype_without_verlengingstermijn(self):
         besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
-        besluittype_url = get_operation_url("besluittype_read", uuid=besluittype.uuid)
+        besluittype_url = reverse(besluittype, namespace=self.NAMESPACE)
 
-        zaaktype_list_url = get_operation_url("zaaktype_list")
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
         data = {
             "identificatie": 0,
             "doel": "some test",
@@ -490,7 +489,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
     def test_create_zaaktype_generate_unique_identificatie(self):
         zaaktype1 = ZaakTypeFactory.create(catalogus=self.catalogus)
 
-        zaaktype_list_url = get_operation_url("zaaktype_list")
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
         data = {
             "doel": "some test",
             "aanleiding": "some test",
@@ -531,9 +530,9 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_create_zaaktype_fail_besluittype_non_concept(self):
         besluittype = BesluitTypeFactory.create(concept=False, catalogus=self.catalogus)
-        besluittype_url = get_operation_url("besluittype_read", uuid=besluittype.uuid)
+        besluittype_url = reverse(besluittype, namespace=self.NAMESPACE)
 
-        zaaktype_list_url = get_operation_url("zaaktype_list")
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
         data = {
             "identificatie": 0,
             "doel": "some test",
@@ -575,9 +574,9 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_create_zaaktype_fail_different_catalogus_besluittypes(self):
         besluittype = BesluitTypeFactory.create()
-        besluittype_url = get_operation_url("besluittype_read", uuid=besluittype.uuid)
+        besluittype_url = reverse(besluittype, namespace=self.NAMESPACE)
 
-        zaaktype_list_url = get_operation_url("zaaktype_list")
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
         data = {
             "identificatie": 0,
             "doel": "some test",
@@ -622,7 +621,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         catalog1 = CatalogusFactory.create(domein="BRON", rsin="517439943")
         bron_zaaktype = ZaakTypeFactory.create(catalogus=catalog1)
 
-        zaaktype_list_url = get_operation_url("zaaktype_list")
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
         data = {
             "identificatie": "ZAAK1",
             "doel": "some test",
@@ -669,7 +668,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(zaaktype.bronzaaktype_omschrijving, "bron zaak")
 
     def test_create_zaaktype_with_bronzaaktype_without_broncatalogus_fail(self):
-        zaaktype_list_url = get_operation_url("zaaktype_list")
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
         bron_zaaktype = ZaakTypeFactory.create()
         data = {
             "identificatie": "ZAAK1",
@@ -710,7 +709,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_delete_zaaktype(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = get_operation_url("zaaktype_read", uuid=zaaktype.uuid)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         response = self.client.delete(zaaktype_url)
 
@@ -719,7 +718,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_delete_zaaktype_fail_not_concept(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = get_operation_url("zaaktype_read", uuid=zaaktype.uuid)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         response = self.client.delete(zaaktype_url)
 
@@ -730,7 +729,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_delete_zaaktype_accept_header_problem_json(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = get_operation_url("zaaktype_read", uuid=zaaktype.uuid)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         response = self.client.delete(
             zaaktype_url, headers={"accept": "application/problem+json"}
@@ -740,9 +739,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_ophalen_servicenorm_doorlooptijd(self):
         zaaktype = ZaakTypeFactory.create()
-        url = get_operation_url(
-            "zaaktype_read", catalogus_uuid=zaaktype.catalogus.uuid, uuid=zaaktype.uuid
-        )
+        url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         response = self.client.get(url)
 
@@ -756,7 +753,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_update_zaaktype(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         data = {
             "identificatie": 0,
@@ -801,7 +798,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_update_zaaktype_with_existing_zaaktyperelatie(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         ZaakTypenRelatieFactory.create(
             zaaktype=zaaktype, gerelateerd_zaaktype="http://example.com/zaaktype/1"
@@ -850,7 +847,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_update_zaaktype_with_two_existing_zaaktyperelatie(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         ZaakTypenRelatieFactory.create(
             zaaktype=zaaktype, gerelateerd_zaaktype="http://example.com/zaaktype/1"
@@ -903,7 +900,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_update_zaaktype_fail_not_concept(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         data = {
             "identificatie": 0,
@@ -947,7 +944,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_partial_update_zaaktype(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         response = self.client.patch(zaaktype_url, {"aanleiding": "aangepast"})
 
@@ -959,7 +956,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_partial_update_zaaktype_fail_not_concept(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         response = self.client.patch(zaaktype_url, {"aanleiding": "same"})
 
@@ -972,7 +969,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         catalogus = CatalogusFactory.create()
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         BesluitTypeFactory.create(catalogus=catalogus, zaaktypen=[zaaktype])
 
@@ -985,7 +982,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         catalogus = CatalogusFactory.create()
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
         ZaakTypeInformatieObjectTypeFactory.create(
@@ -1001,7 +998,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         catalogus = CatalogusFactory.create()
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         zaaktype2 = ZaakTypeFactory.create(catalogus=catalogus)
         ZaakTypenRelatieFactory.create(
@@ -1017,7 +1014,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         catalogus = CatalogusFactory.create()
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         BesluitTypeFactory.create(
             catalogus=catalogus, zaaktypen=[zaaktype], concept=False
@@ -1034,7 +1031,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         catalogus = CatalogusFactory.create()
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus, concept=False
@@ -1054,7 +1051,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         catalogus = CatalogusFactory.create()
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         BesluitTypeFactory.create(catalogus=catalogus, zaaktypen=[zaaktype])
 
@@ -1101,7 +1098,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         catalogus = CatalogusFactory.create()
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
         ZaakTypeInformatieObjectTypeFactory.create(
@@ -1151,7 +1148,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         catalogus = CatalogusFactory.create()
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         zaaktype2 = ZaakTypeFactory.create(catalogus=catalogus)
         ZaakTypenRelatieFactory.create(
@@ -1201,7 +1198,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         catalogus = CatalogusFactory.create()
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         BesluitTypeFactory.create(
             catalogus=catalogus, zaaktypen=[zaaktype], concept=False
@@ -1254,7 +1251,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         catalogus = CatalogusFactory.create()
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus, concept=False
@@ -1303,7 +1300,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         catalogus = CatalogusFactory.create()
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         data = {
             "identificatie": 0,
@@ -1339,7 +1336,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         }
 
         besluittype = BesluitTypeFactory.create(catalogus=catalogus, concept=False)
-        data["besluittypen"] = [reverse(besluittype)]
+        data["besluittypen"] = [reverse(besluittype, namespace=self.NAMESPACE)]
 
         response = self.client.put(zaaktype_url, data)
 
@@ -1355,7 +1352,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             catalogus=catalogus, datum_einde_geldigheid="2019-01-01"
         )
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         BesluitTypeFactory.create(catalogus=catalogus, zaaktypen=[zaaktype])
 
@@ -1373,7 +1370,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             catalogus=catalogus, datum_einde_geldigheid="2019-01-01"
         )
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
         ZaakTypeInformatieObjectTypeFactory.create(
@@ -1392,7 +1389,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             catalogus=catalogus, datum_einde_geldigheid="2019-01-01"
         )
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         zaaktype2 = ZaakTypeFactory.create(
             catalogus=catalogus, datum_begin_geldigheid="2020-01-01"
@@ -1413,7 +1410,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         catalogus = CatalogusFactory.create()
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus, concept=False
@@ -1437,7 +1434,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             versiedatum=date(2018, 3, 1),
             datum_einde_geldigheid="2019-01-01",
         )
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         zaaktype_for_besluittype = ZaakTypeFactory.create(
             catalogus=catalogus,
@@ -1448,7 +1445,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         besluittype = BesluitTypeFactory.create(
             catalogus=catalogus, concept=False, zaaktypen=[zaaktype_for_besluittype]
         )
-        data = {"besluittypen": [reverse(besluittype)]}
+        data = {"besluittypen": [reverse(besluittype, namespace=self.NAMESPACE)]}
 
         response = self.client.patch(zaaktype_url, data)
 
@@ -1460,7 +1457,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_partial_update_non_concept_zaaktype_einde_geldigheid(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         response = self.client.patch(zaaktype_url, {"eindeGeldigheid": "2020-01-01"})
 
@@ -1481,7 +1478,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             datum_begin_geldigheid=date(2021, 1, 1),
             datum_einde_geldigheid=date(2022, 1, 1),
         )
-        endpoint = reverse(zaaktype)
+        endpoint = reverse(zaaktype, namespace=self.NAMESPACE)
 
         with self.subTest("no overlap"):
             response = self.client.patch(endpoint, {"eindeGeldigheid": None})
@@ -1501,7 +1498,8 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             )
 
             response = self.client.patch(
-                reverse(zaaktype_old), {"eindeGeldigheid": None}
+                reverse(zaaktype_old, namespace=self.NAMESPACE),
+                {"eindeGeldigheid": None},
             )
 
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -1514,7 +1512,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         catalogus = CatalogusFactory.create()
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         BesluitTypeFactory.create(
             catalogus=catalogus, zaaktypen=[zaaktype], concept=False
@@ -1532,7 +1530,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         catalogus = CatalogusFactory.create()
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus, concept=False
@@ -1551,10 +1549,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus, concept=False)
 
         response = self.client.patch(
-            reverse(
-                "catalogi:zaaktype-detail",
-                kwargs={"uuid": zaaktype.uuid, "version": "1"},
-            ),
+            reverse(zaaktype, namespace=self.NAMESPACE),
             {"omschrijving": "Updated description"},
             format="json",
         )
@@ -1576,10 +1571,10 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             broncatalogus_url=f"http://testserver{reverse(catalog1)}",
             bronzaaktype_identificatie=bron_zaaktype.identificatie,
             bronzaaktype_omschrijving=bron_zaaktype.zaaktype_omschrijving,
-            bronzaaktype_url=f"http://testserver{reverse(bron_zaaktype)}",
+            bronzaaktype_url=f"http://testserver{reverse(bron_zaaktype, namespace=self.NAMESPACE)}",
         )
 
-        url = reverse(zaaktype)
+        url = reverse(zaaktype, namespace=self.NAMESPACE)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -1593,7 +1588,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(result["broncatalogus"], expected_broncatalogus)
 
         expected_bronzaaktype = {
-            "url": f"http://testserver{reverse(bron_zaaktype)}",
+            "url": f"http://testserver{reverse(bron_zaaktype, namespace=self.NAMESPACE)}",
             "identificatie": bron_zaaktype.identificatie,
             "omschrijving": bron_zaaktype.zaaktype_omschrijving,
         }
@@ -1605,7 +1600,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         catalog2 = CatalogusFactory.create(domein="XYZ", rsin="004455667")
         zaaktype = ZaakTypeFactory.create(catalogus=catalog2)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         data = {
             "identificatie": 0,
@@ -1637,7 +1632,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
                 "rsin": catalog1.rsin,
             },
             "bronzaaktype": {
-                "url": f"http://example.com{reverse(bron_zaaktype)}",
+                "url": f"http://example.com{reverse(bron_zaaktype, namespace=self.NAMESPACE)}",
                 "identificatie": bron_zaaktype.identificatie,
                 "omschrijving": bron_zaaktype.zaaktype_omschrijving,
             },
@@ -1663,7 +1658,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         )
         self.assertEqual(
             zaaktype.bronzaaktype_url,
-            f"http://example.com{reverse(bron_zaaktype)}",
+            f"http://example.com{reverse(bron_zaaktype, namespace=self.NAMESPACE)}",
         )
 
     def test_patch_update_zaaktype_with_bron_fields(self):
@@ -1673,7 +1668,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         bron_zaaktype = ZaakTypeFactory.create(catalogus=catalog1)
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalog2)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         patch_data = {
             "broncatalogus": {
@@ -1684,7 +1679,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "bronzaaktype": {
                 "identificatie": bron_zaaktype.identificatie,
                 "omschrijving": bron_zaaktype.zaaktype_omschrijving,
-                "url": f"http://example.com{reverse(bron_zaaktype)}",
+                "url": f"http://example.com{reverse(bron_zaaktype, namespace=self.NAMESPACE)}",
             },
         }
 
@@ -1708,7 +1703,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         )
         self.assertEqual(
             zaaktype.bronzaaktype_url,
-            f"http://example.com{reverse(bron_zaaktype)}",
+            f"http://example.com{reverse(bron_zaaktype, namespace=self.NAMESPACE)}",
         )
 
     def test_get_detail_expand_zaakobjecttypen(self):
@@ -1718,7 +1713,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         )
 
         response = self.client.get(
-            reverse(zaaktype),
+            reverse(zaaktype, namespace=self.NAMESPACE),
             {"expand": "zaakobjecttypen"},
         )
 
@@ -1729,7 +1724,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertIn("zaakobjecttypen", data["_expand"])
         self.assertEqual(
             data["_expand"]["zaakobjecttypen"][0]["url"],
-            f"http://testserver{reverse(zaakobjecttype)}",
+            f"http://testserver{reverse(zaakobjecttype, namespace=self.NAMESPACE)}",
         )
 
     def test_get_detail_expand_catalogus(self):
@@ -1738,7 +1733,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         )
 
         response = self.client.get(
-            reverse(zaaktype),
+            reverse(zaaktype, namespace=self.NAMESPACE),
             {"expand": "catalogus"},
         )
 
@@ -1748,7 +1743,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         self.assertEqual(
             data["_expand"]["catalogus"]["url"],
-            f"http://testserver{reverse(self.catalogus)}",
+            f"http://testserver{reverse(self.catalogus, namespace=self.NAMESPACE)}",
         )
 
     def test_get_detail_expand_statustypen(self):
@@ -1760,7 +1755,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         )
 
         response = self.client.get(
-            reverse(zaaktype),
+            reverse(zaaktype, namespace=self.NAMESPACE),
             {"expand": "statustypen"},
         )
 
@@ -1771,7 +1766,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertIn("statustypen", data["_expand"])
         self.assertEqual(
             data["_expand"]["statustypen"][0]["url"],
-            f"http://testserver{reverse(statustype)}",
+            f"http://testserver{reverse(statustype, namespace=self.NAMESPACE)}",
         )
 
     def test_get_detail_expand_resultaattypen(self):
@@ -1783,7 +1778,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         )
 
         response = self.client.get(
-            reverse(zaaktype),
+            reverse(zaaktype, namespace=self.NAMESPACE),
             {"expand": "resultaattypen"},
         )
 
@@ -1794,7 +1789,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertIn("resultaattypen", data["_expand"])
         self.assertEqual(
             data["_expand"]["resultaattypen"][0]["url"],
-            f"http://testserver{reverse(resultaat_type)}",
+            f"http://testserver{reverse(resultaat_type, namespace=self.NAMESPACE)}",
         )
 
     def test_get_detail_expand_eigenschappen(self):
@@ -1806,7 +1801,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         )
 
         response = self.client.get(
-            reverse(zaaktype),
+            reverse(zaaktype, namespace=self.NAMESPACE),
             {"expand": "eigenschappen"},
         )
 
@@ -1817,7 +1812,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertIn("eigenschappen", data["_expand"])
         self.assertEqual(
             data["_expand"]["eigenschappen"][0]["url"],
-            f"http://testserver{reverse(eigenschap)}",
+            f"http://testserver{reverse(eigenschap, namespace=self.NAMESPACE)}",
         )
 
     def test_get_detail_expand_informatieobjecttypen(self):
@@ -1833,7 +1828,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         )
 
         response = self.client.get(
-            reverse(zaaktype),
+            reverse(zaaktype, namespace=self.NAMESPACE),
             {"expand": "informatieobjecttypen"},
         )
 
@@ -1844,7 +1839,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertIn("informatieobjecttypen", data["_expand"])
         self.assertEqual(
             data["_expand"]["informatieobjecttypen"][0]["url"],
-            f"http://testserver{reverse(informatieobjecttype)}",
+            f"http://testserver{reverse(informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE)}",
         )
 
     def test_get_detail_expand_roltypen(self):
@@ -1856,7 +1851,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         )
 
         response = self.client.get(
-            reverse(zaaktype),
+            reverse(zaaktype, namespace=self.NAMESPACE),
             {"expand": "roltypen"},
         )
 
@@ -1867,7 +1862,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertIn("roltypen", data["_expand"])
         self.assertEqual(
             data["_expand"]["roltypen"][0]["url"],
-            f"http://testserver{reverse(roltype)}",
+            f"http://testserver{reverse(roltype, namespace=self.NAMESPACE)}",
         )
 
     def test_get_detail_expand_besluittypen(self):
@@ -1881,7 +1876,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype.besluittypen.add(besluit_type)
 
         response = self.client.get(
-            reverse(zaaktype),
+            reverse(zaaktype, namespace=self.NAMESPACE),
             {"expand": "besluittypen"},
         )
 
@@ -1892,7 +1887,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertIn("besluittypen", data["_expand"])
         self.assertEqual(
             data["_expand"]["besluittypen"][0]["url"],
-            f"http://testserver{reverse(besluit_type)}",
+            f"http://testserver{reverse(besluit_type, namespace=self.NAMESPACE)}",
         )
 
     def test_get_detail_expand_deelzaaktypen(self):
@@ -1906,7 +1901,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype.deelzaaktypen.add(deelzaaktype)
 
         response = self.client.get(
-            reverse(zaaktype),
+            reverse(zaaktype, namespace=self.NAMESPACE),
             {"expand": "deelzaaktypen"},
         )
 
@@ -1917,7 +1912,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertIn("deelzaaktypen", data["_expand"])
         self.assertEqual(
             data["_expand"]["deelzaaktypen"][0]["url"],
-            f"http://testserver{reverse(deelzaaktype)}",
+            f"http://testserver{reverse(deelzaaktype, namespace=self.NAMESPACE)}",
         )
 
     def test_get_detail_expand_multiple(self):
@@ -1957,7 +1952,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype.deelzaaktypen.add(deelzaaktype)
 
         response = self.client.get(
-            reverse(zaaktype),
+            reverse(zaaktype, namespace=self.NAMESPACE),
             {
                 "expand": (
                     "zaakobjecttypen,catalogus,statustypen,resultaattypen,"
@@ -2008,7 +2003,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         with self.assertNumQueries(79):
             response = self.client.get(
-                reverse(zaaktype),
+                reverse(zaaktype, namespace=self.NAMESPACE),
                 {
                     "expand": (
                         "zaakobjecttypen,catalogus,statustypen,resultaattypen,"
@@ -2025,7 +2020,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         )
 
         response = self.client.get(
-            reverse(zaaktype),
+            reverse(zaaktype, namespace=self.NAMESPACE),
             {"expand": "statustypen.roltypen"},
         )
 
@@ -2041,13 +2036,15 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             catalogus=self.catalogus,
         )
 
-        response = self.client.get(reverse(zaaktype))
+        response = self.client.get(reverse(zaaktype, namespace=self.NAMESPACE))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()["_expand"], {})
 
 
 class ZaakTypePublishTests(APITestCase):
+    NAMESPACE = "catalogi"
+
     def set_realted_items(self, zaaktype):
         StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
         StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
@@ -2060,7 +2057,7 @@ class ZaakTypePublishTests(APITestCase):
         zaaktype = ZaakTypeFactory.create(concept=True)
         self.set_realted_items(zaaktype)
 
-        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+        zaaktype_url = f"{reverse(zaaktype, namespace=self.NAMESPACE)}/publish"
 
         response = self.client.post(zaaktype_url)
 
@@ -2091,7 +2088,7 @@ class ZaakTypePublishTests(APITestCase):
             datum_einde_geldigheid=None,
         )
         self.set_realted_items(zaaktype)
-        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+        zaaktype_url = f"{reverse(zaaktype, namespace=self.NAMESPACE)}/publish"
 
         response = self.client.post(zaaktype_url)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -2122,7 +2119,7 @@ class ZaakTypePublishTests(APITestCase):
         zaaktype.besluittypen.add(besluittype)
         self.set_realted_items(zaaktype)
 
-        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+        zaaktype_url = f"{reverse(zaaktype, namespace=self.NAMESPACE)}/publish"
 
         response = self.client.post(zaaktype_url)
 
@@ -2136,7 +2133,7 @@ class ZaakTypePublishTests(APITestCase):
         ZaakTypeInformatieObjectTypeFactory.create(zaaktype=zaaktype)
         self.set_realted_items(zaaktype)
 
-        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+        zaaktype_url = f"{reverse(zaaktype, namespace=self.NAMESPACE)}/publish"
 
         response = self.client.post(zaaktype_url)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -2146,7 +2143,7 @@ class ZaakTypePublishTests(APITestCase):
 
     def test_publish_zaaktype_method_not_allowed(self):
         zaaktype = ZaakTypeFactory.create(concept=True)
-        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+        zaaktype_url = f"{reverse(zaaktype, namespace=self.NAMESPACE)}/publish"
 
         response = self.client.get(zaaktype_url)
 
@@ -2160,7 +2157,7 @@ class ZaakTypePublishTests(APITestCase):
         error_text = _(
             "Publishing a zaaktype requires at least two statustypes to be defined."
         )
-        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+        zaaktype_url = f"{reverse(zaaktype, namespace=self.NAMESPACE)}/publish"
 
         with self.subTest("no statustypen"):
             response = self.client.post(zaaktype_url)
@@ -2192,7 +2189,7 @@ class ZaakTypePublishTests(APITestCase):
         StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
         RolTypeFactory.create(zaaktype=zaaktype)
 
-        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+        zaaktype_url = f"{reverse(zaaktype, namespace=self.NAMESPACE)}/publish"
 
         response = self.client.post(zaaktype_url)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -2219,7 +2216,7 @@ class ZaakTypePublishTests(APITestCase):
         StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
         ResultaatTypeFactory.create(zaaktype=zaaktype)
 
-        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+        zaaktype_url = f"{reverse(zaaktype, namespace=self.NAMESPACE)}/publish"
 
         response = self.client.post(zaaktype_url)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -2241,7 +2238,7 @@ class ZaakTypePublishTests(APITestCase):
     def test_publish_multiple_errors(self):
         zaaktype = ZaakTypeFactory.create(concept=True)
 
-        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+        zaaktype_url = f"{reverse(zaaktype, namespace=self.NAMESPACE)}/publish"
         response = self.client.post(zaaktype_url)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -2278,6 +2275,7 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
     """
 
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     @classmethod
     def setUpTestData(cls):
@@ -2285,7 +2283,7 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
 
         cls.catalogus = CatalogusFactory.create()
 
-        cls.url = get_operation_url("zaaktype_list")
+        cls.url = reverse(ZaakType, namespace=cls.NAMESPACE)
 
     def test_overlap_specified_dates(self):
         """
@@ -2406,12 +2404,16 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
 
 class ZaakTypeFilterAPITests(APITestCase):
     maxDiff = None
-    url = reverse_lazy("catalogi:zaaktype-list")
+    NAMESPACE = "catalogi"
+
+    @property
+    def url(self):
+        return reverse(ZaakType, namespace=self.NAMESPACE)
 
     def test_filter_zaaktype_status_alles(self):
         ZaakTypeFactory.create(concept=True)
         ZaakTypeFactory.create(concept=False)
-        zaaktype_list_url = get_operation_url("zaaktype_list")
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
 
         response = self.client.get(zaaktype_list_url, {"status": "alles"})
         self.assertEqual(response.status_code, 200)
@@ -2423,8 +2425,8 @@ class ZaakTypeFilterAPITests(APITestCase):
     def test_filter_zaaktype_status_concept(self):
         zaaktype1 = ZaakTypeFactory.create(concept=True)
         ZaakTypeFactory.create(concept=False)
-        zaaktype_list_url = get_operation_url("zaaktype_list")
-        zaaktype1_url = get_operation_url("zaaktype_read", uuid=zaaktype1.uuid)
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
+        zaaktype1_url = reverse(zaaktype1, namespace=self.NAMESPACE)
 
         response = self.client.get(zaaktype_list_url, {"status": "concept"})
         self.assertEqual(response.status_code, 200)
@@ -2437,8 +2439,8 @@ class ZaakTypeFilterAPITests(APITestCase):
     def test_filter_zaaktype_status_definitief(self):
         ZaakTypeFactory.create(concept=True)
         zaaktype2 = ZaakTypeFactory.create(concept=False)
-        zaaktype_list_url = get_operation_url("zaaktype_list")
-        zaaktype2_url = get_operation_url("zaaktype_read", uuid=zaaktype2.uuid)
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
+        zaaktype2_url = reverse(zaaktype2, namespace=self.NAMESPACE)
 
         response = self.client.get(zaaktype_list_url, {"status": "definitief"})
         self.assertEqual(response.status_code, 200)
@@ -2451,8 +2453,8 @@ class ZaakTypeFilterAPITests(APITestCase):
     def test_filter_identificatie(self):
         zaaktype1 = ZaakTypeFactory.create(concept=False, identificatie=123)
         ZaakTypeFactory.create(concept=False, identificatie=456)
-        zaaktype_list_url = get_operation_url("zaaktype_list")
-        zaaktype1_url = get_operation_url("zaaktype_read", uuid=zaaktype1.uuid)
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
+        zaaktype1_url = reverse(zaaktype1, namespace=self.NAMESPACE)
 
         response = self.client.get(zaaktype_list_url, {"identificatie": 123})
         self.assertEqual(response.status_code, 200)
@@ -2467,8 +2469,8 @@ class ZaakTypeFilterAPITests(APITestCase):
             concept=False, trefwoorden=["some", "key", "words"]
         )
         ZaakTypeFactory.create(concept=False, trefwoorden=["other", "words"])
-        zaaktype_list_url = get_operation_url("zaaktype_list")
-        zaaktype1_url = get_operation_url("zaaktype_read", uuid=zaaktype1.uuid)
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
+        zaaktype1_url = reverse(zaaktype1, namespace=self.NAMESPACE)
 
         response = self.client.get(zaaktype_list_url, {"trefwoorden": "key"})
         self.assertEqual(response.status_code, 200)
@@ -2480,7 +2482,7 @@ class ZaakTypeFilterAPITests(APITestCase):
 
     def test_validate_unknown_query_params(self):
         ZaakTypeFactory.create_batch(2)
-        url = reverse(ZaakType)
+        url = reverse(ZaakType, namespace=self.NAMESPACE)
 
         response = self.client.get(url, {"someparam": "somevalue"})
 
@@ -2503,15 +2505,19 @@ class ZaakTypeFilterAPITests(APITestCase):
 
         data = response.json()["results"]
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://testserver{reverse(zaaktype)}")
+        self.assertEqual(
+            data[0]["url"],
+            f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
+        )
 
 
 class ZaakTypePaginationTestCase(APITestCase):
     maxDiff = None
+    NAMESPACE = "catalogi"
 
     def test_pagination_default(self):
         ZaakTypeFactory.create_batch(2, concept=False)
-        zaaktype_list_url = get_operation_url("zaaktype_list")
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
 
         response = self.client.get(zaaktype_list_url)
 
@@ -2524,7 +2530,7 @@ class ZaakTypePaginationTestCase(APITestCase):
 
     def test_pagination_page_param(self):
         ZaakTypeFactory.create_batch(2, concept=False)
-        zaaktype_list_url = get_operation_url("zaaktype_list")
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
 
         response = self.client.get(zaaktype_list_url, {"page": 1})
 
@@ -2537,7 +2543,7 @@ class ZaakTypePaginationTestCase(APITestCase):
 
     def test_pagination_pagesize_param(self):
         ZaakTypeFactory.create_batch(10, concept=False)
-        zaaktype_list_url = get_operation_url("zaaktype_list")
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
 
         response = self.client.get(zaaktype_list_url, {"pageSize": 5})
 
@@ -2552,6 +2558,7 @@ class ZaakTypePaginationTestCase(APITestCase):
 
 class ZaaktypeValidationTests(SelectieLijstMixin, APITestCase):
     maxDiff = None
+    NAMESPACE = "catalogi"
 
     @classmethod
     def setUpTestData(cls):
@@ -2559,7 +2566,7 @@ class ZaaktypeValidationTests(SelectieLijstMixin, APITestCase):
 
         cls.catalogus = CatalogusFactory.create()
 
-        cls.url = get_operation_url("zaaktype_list")
+        cls.url = reverse(ZaakType, namespace=cls.NAMESPACE)
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @requests_mock.Mocker()
@@ -2568,8 +2575,8 @@ class ZaaktypeValidationTests(SelectieLijstMixin, APITestCase):
         procestype_url = "https://example.com/procestypen/1234"
         m.get(procestype_url, json={"some": "incorrect property"})
         besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
-        besluittype_url = get_operation_url("besluittype_read", uuid=besluittype.uuid)
-        zaaktype_list_url = get_operation_url("zaaktype_list")
+        besluittype_url = reverse(besluittype, namespace=self.NAMESPACE)
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
         data = {
             "identificatie": 0,
             "doel": "some test",
