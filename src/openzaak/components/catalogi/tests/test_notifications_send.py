@@ -11,7 +11,11 @@ from privates.test import temp_private_root
 from rest_framework import status
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
-from openzaak.components.catalogi.models import BesluitType, InformatieObjectType
+from openzaak.components.catalogi.models import (
+    BesluitType,
+    InformatieObjectType,
+    ZaakType,
+)
 from openzaak.notifications.tests import mock_notification_send
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.utils.urls import reverse
@@ -24,7 +28,6 @@ from .factories import (
     InformatieObjectTypeFactory,
     ZaakTypeFactory,
 )
-from .utils import get_operation_url
 
 
 @tag("notifications")
@@ -35,10 +38,11 @@ from .utils import get_operation_url
 class InformatieObjectTypeSendNotifTestCase(NotificationsConfigMixin, APITestCase):
     heeft_alle_autorisaties = True
     NAMESPACE = "catalogi"
+    CATALOGUS_NAMESPACE = "catalogi"
 
     def test_send_notif_create_informatieobjecttype(self, mock_notif):
         catalogus = CatalogusFactory.create()
-        catalogus_url = reverse(catalogus)
+        catalogus_url = reverse(catalogus, namespace=self.CATALOGUS_NAMESPACE)
         url = reverse(InformatieObjectType, namespace=self.NAMESPACE)
 
         data = {
@@ -71,7 +75,7 @@ class InformatieObjectTypeSendNotifTestCase(NotificationsConfigMixin, APITestCas
                         "actie": "create",
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
-                            "catalogus": f"http://testserver{catalogus_url}",
+                            "catalogus": f"http://testserver{reverse(iot.catalogus, namespace='zaken')}",
                         },
                     },
                     None,
@@ -104,7 +108,7 @@ class InformatieObjectTypeSendNotifTestCase(NotificationsConfigMixin, APITestCas
                         "actie": "partial_update",
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
-                            "catalogus": f"http://testserver{reverse(iot.catalogus)}",
+                            "catalogus": f"http://testserver{reverse(iot.catalogus, namespace='zaken')}",
                         },
                     },
                     None,
@@ -134,7 +138,7 @@ class InformatieObjectTypeSendNotifTestCase(NotificationsConfigMixin, APITestCas
                         "actie": "destroy",
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
-                            "catalogus": f"http://testserver{reverse(iot.catalogus)}",
+                            "catalogus": f"http://testserver{reverse(iot.catalogus, namespace='zaken')}",
                         },
                     },
                     None,
@@ -151,10 +155,11 @@ class InformatieObjectTypeSendNotifTestCase(NotificationsConfigMixin, APITestCas
 class BesluitTypeSendNotifTestCase(NotificationsConfigMixin, APITestCase):
     heeft_alle_autorisaties = True
     NAMESPACE = "catalogi"
+    CATALOGUS_NAMESPACE = "catalogi"
 
     def test_send_notif_create_informatieobjecttype(self, mock_notif):
         catalogus = CatalogusFactory.create()
-        catalogus_url = reverse(catalogus)
+        catalogus_url = reverse(catalogus, namespace=self.CATALOGUS_NAMESPACE)
         url = reverse(BesluitType, namespace=self.NAMESPACE)
 
         data = {
@@ -193,7 +198,7 @@ class BesluitTypeSendNotifTestCase(NotificationsConfigMixin, APITestCase):
                         "actie": "create",
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
-                            "catalogus": f"http://testserver{catalogus_url}",
+                            "catalogus": f"http://testserver{reverse(bt.catalogus, namespace='zaken')}",
                         },
                     },
                     None,
@@ -226,7 +231,7 @@ class BesluitTypeSendNotifTestCase(NotificationsConfigMixin, APITestCase):
                         "actie": "partial_update",
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
-                            "catalogus": f"http://testserver{reverse(bt.catalogus)}",
+                            "catalogus": f"http://testserver{reverse(bt.catalogus, namespace='zaken')}",
                         },
                     },
                     None,
@@ -256,13 +261,112 @@ class BesluitTypeSendNotifTestCase(NotificationsConfigMixin, APITestCase):
                         "actie": "destroy",
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
-                            "catalogus": f"http://testserver{reverse(bt.catalogus)}",
+                            "catalogus": f"http://testserver{reverse(bt.catalogus, namespace='zaken')}",
                         },
                     },
                     None,
                 ),
             ]
         )
+
+
+@tag("notifications")
+@freeze_time("2018-09-07T00:00:00Z")
+@temp_private_root()
+@override_settings(NOTIFICATIONS_DISABLED=False, LOG_NOTIFICATIONS_IN_DB=False)
+@patch("notifications_api_common.viewsets.send_notification.delay")
+class ZaakTypeSendNotifTestCase(NotificationsConfigMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    maxDiff = None
+    NAMESPACE = "catalogi"
+    CATALOGUS_NAMESPACE = "catalogi"
+
+    def _expected_message(self, zaaktype, actie: str) -> dict:
+        return {
+            "kanaal": "zaaktypen",
+            "hoofdObject": f"http://testserver{reverse(zaaktype, namespace='zaken')}",
+            "resource": "zaaktype",
+            "resourceUrl": f"http://testserver{reverse(zaaktype, namespace='zaken')}",
+            "actie": actie,
+            "aanmaakdatum": "2018-09-07T00:00:00Z",
+            "kenmerken": {
+                "catalogus": f"http://testserver{reverse(zaaktype.catalogus, namespace='zaken')}",
+            },
+        }
+
+    def test_send_notif_create_zaaktype(self, mock_notif):
+        catalogus = CatalogusFactory.create()
+        catalogus_url = reverse(catalogus, namespace=self.CATALOGUS_NAMESPACE)
+        url = reverse(ZaakType, namespace=self.NAMESPACE)
+
+        data = {
+            "identificatie": 0,
+            "doel": "some test",
+            "aanleiding": "some test",
+            "indicatieInternOfExtern": InternExtern.extern,
+            "handelingInitiator": "indienen",
+            "onderwerp": "Klacht",
+            "handelingBehandelaar": "uitvoeren",
+            "doorlooptijd": "P30D",
+            "opschortingEnAanhoudingMogelijk": False,
+            "verlengingMogelijk": True,
+            "verlengingstermijn": "P30D",
+            "publicatieIndicatie": True,
+            "verantwoordingsrelatie": [],
+            "productenOfDiensten": ["https://example.com/product/123"],
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "omschrijving": "some test",
+            "gerelateerdeZaaktypen": [],
+            "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
+            "catalogus": f"http://testserver{catalogus_url}",
+            "besluittypen": [],
+            "beginGeldigheid": "2018-01-01",
+            "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
+        }
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        zaaktype = ZaakType.objects.get()
+        self.assertEqual(
+            response.json()["url"],
+            f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
+        )
+        mock_notif.assert_has_calls(
+            [call(self._expected_message(zaaktype, "create"), None)]
+        )
+
+    def test_send_notif_update_zaaktype(self, mock_notif):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        url = reverse(zaaktype, namespace=self.NAMESPACE)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.patch(url, {"omschrijving": "Blabla"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(
+            response.json()["url"],
+            f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
+        )
+        mock_notif.assert_has_calls(
+            [call(self._expected_message(zaaktype, "partial_update"), None)]
+        )
+
+    def test_send_notif_delete_zaaktype(self, mock_notif):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        url = reverse(zaaktype, namespace=self.NAMESPACE)
+        expected = self._expected_message(zaaktype, "destroy")
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.delete(url)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_204_NO_CONTENT, response.data
+        )
+        mock_notif.assert_has_calls([call(expected, None)])
 
 
 @tag("notifications")
@@ -276,9 +380,10 @@ class BesluitTypeSendNotifTestCase(NotificationsConfigMixin, APITestCase):
 class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
+    NAMESPACE = "catalogi"
 
     def test_zaaktype_create_fail_send_notification_create_db_entry(self, m):
-        url = get_operation_url("zaaktype_create")
+        url = reverse(ZaakType, namespace=self.NAMESPACE)
 
         data = {
             "identificatie": 0,
@@ -305,7 +410,7 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
                 }
             ],
             "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
-            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "catalogus": f"http://testserver{reverse(self.catalogus, namespace=self.NAMESPACE)}",
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
@@ -319,17 +424,18 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
+        zaaktype = ZaakType.objects.first()
         data = response.json()
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "create",
-            "hoofdObject": data["url"],
+            "hoofdObject": f"http://testserver{reverse(zaaktype, namespace='zaken')}",
             "kanaal": "zaaktypen",
             "kenmerken": {
-                "catalogus": f"http://testserver{self.catalogus_detail_url}",
+                "catalogus": f"http://testserver{reverse(self.catalogus, namespace='zaken')}",
             },
             "resource": "zaaktype",
-            "resourceUrl": data["url"],
+            "resourceUrl": f"http://testserver{reverse(zaaktype, namespace='zaken')}",
         }
 
         self.assertEqual(m.last_request.json(), message)
@@ -338,7 +444,7 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
 
     def test_zaaktype_delete_fail_send_notification_create_db_entry(self, m):
         zaaktype = ZaakTypeFactory.create()
-        url = reverse(zaaktype)
+        url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         mock_notification_send(m, status_code=403)
 
@@ -350,13 +456,13 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "destroy",
-            "hoofdObject": f"http://testserver{url}",
+            "hoofdObject": f"http://testserver{reverse(zaaktype, namespace='zaken')}",
             "kanaal": "zaaktypen",
             "kenmerken": {
-                "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
+                "catalogus": f"http://testserver{reverse(zaaktype.catalogus, namespace='zaken')}",
             },
             "resource": "zaaktype",
-            "resourceUrl": f"http://testserver{url}",
+            "resourceUrl": f"http://testserver{reverse(zaaktype, namespace='zaken')}",
         }
 
         self.assertEqual(m.last_request.json(), message)
@@ -376,12 +482,13 @@ class BesluitTypeFailedNotificationTests(NotificationsConfigMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
     NAMESPACE = "catalogi"
+    CATALOGUS_NAMESPACE = "catalogi"
 
     def test_besluittype_create_fail_send_notification_create_db_entry(self, m):
         url = reverse(BesluitType, namespace=self.NAMESPACE)
 
         data = {
-            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "catalogus": f"http://testserver{reverse(self.catalogus, namespace=self.CATALOGUS_NAMESPACE)}",
             "zaaktypen": [],
             "omschrijving": "test",
             "omschrijvingGeneriek": "",
@@ -415,7 +522,7 @@ class BesluitTypeFailedNotificationTests(NotificationsConfigMixin, APITestCase):
             "hoofdObject": f"http://testserver{reverse(besluittype, namespace='zaken')}",
             "kanaal": "besluittypen",
             "kenmerken": {
-                "catalogus": f"http://testserver{self.catalogus_detail_url}",
+                "catalogus": f"http://testserver{reverse(self.catalogus, namespace='zaken')}",
             },
             "resource": "besluittype",
             "resourceUrl": f"http://testserver{reverse(besluittype, namespace='zaken')}",
@@ -442,7 +549,7 @@ class BesluitTypeFailedNotificationTests(NotificationsConfigMixin, APITestCase):
             "hoofdObject": f"http://testserver{reverse(besluittype, namespace='zaken')}",
             "kanaal": "besluittypen",
             "kenmerken": {
-                "catalogus": f"http://testserver{reverse(besluittype.catalogus, namespace='catalogi')}",
+                "catalogus": f"http://testserver{reverse(besluittype.catalogus, namespace='zaken')}",
             },
             "resource": "besluittype",
             "resourceUrl": f"http://testserver{reverse(besluittype, namespace='zaken')}",
@@ -467,6 +574,7 @@ class InformatieObjectTypeFailedNotificationTests(
     heeft_alle_autorisaties = True
     maxDiff = None
     NAMESPACE = "catalogi"
+    CATALOGUS_NAMESPACE = "catalogi"
 
     def test_informatieobjecttype_create_fail_send_notification_create_db_entry(
         self, m
@@ -474,7 +582,7 @@ class InformatieObjectTypeFailedNotificationTests(
         url = reverse(InformatieObjectType, namespace=self.NAMESPACE)
 
         data = {
-            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "catalogus": f"http://testserver{reverse(self.catalogus, namespace=self.CATALOGUS_NAMESPACE)}",
             "omschrijving": "test",
             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             "beginGeldigheid": "2019-01-01",
@@ -500,7 +608,7 @@ class InformatieObjectTypeFailedNotificationTests(
             "hoofdObject": f"http://testserver{reverse(iot, namespace='documenten')}",
             "kanaal": "informatieobjecttypen",
             "kenmerken": {
-                "catalogus": f"http://testserver{self.catalogus_detail_url}",
+                "catalogus": f"http://testserver{reverse(self.catalogus, namespace='zaken')}",
             },
             "resource": "informatieobjecttype",
             "resourceUrl": f"http://testserver{reverse(iot, namespace='documenten')}",
@@ -529,7 +637,7 @@ class InformatieObjectTypeFailedNotificationTests(
             "hoofdObject": f"http://testserver{reverse(iotype, namespace='documenten')}",
             "kanaal": "informatieobjecttypen",
             "kenmerken": {
-                "catalogus": f"http://testserver{reverse(iotype.catalogus, namespace='catalogi')}",
+                "catalogus": f"http://testserver{reverse(iotype.catalogus, namespace='zaken')}",
             },
             "resource": "informatieobjecttype",
             "resourceUrl": f"http://testserver{reverse(iotype, namespace='documenten')}",
