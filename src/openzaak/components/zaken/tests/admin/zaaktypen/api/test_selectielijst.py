@@ -7,9 +7,8 @@ from rest_framework.reverse import reverse_lazy
 from rest_framework.test import APITestCase
 
 from openzaak.accounts.tests.factories import UserFactory
+from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.selectielijst.models import ReferentieLijstConfig
-
-from ...factories import ZaakTypeFactory
 
 
 class SelectieLijstResultatenTests(APITestCase):

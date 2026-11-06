@@ -10,6 +10,12 @@ from dateutil.relativedelta import relativedelta
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 
+from openzaak.components.catalogi.tests.factories import (
+    ResultaatTypeFactory,
+    StatusTypeFactory,
+    ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
+)
 from openzaak.selectielijst.tests import (
     mock_resource_get,
     mock_resource_list,
@@ -18,13 +24,6 @@ from openzaak.selectielijst.tests import (
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
 from openzaak.tests.utils.admin import AdminTestMixin
-
-from ..factories import (
-    ResultaatTypeFactory,
-    StatusTypeFactory,
-    ZaakTypeFactory,
-    ZaakTypeInformatieObjectTypeFactory,
-)
 
 
 @disable_admin_mfa()

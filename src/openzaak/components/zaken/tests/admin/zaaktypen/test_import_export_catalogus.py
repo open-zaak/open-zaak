@@ -14,10 +14,7 @@ from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
-from openzaak.selectielijst.models import ReferentieLijstConfig
-from openzaak.tests.utils import patch_resource_validator
-
-from ...models import (
+from openzaak.components.catalogi.models import (
     BesluitType,
     Catalogus,
     Eigenschap,
@@ -28,7 +25,7 @@ from ...models import (
     ZaakType,
     ZaakTypeInformatieObjectType,
 )
-from ..factories import (
+from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
     CatalogusFactory,
     EigenschapFactory,
@@ -39,6 +36,9 @@ from ..factories import (
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
 )
+from openzaak.selectielijst.models import ReferentieLijstConfig
+from openzaak.tests.utils import patch_resource_validator
+
 from .test_import_export_zaaktype import MockSelectielijst
 
 

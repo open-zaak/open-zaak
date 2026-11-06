@@ -5,14 +5,15 @@ from django.urls import reverse
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 
-from openzaak.tests.utils.admin import AdminTestMixin
-
-from ...models import BesluitTypeInformatieObjectType
-from ..factories import (
+from openzaak.components.catalogi.models import BesluitTypeInformatieObjectType
+from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
     InformatieObjectTypeFactory,
 )
-from ..factories.relatieklassen import BesluitTypeInformatieObjectTypeFactory
+from openzaak.components.catalogi.tests.factories.relatieklassen import (
+    BesluitTypeInformatieObjectTypeFactory,
+)
+from openzaak.tests.utils.admin import AdminTestMixin
 
 
 @disable_admin_mfa()

@@ -9,17 +9,16 @@ from django_webtest import WebTest
 from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
 
+from openzaak.components.catalogi.models import ZaakType
+from openzaak.components.catalogi.tests.factories import (
+    CatalogusFactory,
+    ZaakTypeFactory,
+)
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
 from openzaak.tests.utils.admin import AdminTestMixin
-
-from ...models import ZaakType
-from ..factories import (
-    CatalogusFactory,
-    ZaakTypeFactory,
-)
 
 
 @tag("notifications")
@@ -46,7 +45,7 @@ class NotificationAdminTests(
 
         cls.catalogus = CatalogusFactory.create()
         cls.catalogus_url = reverse(
-            "catalogi:catalogus-detail",
+            "zaken:catalogus-detail",
             kwargs={"uuid": cls.catalogus.uuid, "version": 1},
         )
 
@@ -78,7 +77,7 @@ class NotificationAdminTests(
 
         zaaktype = ZaakType.objects.get()
         zaaktype_url = reverse(
-            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
+            "zaken:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
         )
         mock_notif.assert_called_with(
             {
@@ -119,7 +118,7 @@ class NotificationAdminTests(
             form.submit("_save")
 
         zaaktype_url = reverse(
-            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
+            "zaken:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
         )
         mock_notif.assert_called_with(
             {
@@ -186,7 +185,7 @@ class NotificationAdminTests(
         zaaktype_new = ZaakType.objects.exclude(pk=zaaktype_old.pk).get()
 
         zaaktype_new_url = reverse(
-            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype_new.uuid, "version": 1}
+            "zaken:zaaktype-detail", kwargs={"uuid": zaaktype_new.uuid, "version": 1}
         )
         mock_notif.assert_called_with(
             {

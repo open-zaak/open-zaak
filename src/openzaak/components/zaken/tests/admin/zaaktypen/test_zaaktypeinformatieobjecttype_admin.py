@@ -7,18 +7,17 @@ from django.utils.translation import gettext as _
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 
+from openzaak.components.catalogi.models import ZaakTypeInformatieObjectType
+from openzaak.components.catalogi.tests.factories import (
+    InformatieObjectTypeFactory,
+    ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
+)
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 from openzaak.tests.utils.admin import AdminTestMixin
-
-from ...models import ZaakTypeInformatieObjectType
-from ..factories import (
-    InformatieObjectTypeFactory,
-    ZaakTypeFactory,
-    ZaakTypeInformatieObjectTypeFactory,
-)
 
 
 @tag("gh-1877")

@@ -9,11 +9,10 @@ from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.constants import RolOmschrijving
 
 from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.components.catalogi.models import RolType
+from openzaak.components.catalogi.tests.factories import RolTypeFactory, ZaakTypeFactory
 from openzaak.components.zaken.tests.factories import RolFactory
 from openzaak.tests.utils.admin import AdminTestMixin
-
-from ...models import RolType
-from ..factories import RolTypeFactory, ZaakTypeFactory
 
 
 @tag("gh-1042")
