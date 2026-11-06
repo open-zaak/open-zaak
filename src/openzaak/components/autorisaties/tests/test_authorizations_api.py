@@ -385,7 +385,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        applicatie = Applicatie.objects.get()
+        applicatie = Applicatie.objects.get(client_ids=["id1"])
         self.assertEqual(
             applicatie.autorisaties.get(component="zrc").zaaktype, zaaktype
         )
