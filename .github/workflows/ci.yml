@@ -251,7 +251,7 @@ jobs:
         id: sphinx-ssl-conf
 
   open-api-ci:
-    uses: maykinmedia/open-api-workflows/.github/workflows/ci.yml@31eaea25acd18bb681fe0d01b2452c3dd8d299b9 # v7.0.0
+    uses: maykinmedia/open-api-workflows/.github/workflows/ci.yml@776c60ffef1d34cbdee5a2402322cae6278ec237 # v7.0.1
     needs:
       - store-reusable-workflow-vars
     permissions:
@@ -266,7 +266,7 @@ jobs:
       docs-ssl-conf: ${{ needs.store-reusable-workflow-vars.outputs.sphinx-ssl-conf }}
 
   open-api-publish:
-    uses: maykinmedia/open-api-workflows/.github/workflows/publish.yml@31eaea25acd18bb681fe0d01b2452c3dd8d299b9 # v7.0.0
+    uses: maykinmedia/open-api-workflows/.github/workflows/publish.yml@776c60ffef1d34cbdee5a2402322cae6278ec237 # v7.0.1
     needs:
       - store-reusable-workflow-vars
       - open-api-ci
@@ -279,7 +279,7 @@ jobs:
       docker-token: ${{ secrets.DOCKER_TOKEN }}
 
   update-docker-readme:
-    uses: maykinmedia/open-api-workflows/.github/workflows/dockerhub-description.yml@31eaea25acd18bb681fe0d01b2452c3dd8d299b9 # v7.0.0
+    uses: maykinmedia/open-api-workflows/.github/workflows/dockerhub-description.yml@776c60ffef1d34cbdee5a2402322cae6278ec237 # v7.0.1
     needs:
       - open-api-publish
     with:
