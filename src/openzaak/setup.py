@@ -114,7 +114,8 @@ def monkeypatch_drf_camel_case() -> None:
 
 def monkeypatch_requests():
     """
-    Add a default timeout for any requests calls.
+    Add a default timeout for any requests calls, and start a new snapshot epoch
+    before any unsafe one (see :mod:`openzaak.utils.snapshot`).
 
     """
     try:
@@ -131,8 +132,13 @@ def monkeypatch_requests():
 
     Session._original_request = Session.request
 
-    def new_request(self, *args, **kwargs):
+    def new_request(self, method, *args, **kwargs):
+        # imported here: ``openzaak.utils`` imports Django
+        from openzaak.utils.snapshot import on_outgoing
+
+        # before sending, so an epoch starts whether the request succeeds or not
+        on_outgoing(method)
         kwargs.setdefault("timeout", settings.REQUESTS_DEFAULT_TIMEOUT)
-        return self._original_request(*args, **kwargs)
+        return self._original_request(method, *args, **kwargs)
 
     Session.request = new_request

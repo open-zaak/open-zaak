@@ -1,0 +1,43 @@
+# Configuration of the "foreign" system in docker/docker-compose.e2e.yml.
+# Catalogi and documents are created by the tests themselves, over the APIs.
+
+sites_config_enable: true
+sites_config:
+  items:
+    - domain: 127.0.0.1:8001
+      name: Foreign ZGW
+
+# our tests -> foreign system
+vng_api_common_credentials_config_enable: true
+vng_api_common_credentials:
+  items:
+    - identifier: e2e-tests
+      secret: e2e-tests
+
+vng_api_common_applicaties_config_enable: true
+vng_api_common_applicaties:
+  items:
+    - uuid: 4b6e3b0c-6e0c-4a43-9d0e-2b0f3c3c9e2a
+      client_ids:
+        - e2e-tests
+      label: e2e tests
+      heeft_alle_autorisaties: true
+
+# foreign system -> our APIs, served by the tests on the host (``E2E_LIVE_SERVER_PORT``)
+zgw_consumers_config_enable: true
+zgw_consumers:
+  services:
+    - identifier: e2e-zaken
+      label: Zaken API under test
+      api_root: http://host.docker.internal:8765/zaken/api/v1/
+      api_type: zrc
+      auth_type: zgw
+      client_id: foreign
+      secret: foreign
+    - identifier: e2e-besluiten
+      label: Besluiten API under test
+      api_root: http://host.docker.internal:8765/besluiten/api/v1/
+      api_type: brc
+      auth_type: zgw
+      client_id: foreign
+      secret: foreign

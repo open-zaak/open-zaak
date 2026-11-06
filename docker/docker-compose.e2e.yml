@@ -1,0 +1,78 @@
+# A "foreign" ZGW implementation to record the VCR cassettes of the e2e tests
+# (tagged ``e2e``) against. Open Zaak ``latest`` stands in for any implementation of
+# the VNG standards; the tests only rely on the standard APIs, plus this system being
+# able to call our Zaken and Besluiten APIs back (to verify relations).
+#
+# Record:
+#
+#   docker compose -f docker/docker-compose.e2e.yml up -d --wait
+#   VCR_RECORD_MODE=once src/manage.py test src --tag e2e
+#   docker compose -f docker/docker-compose.e2e.yml down -v
+#
+# Delete a test's cassette to re-record it. The tests serve our APIs on port 8765 of
+# all interfaces; set ``E2E_LIVE_SERVER_HOST`` to the docker0 gateway address to
+# narrow that down.
+#
+# Replaying the cassettes (the default, ``VCR_RECORD_MODE=none``) needs none of this.
+
+name: openzaak-e2e
+
+x-foreign-env: &foreign-env
+  DJANGO_SETTINGS_MODULE: openzaak.conf.docker
+  SECRET_KEY: e2e-foreign
+  ALLOWED_HOSTS: 127.0.0.1,localhost,web
+  SITE_DOMAIN: 127.0.0.1:8001
+  IS_HTTPS: "no"
+  CACHE_DEFAULT: redis:6379/0
+  CACHE_AXES: redis:6379/0
+  CELERY_BROKER_URL: redis://redis:6379/0
+  CELERY_RESULT_BACKEND: redis://redis:6379/0
+  NOTIFICATIONS_DISABLED: "true"
+  DISABLE_2FA: "true"
+  OTEL_SDK_DISABLED: "true"
+  ENVIRONMENT: e2e
+
+services:
+  db:
+    image: postgis/postgis:17-3.5
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - ./postgres.entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 2s
+      retries: 30
+
+  redis:
+    image: redis:8
+
+  web-init:
+    image: openzaak/open-zaak:latest
+    environment:
+      <<: *foreign-env
+      RUN_SETUP_CONFIG: "true"
+    command: /setup_configuration.sh
+    volumes:
+      - ./e2e/setup_configuration:/app/setup_configuration:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    image: openzaak/open-zaak:latest
+    environment: *foreign-env
+    ports:
+      - "8001:8000"
+    # the tests serve our APIs from the host, see ``openzaak.tests.utils.e2e``
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "maykin-common", "health-check"]
+      interval: 2s
+      retries: 60
+    depends_on:
+      web-init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started

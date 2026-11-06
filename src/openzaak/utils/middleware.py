@@ -18,6 +18,7 @@ from vng_api_common.middleware import (
 from openzaak.config.models import InternalService
 
 from .constants import COMPONENT_MAPPING
+from .snapshot import snapshot_scope
 
 logger = structlog.stdlib.get_logger(__name__)
 
@@ -70,6 +71,22 @@ class OverrideHostMiddleware:
         if is_api_request(request):
             override_request_host(request)
         return self.get_response(request)
+
+
+class SnapshotMiddleware:
+    """
+    Read each external resource at most once per epoch while handling a request.
+
+    See :mod:`openzaak.utils.snapshot`. The ``on_commit`` callbacks of atomic views
+    run inside the scope as well.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        with snapshot_scope():
+            return self.get_response(request)
 
 
 class LogHeadersMiddleware:
