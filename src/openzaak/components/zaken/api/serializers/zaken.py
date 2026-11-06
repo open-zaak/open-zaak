@@ -76,7 +76,13 @@ from openzaak.components.catalogi.api.serializers.zaakobjecttype import (
     ZaakObjectTypeSerializer,
 )
 from openzaak.components.catalogi.api.serializers.zaaktype import ZaakTypeSerializer
-from openzaak.components.catalogi.models import Eigenschap
+from openzaak.components.catalogi.models import (
+    Eigenschap,
+    ResultaatType,
+    RolType,
+    StatusType,
+    ZaakType,
+)
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 from openzaak.components.zaken.archiving import calculate_archiving_data
 from openzaak.components.zaken.validators import CorrectZaaktypeValidator
@@ -457,6 +463,19 @@ class ZaakSerializer(
         ),
     )
 
+    zaaktype = DeprecatedNamespaceLengthHyperlinkedRelatedField(
+        help_text="URL-referentie naar het ZAAKTYPE (in de Catalogi API).",
+        lookup_field="uuid",
+        max_length=1000,
+        min_length=1,
+        queryset=ZaakType.objects.all(),
+        validators=[
+            IsImmutableValidator(),
+            PublishValidator(),
+        ],
+        view_name="zaken:zaaktype-detail",
+    )
+
     inclusion_serializers = {
         # 1 level
         "zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
@@ -553,16 +572,6 @@ class ZaakSerializer(
         extra_kwargs = {
             "url": {"lookup_field": "uuid", "view_name": "zaken:zaak-detail"},
             "uuid": {"read_only": True},
-            "zaaktype": {
-                "lookup_field": "uuid",
-                "view_name": "catalogi:zaaktype-detail",
-                "max_length": 1000,
-                "min_length": 1,
-                "validators": [
-                    IsImmutableValidator(),
-                    PublishValidator(),
-                ],
-            },
             "zaakgeometrie": {
                 "help_text": "Punt, lijn of (multi-)vlak geometrie-informatie, in GeoJSON. (long, lat volgorde)"
             },
@@ -989,6 +998,13 @@ POSTPONABLE_AFLEIDINGSWIJZES = {
 
 
 class StatusSerializer(serializers.HyperlinkedModelSerializer):
+    statustype = DeprecatedNamespaceLengthHyperlinkedRelatedField(
+        help_text="URL-referentie naar het STATUSTYPE (in de Catalogi API).",
+        lookup_field="uuid",
+        queryset=StatusType.objects.all(),
+        view_name="zaken:statustype-detail",
+    )
+
     inclusion_serializers = {
         "zaak": "openzaak.components.zaken.api.serializers.ZaakSerializer",
         "zaak.zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
@@ -1030,10 +1046,6 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid", "view_name": "zaken:zaak-detail"},
             "datum_status_gezet": {"validators": [DateNotInFutureValidator()]},
-            "statustype": {
-                "lookup_field": "uuid",
-                "view_name": "catalogi:statustype-detail",
-            },
             "indicatie_laatst_gezette_status": {
                 "read_only": True,
                 "help_text": _(
@@ -1478,9 +1490,9 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
         lookup_field="uuid",
         validators=[IsImmutableValidator()],
     )
-    eigenschap = LengthHyperlinkedRelatedField(
+    eigenschap = DeprecatedNamespaceLengthHyperlinkedRelatedField(
         queryset=Eigenschap.objects.all(),
-        view_name="catalogi:eigenschap-detail",
+        view_name="zaken:eigenschap-detail",
         lookup_field="uuid",
         validators=[IsImmutableValidator()],
     )
@@ -1569,6 +1581,16 @@ class RolSerializer(PolymorphicSerializer):
         ),
     )
 
+    roltype = DeprecatedNamespaceLengthHyperlinkedRelatedField(
+        help_text="URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.",
+        lookup_field="uuid",
+        max_length=1000,
+        min_length=1,
+        queryset=RolType.objects.all(),
+        validators=[IsImmutableValidator()],
+        view_name="zaken:roltype-detail",
+    )
+
     class Meta:
         model = Rol
         fields = (
@@ -1601,14 +1623,6 @@ class RolSerializer(PolymorphicSerializer):
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid", "view_name": "zaken:zaak-detail"},
             "betrokkene": {"required": False},
-            "roltype": {
-                "lookup_field": "uuid",
-                "max_length": 1000,
-                "min_length": 1,
-                "validators": [IsImmutableValidator()],
-                "help_text": get_help_text("zaken.Rol", "roltype"),
-                "view_name": "catalogi:roltype-detail",
-            },
             "statussen": {
                 "lookup_field": "uuid",
                 "read_only": True,
@@ -1735,6 +1749,16 @@ class RolUpdateSubSerializer(RolSubSerializer):
 
 
 class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
+    resultaattype = DeprecatedNamespaceLengthHyperlinkedRelatedField(
+        help_text="URL-referentie naar het RESULTAATTYPE (in de Catalogi API).",
+        lookup_field="uuid",
+        max_length=1000,
+        min_length=1,
+        queryset=ResultaatType.objects.all(),
+        validators=[IsImmutableValidator()],
+        view_name="zaken:resultaattype-detail",
+    )
+
     inclusion_serializers = {
         "zaak": "openzaak.components.zaken.api.serializers.ZaakSerializer",
         "zaak.zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
@@ -1752,13 +1776,6 @@ class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid", "view_name": "zaken:resultaat-detail"},
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid", "view_name": "zaken:zaak-detail"},
-            "resultaattype": {
-                "lookup_field": "uuid",
-                "max_length": 1000,
-                "min_length": 1,
-                "validators": [IsImmutableValidator()],
-                "view_name": "catalogi:resultaattype-detail",
-            },
         }
 
 

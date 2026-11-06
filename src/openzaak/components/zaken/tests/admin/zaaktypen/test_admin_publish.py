@@ -15,17 +15,7 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
 from openzaak.components.catalogi.admin.mixins import PublishAdminMixin
-from openzaak.notifications.tests.mixins import NotificationsConfigMixin
-from openzaak.selectielijst.models import ReferentieLijstConfig
-from openzaak.selectielijst.tests import (
-    mock_resource_get,
-    mock_resource_list,
-    mock_selectielijst_oas_get,
-)
-from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
-from openzaak.tests.utils import AdminTestMixin, ClearCachesMixin
-
-from ..factories import (
+from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
     CatalogusFactory,
     InformatieObjectTypeFactory,
@@ -35,6 +25,15 @@ from ..factories import (
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
 )
+from openzaak.notifications.tests.mixins import NotificationsConfigMixin
+from openzaak.selectielijst.models import ReferentieLijstConfig
+from openzaak.selectielijst.tests import (
+    mock_resource_get,
+    mock_resource_list,
+    mock_selectielijst_oas_get,
+)
+from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
+from openzaak.tests.utils import AdminTestMixin, ClearCachesMixin
 
 
 @disable_admin_mfa()
@@ -121,10 +120,10 @@ class ZaaktypeAdminTests(
 
         # Verify notification is sent
         zaaktype_url = reverse(
-            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
+            "zaken:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
         )
         catalogus_url = reverse(
-            "catalogi:catalogus-detail",
+            "zaken:catalogus-detail",
             kwargs={"uuid": zaaktype.catalogus.uuid, "version": 1},
         )
         mock_notif.assert_called_with(

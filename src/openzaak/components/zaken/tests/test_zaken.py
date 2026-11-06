@@ -713,9 +713,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
     @tag("gh-1511")
     def test_create_zaak_with_incorrect_local_zaaktype(self):
         url = reverse(Zaak)
-        zaaktype_url = reverse(
-            "catalogi:zaaktype-detail", kwargs={"uuid": uuid.uuid4()}
-        )
+        zaaktype_url = reverse("zaken:zaaktype-detail", kwargs={"uuid": uuid.uuid4()})
 
         zaak_data = {
             "zaaktype": f"http://testserver{zaaktype_url}",

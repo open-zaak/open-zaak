@@ -80,7 +80,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         """
         url = get_operation_url("zaak_create")
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace="zaken")
         catalogus_url = reverse(zaaktype.catalogus)
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
@@ -1036,7 +1036,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
     def test_zaak_create_fail_send_notification_create_db_entry(self, m):
         url = get_operation_url("zaak_create")
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace="zaken")
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
@@ -1674,7 +1674,7 @@ class InvalidNotifConfigTests(
 
     #     url = get_operation_url("zaak_create")
     #     zaaktype = ZaakTypeFactory.create(concept=False)
-    #     zaaktype_url = reverse(zaaktype)
+    #     zaaktype_url = reverse(zaaktype, namespace="zaken")
     #     data = {
     #         "zaaktype": f"http://testserver{zaaktype_url}",
     #         "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,

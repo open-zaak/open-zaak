@@ -14,6 +14,18 @@ from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
+from openzaak.components.catalogi.models import ZaakType
+from openzaak.components.catalogi.tests.factories import (
+    BesluitTypeFactory,
+    CatalogusFactory,
+    EigenschapFactory,
+    ResultaatTypeFactory,
+    RolTypeFactory,
+    StatusTypeFactory,
+    ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
+    ZaakTypenRelatieFactory,
+)
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.selectielijst.models import ReferentieLijstConfig
@@ -25,19 +37,6 @@ from openzaak.selectielijst.tests import (
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.tests.utils import ClearCachesMixin, mock_nrc_oas_get
 from openzaak.tests.utils.admin import AdminTestMixin
-
-from ...models import ZaakType
-from ..factories import (
-    BesluitTypeFactory,
-    CatalogusFactory,
-    EigenschapFactory,
-    ResultaatTypeFactory,
-    RolTypeFactory,
-    StatusTypeFactory,
-    ZaakTypeFactory,
-    ZaakTypeInformatieObjectTypeFactory,
-    ZaakTypenRelatieFactory,
-)
 
 
 @disable_admin_mfa()
@@ -289,10 +288,10 @@ class ZaaktypeAdminTests(
 
         # Verify notification is sent
         zaaktype_new_url = reverse(
-            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype_new.uuid, "version": 1}
+            "zaken:zaaktype-detail", kwargs={"uuid": zaaktype_new.uuid, "version": 1}
         )
         catalogus_url = reverse(
-            "catalogi:catalogus-detail",
+            "zaken:catalogus-detail",
             kwargs={"uuid": zaaktype_new.catalogus.uuid, "version": 1},
         )
         mock_notif.assert_called_with(

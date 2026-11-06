@@ -8,11 +8,13 @@ from django.utils.translation import gettext as _
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 
+from openzaak.components.catalogi.models import ZaakObjectType
+from openzaak.components.catalogi.tests.factories import (
+    ZaakObjectTypeFactory,
+    ZaakTypeFactory,
+)
 from openzaak.components.zaken.tests.factories import ZaakObjectFactory
 from openzaak.tests.utils.admin import AdminTestMixin
-
-from ...models import ZaakObjectType
-from ..factories import ZaakObjectTypeFactory, ZaakTypeFactory
 
 
 @tag("gh-1877")

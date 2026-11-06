@@ -6,6 +6,7 @@ from notifications_api_common.utils import notification_documentation
 
 from openzaak.utils.apidoc import DOC_AUTH_JWT
 
+from ...catalogi.api.kanalen import KANAAL_BESLUITTYPEN, KANAAL_ZAAKTYPEN
 from .kanalen import KANAAL_ZAKEN
 
 description = f"""Een API om een zaakregistratiecomponent (ZRC) te benaderen.
@@ -43,6 +44,10 @@ worden niet ondersteund.
 ### Notificaties
 
 {notification_documentation(KANAAL_ZAKEN)}
+
+{notification_documentation(KANAAL_ZAAKTYPEN)}
+
+{notification_documentation(KANAAL_BESLUITTYPEN)}
 
 **Handige links**
 

@@ -5587,10 +5587,11 @@ paths:
   /informatieobjecttypen/{uuid}/publish:
     post:
       operationId: informatieobjecttype_publish
-      description: Publiceren van het informatieobjecttype zorgt ervoor dat dit in
-        een Documenten API kan gebruikt worden. Na het publiceren van een informatieobjecttype
-        zijn geen inhoudelijke wijzigingen meer mogelijk. Indien er na het publiceren
-        nog wat gewijzigd moet worden, dan moet je een nieuwe versie aanmaken.
+      description: '**EXPERIMENTEEL** Publiceren van het informatieobjecttype zorgt
+        ervoor dat dit in een Documenten API kan gebruikt worden. Na het publiceren
+        van een informatieobjecttype zijn geen inhoudelijke wijzigingen meer mogelijk.
+        Indien er na het publiceren nog wat gewijzigd moet worden, dan moet je een
+        nieuwe versie aanmaken.'
       summary: Publiceer het concept INFORMATIEOBJECTTYPE.
       parameters:
       - in: header

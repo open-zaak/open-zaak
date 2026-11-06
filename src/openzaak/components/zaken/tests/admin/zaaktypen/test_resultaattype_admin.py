@@ -19,6 +19,11 @@ from vng_api_common.constants import (
 )
 
 from openzaak.accounts.tests.factories import UserFactory
+from openzaak.components.catalogi.models import ResultaatType
+from openzaak.components.catalogi.tests.factories import (
+    ResultaatTypeFactory,
+    ZaakTypeFactory,
+)
 from openzaak.components.zaken.tests.factories import ResultaatFactory
 from openzaak.selectielijst.admin_fields import (
     get_resultaattype_omschrijving_readonly_field,
@@ -32,9 +37,6 @@ from openzaak.selectielijst.tests import (
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
 from openzaak.tests.utils.admin import AdminTestMixin
-
-from ...models import ResultaatType
-from ..factories import ResultaatTypeFactory, ZaakTypeFactory
 
 
 @disable_admin_mfa()

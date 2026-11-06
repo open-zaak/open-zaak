@@ -18,6 +18,7 @@ from openzaak.utils.urls import reverse
 class ServiceNormDurationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
+    NAMESPACE = "catalogi"
 
     def setUp(self):
         super().setUp()
@@ -50,7 +51,7 @@ class ServiceNormDurationTests(JWTAuthMixin, APITestCase):
         }
 
     def test_create_zaaktype_without_servicenorm(self):
-        zaaktype_list_url = reverse("catalogi:zaaktype-list")
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
 
         response = self.client.post(zaaktype_list_url, self.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -61,7 +62,9 @@ class ServiceNormDurationTests(JWTAuthMixin, APITestCase):
         zt = ZaakType.objects.get()
         self.assertEqual(zt.servicenorm_behandeling, None)
 
-        response = self.client.patch(reverse(zt), {"servicenorm": "P1Y"})
+        response = self.client.patch(
+            reverse(zt, namespace=self.NAMESPACE), {"servicenorm": "P1Y"}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
@@ -70,7 +73,9 @@ class ServiceNormDurationTests(JWTAuthMixin, APITestCase):
         zt.refresh_from_db()
         self.assertEqual(zt.servicenorm_behandeling, relativedelta(years=1))
 
-        response = self.client.patch(reverse(zt), {"servicenorm": None})
+        response = self.client.patch(
+            reverse(zt, namespace=self.NAMESPACE), {"servicenorm": None}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
@@ -80,7 +85,7 @@ class ServiceNormDurationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zt.servicenorm_behandeling, None)
 
     def test_create_zaaktype_with_servicenorm_P0D(self):
-        zaaktype_list_url = reverse("catalogi:zaaktype-list")
+        zaaktype_list_url = reverse(ZaakType, namespace=self.NAMESPACE)
 
         response = self.client.post(
             zaaktype_list_url, self.data | {"servicenorm": "P0D"}
