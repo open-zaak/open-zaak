@@ -30,6 +30,11 @@ Available commands
     This command is idempotent and can be run as part of your CI/CD workflow if desired.
     Please check the command documentation for more details.
 
+``detect_overwritten_documents``
+    Lists documents whose content may have been overwritten or lost by
+    :open-zaak:`2592`. Only reads. See
+    :ref:`installation_reference_overwritten_documents`.
+
 ``send_test_notification``
     After configuring the Notificaties API, send a test nofification to verify the
     setup.

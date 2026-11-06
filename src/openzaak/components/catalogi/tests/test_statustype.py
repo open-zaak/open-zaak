@@ -2,11 +2,12 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from datetime import date
 
+from dateutil.relativedelta import relativedelta
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors
 
-from openzaak.utils.urls import reverse, reverse_lazy
+from openzaak.utils.urls import reverse
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import ZaakTypeConceptValidator
@@ -20,7 +21,6 @@ from .factories import (
     ZaakObjectTypeFactory,
     ZaakTypeFactory,
 )
-from .utils import get_operation_url
 
 
 class StatusTypeAPITests(APITestCase):
@@ -28,14 +28,13 @@ class StatusTypeAPITests(APITestCase):
     heeft_alle_autorisaties = False
     scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
+    NAMESPACE = "catalogi"
 
     def test_get_list_default_definitief(self):
         StatusTypeFactory.create(zaaktype__concept=True)
         statustype2 = StatusTypeFactory.create(zaaktype__concept=False)
-        statustype_list_url = reverse("catalogi:statustype-list")
-        statustype2_url = reverse(
-            "catalogi:statustype-detail", kwargs={"uuid": statustype2.uuid}
-        )
+        statustype_list_url = reverse(StatusType, namespace=self.NAMESPACE)
+        statustype2_url = reverse(statustype2, namespace=self.NAMESPACE)
 
         response = self.client.get(statustype_list_url)
         self.assertEqual(response.status_code, 200)
@@ -50,6 +49,7 @@ class StatusTypeAPITests(APITestCase):
             statustype_omschrijving="Besluit genomen",
             zaaktype__catalogus=self.catalogus,
             toelichting="description",
+            doorlooptijd="P10D",
         )
         eigenschap = EigenschapFactory.create(
             zaaktype=statustype.zaaktype, statustype=statustype
@@ -57,14 +57,10 @@ class StatusTypeAPITests(APITestCase):
         zaakobjecttype = ZaakObjectTypeFactory.create(
             zaaktype=statustype.zaaktype, statustype=statustype
         )
-        statustype_detail_url = reverse(
-            "catalogi:statustype-detail", kwargs={"uuid": statustype.uuid}
-        )
+        statustype_detail_url = reverse(statustype, namespace=self.NAMESPACE)
         checklistitem = CheckListItemFactory.create(statustype=statustype)
         zaaktype = statustype.zaaktype
-        zaaktype_url = reverse(
-            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
-        )
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
 
         response = self.client.get(statustype_detail_url)
 
@@ -80,8 +76,8 @@ class StatusTypeAPITests(APITestCase):
             "volgnummer": statustype.statustypevolgnummer,
             "isEindstatus": True,
             "informeren": False,
-            "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
-            "doorlooptijd": None,
+            "catalogus": f"http://testserver{reverse(zaaktype.catalogus, namespace=self.NAMESPACE)}",
+            "doorlooptijd": "P10D",
             "toelichting": "description",
             "checklistitemStatustype": [
                 {
@@ -91,28 +87,32 @@ class StatusTypeAPITests(APITestCase):
                     "vraagstelling": checklistitem.vraagstelling,
                 }
             ],
-            "eigenschappen": [f"http://testserver{reverse(eigenschap)}"],
-            "zaakobjecttypen": [f"http://testserver{reverse(zaakobjecttype)}"],
+            "eigenschappen": [
+                f"http://testserver{reverse(eigenschap, namespace=self.NAMESPACE)}"
+            ],
+            "zaakobjecttypen": [
+                f"http://testserver{reverse(zaakobjecttype, namespace=self.NAMESPACE)}"
+            ],
             "beginGeldigheid": None,
             "eindeGeldigheid": None,
             "beginObject": None,
             "eindeObject": None,
+            "_expand": {},
         }
 
         self.assertEqual(expected, response.json())
 
     def test_create_statustype(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(
-            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
-        )
-        statustype_list_url = reverse("catalogi:statustype-list")
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
+        statustype_list_url = reverse(StatusType, namespace=self.NAMESPACE)
         data = {
             "omschrijving": "Besluit genomen",
             "omschrijvingGeneriek": "",
             "statustekst": "",
             "zaaktype": "http://testserver{}".format(zaaktype_url),
             "volgnummer": 2,
+            "doorlooptijd": "P10D",
             "beginGeldigheid": "2023-01-01",
             "eindeGeldigheid": "2023-12-01",
         }
@@ -126,13 +126,12 @@ class StatusTypeAPITests(APITestCase):
         self.assertEqual(statustype.zaaktype, zaaktype)
         self.assertEqual(statustype.datum_begin_geldigheid, date(2023, 1, 1))
         self.assertEqual(statustype.datum_einde_geldigheid, date(2023, 12, 1))
+        self.assertEqual(statustype.doorlooptijd, relativedelta(days=+10))
 
     def test_create_statustype_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(
-            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
-        )
-        statustype_list_url = reverse("catalogi:statustype-list")
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
+        statustype_list_url = reverse(StatusType, namespace=self.NAMESPACE)
         data = {
             "omschrijving": "Besluit genomen",
             "omschrijvingGeneriek": "",
@@ -147,12 +146,51 @@ class StatusTypeAPITests(APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
 
-    def test_create_statustype_with_checklist(self):
+    def test_create_statustype_doorlooptijd(self):
         zaaktype = ZaakTypeFactory.create()
         zaaktype_url = reverse(
             "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
         )
         statustype_list_url = reverse("catalogi:statustype-list")
+        data = {
+            "omschrijving": "Besluit genomen",
+            "omschrijvingGeneriek": "",
+            "statustekst": "",
+            "zaaktype": "http://testserver{}".format(zaaktype_url),
+            "volgnummer": 2,
+            "beginGeldigheid": "2023-01-01",
+            "eindeGeldigheid": "2023-12-01",
+        }
+
+        # valid value
+        data["doorlooptijd"] = "P1Y5M5D"
+        response = self.client.post(statustype_list_url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["doorlooptijd"], "P1Y5M5D")
+
+        statustype = StatusType.objects.get()
+        self.assertEqual(
+            statustype.doorlooptijd, relativedelta(years=+1, months=+5, days=+5)
+        )
+
+        # invalid value
+        data["doorlooptijd"] = "test"
+        response = self.client.post(statustype_list_url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "doorlooptijd")
+        self.assertEqual(
+            error,
+            {
+                "name": "doorlooptijd",
+                "code": "invalid",
+                "reason": "Tijdsduur heeft een verkeerd formaat, gebruik 1 van onderstaande formaten: P(n)Y(n)M(n)D.",
+            },
+        )
+
+    def test_create_statustype_with_checklist(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
+        statustype_list_url = reverse(StatusType, namespace=self.NAMESPACE)
         data = {
             "omschrijving": "Besluit genomen",
             "omschrijvingGeneriek": "",
@@ -186,10 +224,8 @@ class StatusTypeAPITests(APITestCase):
 
     def test_create_statustype_with_end_date_before_start_date(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(
-            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
-        )
-        statustype_list_url = reverse("catalogi:statustype-list")
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
+        statustype_list_url = reverse(StatusType, namespace=self.NAMESPACE)
         data = {
             "omschrijving": "Besluit genomen",
             "omschrijvingGeneriek": "",
@@ -217,9 +253,7 @@ class StatusTypeAPITests(APITestCase):
 
     def test_delete_statustype(self):
         statustype = StatusTypeFactory.create()
-        statustype_url = reverse(
-            "catalogi:statustype-detail", kwargs={"uuid": statustype.uuid}
-        )
+        statustype_url = reverse(statustype, namespace=self.NAMESPACE)
 
         response = self.client.delete(statustype_url)
 
@@ -228,9 +262,7 @@ class StatusTypeAPITests(APITestCase):
 
     def test_delete_statustype_fail_not_concept_zaaktype(self):
         statustype = StatusTypeFactory.create(zaaktype__concept=False)
-        statustype_url = reverse(
-            "catalogi:statustype-detail", kwargs={"uuid": statustype.uuid}
-        )
+        statustype_url = reverse(statustype, namespace=self.NAMESPACE)
 
         response = self.client.delete(statustype_url)
 
@@ -252,12 +284,7 @@ class StatusTypeAPITests(APITestCase):
         )
 
         # Volgnummer 1
-        url = get_operation_url(
-            "statustype_read",
-            catalogus_uuid=zaaktype.catalogus.uuid,
-            zaaktype_uuid=zaaktype.uuid,
-            uuid=statustype_1.uuid,
-        )
+        url = reverse(statustype_1, namespace=self.NAMESPACE)
 
         response = self.client.get(url)
 
@@ -267,12 +294,7 @@ class StatusTypeAPITests(APITestCase):
         self.assertFalse(response_data["isEindstatus"])
 
         # Volgnummer 2
-        url = get_operation_url(
-            "statustype_read",
-            catalogus_uuid=zaaktype.catalogus.uuid,
-            zaaktype_uuid=zaaktype.uuid,
-            uuid=statustype_2.uuid,
-        )
+        url = reverse(statustype_2, namespace=self.NAMESPACE)
 
         response = self.client.get(url)
 
@@ -283,9 +305,9 @@ class StatusTypeAPITests(APITestCase):
 
     def test_update_statustype(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         statustype = StatusTypeFactory.create(zaaktype=zaaktype)
-        statustype_url = reverse(statustype)
+        statustype_url = reverse(statustype, namespace=self.NAMESPACE)
 
         data = {
             "omschrijving": "aangepast",
@@ -305,9 +327,9 @@ class StatusTypeAPITests(APITestCase):
 
     def test_update_statustype_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         statustype = StatusTypeFactory.create(zaaktype=zaaktype)
-        statustype_url = reverse(statustype)
+        statustype_url = reverse(statustype, namespace=self.NAMESPACE)
 
         data = {
             "omschrijving": "aangepast",
@@ -326,9 +348,9 @@ class StatusTypeAPITests(APITestCase):
 
     def test_update_statustype_add_relation_to_non_concept_zaaktype_fails(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         statustype = StatusTypeFactory.create()
-        statustype_url = reverse(statustype)
+        statustype_url = reverse(statustype, namespace=self.NAMESPACE)
 
         data = {
             "omschrijving": "aangepast",
@@ -348,7 +370,7 @@ class StatusTypeAPITests(APITestCase):
     def test_partial_update_statustype(self):
         zaaktype = ZaakTypeFactory.create()
         statustype = StatusTypeFactory.create(zaaktype=zaaktype)
-        statustype_url = reverse(statustype)
+        statustype_url = reverse(statustype, namespace=self.NAMESPACE)
 
         response = self.client.patch(statustype_url, {"omschrijving": "aangepast"})
 
@@ -361,7 +383,7 @@ class StatusTypeAPITests(APITestCase):
     def test_partial_update_statustype_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
         statustype = StatusTypeFactory.create(zaaktype=zaaktype)
-        statustype_url = reverse(statustype)
+        statustype_url = reverse(statustype, namespace=self.NAMESPACE)
 
         response = self.client.patch(statustype_url, {"omschrijving": "aangepast"})
 
@@ -372,9 +394,9 @@ class StatusTypeAPITests(APITestCase):
 
     def test_partial_update_statustype_add_relation_to_non_concept_zaaktype_fails(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         statustype = StatusTypeFactory.create()
-        statustype_url = reverse(statustype)
+        statustype_url = reverse(statustype, namespace=self.NAMESPACE)
 
         response = self.client.patch(statustype_url, {"zaaktype": zaaktype_url})
 
@@ -386,7 +408,7 @@ class StatusTypeAPITests(APITestCase):
     def test_partial_update_statustype_checklist(self):
         zaaktype = ZaakTypeFactory.create()
         statustype = StatusTypeFactory.create(zaaktype=zaaktype)
-        statustype_url = reverse(statustype)
+        statustype_url = reverse(statustype, namespace=self.NAMESPACE)
         old_checklistitem = CheckListItemFactory.create(
             statustype=statustype, itemnaam="old"
         )
@@ -415,15 +437,130 @@ class StatusTypeAPITests(APITestCase):
         self.assertNotEqual(old_checklistitem.id, new_checklistitem.id)
         self.assertFalse(CheckListItem.objects.filter(id=old_checklistitem.id).exists())
 
+    def test_get_detail_expand_catalogus(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        statustype = StatusTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+
+        response = self.client.get(
+            reverse(statustype, namespace=self.NAMESPACE),
+            {"expand": "catalogus"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["_expand"]["catalogus"]["url"],
+            f"http://testserver{reverse(self.catalogus, namespace=self.NAMESPACE)}",
+        )
+
+    def test_get_detail_expand_zaaktype(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        statustype = StatusTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+
+        response = self.client.get(
+            reverse(statustype, namespace=self.NAMESPACE),
+            {"expand": "zaaktype"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["_expand"]["zaaktype"]["url"],
+            f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
+        )
+
+    def test_get_detail_expand_eigenschappen(self):
+        statustype = StatusTypeFactory.create(
+            zaaktype__catalogus=self.catalogus,
+        )
+        eigenschap = EigenschapFactory.create(
+            statustype=statustype,
+        )
+
+        response = self.client.get(
+            reverse(statustype, namespace=self.NAMESPACE),
+            {"expand": "eigenschappen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("eigenschappen", data["_expand"])
+        self.assertEqual(
+            data["_expand"]["eigenschappen"][0]["url"],
+            f"http://testserver{reverse(eigenschap, namespace=self.NAMESPACE)}",
+        )
+
+    def test_get_detail_expand_multiple(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        statustype = StatusTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+        EigenschapFactory.create(
+            statustype=statustype,
+        )
+
+        response = self.client.get(
+            reverse(statustype, namespace=self.NAMESPACE),
+            {"expand": "catalogus,zaaktype,eigenschappen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("catalogus", data["_expand"])
+        self.assertIn("zaaktype", data["_expand"])
+        self.assertIn("eigenschappen", data["_expand"])
+
+    def test_get_detail_expand_nested_not_supported(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        statustype = StatusTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+
+        response = self.client.get(
+            reverse(statustype, namespace=self.NAMESPACE),
+            {"expand": "catalogus.zaaktypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        errors = get_validation_errors(response, "expand")
+        self.assertEqual(
+            errors["reason"],
+            "Selecteer een geldige keuze. catalogus.zaaktypen is geen beschikbare keuze.",
+        )
+
+    def test_get_detail_without_expand(self):
+        statustype = StatusTypeFactory.create()
+
+        response = self.client.get(reverse(statustype, namespace=self.NAMESPACE))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["_expand"], {})
+
 
 class StatusTypeFilterAPITests(APITestCase):
     maxDiff = None
-    url = reverse_lazy("catalogi:statustype-list")
+    NAMESPACE = "catalogi"
+
+    @property
+    def url(self):
+        return reverse(StatusType, namespace=self.NAMESPACE)
 
     def test_filter_statustype_status_alles(self):
         StatusTypeFactory.create(zaaktype__concept=True)
         StatusTypeFactory.create(zaaktype__concept=False)
-        statustype_list_url = reverse("catalogi:statustype-list")
+        statustype_list_url = reverse(StatusType, namespace=self.NAMESPACE)
 
         response = self.client.get(statustype_list_url, {"status": "alles"})
         self.assertEqual(response.status_code, 200)
@@ -435,10 +572,8 @@ class StatusTypeFilterAPITests(APITestCase):
     def test_filter_statustype_status_concept(self):
         statustype1 = StatusTypeFactory.create(zaaktype__concept=True)
         StatusTypeFactory.create(zaaktype__concept=False)
-        statustype_list_url = reverse("catalogi:statustype-list")
-        statustype1_url = reverse(
-            "catalogi:statustype-detail", kwargs={"uuid": statustype1.uuid}
-        )
+        statustype_list_url = reverse(StatusType, namespace=self.NAMESPACE)
+        statustype1_url = reverse(statustype1, namespace=self.NAMESPACE)
 
         response = self.client.get(statustype_list_url, {"status": "concept"})
         self.assertEqual(response.status_code, 200)
@@ -451,10 +586,8 @@ class StatusTypeFilterAPITests(APITestCase):
     def test_filter_statustype_status_definitief(self):
         StatusTypeFactory.create(zaaktype__concept=True)
         statustype2 = StatusTypeFactory.create(zaaktype__concept=False)
-        statustype_list_url = reverse("catalogi:statustype-list")
-        statustype2_url = reverse(
-            "catalogi:statustype-detail", kwargs={"uuid": statustype2.uuid}
-        )
+        statustype_list_url = reverse(StatusType, namespace=self.NAMESPACE)
+        statustype2_url = reverse(statustype2, namespace=self.NAMESPACE)
 
         response = self.client.get(statustype_list_url, {"status": "definitief"})
         self.assertEqual(response.status_code, 200)
@@ -466,7 +599,7 @@ class StatusTypeFilterAPITests(APITestCase):
 
     def test_validate_unknown_query_params(self):
         StatusTypeFactory.create_batch(2)
-        url = reverse(StatusType)
+        url = reverse(StatusType, namespace=self.NAMESPACE)
 
         response = self.client.get(url, {"someparam": "somevalue"})
 
@@ -489,7 +622,10 @@ class StatusTypeFilterAPITests(APITestCase):
 
         data = response.json()["results"]
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://testserver{reverse(statustype)}")
+        self.assertEqual(
+            data[0]["url"],
+            f"http://testserver{reverse(statustype, namespace=self.NAMESPACE)}",
+        )
 
     def test_filter_geldigheid(self):
         statustype = StatusTypeFactory.create(
@@ -507,15 +643,19 @@ class StatusTypeFilterAPITests(APITestCase):
 
         data = response.json()["results"]
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://testserver{reverse(statustype)}")
+        self.assertEqual(
+            data[0]["url"],
+            f"http://testserver{reverse(statustype, namespace=self.NAMESPACE)}",
+        )
 
 
 class StatusTypePaginationTestCase(APITestCase):
     maxDiff = None
+    NAMESPACE = "catalogi"
 
     def test_pagination_default(self):
         StatusTypeFactory.create_batch(2, zaaktype__concept=False)
-        statustype_list_url = reverse("catalogi:statustype-list")
+        statustype_list_url = reverse(StatusType, namespace=self.NAMESPACE)
 
         response = self.client.get(statustype_list_url)
 
@@ -528,7 +668,7 @@ class StatusTypePaginationTestCase(APITestCase):
 
     def test_pagination_page_param(self):
         StatusTypeFactory.create_batch(2, zaaktype__concept=False)
-        statustype_list_url = reverse("catalogi:statustype-list")
+        statustype_list_url = reverse(StatusType, namespace=self.NAMESPACE)
 
         response = self.client.get(statustype_list_url, {"page": 1})
 
@@ -541,7 +681,7 @@ class StatusTypePaginationTestCase(APITestCase):
 
     def test_pagination_pagesize_param(self):
         StatusTypeFactory.create_batch(10, zaaktype__concept=False)
-        statustype_list_url = reverse("catalogi:statustype-list")
+        statustype_list_url = reverse(StatusType, namespace=self.NAMESPACE)
 
         response = self.client.get(statustype_list_url, {"pageSize": 5})
 

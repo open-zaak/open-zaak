@@ -53,6 +53,7 @@ from openzaak.notifications.viewsets import (
 )
 from openzaak.utils.cloudevents import get_url, process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.expansion import EXPAND_QUERY_PARAM
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import (
     CacheQuerysetMixin,
@@ -92,6 +93,7 @@ from .filters import (
     EnkelvoudigInformatieObjectZoekFilter,
     GebruiksrechtenDetailFilter,
     GebruiksrechtenFilter,
+    ObjectInformatieObjectDetailFilter,
     ObjectInformatieObjectFilter,
     VerzendingDetailFilter,
     VerzendingFilter,
@@ -194,8 +196,7 @@ REGISTRATIE_QUERY_PARAM = OpenApiParameter(
             "- correcte `lock` waarde\n"
             "- geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen "
             "worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.\n"
-            "- publicatie `informatieobjecttype` - `concept` moet `false` zijn\n"
-            "- status NIET `definitief`"
+            "- publicatie `informatieobjecttype` - `concept` moet `false` zijn"
         ),
         responses={
             status.HTTP_200_OK: EnkelvoudigInformatieObjectSerializer,
@@ -213,8 +214,7 @@ REGISTRATIE_QUERY_PARAM = OpenApiParameter(
             "- correcte `lock` waarde\n"
             "- geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen "
             "worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.\n"
-            "- publicatie `informatieobjecttype` - `concept` moet `false` zijn\n"
-            "- status NIET `definitief`"
+            "- publicatie `informatieobjecttype` - `concept` moet `false` zijn"
         ),
         responses={
             status.HTTP_200_OK: EnkelvoudigInformatieObjectSerializer,
@@ -237,7 +237,7 @@ REGISTRATIE_QUERY_PARAM = OpenApiParameter(
         ),
     ),
 )
-@conditional_retrieve()
+@conditional_retrieve(variant_params={EXPAND_QUERY_PARAM})
 class EnkelvoudigInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
@@ -695,7 +695,7 @@ class EnkelvoudigInformatieObjectImportDestroyView(ImportDestroyView):
         ),
     ),
 )
-@conditional_retrieve()
+@conditional_retrieve(variant_params={EXPAND_QUERY_PARAM})
 class GebruiksrechtenViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
@@ -710,8 +710,19 @@ class GebruiksrechtenViewSet(
     """
 
     queryset = (
-        Gebruiksrechten.objects.select_related("informatieobject")
-        .prefetch_related("informatieobject__enkelvoudiginformatieobject_set")
+        Gebruiksrechten.objects.select_related(
+            "informatieobject",
+            "informatieobject__latest_version",
+            "informatieobject__latest_version__informatieobjecttype",
+            "informatieobject__latest_version__informatieobjecttype__catalogus",
+            "informatieobject__latest_version__canonical",
+        )
+        .prefetch_related(
+            "informatieobject__enkelvoudiginformatieobject_set",
+            "informatieobject__latest_version__canonical__bestandsdelen",
+            "informatieobject__latest_version__informatieobjecttype__besluittypen",
+            "informatieobject__latest_version__informatieobjecttype__zaaktypen",
+        )
         .all()
     )
     serializer_class = GebruiksrechtenSerializer
@@ -833,10 +844,11 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(AuditTrailViewSet):
         ),
     ),
 )
-@conditional_retrieve()
+@conditional_retrieve(variant_params={EXPAND_QUERY_PARAM})
 class ObjectInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
+    ExpandMixin,
     ListFilterByAuthorizationsMixin,
     mixins.CreateModelMixin,
     mixins.DestroyModelMixin,
@@ -851,13 +863,23 @@ class ObjectInformatieObjectViewSet(
 
     queryset = (
         ObjectInformatieObject.objects.select_related(
-            "_zaak", "_besluit", "informatieobject"
+            "_zaak",
+            "_besluit",
+            "informatieobject",
+            "informatieobject__latest_version",
+            "informatieobject__latest_version__informatieobjecttype",
+            "informatieobject__latest_version__informatieobjecttype__catalogus",
+            "informatieobject__latest_version__canonical",
         )
-        .prefetch_related("informatieobject__enkelvoudiginformatieobject_set")
+        .prefetch_related(
+            "informatieobject__enkelvoudiginformatieobject_set",
+            "informatieobject__latest_version__canonical__bestandsdelen",
+            "informatieobject__latest_version__informatieobjecttype__besluittypen",
+            "informatieobject__latest_version__informatieobjecttype__zaaktypen",
+        )
         .all()
     )
     serializer_class = ObjectInformatieObjectSerializer
-    filterset_class = ObjectInformatieObjectFilter
     lookup_field = "uuid"
     permission_classes = (InformationObjectAuthRequired,)
     permission_main_object = "informatieobject"
@@ -869,6 +891,12 @@ class ObjectInformatieObjectViewSet(
         "update": SCOPE_DOCUMENTEN_BIJWERKEN,
         "partial_update": SCOPE_DOCUMENTEN_BIJWERKEN,
     }
+
+    @property
+    def filterset_class(self):
+        if self.detail:
+            return ObjectInformatieObjectDetailFilter
+        return ObjectInformatieObjectFilter
 
     def perform_create(self, serializer):
         informatieobject = serializer.validated_data["informatieobject"]
@@ -986,7 +1014,7 @@ class BestandsDeelViewSet(UpdateWithoutPartialMixin, viewsets.GenericViewSet):
         summary="Verwijder een VERZENDING.", description="Verwijder een VERZENDING."
     ),
 )
-@conditional_retrieve()
+@conditional_retrieve(variant_params={EXPAND_QUERY_PARAM})
 class VerzendingViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
@@ -1258,11 +1286,13 @@ class DocumentRegistrerenViewSet(
                 "vertrouwelijkheidaanduiding": data[
                     "enkelvoudiginformatieobject"
                 ].vertrouwelijkheidaanduiding,
-                "zaak.zaaktype": get_url(
-                    zaak.zaaktype,
-                    request=self.request,
-                )
-                if zaak
-                else None,
+                "zaak.zaaktype": (
+                    get_url(
+                        zaak.zaaktype,
+                        request=self.request,
+                    )
+                    if zaak
+                    else None
+                ),
             },
         )

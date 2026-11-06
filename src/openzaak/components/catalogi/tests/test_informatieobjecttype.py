@@ -30,6 +30,9 @@ class InformatieObjectTypeAPITests(APITestCase):
     scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
     NAMESPACE = "catalogi"
+    # namespace of the besluittype urls in the responses
+    BESLUITTYPE_NAMESPACE = "catalogi"
+    ZAAKTYPE_NAMESPACE = "catalogi"
 
     def test_get_list_default_definitief(self):
         InformatieObjectTypeFactory.create(concept=True)
@@ -67,7 +70,9 @@ class InformatieObjectTypeAPITests(APITestCase):
         self.assertEqual(response.status_code, 200)
 
         expected = {
-            "catalogus": "http://testserver{}".format(self.catalogus_detail_url),
+            "catalogus": "http://testserver{}".format(
+                reverse(self.catalogus, namespace=self.ZAAKTYPE_NAMESPACE)
+            ),
             "omschrijving": iotype.omschrijving,
             "url": "http://testserver{}".format(informatieobjecttype_detail_url),
             "vertrouwelijkheidaanduiding": "openbaar",
@@ -87,6 +92,7 @@ class InformatieObjectTypeAPITests(APITestCase):
             "zaaktypen": [],
             "beginObject": "2019-01-01",
             "eindeObject": None,
+            "_expand": {},
         }
         self.assertEqual(expected, response.json())
 
@@ -691,10 +697,139 @@ class InformatieObjectTypeAPITests(APITestCase):
         self.assertEqual(response.data["einde_geldigheid"], "2020-01-01")
         informatieobjecttype.delete()
 
+    def test_get_detail_expand_catalogus(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+
+        response = self.client.get(
+            reverse(informatieobjecttype, namespace=self.NAMESPACE),
+            {"expand": "catalogus"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["_expand"]["catalogus"]["url"],
+            f"http://testserver{reverse(self.catalogus, namespace=self.ZAAKTYPE_NAMESPACE)}",
+        )
+
+    def test_get_detail_expand_zaaktypen(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        ZaakTypeInformatieObjectTypeFactory(
+            zaaktype=zaaktype,
+            informatieobjecttype=informatieobjecttype,
+        )
+
+        response = self.client.get(
+            reverse(informatieobjecttype, namespace=self.NAMESPACE),
+            {"expand": "zaaktypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("zaaktypen", data["_expand"])
+        zaaktype_urls = [
+            zaaktype_data["url"] for zaaktype_data in data["_expand"]["zaaktypen"]
+        ]
+
+        self.assertIn(
+            f"http://testserver{reverse(zaaktype, namespace=self.ZAAKTYPE_NAMESPACE)}",
+            zaaktype_urls,
+        )
+
+    def test_get_detail_expand_besluittypen(self):
+        besluittype = BesluitTypeFactory.create(
+            catalogus=self.catalogus,
+            concept=False,
+        )
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        informatieobjecttype.besluittypen.add(besluittype)
+
+        response = self.client.get(
+            reverse(informatieobjecttype, namespace=self.NAMESPACE),
+            {"expand": "besluittypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("besluittypen", data["_expand"])
+        self.assertEqual(
+            data["_expand"]["besluittypen"][0]["url"],
+            f"http://testserver{reverse(besluittype, namespace=self.BESLUITTYPE_NAMESPACE)}",
+        )
+
+    def test_get_detail_expand_multiple(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        besluittype = BesluitTypeFactory.create(
+            catalogus=self.catalogus,
+            concept=False,
+        )
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+        ZaakTypeInformatieObjectTypeFactory(
+            zaaktype=zaaktype,
+            informatieobjecttype=informatieobjecttype,
+        )
+        informatieobjecttype.besluittypen.add(besluittype)
+
+        response = self.client.get(
+            reverse(informatieobjecttype, namespace=self.NAMESPACE),
+            {"expand": "catalogus,zaaktypen,besluittypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("catalogus", data["_expand"])
+        self.assertIn("zaaktypen", data["_expand"])
+        self.assertIn("besluittypen", data["_expand"])
+
+    def test_get_detail_expand_nested_not_supported(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+        )
+
+        response = self.client.get(
+            reverse(informatieobjecttype, namespace=self.NAMESPACE),
+            {"expand": "catalogus.zaaktypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        errors = get_validation_errors(response, "expand")
+        self.assertEqual(
+            errors["reason"],
+            "Selecteer een geldige keuze. catalogus.zaaktypen is geen beschikbare keuze.",
+        )
+
+    def test_get_detail_without_expand(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+
+        response = self.client.get(
+            reverse(informatieobjecttype, namespace=self.NAMESPACE)
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["_expand"], {})
+
 
 class InformatieObjectTypeFilterAPITests(APITestCase):
     maxDiff = None
     NAMESPACE = "catalogi"
+    ZAAKTYPE_NAMESPACE = "catalogi"
 
     @property
     def url(self):
@@ -802,7 +937,9 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
             zaaktype=zaaktype, informatieobjecttype=iotype
         )
         ZaakTypeInformatieObjectTypeFactory(informatieobjecttype=iotype)
-        zaaktype_url = f"http://openzaak.nl{reverse(zaaktype)}"
+        zaaktype_url = (
+            f"http://openzaak.nl{reverse(zaaktype, namespace=self.ZAAKTYPE_NAMESPACE)}"
+        )
 
         response = self.client.get(
             self.url, {"zaaktype": zaaktype_url}, headers={"host": "openzaak.nl"}
@@ -822,7 +959,7 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
     def test_filter_zaaktype_not_exist(self):
         InformatieObjectTypeFactory.create(omschrijving="some", concept=False)
         zaaktype_url = reverse(
-            "catalogi:zaaktype-detail",
+            f"{self.ZAAKTYPE_NAMESPACE}:zaaktype-detail",
             kwargs={"uuid": "221e7626-a556-4eb5-9714-e7693f82c2dd"},
         )
 

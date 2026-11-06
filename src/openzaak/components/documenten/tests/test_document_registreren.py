@@ -462,6 +462,9 @@ class DocumentRegistrerenValidationTests(JWTAuthMixin, APITestCase):
             "vertrouwelijkheidaanduiding": "openbaar",
             "verschijningsvorm": "Vorm A",
             "trefwoorden": ["some", "other"],
+            "inhoudIsVervallen": None,
+            "tonenAanInitiator": False,
+            "isGereedVoorPublicatie": False,
         }
 
         self.zaakinformatieobject = {
@@ -503,6 +506,9 @@ class DocumentRegistrerenValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(eio.vertrouwelijkheidaanduiding, "openbaar")
         self.assertEqual(eio.verschijningsvorm, "Vorm A")
         self.assertEqual(eio.trefwoorden, ["some", "other"])
+        self.assertIsNone(eio.inhoud_is_vervallen)
+        self.assertFalse(eio.tonen_aan_initiator)
+        self.assertFalse(eio.is_gereed_voor_publicatie)
 
         zio = ZaakInformatieObject.objects.get()
         self.assertEqual(zio.zaak, self.zaak)

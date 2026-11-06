@@ -1,12 +1,23 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+from django.test import TestCase
 from django.urls import reverse
 
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.components.besluiten.tests.factories import BesluitFactory
+from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
+from openzaak.components.besluiten.tests.factories import (
+    BesluitFactory,
+    BesluitInformatieObjectFactory,
+)
+from openzaak.components.catalogi.tests.factories import (
+    BesluitTypeFactory,
+)
+from openzaak.components.zaken.models import Zaak, ZaakBesluit
+from openzaak.components.zaken.tests.factories import ZaakFactory
+from openzaak.tests.utils import AdminTestMixin
 
 
 @disable_admin_mfa()
@@ -19,6 +30,28 @@ class BesluitAdminTests(WebTest):
         super().setUp()
 
         self.app.set_user(self.user)
+
+    def test_besluiten_besluit_add(self):
+        zaak = ZaakFactory.create()
+
+        besluittype = BesluitTypeFactory.create(concept=False)
+        add_url = reverse("admin:besluiten_besluit_add")
+        self.assertFalse(ZaakBesluit.objects.exists())
+
+        response = self.app.get(add_url)
+        form = response.forms["besluit_form"]
+        form["ingangsdatum"] = "15-11-2019"
+        form["datum"] = "15-11-2019"
+        form["verantwoordelijke_organisatie"] = "517439943"
+        form["zaak"] = zaak.pk
+        form["besluittype"] = besluittype.id
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = form.submit()
+
+        self.assertTrue(ZaakBesluit.objects.exists())
+        obj = ZaakBesluit.objects.get()
+        self.assertEqual(obj.zaak, zaak)
 
     def test_non_alphanumeric_identificatie_validation(self):
         """
@@ -35,3 +68,39 @@ class BesluitAdminTests(WebTest):
         submit_response = form.submit()
 
         self.assertEqual(submit_response.status_code, 302)
+
+
+@disable_admin_mfa()
+class BesluitAdminDeleteTests(AdminTestMixin, TestCase):
+    def _create_besluit(self) -> Besluit:
+        besluit = BesluitFactory.create(zaak=ZaakFactory.create())
+        BesluitInformatieObjectFactory.create(besluit=besluit)
+        return besluit
+
+    def test_delete_besluit_with_zaak_and_informatieobject(self):
+        besluit = self._create_besluit()
+        delete_url = reverse("admin:besluiten_besluit_delete", args=(besluit.pk,))
+
+        response = self.client.post(delete_url, {"post": "yes"})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Besluit.objects.exists())
+        self.assertFalse(BesluitInformatieObject.objects.exists())
+        self.assertFalse(ZaakBesluit.objects.exists())
+        self.assertTrue(Zaak.objects.exists())
+
+    def test_delete_selected_besluiten_with_zaak_and_informatieobject(self):
+        besluit = self._create_besluit()
+        change_list_url = reverse("admin:besluiten_besluit_changelist")
+        data = {
+            "action": "delete_selected",
+            "_selected_action": [besluit.pk],
+            "post": "yes",
+        }
+
+        response = self.client.post(change_list_url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Besluit.objects.exists())
+        self.assertFalse(BesluitInformatieObject.objects.exists())
+        self.assertFalse(ZaakBesluit.objects.exists())

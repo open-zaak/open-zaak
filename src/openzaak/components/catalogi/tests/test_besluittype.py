@@ -56,7 +56,7 @@ class BesluitTypeAPITests(APITestCase):
             catalogus=self.catalogus, publicatie_indicatie=True
         )
         zaaktype = besluittype.zaaktypen.get()
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         besluittype_detail_url = reverse(besluittype, namespace=self.NAMESPACE)
         resultaattype = ResultaatTypeFactory.create(zaaktype=zaaktype)
         resultaattype.besluittypen.add(besluittype)
@@ -66,7 +66,7 @@ class BesluitTypeAPITests(APITestCase):
         self.assertEqual(response.status_code, 200)
         expected = {
             "url": f"http://testserver{besluittype_detail_url}",
-            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "catalogus": f"http://testserver{reverse(self.catalogus, namespace=self.NAMESPACE)}",
             "zaaktypen": [f"http://testserver{zaaktype_url}"],
             "omschrijving": besluittype.omschrijving,
             "omschrijvingGeneriek": "",
@@ -81,10 +81,13 @@ class BesluitTypeAPITests(APITestCase):
             "beginGeldigheid": "2018-01-01",
             "eindeGeldigheid": None,
             "concept": True,
-            "resultaattypen": [f"http://testserver{reverse(resultaattype)}"],
+            "resultaattypen": [
+                f"http://testserver{reverse(resultaattype, namespace=self.NAMESPACE)}"
+            ],
             "resultaattypenOmschrijving": [resultaattype.omschrijving],
             "beginObject": "2018-01-01",
             "eindeObject": None,
+            "_expand": {},
         }
         self.assertEqual(response.json(), expected)
 
@@ -121,7 +124,7 @@ class BesluitTypeAPITests(APITestCase):
         besluittype.zaaktypen.add(zaaktype1)
 
         besluittype_detail_url = reverse(besluittype, namespace=self.NAMESPACE)
-        zaaktype1_url = reverse(zaaktype1)
+        zaaktype1_url = reverse(zaaktype1, namespace=self.NAMESPACE)
 
         response = self.client.get(besluittype_detail_url)
 
@@ -170,7 +173,7 @@ class BesluitTypeAPITests(APITestCase):
 
     def test_create_besluittype_fail_non_concept_informatieobjecttypen(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=self.catalogus
         )
@@ -204,7 +207,7 @@ class BesluitTypeAPITests(APITestCase):
         self,
     ):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         informatieobjecttype = InformatieObjectTypeFactory.create()
         informatieobjecttype_url = reverse(
             informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE
@@ -591,6 +594,155 @@ class BesluitTypeAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["einde_geldigheid"], "2020-01-01")
+
+    def test_get_list_expand_catalogus(self):
+        BesluitTypeFactory.create(
+            catalogus=self.catalogus,
+            concept=False,
+        )
+
+        response = self.client.get(
+            reverse(BesluitType, namespace=self.NAMESPACE),
+            {"expand": "catalogus"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()["results"]
+
+        self.assertEqual(len(data), 1)
+        self.assertEqual(
+            data[0]["_expand"]["catalogus"]["url"],
+            f"http://testserver{reverse(self.catalogus, namespace=self.NAMESPACE)}",
+        )
+
+    def test_get_detail_expand_catalogus(self):
+        besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
+
+        response = self.client.get(
+            reverse(besluittype, namespace=self.NAMESPACE),
+            {"expand": "catalogus"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["_expand"]["catalogus"]["url"],
+            f"http://testserver{reverse(self.catalogus, namespace=self.NAMESPACE)}",
+        )
+
+    def test_get_detail_expand_zaaktypen(self):
+        besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
+        zaaktype = besluittype.zaaktypen.get()
+
+        response = self.client.get(
+            reverse(besluittype, namespace=self.NAMESPACE),
+            {"expand": "zaaktypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(len(data["_expand"]["zaaktypen"]), 1)
+        self.assertEqual(
+            data["_expand"]["zaaktypen"][0]["url"],
+            f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
+        )
+
+    def test_get_detail_expand_informatieobjecttypen(self):
+        besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus
+        )
+        besluittype.informatieobjecttypen.add(informatieobjecttype)
+
+        response = self.client.get(
+            reverse(besluittype, namespace=self.NAMESPACE),
+            {"expand": "informatieobjecttypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(len(data["_expand"]["informatieobjecttypen"]), 1)
+        self.assertEqual(
+            data["_expand"]["informatieobjecttypen"][0]["url"],
+            f"http://testserver{reverse(informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE)}",
+        )
+
+    def test_get_detail_expand_resultaattypen(self):
+        besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
+        zaaktype = besluittype.zaaktypen.get()
+        resultaattype = ResultaatTypeFactory.create(zaaktype=zaaktype)
+        resultaattype.besluittypen.add(besluittype)
+
+        response = self.client.get(
+            reverse(besluittype, namespace=self.NAMESPACE),
+            {"expand": "resultaattypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(len(data["_expand"]["resultaattypen"]), 1)
+        self.assertEqual(
+            data["_expand"]["resultaattypen"][0]["url"],
+            f"http://testserver{reverse(resultaattype, namespace=self.NAMESPACE)}",
+        )
+
+    def test_get_detail_expand_multiple(self):
+        besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
+        zaaktype = besluittype.zaaktypen.get()
+
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus
+        )
+        besluittype.informatieobjecttypen.add(informatieobjecttype)
+
+        resultaattype = ResultaatTypeFactory.create(zaaktype=zaaktype)
+        resultaattype.besluittypen.add(besluittype)
+
+        response = self.client.get(
+            reverse(besluittype, namespace=self.NAMESPACE),
+            {"expand": "catalogus,zaaktypen,informatieobjecttypen,resultaattypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("catalogus", data["_expand"])
+        self.assertIn("zaaktypen", data["_expand"])
+        self.assertIn("informatieobjecttypen", data["_expand"])
+        self.assertIn("resultaattypen", data["_expand"])
+
+    def test_get_detail_expand_nested_not_supported(self):
+        besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
+
+        response = self.client.get(
+            reverse(besluittype, namespace=self.NAMESPACE),
+            {"expand": "catalogus.zaaktypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        errors = get_validation_errors(response, "expand")
+        self.assertEqual(
+            errors["reason"],
+            "Selecteer een geldige keuze. catalogus.zaaktypen is geen beschikbare keuze.",
+        )
+
+    def test_get_detail_without_expand(self):
+        besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
+
+        response = self.client.get(reverse(besluittype, namespace=self.NAMESPACE))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["_expand"], {})
 
 
 class BesluitTypeFilterAPITests(ClearCachesMixin, APITestCase):

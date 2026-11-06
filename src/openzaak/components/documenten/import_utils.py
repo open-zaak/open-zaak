@@ -9,6 +9,13 @@ from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.import_data.models import ImportRowResultChoices
 
 
+def _parse_nullable_bool(value: str) -> bool | None:
+    value = value.lower()
+    if value in ("none", "null", ""):
+        return None
+    return value == "true"
+
+
 @dataclass
 class DocumentRow:
     _uuid: str
@@ -43,6 +50,9 @@ class DocumentRow:
     _informatieobjecttype: str
     _zaak_uuid: str
     _trefwoorden: str
+    _inhoud_is_vervallen: str
+    _tonen_aan_initiator: str
+    _is_gereed_voor_publicatie: str
 
     row_index: int
 
@@ -85,6 +95,9 @@ class DocumentRow:
             "informatieobjecttype",
             "zaakUuid",
             "trefwoorden",
+            "inhoudIsVervallen",
+            "tonenAanInitiator",
+            "isGereedVoorPublicatie",
         ]
 
     @classproperty
@@ -149,8 +162,8 @@ class DocumentRow:
         return self._verzenddatum or None
 
     @property
-    def indicatie_gebruiksrecht(self) -> bool:
-        return self._indicatie_gebruiksrecht in ("True", "true")
+    def indicatie_gebruiksrecht(self) -> bool | None:
+        return _parse_nullable_bool(self._indicatie_gebruiksrecht)
 
     @property
     def ondertekening(self) -> Optional[dict]:
@@ -199,6 +212,18 @@ class DocumentRow:
             return []
 
         return trefwoorden.split(",")
+
+    @property
+    def inhoud_is_vervallen(self) -> bool | None:
+        return _parse_nullable_bool(self._inhoud_is_vervallen)
+
+    @property
+    def tonen_aan_initiator(self) -> bool:
+        return self._tonen_aan_initiator.lower() == "true"
+
+    @property
+    def is_gereed_voor_publicatie(self) -> bool | None:
+        return _parse_nullable_bool(self._is_gereed_voor_publicatie)
 
     @property
     def processed(self) -> bool:
@@ -254,6 +279,9 @@ class DocumentRow:
             "integriteit": self.integriteit,
             "informatieobjecttype": self._informatieobjecttype,
             "trefwoorden": self.trefwoorden,
+            "inhoud_is_vervallen": self.inhoud_is_vervallen,
+            "tonen_aan_initiator": self.tonen_aan_initiator,
+            "is_gereed_voor_publicatie": self.is_gereed_voor_publicatie,
         }
 
     def as_original(self):
@@ -285,6 +313,9 @@ class DocumentRow:
             "informatieobjecttype": self._informatieobjecttype,
             "zaakUuid": self._zaak_uuid,
             "trefwoorden": self._trefwoorden,
+            "inhoudIsVervallen": self._inhoud_is_vervallen,
+            "tonenAanInitiator": self._tonen_aan_initiator,
+            "isGereedVoorPublicatie": self._is_gereed_voor_publicatie,
         }
 
     def as_export_data(self):

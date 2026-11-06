@@ -6,6 +6,7 @@ from notifications_api_common.utils import notification_documentation
 
 from openzaak.utils.apidoc import DOC_AUTH_JWT
 
+from ...catalogi.api.kanalen import KANAAL_BESLUITTYPEN, KANAAL_ZAAKTYPEN
 from .kanalen import KANAAL_ZAKEN
 
 description = f"""Een API om een zaakregistratiecomponent (ZRC) te benaderen.
@@ -26,9 +27,27 @@ Deze API is afhankelijk van:
 
 {DOC_AUTH_JWT}
 
+### Expand: afwijking van de standaard
+
+De Zaken API 1.6.0-standaard staat het uitbreiden van gerelateerde resources met
+`expand` tot een willekeurige diepte toe. Open Zaak wijkt hiervan af: alleen de
+expliciet ondersteunde expand-paden zijn beschikbaar, met maximaal drie niveaus
+van nesting. Niet ieder pad tot en met drie niveaus wordt ondersteund. Raadpleeg
+de toegestane waarden van `expand` bij de betreffende operatie.
+
+Bijvoorbeeld: `hoofdzaak.status.statustype` omvat drie niveaus. Gebruik bij het
+opvragen van zaken
+`expand=hoofdzaak,hoofdzaak.status,hoofdzaak.status.statustype` om ook de
+bovenliggende resources mee te nemen. Diepere of niet-vermelde expand-paden
+worden niet ondersteund.
+
 ### Notificaties
 
 {notification_documentation(KANAAL_ZAKEN)}
+
+{notification_documentation(KANAAL_ZAAKTYPEN)}
+
+{notification_documentation(KANAAL_BESLUITTYPEN)}
 
 **Handige links**
 

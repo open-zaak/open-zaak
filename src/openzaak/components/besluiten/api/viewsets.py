@@ -34,11 +34,12 @@ from openzaak.utils.audittrails import (
     MultipleAuditTrailsMixin,
     MultipleAuditTrailsViewsetMixin,
 )
-from openzaak.utils.cloudevents import get_url, process_cloudevent
+from openzaak.utils.cloudevents import process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import CacheQuerysetMixin
 from openzaak.utils.namespacing import (
+    replace_namespace,
     replace_namespaces,
     replace_namespaces_from_config,
 )
@@ -142,7 +143,7 @@ class BesluitViewSet(
 ):
     """Opvragen en bewerken van BESLUITen."""
 
-    queryset = Besluit.objects.select_related("besluittype").order_by("-pk")
+    queryset = Besluit.objects.select_related("besluittype", "zaak").order_by("-pk")
     serializer_class = BesluitSerializer
     filterset_class = BesluitFilter
     lookup_field = "uuid"
@@ -161,11 +162,15 @@ class BesluitViewSet(
             "kanaal": KANAAL_BESLUITEN,
             "deprecated": True,
             "replace_urls_in_kenmerken": [
-                {"field": "besluittype", "namespace": "catalogi"}
+                {"field": "besluittype", "namespace": "catalogi"},
+                {"field": "besluittype.catalogus", "namespace": "catalogi"},
             ],
         },
         {
             "kanaal": KANAAL_ZAKEN,
+            "replace_urls_in_kenmerken": [
+                {"field": "zaaktype.catalogus", "namespace": "zaken"}
+            ],
         },
     ]
     audit_configs = [
@@ -287,13 +292,17 @@ class BesluitInformatieObjectViewSet(
             "deprecated": True,
             "replace_urls_for": [{"field": "besluit"}],
             "replace_urls_in_kenmerken": [
-                {"field": "besluittype", "namespace": "catalogi"}
+                {"field": "besluittype", "namespace": "catalogi"},
+                {"field": "besluittype.catalogus", "namespace": "catalogi"},
             ],
         },
         {
             "kanaal": KANAAL_ZAKEN,
             "main_resource_key": "besluit.zaak",
             "replace_urls_for": [{"field": "besluit"}],
+            "replace_urls_in_kenmerken": [
+                {"field": "zaaktype.catalogus", "namespace": "zaken"}
+            ],
         },
     ]
 
@@ -371,7 +380,8 @@ class BesluitInformatieObjectViewSet(
                     error=str(exception),
                     objectinformatieobject_url=instance._objectinformatieobject_url,
                 )
-                instance.save()
+                with transaction.atomic():
+                    instance.save()
                 raise ValidationError(
                     {"informatieobject": _("Could not delete remote relation")},
                     code="pending-relations",
@@ -431,11 +441,15 @@ class BesluitVerwerkenViewSet(
                     "kanaal": KANAAL_BESLUITEN,
                     "deprecated": True,
                     "replace_urls_in_kenmerken": [
-                        {"field": "besluittype", "namespace": "catalogi"}
+                        {"field": "besluittype", "namespace": "catalogi"},
+                        {"field": "besluittype.catalogus", "namespace": "catalogi"},
                     ],
                 },
                 {
                     "kanaal": KANAAL_ZAKEN,
+                    "replace_urls_in_kenmerken": [
+                        {"field": "zaaktype.catalogus", "namespace": "zaken"}
+                    ],
                 },
             ],
             "model": Besluit,
@@ -447,13 +461,17 @@ class BesluitVerwerkenViewSet(
                     "deprecated": True,
                     "replace_urls_for": [{"field": "besluit"}],
                     "replace_urls_in_kenmerken": [
-                        {"field": "besluittype", "namespace": "catalogi"}
+                        {"field": "besluittype", "namespace": "catalogi"},
+                        {"field": "besluittype.catalogus", "namespace": "catalogi"},
                     ],
                 },
                 {
                     "kanaal": KANAAL_ZAKEN,
                     "main_resource_key": "besluit.zaak",
                     "replace_urls_for": [{"field": "besluit"}],
+                    "replace_urls_in_kenmerken": [
+                        {"field": "zaaktype.catalogus", "namespace": "zaken"}
+                    ],
                 },
             ],
             "model": BesluitInformatieObject,
@@ -491,10 +509,9 @@ class BesluitVerwerkenViewSet(
         zaak = serializer.data["besluit"]["zaak"]
 
         if zaak:
-            # zrc_data = replace_namespaces(serializer.data["besluit"], ["url"], "zaken")
             zrc_data = replace_namespaces_from_config(
                 serializer.data["besluit"],
-                [{"field": "url"}, {"field": "besluittype", "namespace": "zaken"}],
+                [{"field": "url"}, {"field": "besluittype"}],
                 "zaken",
             )
             self.create_audittrail(
@@ -576,16 +593,14 @@ class BesluitVerwerkenViewSet(
                 "verantwoordelijkeOrganisatie": data[
                     "besluit"
                 ].verantwoordelijke_organisatie,
-                "besluittype": serializer.data["besluit"][
-                    "besluittype"
-                ],  # serializer.data contains url
-                "besluittype.catalogus": get_url(
-                    data["besluit"].besluittype.catalogus,
-                    request=self.request,
-                ),
-                "zaak.zaaktype": get_url(
-                    zaak.zaaktype,
-                    request=self.request,
+                "besluittype": replace_namespace(
+                    serializer.data["besluit"]["besluittype"], "zaken"
+                ),  # serializer.data contains url
+                "besluittype.catalogus": data[
+                    "besluit"
+                ].besluittype.catalogus.get_absolute_api_url(self.request, "zaken"),
+                "zaak.zaaktype": zaak.zaaktype.get_absolute_api_url(
+                    self.request, "zaken"
                 )
                 if zaak
                 else None,

@@ -17,6 +17,7 @@ from .factories import ZaakTypeFactory
 
 class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -29,7 +30,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
 
         uuid = _uuid.uuid4()
         applicatie_url = f"{self.service.api_root}/applicaties/{uuid}"
-        webhook_url = reverse("catalogi:notificaties-webhook")
+        webhook_url = reverse(f"{self.NAMESPACE}:notificaties-webhook")
         m.get(
             applicatie_url,
             json={
@@ -43,7 +44,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
                             "zds.scopes.zaken.lezen",
                             "zds.scopes.zaken.aanmaken",
                         ],
-                        "zaaktype": f"http://testserver{reverse(zaaktype)}",
+                        "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
                         "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                     }
                 ],
@@ -80,7 +81,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
 
         self.assertEqual(applicatie.autorisaties.count(), 0)
 
-        webhook_url = reverse("catalogi:notificaties-webhook")
+        webhook_url = reverse(f"{self.NAMESPACE}:notificaties-webhook")
         m.get(
             applicatie_url,
             json={
@@ -94,7 +95,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
                             "zds.scopes.zaken.lezen",
                             "zds.scopes.zaken.aanmaken",
                         ],
-                        "zaaktype": f"http://testserver{reverse(zaaktype)}",
+                        "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
                         "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                     }
                 ],
@@ -130,7 +131,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
         )
         uuid = applicatie.uuid
         applicatie_url = f"{self.service.api_root}/applicaties/{uuid}"
-        webhook_url = reverse("catalogi:notificaties-webhook")
+        webhook_url = reverse(f"{self.NAMESPACE}:notificaties-webhook")
         data = {
             "kanaal": "autorisaties",
             "hoofdObject": applicatie_url,
@@ -155,7 +156,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
         )
         uuid = applicatie.uuid
         applicatie_url = f"{self.service.api_root}/applicaties/{uuid}"
-        webhook_url = reverse("catalogi:notificaties-webhook")
+        webhook_url = reverse(f"{self.NAMESPACE}:notificaties-webhook")
         data = {
             "kanaal": "autorisaties",
             "hoofdObject": applicatie_url,
@@ -182,7 +183,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
         applicatie_url = (
             f"'https://autorisaties-api.vng.cloud/api/v99/applicaties/{uuid}"
         )
-        webhook_url = reverse("catalogi:notificaties-webhook")
+        webhook_url = reverse(f"{self.NAMESPACE}:notificaties-webhook")
         data = {
             "kanaal": "autorisaties",
             "hoofdObject": applicatie_url,

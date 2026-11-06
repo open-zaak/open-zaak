@@ -61,6 +61,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "vertrouwelijkheidaanduiding": "openbaar",
             "verschijningsvorm": "Vorm A",
             "trefwoorden": ["some", "other"],
+            "inhoudIsVervallen": False,
+            "tonenAanInitiator": True,
+            "isGereedVoorPublicatie": True,
         }
 
         # Send to the API
@@ -90,6 +93,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(stored_object.vertrouwelijkheidaanduiding, "openbaar")
         self.assertEqual(stored_object.verschijningsvorm, "Vorm A")
         self.assertEqual(stored_object.trefwoorden, ["some", "other"])
+        self.assertFalse(stored_object.inhoud_is_vervallen)
+        self.assertTrue(stored_object.tonen_aan_initiator)
+        self.assertTrue(stored_object.is_gereed_voor_publicatie)
 
         expected_url = reverse(stored_object)
         expected_file_url = get_operation_url(
@@ -171,6 +177,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "vertrouwelijkheidaanduiding": "openbaar",
             "verschijningsvorm": "Vorm A",
             "trefwoorden": ["some", "other"],
+            "inhoudIsVervallen": None,
+            "tonenAanInitiator": False,
+            "isGereedVoorPublicatie": False,
         }
 
         # Send to the API
@@ -200,6 +209,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(stored_object.vertrouwelijkheidaanduiding, "openbaar")
         self.assertEqual(stored_object.verschijningsvorm, "Vorm A")
         self.assertEqual(stored_object.trefwoorden, ["some", "other"])
+        self.assertIsNone(stored_object.inhoud_is_vervallen)
+        self.assertFalse(stored_object.tonen_aan_initiator)
+        self.assertFalse(stored_object.is_gereed_voor_publicatie)
 
         expected_url = reverse(stored_object)
         expected_file_url = get_operation_url(
@@ -227,6 +239,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                 "locked": False,
                 "lock": "",
                 "verschijningsvorm": "Vorm A",
+                "inhoudIsVervallen": None,
             }
         )
 
@@ -376,6 +389,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "verschijningsvorm": "",
             "trefwoorden": [],
             "_expand": {},
+            "inhoudIsVervallen": test_object.inhoud_is_vervallen,
+            "tonenAanInitiator": test_object.tonen_aan_initiator,
+            "isGereedVoorPublicatie": test_object.is_gereed_voor_publicatie,
         }
 
         response_data = response.json()
@@ -833,6 +849,23 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         self.assertEqual(first_version.versie, 1)
         self.assertEqual(first_version.beschrijving, "beschrijving1")
 
+    def test_eio_partial_update_tonen_aan_initiator(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(tonen_aan_initiator=False)
+
+        eio_url = reverse(
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+        )
+        lock = self.client.post(f"{eio_url}/lock").data["lock"]
+        response = self.client.patch(eio_url, {"tonenAanInitiator": True, "lock": lock})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.json()["tonenAanInitiator"])
+
+        latest_version = EnkelvoudigInformatieObject.objects.filter(
+            uuid=eio.uuid
+        ).latest("versie")
+        self.assertTrue(latest_version.tonen_aan_initiator)
+
     def test_eio_delete(self):
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
 
@@ -1056,6 +1089,9 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
         iotype_data = self.client.get(
             reverse(eio.informatieobjecttype, namespace="documenten")
         ).json()
+        # Remove _expand because a normal GET adds it, while the query parameter
+        # only adds it when a further expansion is requested.
+        iotype_data.pop("_expand", None)
 
         response = self.client.get(
             self.url,
@@ -1078,6 +1114,9 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
         iotype_data = self.client.get(
             reverse(eio.informatieobjecttype, namespace="documenten")
         ).json()
+        # Remove _expand because a normal GET adds it, while the query parameter
+        # only adds it when a further expansion is requested.
+        iotype_data.pop("_expand", None)
 
         response = self.client.get(
             url,

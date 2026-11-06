@@ -1,6 +1,180 @@
 Changelog
 =========
 
+1.31.1 (2026-10-23)
+-------------------
+
+**Bugfixes**
+
+* [:open-zaak:`2577`] Fix responses with a stale ``ETag``, so a conditional request could
+  get a ``304 Not Modified`` for a changed resource. This happened after:
+
+  * deleting a related object, such as a rol or the resultaat of a zaak;
+  * closing a hoofdzaak, for the ETags of its deelzaken;
+  * adding a bestandsdeel to a document;
+  * unlocking documents or resetting a zaaktype's selectielijst in the admin;
+  * a deploy that changes how resources are represented.
+
+* [:open-zaak:`2577`] Responses to requests with ``?expand=`` no longer have an ``ETag``,
+  and are never a ``304 Not Modified``. Their ``ETag`` was that of the representation
+  without ``expand``.
+* [:open-zaak:`2577`] Writes no longer recalculate ETags: they only invalidate the ETags of
+  the resources they change, and the first ``GET`` after a write calculates the ``ETag``.
+  Adding documents to a zaak no longer gets slower the more documents it has.
+* [:open-zaak:`2577`] A request that PostgreSQL cancels to resolve a deadlock with a
+  concurrent request gets a ``503 Service Unavailable`` with ``Retry-After: 1`` instead
+  of a ``500``. Nothing of it was written, so it can be retried.
+* [:open-zaak:`2607`] Fix a ``500`` when updating a document's ``informatieobjecttype``
+  from an external to a local one, or the other way round.
+
+**Project maintenance**
+
+* [:open-zaak:`2577`] Upgrade ``commonground-api-common`` to 3.1.1
+* [`commonground-api-common#190`_] Remove the ``LIST_SERIALIZER_ERRORS_AS_DICT`` workaround,
+  now that ``commonground-api-common`` handles DRF 3.18's list-serializer errors
+* [:open-zaak:`2607`] Upgrade ``django-loose-fk`` to 2.0.1
+* [:open-zaak:`2577`] Upgrade ``certifi`` to 2026.10.19, which no longer trusts the
+  eMudhra root certificates
+* [:open-zaak:`2577`] Record the S3 test cassettes against moto instead of MinIO, whose
+  community edition is abandoned
+
+.. _commonground-api-common#190: https://github.com/maykinmedia/commonground-api-common/issues/190
+
+1.31.0 (2026-10-09)
+-------------------
+
+.. warning::
+
+    Manual intervention may be required: documents may have silently lost their content.
+
+    Three bugs could replace a document's content with another document's, without any
+    error. Which ones apply depends on the storage backend, set with
+    ``DOCUMENTEN_API_BACKEND`` (when unset, it's ``filesystem``):
+
+    ==========================  =====================  ==============  =================
+    ``DOCUMENTEN_API_BACKEND``  1. Large file uploads  2. Bulk import  3. Same-name save
+    ==========================  =====================  ==============  =================
+    ``filesystem`` (default)    affected               affected        not affected
+    ``azure_blob_storage``      affected               not affected    not affected
+    ``s3_storage``              affected               not affected    affected
+    ==========================  =====================  ==============  =================
+
+    #. **Large file uploads** (since 1.8.0): documents with the same ``bestandsnaam``,
+       uploaded in ``bestandsdelen`` and unlocked at the same time.
+    #. **Bulk import** (since 1.13.0): files with the same name, imported in the same
+       month as another file or document with that name.
+    #. **Same-name saves** (since 1.27.0): documents with the same name, saved at the
+       same time.
+
+    If you switched backends, consider every backend you used since 1.8.0.
+
+    **What to do**
+
+    Run this in an Open Zaak container. It only reads, and can run on a live
+    installation:
+
+    .. code-block:: bash
+
+        python src/manage.py detect_overwritten_documents > report.tsv
+
+    On Azure and S3 it makes one request per file, which can take hours for millions of
+    documents; run it as a Kubernetes Job, for example. It ends with a summary:
+
+    * **Affected**: these documents almost certainly lost their content. Expect few or
+      none. Ask the application that created them to upload them again.
+    * **Possible**: the command can't rule these out. Inspect them, by comparing them
+      with the originals in the application that uploaded them.
+    * **Unlikely**: ruled out by the timing of their uploads, under conservative
+      assumptions. There can be many; most installations can leave them.
+
+    A document that isn't listed is fine, apart from a few cases that can't be
+    detected. The reasoning behind each check, when it can be wrong, how to estimate the
+    remaining risk and those undetectable cases are in
+    :ref:`installation_reference_overwritten_documents`.
+
+**New features**
+
+* [:open-zaak:`2570`] Additions to Verzending admin UI
+
+  * Display informatieobject in list view
+  * Allow searching on informatieobject UUID and identificatie admin list view
+
+* [:open-zaak:`2560`] Add werkprocesnummer postfix to UWV zaak identificatie generation
+
+**ZGW API upgrades**
+
+* [:open-zaak:`2453`] Upgrade Documenten API to 1.5.0
+
+  * Add ``inhoudIsVervallen`` attribute to EnkelvoudigInformatieObject
+  * Remove validation mentioned in API spec for EnkelvoudigInformatieObject that disallows PUT/PATCH if status is not ``definitief``
+
+* [:open-zaak:`2454`] Upgrade Documenten API to 1.6.0
+
+  * Add ``expand`` to
+
+    * ``/enkelvoudiginformatieobjecten``
+    * ``/gebruiksrechten``
+    * ``/objectinformatieobjecten``
+    * ``/verzendingen``
+
+  * Add ``tonenAanInitiator`` attribute to EnkelvoudigInformatieObject
+  * Update Verzending API spec helptext to correctly reflect validation
+
+**Experimental features** (see :ref:`api_experimental`)
+
+* [:open-archiefbeheer:`1071`] Add webhook for zaakobject date changed cloudevent for archiving purposes
+* [:open-archiefbeheer:`1069`] update models and API with 'product' value for ZaakObjectType enum
+
+**Bugfixes**
+
+* [:open-zaak:`2592`] Fix documents with the same file name overwriting each other's content when they are saved at the same time, or imported.
+* [:open-zaak:`2586`] Fix context variables not being JSON serializable in the CloudEvent webhook view
+* [:open-zaak:`2484`] Fix 500 error that occurred when successfully deleting a Zaak
+* [:open-zaak:`2581`] Avoid crashing view config page if configured services are missing JWT secrets
+* [:open-zaak:`2570`] Fix very slow verzending admin list view
+* [:open-zaak:`2313`] Use service TLS certificates when fetching remote URLs
+* [:open-archiefbeheer:`1071`] Fixed a related zaakobject without an end date preventing a zaak from being closed
+* [:open-zaak:`2506`] Fix 500 error for writes to ``/statustypen`` with a valid doorlooptijd
+* [:open-zaak:`2426`] Fix 500 error that occurred when attempting to add a new service via the Service configuration view in the admin
+* [:open-zaak:`2519`] Add constraint to allow only users with change permission to publish data
+
+**Project maintenance**
+
+* [:open-zaak:`2576`] Upgrade python dependencies
+
+  * ``anyio`` to 4.14.2
+  * ``commonground-api-common`` to 3.0.0
+  * ``django-loose-fk`` to 2.0.0
+  * ``django-setup-configuration`` to 0.13.0
+  * ``djangorestframework`` to 3.18.1
+  * ``djangorestframework-gis`` to 1.3.0
+  * ``filelock`` to 4.0.8
+  * ``gitpython`` to 3.2.0
+  * ``maykin-common`` to 0.22.0
+  * ``notifications-api-common`` to 0.13.1
+  * ``oauthlib`` to 4.0.0
+  * ``open-api-framework`` to 0.16.0
+  * ``pip`` to 26.2.1
+  * ``pyjwt`` to 2.15.1
+  * ``sqlparse`` to 0.6.0
+  * ``tornado`` to 6.5.10
+  * ``urllib3`` to 2.8.0
+  * ``virtualenv`` to 21.14.2
+  * ``webob`` to 1.8.11
+  * ``zgw-consumers`` to 2.1.0
+
+* [:open-zaak:`2576`] Upgrade NPM dependencies
+* [:open-zaak:`2590`] Export ``UWSGI_*`` defaults instead of passing explicit flags
+* [:open-zaak:`2027`] Remove ``FUZZY_PAGINATION`` envvar and always use default pagination instead
+* [:open-api-workflows:`64`] Add action to generate and update Docker Hub description
+* [:open-api-framework:`224`] Migrate frontend toolchain from webpack to esbuild
+* Update versions of dependencies used in github actions
+
+**Documentation**
+
+* [:open-zaak:`2592`] Add documentation about the file overwrite issue :ref:`installation_reference_overwritten_documents`.
+* Use main branch instead of master for Open Zaak repo in docs
+
 1.30.0 (2026-08-20)
 -------------------
 

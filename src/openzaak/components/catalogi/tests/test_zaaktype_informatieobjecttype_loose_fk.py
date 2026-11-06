@@ -3,6 +3,7 @@
 from django.db import IntegrityError, transaction
 from django.test import RequestFactory, TestCase, override_settings
 
+from rest_framework.request import Request
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -144,7 +145,7 @@ class ZaakTypeInformatieObjectTypeFilterTests(TestCase):
         )
 
     def _filter(self, data):
-        request = RequestFactory().get("/", headers={"host": "openzaak.nl"})
+        request = Request(RequestFactory().get("/", headers={"host": "openzaak.nl"}))
         return ZaakTypeInformatieObjectTypeFilter(
             data=data,
             queryset=ZaakTypeInformatieObjectType.objects.all(),

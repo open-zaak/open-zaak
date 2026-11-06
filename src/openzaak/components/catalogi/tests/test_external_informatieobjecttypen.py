@@ -16,7 +16,7 @@ from openzaak.components.documenten.tests.utils import (
     get_informatieobjecttype_response,
 )
 from openzaak.tests.utils import mock_drc_oas_get
-from openzaak.utils.urls import reverse, reverse_lazy
+from openzaak.utils.urls import reverse
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..constants import RichtingChoices
@@ -77,12 +77,15 @@ class ZaakTypeInformatieObjectTypeExternalTests(
     heeft_alle_autorisaties = False
     scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
+    NAMESPACE = "catalogi"
 
-    list_url = reverse_lazy(ZaakTypeInformatieObjectType)
+    @property
+    def list_url(self):
+        return reverse(ZaakTypeInformatieObjectType, namespace=self.NAMESPACE)
 
     def _data(self, zaaktype, informatieobjecttype: str) -> dict:
         return {
-            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
             "informatieobjecttype": informatieobjecttype,
             "volgnummer": 1,
             "richting": RichtingChoices.inkomend,
@@ -114,7 +117,7 @@ class ZaakTypeInformatieObjectTypeExternalTests(
         )
 
         with requests_mock.Mocker():
-            response = self.client.get(reverse(relation))
+            response = self.client.get(reverse(relation, namespace=self.NAMESPACE))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()["informatieobjecttype"], iotype)
@@ -137,7 +140,10 @@ class ZaakTypeInformatieObjectTypeExternalTests(
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = response.json()["results"]
         self.assertEqual(len(results), 1)
-        self.assertEqual(results[0]["url"], f"http://testserver{reverse(relation)}")
+        self.assertEqual(
+            results[0]["url"],
+            f"http://testserver{reverse(relation, namespace=self.NAMESPACE)}",
+        )
 
     def test_create_with_external_informatieobjecttype_non_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus, concept=False)
@@ -162,14 +168,15 @@ class ZaakTypeInformatieObjectTypeExternalTests(
     def _patch(self, relation):
         with requests_mock.Mocker() as m:
             response = self.client.patch(
-                reverse(relation), {"richting": RichtingChoices.uitgaand}
+                reverse(relation, namespace=self.NAMESPACE),
+                {"richting": RichtingChoices.uitgaand},
             )
         self.assertFalse(m.called)
         return response
 
     def _delete(self, relation):
         with requests_mock.Mocker() as m:
-            response = self.client.delete(reverse(relation))
+            response = self.client.delete(reverse(relation, namespace=self.NAMESPACE))
         self.assertFalse(m.called)
         return response
 
@@ -261,7 +268,12 @@ class ZaakTypeInformatieObjectTypeExternalTests(
 class BesluitTypeExternalInformatieObjectTypenTests(
     ExternalInformatieObjectTypeMixin, APITestCase
 ):
-    list_url = reverse_lazy(BesluitType, namespace="zaken")
+    NAMESPACE = "catalogi"
+    INFORMATIEOBJECTTYPE_NAMESPACE = "catalogi"
+
+    @property
+    def list_url(self):
+        return reverse(BesluitType, namespace=self.NAMESPACE)
 
     def _data(self, informatieobjecttypen: list[str]) -> dict:
         return {
@@ -290,8 +302,9 @@ class BesluitTypeExternalInformatieObjectTypenTests(
             )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        expected_local_url = f"http://testserver{reverse(local, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE)}"
         self.assertEqual(
-            response.json()["informatieobjecttypen"], [local_url, external]
+            response.json()["informatieobjecttypen"], [expected_local_url, external]
         )
 
         besluittype = BesluitType.objects.get()
@@ -316,7 +329,7 @@ class BesluitTypeExternalInformatieObjectTypenTests(
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = response.json()["results"]
         self.assertEqual(len(results), 1)
-        url = reverse(besluittype, namespace="zaken")
+        url = reverse(besluittype, namespace=self.NAMESPACE)
         self.assertEqual(results[0]["url"], f"http://testserver{url}")
 
     def test_retrieve_with_external_informatieobjecttypen(self):
@@ -333,12 +346,15 @@ class BesluitTypeExternalInformatieObjectTypenTests(
         )
 
         with requests_mock.Mocker():
-            response = self.client.get(reverse(besluittype, namespace="zaken"))
+            response = self.client.get(reverse(besluittype, namespace=self.NAMESPACE))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             response.json()["informatieobjecttypen"],
-            [f"http://testserver{reverse(local, namespace='documenten')}", external],
+            [
+                f"http://testserver{reverse(local, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE)}",
+                external,
+            ],
         )
         self.assertEqual(response.json()["vastgelegdIn"], [local.omschrijving])
 
@@ -350,7 +366,7 @@ class BesluitTypeExternalInformatieObjectTypenTests(
         external = new_external_iotype()
         besluittype.set_informatieobjecttypen([local, external])
 
-        response = self.client.get(reverse(besluittype, namespace="zaken"))
+        response = self.client.get(reverse(besluittype, namespace=self.NAMESPACE))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
@@ -373,7 +389,7 @@ class BesluitTypeExternalInformatieObjectTypenTests(
         with requests_mock.Mocker() as m:
             self.mock_external_iotype(m, new)
             response = self.client.put(
-                reverse(besluittype, namespace="zaken"), self._data([new])
+                reverse(besluittype, namespace=self.NAMESPACE), self._data([new])
             )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -436,7 +452,12 @@ class BesluitTypeExternalInformatieObjectTypenConceptTests(
     scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
 
-    list_url = reverse_lazy(BesluitType, namespace="zaken")
+    NAMESPACE = "catalogi"
+
+    @property
+    def list_url(self):
+        return reverse(BesluitType, namespace=self.NAMESPACE)
+
     _data = BesluitTypeExternalInformatieObjectTypenTests._data
 
     def test_create_with_external_informatieobjecttype(self):
@@ -457,7 +478,7 @@ class BesluitTypeExternalInformatieObjectTypenConceptTests(
         with requests_mock.Mocker() as m:
             self.mock_external_iotype(m, external)
             response = self.client.put(
-                reverse(besluittype, namespace="zaken"), self._data([external])
+                reverse(besluittype, namespace=self.NAMESPACE), self._data([external])
             )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2024 Dimpact
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 
@@ -58,6 +58,27 @@ class ViewConfigTestCase(WebTest):
             _("Cannot retrieve kanalen: HTTP {status_code}").format(status_code=404),
             rows[5].text,
         )
+
+    @tag("gh-2581")
+    def test_view_config_page_with_notifs_service_without_secret(self):
+        self.config.notifications_api_service = ServiceFactory.create(
+            api_root=self.api_root,
+            api_type=APITypes.nrc,
+            auth_type=AuthTypes.zgw,
+            secret="",
+        )
+        self.config.save()
+
+        response = self.app.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+
+        rows = response.html.findAll("tr")
+
+        # Rows for: header, Site domain, HTTPS, notifications API, auth for notifs API
+        self.assertEqual(len(rows), 5)
+        self.assertIn(self.api_root, rows[3].text)
+        self.assertIn(_("Misconfigured"), rows[4].text)
 
     def test_view_config_page_with_unreachable_notifs_service(self):
         self.config.notifications_api_service = ServiceFactory.create(

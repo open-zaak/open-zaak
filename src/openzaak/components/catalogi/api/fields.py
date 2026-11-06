@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2026 Dimpact
 from functools import cached_property
+from typing import Iterable
 
 from rest_framework import serializers
 
@@ -61,8 +62,15 @@ class BesluitTypeInformatieObjectTypenField(serializers.ListField):
         kwargs.setdefault("child", BesluitTypeInformatieObjectTypeUrlField())
         super().__init__(**kwargs)
 
+    def get_relations(self, instance) -> Iterable[BesluitTypeInformatieObjectType]:
+        """
+        The through-model instances holding the (local or external) references,
+        used by the ``ExpandLoader`` to expand them.
+        """
+        return instance.besluittypeinformatieobjecttype_set.all()
+
     def get_attribute(self, instance):
         return [
             relation._iotype_url or relation._informatieobjecttype
-            for relation in instance.besluittypeinformatieobjecttype_set.all()
+            for relation in self.get_relations(instance)
         ]

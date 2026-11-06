@@ -2,10 +2,13 @@
 # Copyright (C) 2026 Dimpact
 from datetime import date, timedelta
 
+from django.test import override_settings
+
 from openzaak.tests.utils import TestMigrations
 from openzaak.utils.urls import reverse
 
 
+@override_settings(ALLOWED_HOSTS=["testserver"])
 class TestMoveApplicationsMigrations(TestMigrations):
     migrate_from = "0015_applicatie_alter_catalogusautorisatie_applicatie_and_more"
     migrate_to = "0016_move_applications"
@@ -116,8 +119,6 @@ class TestMoveApplicationsMigrations(TestMigrations):
             scopes=["catalogi.lezen"],
         )
 
-
-
     def test_move(self):
         self.execute()
         self.assertEqual(self.ApplicatieOld.objects.count(), 0)
@@ -204,7 +205,10 @@ class TestMoveApplicationsMigrations(TestMigrations):
             max_vertrouwelijkheidaanduiding="openbaar",
         )
 
-        with self.assertRaisesMessage(ValueError, "http://external/catalogi/api/v1/zaaktypen/ea55d56b-1149-4148-a9cf-3208375765d7 is not a local URL"):
+        with self.assertRaisesMessage(
+            ValueError,
+            "http://external/catalogi/api/v1/zaaktypen/ea55d56b-1149-4148-a9cf-3208375765d7 is not a local URL",
+        ):
             self.execute()
 
     def test_invalid_internal_url(self):
@@ -216,7 +220,10 @@ class TestMoveApplicationsMigrations(TestMigrations):
             max_vertrouwelijkheidaanduiding="openbaar",
         )
 
-        with self.assertRaisesMessage(ValueError, "http://testserver/catalogi/api/v1/blabla/ea55d56b-1149-4148-a9cf-3208375765d7 is not a valid URL"):
+        with self.assertRaisesMessage(
+            ValueError,
+            "http://testserver/catalogi/api/v1/blabla/ea55d56b-1149-4148-a9cf-3208375765d7 is not a valid URL",
+        ):
             self.execute()
 
     def test_unexpected_resource(self):
@@ -228,7 +235,10 @@ class TestMoveApplicationsMigrations(TestMigrations):
             max_vertrouwelijkheidaanduiding="openbaar",
         )
 
-        with self.assertRaisesMessage(ValueError, f"http://testserver{reverse(self.zaaktype)} is not a expected besluittypen resource"):
+        with self.assertRaisesMessage(
+            ValueError,
+            f"http://testserver{reverse(self.zaaktype)} is not a expected besluittypen resource",
+        ):
             self.execute()
 
     def test_non_existent_uuid(self):
@@ -240,6 +250,8 @@ class TestMoveApplicationsMigrations(TestMigrations):
             max_vertrouwelijkheidaanduiding="openbaar",
         )
 
-        with self.assertRaisesMessage(ValueError,
-                                      "http://testserver/catalogi/api/v1/besluittypen/255c2111-774a-4c2a-bb77-34301101c09d does not exist"):
+        with self.assertRaisesMessage(
+            ValueError,
+            "http://testserver/catalogi/api/v1/besluittypen/255c2111-774a-4c2a-bb77-34301101c09d does not exist",
+        ):
             self.execute()

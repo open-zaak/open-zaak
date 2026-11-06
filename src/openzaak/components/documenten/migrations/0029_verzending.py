@@ -5,7 +5,6 @@
 import django.core.validators
 from django.db import migrations, models
 import django.db.models.deletion
-import openzaak.components.documenten.caching
 import openzaak.utils.fields
 import openzaak.utils.mixins
 import uuid

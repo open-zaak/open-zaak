@@ -1,20 +1,24 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+
 import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
-from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
-from openzaak.utils.mixins import CacheQuerysetMixin
+from openzaak.notifications.viewsets import MultipleChannelNotificationViewSetMixin
+from openzaak.utils.expansion import EXPAND_QUERY_PARAM
+from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, VALIDATION_ERROR_RESPONSES
 
-from ...models import ZaakType
-from ..filters import ZaakTypeFilter
+from ...models import (
+    ZaakType,
+)
+from ..filters import ZaakTypeDetailFilter, ZaakTypeFilter
 from ..kanalen import KANAAL_ZAAKTYPEN
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_DELETE,
@@ -79,15 +83,16 @@ logger = structlog.stdlib.get_logger(__name__)
         description="Verwijder een ZAAKTYPE. Dit kan alleen als het een concept betreft.",
     ),
 )
-@conditional_retrieve()
+@conditional_retrieve(variant_params={EXPAND_QUERY_PARAM})
 class ZaakTypeViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
+    ExpandMixin,
     ConceptPublishMixin,
     ConceptDestroyMixin,
     ConceptFilterMixin,
     M2MConceptDestroyMixin,
-    NotificationViewSetMixin,
+    MultipleChannelNotificationViewSetMixin,
     viewsets.ModelViewSet,
 ):
     """
@@ -98,8 +103,8 @@ class ZaakTypeViewSet(
     """
 
     queryset = (
-        ZaakType.objects.prefetch_related(
-            "catalogus",
+        ZaakType.objects.select_related("catalogus")
+        .prefetch_related(
             "statustypen",
             "zaaktypenrelaties",
             "informatieobjecttypen",
@@ -113,10 +118,49 @@ class ZaakTypeViewSet(
         .with_dates("identificatie")
         .order_by("-pk")
     )
+
+    inclusion_viewsets = {
+        "zaakobjecttypen": (
+            "zaakobjecttype_set",
+            "openzaak.components.catalogi.api.viewsets.zaakobjecttype.ZaakObjectTypeViewSet",
+        ),
+        "catalogus": (
+            "catalogus",
+            "openzaak.components.catalogi.api.viewsets.catalogus.CatalogusViewSet",
+        ),
+        "statustypen": (
+            "statustypen",
+            "openzaak.components.catalogi.api.viewsets.statustype.StatusTypeViewSet",
+        ),
+        "resultaattypen": (
+            "resultaattypen",
+            "openzaak.components.catalogi.api.viewsets.resultaattype.ResultaatTypeViewSet",
+        ),
+        "eigenschappen": (
+            "eigenschap_set",
+            "openzaak.components.catalogi.api.viewsets.eigenschap.EigenschapViewSet",
+        ),
+        "informatieobjecttypen": (
+            "informatieobjecttypen",
+            "openzaak.components.catalogi.api.viewsets.informatieobjecttype.InformatieObjectTypeViewSet",
+        ),
+        "roltypen": (
+            "roltype_set",
+            "openzaak.components.catalogi.api.viewsets.roltype.RolTypeViewSet",
+        ),
+        "besluittypen": (
+            "besluittypen",
+            "openzaak.components.catalogi.api.viewsets.besluittype.BesluitTypeViewSet",
+        ),
+        "deelzaaktypen": (
+            "deelzaaktypen",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+    }
+
     serializer_class = ZaakTypeSerializer
     publish_serializer = ZaakTypePublishSerializer
     lookup_field = "uuid"
-    filterset_class = ZaakTypeFilter
     pagination_class = ExactPagination
     permission_classes = (AuthRequired,)
     required_scopes = {
@@ -128,7 +172,15 @@ class ZaakTypeViewSet(
         "destroy": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_DELETE,
         "publish": SCOPE_CATALOGI_WRITE,
     }
-    notifications_kanaal = KANAAL_ZAAKTYPEN
+    notifications_kanalen = [
+        {
+            "kanaal": KANAAL_ZAAKTYPEN,
+            "namespace": "zaken",
+            "replace_urls_in_kenmerken": [
+                {"field": "catalogus", "namespace": "zaken"},
+            ],
+        },
+    ]
     concept_related_fields = ["besluittypen", "informatieobjecttypen"]
 
     def get_queryset(self):
@@ -144,6 +196,15 @@ class ZaakTypeViewSet(
             # of queries will be the same.
             qs = qs.prefetch_related(None)
         return qs
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return ZaakTypeDetailFilter
+        return ZaakTypeFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)

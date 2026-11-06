@@ -91,6 +91,7 @@ class EnkelvoudigInformatieObjectFactory(
 
     informatieobjecttype = factory.SubFactory(InformatieObjectTypeFactory)
     vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
+    inhoud_is_vervallen = factory.fuzzy.FuzzyChoice([True, False, None])
 
     class Meta:
         model = EnkelvoudigInformatieObject
@@ -225,6 +226,9 @@ class DocumentRowFactory(factory.ListFactory):
 
     zaak_uuid = ""
     trefwoorden = ""
+    inhoud_is_vervallen = ""
+    tonen_aan_initiator = ""
+    is_gereed_voor_publicatie = ""
 
     @classmethod
     def _create_file(cls, model_class, *args, **kwargs):
@@ -303,6 +307,9 @@ class DocumentRowFactory(factory.ListFactory):
             integriteit_waarde="foo",
             integriteit_datum=str(datetime.date(2024, 1, 1)),
             trefwoorden='"foo,bar"',
+            inhoud_is_vervallen=None,
+            tonen_aan_initiator="true",
+            is_gereed_voor_publicatie="true",
         )
 
 

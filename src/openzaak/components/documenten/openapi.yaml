@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Documenten API
-  version: 1.4.2
+  version: 1.7.0
   description: |
     Een API om een documentregistratiecomponent (DRC) te benaderen.
 
@@ -662,7 +662,7 @@ paths:
             type: string
             enum:
             - informatieobjecttype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
         style: form
@@ -1403,7 +1403,7 @@ paths:
             type: string
             enum:
             - informatieobjecttype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
           \ \n\n"
         explode: false
         style: form
@@ -1566,7 +1566,6 @@ paths:
         - correcte `lock` waarde
         - geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.
         - publicatie `informatieobjecttype` - `concept` moet `false` zijn
-        - status NIET `definitief`
       summary: Werk een (ENKELVOUDIG) INFORMATIEOBJECT in zijn geheel bij.
       parameters:
       - in: header
@@ -1747,7 +1746,6 @@ paths:
         - correcte `lock` waarde
         - geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.
         - publicatie `informatieobjecttype` - `concept` moet `false` zijn
-        - status NIET `definitief`
       summary: Werk een (ENKELVOUDIG) INFORMATIEOBJECT deels bij.
       parameters:
       - in: header
@@ -2575,8 +2573,10 @@ paths:
             type: string
             enum:
             - informatieobjecttype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
-          \ \n\n (samengevoegd met evt. expand in body)"
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
+          \ \n\n (samengevoegd met evt. expand in body). Voor gerelateerde resources\
+          \ uit de Catalogi API is `catalogi.lezen` nodig; voor informatieobjecten\
+          \ uit de Documenten API is `documenten.lezen` nodig."
         explode: false
         style: form
       - name: page
@@ -2621,7 +2621,7 @@ paths:
                     type: string
                     enum:
                     - informatieobjecttype
-                  description: "Sluit de gespecifieerde gerelateerde resources in\
+                  description: "Sluit de gespecificeerde gerelateerde resources aan\
                     \ in het antwoord. \n\n"
               required:
               - uuid__in
@@ -2792,8 +2792,9 @@ paths:
             enum:
             - informatieobject
             - informatieobject.informatieobjecttype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
-          \ \n\n"
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
+          \ \n**EXPERIMENTEEL** Het uitbreiden naar `informatieobject.informatieobjecttype`\
+          \ maakt nog geen onderdeel uit van de landelijke API-standaard.\n\n"
         explode: false
         style: form
       - in: query
@@ -3157,8 +3158,9 @@ paths:
             enum:
             - informatieobject
             - informatieobject.informatieobjecttype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
-          \ \n\n"
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
+          \ \n**EXPERIMENTEEL** Het uitbreiden naar `informatieobject.informatieobjecttype`\
+          \ maakt nog geen onderdeel uit van de landelijke API-standaard.\n\n"
         explode: false
         style: form
       - in: path
@@ -3975,8 +3977,9 @@ paths:
         **ontvangstdatum**, **verzenddatum**, **indicatieGebruiksrecht**, **verschijningsvorm**,
         **ondertekening.soort**, **ondertekening.datum**, **integriteit.algoritme**,
         **integriteit.waarde**, **integriteit.datum**, **informatieobjecttype**, **zaakUuid**,
-        **trefwoorden**, **opmerking**, **resultaat**. Voor deze actie is een APPLICATIE
-        nodig met `heeft_alle_autorisaties` ingeschakeld.'
+        **trefwoorden**, **inhoudIsVervallen**, **tonenAanInitiator**, **isGereedVoorPublicatie**,
+        **opmerking**, **resultaat**. Voor deze actie is een APPLICATIE nodig met
+        `heeft_alle_autorisaties` ingeschakeld.'
       summary: Het reportage bestand van een IMPORT downloaden.
       parameters:
       - in: path
@@ -4245,8 +4248,8 @@ paths:
         **ontvangstdatum**, **verzenddatum**, **indicatieGebruiksrecht**, **verschijningsvorm**,
         **ondertekening.soort**, **ondertekening.datum**, **integriteit.algoritme**,
         **integriteit.waarde**, **integriteit.datum**, **informatieobjecttype**, **zaakUuid**,
-        **trefwoorden**. Voor deze actie is een APPLICATIE nodig met `heeft_alle_autorisaties`
-        ingeschakeld.'
+        **trefwoorden**, **inhoudIsVervallen**, **tonenAanInitiator**, **isGereedVoorPublicatie**.
+        Voor deze actie is een APPLICATIE nodig met `heeft_alle_autorisaties` ingeschakeld.'
       summary: Een IMPORT bestand uploaden
       parameters:
       - in: header
@@ -4554,6 +4557,21 @@ paths:
           format: date
         description: filter objecten op hun geldigheids datum.
       - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - besluittypen
+            - catalogus
+            - zaaktypen
+        description: |+
+          Sluit de gespecificeerde gerelateerde resources aan in het antwoord. Expand naar willekeurige diepte wordt niet ondersteund. Dit wijkt af van de standaard.
+
+        explode: false
+        style: form
+      - in: query
         name: omschrijving
         schema:
           type: string
@@ -4617,7 +4635,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedInformatieObjectTypeList'
+                $ref: '#/components/schemas/PaginatedExpandInformatieObjectTypeList'
           description: OK
         '400':
           headers:
@@ -4899,6 +4917,21 @@ paths:
           MultipleValues:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
             summary: Meerdere ETag-waardes
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - besluittypen
+            - catalogus
+            - zaaktypen
+        description: |+
+          Sluit de gespecificeerde gerelateerde resources aan in het antwoord. Expand naar willekeurige diepte wordt niet ondersteund. Dit wijkt af van de standaard.
+
+        explode: false
+        style: form
       - in: path
         name: uuid
         schema:
@@ -4928,7 +4961,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InformatieObjectType'
+                $ref: '#/components/schemas/ExpandInformatieObjectType'
           description: OK
         '401':
           headers:
@@ -5554,10 +5587,11 @@ paths:
   /informatieobjecttypen/{uuid}/publish:
     post:
       operationId: informatieobjecttype_publish
-      description: Publiceren van het informatieobjecttype zorgt ervoor dat dit in
-        een Documenten API kan gebruikt worden. Na het publiceren van een informatieobjecttype
-        zijn geen inhoudelijke wijzigingen meer mogelijk. Indien er na het publiceren
-        nog wat gewijzigd moet worden, dan moet je een nieuwe versie aanmaken.
+      description: '**EXPERIMENTEEL** Publiceren van het informatieobjecttype zorgt
+        ervoor dat dit in een Documenten API kan gebruikt worden. Na het publiceren
+        van een informatieobjecttype zijn geen inhoudelijke wijzigingen meer mogelijk.
+        Indien er na het publiceren nog wat gewijzigd moet worden, dan moet je een
+        nieuwe versie aanmaken.'
       summary: Publiceer het concept INFORMATIEOBJECTTYPE.
       parameters:
       - in: header
@@ -5708,6 +5742,20 @@ paths:
       summary: Alle OBJECT-INFORMATIEOBJECT relaties opvragen.
       parameters:
       - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - informatieobject
+            - informatieobject.informatieobjecttype
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
+          \ \n**EXPERIMENTEEL** Het uitbreiden naar `informatieobject.informatieobjecttype`\
+          \ maakt nog geen onderdeel uit van de landelijke API-standaard.\n\n"
+        explode: false
+        style: form
+      - in: query
         name: informatieobject
         schema:
           type: string
@@ -5737,7 +5785,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ObjectInformatieObject'
+                  $ref: '#/components/schemas/ExpandObjectInformatieObject'
           description: OK
         '400':
           headers:
@@ -6027,6 +6075,20 @@ paths:
           MultipleValues:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
             summary: Meerdere ETag-waardes
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - informatieobject
+            - informatieobject.informatieobjecttype
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
+          \ \n**EXPERIMENTEEL** Het uitbreiden naar `informatieobject.informatieobjecttype`\
+          \ maakt nog geen onderdeel uit van de landelijke API-standaard.\n\n"
+        explode: false
+        style: form
       - in: path
         name: uuid
         schema:
@@ -6056,7 +6118,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ObjectInformatieObject'
+                $ref: '#/components/schemas/ExpandObjectInformatieObject'
           description: OK
         '401':
           headers:
@@ -6382,8 +6444,9 @@ paths:
             enum:
             - informatieobject
             - informatieobject.informatieobjecttype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
-          \ \n\n"
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
+          \ \n**EXPERIMENTEEL** Het uitbreiden naar `informatieobject.informatieobjecttype`\
+          \ maakt nog geen onderdeel uit van de landelijke API-standaard.\n\n"
         explode: false
         style: form
       - in: query
@@ -6713,8 +6776,9 @@ paths:
             enum:
             - informatieobject
             - informatieobject.informatieobjecttype
-        description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
-          \ \n\n"
+        description: "Sluit de gespecificeerde gerelateerde resources aan in het antwoord.\
+          \ \n**EXPERIMENTEEL** Het uitbreiden naar `informatieobject.informatieobjecttype`\
+          \ maakt nog geen onderdeel uit van de landelijke API-standaard.\n\n"
         explode: false
         style: form
       - in: path
@@ -7367,11 +7431,6 @@ paths:
           description: No response body
 components:
   schemas:
-    AardRelatieEnum:
-      enum:
-      - afzender
-      - geadresseerde
-      type: string
     AardRelatieWeergaveEnum:
       enum:
       - 'Hoort bij, omgekeerd: kent'
@@ -7497,6 +7556,137 @@ components:
       - resourceWeergave
       - resultaat
       - wijzigingen
+    BesluitType:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+        catalogus:
+          type: string
+          format: uri
+          description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
+          maxLength: 1000
+          minLength: 1
+        zaaktypen:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          description: ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit BESLUITTYPE
+        omschrijving:
+          type: string
+          description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
+          maxLength: 80
+        omschrijvingGeneriek:
+          type: string
+          description: Algemeen gehanteerde omschrijving van de aard van BESLUITen
+            van het BESLUITTYPE
+          maxLength: 80
+        besluitcategorie:
+          type: string
+          description: Typering van de aard van BESLUITen van het BESLUITTYPE.
+          maxLength: 40
+        reactietermijn:
+          type: string
+          format: duration
+          nullable: true
+          description: De duur (typisch een aantal dagen), gerekend vanaf de verzend-
+            of publicatiedatum, waarbinnen verweer tegen een besluit van het besluittype
+            mogelijk is.
+        publicatieIndicatie:
+          type: boolean
+          description: Aanduiding of BESLUITen van dit BESLUITTYPE gepubliceerd moeten
+            worden.
+        publicatietekst:
+          type: string
+          description: De generieke tekst van de publicatie van BESLUITen van dit
+            BESLUITTYPE
+        publicatietermijn:
+          type: string
+          format: duration
+          nullable: true
+          description: De duur (typisch een aantal dagen), gerekend vanaf de verzend-
+            of publicatiedatum, dat BESLUITen van dit BESLUITTYPE gepubliceerd moeten
+            blijven.
+        toelichting:
+          type: string
+          description: Een eventuele toelichting op dit BESLUITTYPE.
+        informatieobjecttypen:
+          type: array
+          items:
+            type: string
+            format: uri
+            maxLength: 1000
+          description: 'URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
+            waarin besluiten van dit BESLUITTYPE worden vastgelegd. Let op: voor een
+            extern INFORMATIEOBJECTTYPE wordt niet gecontroleerd of dit een concept
+            is of gepubliceerd.'
+        beginGeldigheid:
+          type: string
+          format: date
+          description: De datum waarop het is ontstaan.
+        eindeGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          description: De datum waarop het is opgeheven.
+        concept:
+          type: boolean
+          readOnly: true
+          description: Geeft aan of het object een concept betreft. Concepten zijn
+            niet-definitieve versies en zouden niet gebruikt moeten worden buiten
+            deze API.
+        resultaattypen:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          description: Het RESULTAATTYPE van resultaten die gepaard gaan met besluiten
+            van het BESLUITTYPE.
+        resultaattypenOmschrijving:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van resultaten van het RESULTAATTYPE.
+        vastgelegdIn:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van interne informatieobjecten van
+            dit INFORMATIEOBJECTTYPE.
+        beginObject:
+          type: string
+          format: date
+          readOnly: true
+          description: De datum waarop de eerst versie van het object ontstaan is.
+        eindeObject:
+          type: string
+          format: date
+          readOnly: true
+          description: De datum van de aller laatste versie van het object.
+      required:
+      - beginGeldigheid
+      - beginObject
+      - catalogus
+      - concept
+      - eindeObject
+      - informatieobjecttypen
+      - publicatieIndicatie
+      - resultaattypen
+      - resultaattypenOmschrijving
+      - url
+      - vastgelegdIn
+      - zaaktypen
     BestandsDeel:
       type: object
       properties:
@@ -7632,6 +7822,28 @@ components:
     BlankEnum:
       enum:
       - ''
+    BronCatalogus:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          description: URL-referentie naar broncatalogus
+          maxLength: 200
+        domein:
+          type: string
+          description: Het domein van de CATALOGUS waaraan het ZAAKTYPE is ontleend.
+          maxLength: 5
+        rsin:
+          type: string
+          description: Het RSIN van de INGESCHREVEN NIET-NATUURLIJK PERSOON die beheerder
+            is van de CATALOGUS waaraan het ZAAKTYPE is ontleend.
+          maxLength: 9
+          minLength: 9
+      required:
+      - domein
+      - rsin
+      - url
     BronEnum:
       enum:
       - ac
@@ -7644,6 +7856,27 @@ components:
       - kc
       - vrc
       type: string
+    BronZaaktype:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          description: URL-referentie naar bronzaaktype
+          maxLength: 200
+        identificatie:
+          type: string
+          description: De Zaaktype-identificatie van het bronzaaktype binnen de CATALOGUS.
+          maxLength: 50
+        omschrijving:
+          type: string
+          description: De Zaaktype-omschrijving van het bronzaaktype, zoals gehanteerd
+            in de Broncatalogus.
+          maxLength: 80
+      required:
+      - identificatie
+      - omschrijving
+      - url
     BuitenlandsCorrespondentieadresVerzending:
       type: object
       properties:
@@ -7698,6 +7931,93 @@ components:
       required:
       - adresBuitenland_1
       - landPostadres
+    Catalogus:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+        domein:
+          type: string
+          description: Een afkorting waarmee wordt aangegeven voor welk domein in
+            een CATALOGUS ZAAKTYPEn zijn uitgewerkt.
+          maxLength: 5
+        rsin:
+          type: string
+          description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
+            NIET-NATUURLIJK PERSOON die de eigenaar is van een CATALOGUS.
+          maxLength: 9
+          minLength: 9
+        contactpersoonBeheerNaam:
+          type: string
+          title: Naam
+          description: De naam van de contactpersoon die verantwoordelijk is voor
+            het beheer van de CATALOGUS.
+          maxLength: 40
+        contactpersoonBeheerTelefoonnummer:
+          type: string
+          title: Telefoonnummer
+          description: Het telefoonnummer van de contactpersoon die verantwoordelijk
+            is voor het beheer van de CATALOGUS.
+          maxLength: 20
+        contactpersoonBeheerEmailadres:
+          type: string
+          format: email
+          title: Emailadres
+          description: Het emailadres van de contactpersoon die verantwoordelijk is
+            voor het beheer van de CATALOGUS.
+          maxLength: 254
+        zaaktypen:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          description: URL-referenties naar ZAAKTYPEn die in deze CATALOGUS worden
+            ontsloten.
+        besluittypen:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          description: URL-referenties naar BESLUITTYPEn die in deze CATALOGUS worden
+            ontsloten.
+        informatieobjecttypen:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          description: URL-referenties naar INFORMATIEOBJECTTYPEn die in deze CATALOGUS
+            worden ontsloten.
+        naam:
+          type: string
+          description: De benaming die is gegeven aan de zaaktypecatalogus.
+          maxLength: 200
+        versie:
+          type: string
+          description: Versie-aanduiding van de van toepassing zijnde zaaktypecatalogus.
+          maxLength: 20
+        begindatumVersie:
+          type: string
+          format: date
+          nullable: true
+          description: Datum waarop de versie van de zaaktypecatalogus van toepassing
+            is geworden.
+      required:
+      - besluittypen
+      - contactpersoonBeheerNaam
+      - domein
+      - informatieobjecttypen
+      - rsin
+      - url
+      - zaaktypen
     CorrespondentiePostadresVerzending:
       type: object
       properties:
@@ -7961,6 +8281,24 @@ components:
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        inhoudIsVervallen:
+          type: boolean
+          nullable: true
+          description: |-
+            Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
+            * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
+            * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
+            * `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is.
+        tonenAanInitiator:
+          type: boolean
+          description: Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de
+            initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen.
+        isGereedVoorPublicatie:
+          type: boolean
+          nullable: true
+          description: Geeft aan of het INFORMATIEOBJECT gereed is voor publicatie.
+            Dit veld mag `null` zijn om aan te geven dat de gereedheid voor publicatie
+            nog niet bekend is.
       required:
       - auteur
       - beginRegistratie
@@ -8129,6 +8467,24 @@ components:
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        inhoudIsVervallen:
+          type: boolean
+          nullable: true
+          description: |-
+            Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
+            * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
+            * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
+            * `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is.
+        tonenAanInitiator:
+          type: boolean
+          description: Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de
+            initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen.
+        isGereedVoorPublicatie:
+          type: boolean
+          nullable: true
+          description: Geeft aan of het INFORMATIEOBJECT gereed is voor publicatie.
+            Dit veld mag `null` zijn om aan te geven dat de gereedheid voor publicatie
+            nog niet bekend is.
       required:
       - auteur
       - bronorganisatie
@@ -8316,6 +8672,24 @@ components:
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        inhoudIsVervallen:
+          type: boolean
+          nullable: true
+          description: |-
+            Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
+            * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
+            * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
+            * `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is.
+        tonenAanInitiator:
+          type: boolean
+          description: Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de
+            initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen.
+        isGereedVoorPublicatie:
+          type: boolean
+          nullable: true
+          description: Geeft aan of het INFORMATIEOBJECT gereed is voor publicatie.
+            Dit veld mag `null` zijn om aan te geven dat de gereedheid voor publicatie
+            nog niet bekend is.
         lock:
           type: string
           readOnly: true
@@ -8488,6 +8862,24 @@ components:
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        inhoudIsVervallen:
+          type: boolean
+          nullable: true
+          description: |-
+            Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
+            * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
+            * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
+            * `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is.
+        tonenAanInitiator:
+          type: boolean
+          description: Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de
+            initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen.
+        isGereedVoorPublicatie:
+          type: boolean
+          nullable: true
+          description: Geeft aan of het INFORMATIEOBJECT gereed is voor publicatie.
+            Dit veld mag `null` zijn om aan te geven dat de gereedheid voor publicatie
+            nog niet bekend is.
       required:
       - auteur
       - bronorganisatie
@@ -8651,6 +9043,24 @@ components:
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        inhoudIsVervallen:
+          type: boolean
+          nullable: true
+          description: |-
+            Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
+            * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
+            * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
+            * `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is.
+        tonenAanInitiator:
+          type: boolean
+          description: Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de
+            initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen.
+        isGereedVoorPublicatie:
+          type: boolean
+          nullable: true
+          description: Geeft aan of het INFORMATIEOBJECT gereed is voor publicatie.
+            Dit veld mag `null` zijn om aan te geven dat de gereedheid voor publicatie
+            nog niet bekend is.
         lock:
           type: string
           writeOnly: true
@@ -8684,6 +9094,47 @@ components:
     ExpandGebruiksrechten:
       allOf:
       - $ref: '#/components/schemas/Gebruiksrechten'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              informatieobject:
+                allOf:
+                - $ref: '#/components/schemas/EnkelvoudigInformatieObject'
+                description: URL-referentie naar het INFORMATIEOBJECT.
+    ExpandInformatieObjectType:
+      allOf:
+      - $ref: '#/components/schemas/InformatieObjectType'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              catalogus:
+                allOf:
+                - $ref: '#/components/schemas/Catalogus'
+                description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
+                  behoort.
+              zaaktypen:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZaakType'
+                readOnly: true
+                description: URL-referenties naar de ZAAKTYPEN
+              besluittypen:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BesluitType'
+                readOnly: true
+                description: URL-referenties naar de BESLUITTYPEN
+    ExpandObjectInformatieObject:
+      allOf:
+      - $ref: '#/components/schemas/ObjectInformatieObject'
       - type: object
         properties:
           _expand:
@@ -8873,6 +9324,11 @@ components:
       - reportUrl
       - statusUrl
       - uploadUrl
+    IndicatieInternOfExternEnum:
+      enum:
+      - intern
+      - extern
+      type: string
     InformatieObjectType:
       type: object
       properties:
@@ -9365,6 +9821,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ExpandEnkelvoudigInformatieObject'
+    PaginatedExpandInformatieObjectTypeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpandInformatieObjectType'
     PaginatedExpandVerzendingList:
       type: object
       required:
@@ -9590,6 +10069,24 @@ components:
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        inhoudIsVervallen:
+          type: boolean
+          nullable: true
+          description: |-
+            Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
+            * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
+            * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
+            * `null` Het is nog niet bekend of bepaald of het INFORMATIEOBJECT wel of niet vervallen is.
+        tonenAanInitiator:
+          type: boolean
+          description: Geeft aan of het INFORMATIEOBJECT getoond mag worden aan de
+            initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen.
+        isGereedVoorPublicatie:
+          type: boolean
+          nullable: true
+          description: Geeft aan of het INFORMATIEOBJECT gereed is voor publicatie.
+            Dit veld mag `null` zijn om aan te geven dat de gereedheid voor publicatie
+            nog niet bekend is.
         lock:
           type: string
           writeOnly: true
@@ -9701,7 +10198,7 @@ components:
             verzonden.
         aardRelatie:
           allOf:
-          - $ref: '#/components/schemas/AardRelatieEnum'
+          - $ref: '#/components/schemas/VerzendingAardRelatieEnum'
           description: Omschrijving van de aard van de relatie van de BETROKKENE tot
             het INFORMATIEOBJECT.
         toelichting:
@@ -9731,8 +10228,7 @@ components:
             documenten die van of naar andere personen ontvangen of verzonden zijn
             waarbij die personen niet deel uit maken van de behandeling van de zaak
             waarin het document een rol speelt. Vervangt het gelijknamige attribuut
-            uit Informatieobject. Verplicht gevuld wanneer aardRelatie de waarde 'geadresseerde'
-            heeft.
+            uit Informatieobject.
         contactPersoon:
           type: string
           format: uri
@@ -9792,6 +10288,23 @@ components:
       - antwoordnummer
       - postbusnummer
       type: string
+    ReferentieProces:
+      type: object
+      properties:
+        naam:
+          type: string
+          title: Referentieprocesnaam
+          description: De naam van het Referentieproces. Zie ook de Procesarchitectuur
+            Referentieprocessen op https://www.gemmaonline.nl/index.php/Procesarchitectuur_Referentieprocessen
+          maxLength: 80
+        link:
+          type: string
+          format: uri
+          title: Referentieproceslink
+          description: De URL naar de beschrijving van het Referentieproces
+          maxLength: 200
+      required:
+      - naam
     ReservedDocument:
       oneOf:
       - type: object
@@ -9932,7 +10445,7 @@ components:
             verzonden.
         aardRelatie:
           allOf:
-          - $ref: '#/components/schemas/AardRelatieEnum'
+          - $ref: '#/components/schemas/VerzendingAardRelatieEnum'
           description: Omschrijving van de aard van de relatie van de BETROKKENE tot
             het INFORMATIEOBJECT.
         toelichting:
@@ -9962,8 +10475,7 @@ components:
             documenten die van of naar andere personen ontvangen of verzonden zijn
             waarbij die personen niet deel uit maken van de behandeling van de zaak
             waarin het document een rol speelt. Vervangt het gelijknamige attribuut
-            uit Informatieobject. Verplicht gevuld wanneer aardRelatie de waarde 'geadresseerde'
-            heeft.
+            uit Informatieobject.
         contactPersoon:
           type: string
           format: uri
@@ -10023,6 +10535,11 @@ components:
       - contactPersoon
       - informatieobject
       - url
+    VerzendingAardRelatieEnum:
+      enum:
+      - afzender
+      - geadresseerde
+      type: string
     VerzendingRequest:
       type: object
       description: |-
@@ -10044,7 +10561,7 @@ components:
             verzonden.
         aardRelatie:
           allOf:
-          - $ref: '#/components/schemas/AardRelatieEnum'
+          - $ref: '#/components/schemas/VerzendingAardRelatieEnum'
           description: Omschrijving van de aard van de relatie van de BETROKKENE tot
             het INFORMATIEOBJECT.
         toelichting:
@@ -10074,8 +10591,7 @@ components:
             documenten die van of naar andere personen ontvangen of verzonden zijn
             waarbij die personen niet deel uit maken van de behandeling van de zaak
             waarin het document een rol speelt. Vervangt het gelijknamige attribuut
-            uit Informatieobject. Verplicht gevuld wanneer aardRelatie de waarde 'geadresseerde'
-            heeft.
+            uit Informatieobject.
         contactPersoon:
           type: string
           format: uri
@@ -10249,6 +10765,349 @@ components:
           minLength: 1
       required:
       - zaak
+    ZaakType:
+      type: object
+      description: |-
+        Set gegevensgroepdata from validated nested data.
+
+        Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+        identificatie:
+          type: string
+          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+            het ZAAKTYPE voorkomt.
+          maxLength: 50
+        omschrijving:
+          type: string
+          description: Omschrijving van de aard van ZAAKen van het ZAAKTYPE.
+          maxLength: 80
+        omschrijvingGeneriek:
+          type: string
+          description: Algemeen gehanteerde omschrijving van de aard van ZAAKen van
+            het ZAAKTYPE
+          maxLength: 80
+        vertrouwelijkheidaanduiding:
+          allOf:
+          - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
+          description: |-
+            Aanduiding van de mate waarin zaakdossiers van ZAAKen van dit ZAAKTYPE voor de openbaarheid bestemd zijn. Indien de zaak bij het aanmaken geen vertrouwelijkheidaanduiding krijgt, dan wordt deze waarde gezet.
+
+            Uitleg bij mogelijke waarden:
+
+            * `openbaar` - Openbaar
+            * `beperkt_openbaar` - Beperkt openbaar
+            * `intern` - Intern
+            * `zaakvertrouwelijk` - Zaakvertrouwelijk
+            * `vertrouwelijk` - Vertrouwelijk
+            * `confidentieel` - Confidentieel
+            * `geheim` - Geheim
+            * `zeer_geheim` - Zeer geheim
+        doel:
+          type: string
+          description: Een omschrijving van hetgeen beoogd is te bereiken met een
+            zaak van dit zaaktype.
+        aanleiding:
+          type: string
+          description: Een omschrijving van de gebeurtenis die leidt tot het starten
+            van een ZAAK van dit ZAAKTYPE.
+        toelichting:
+          type: string
+          description: Een eventuele toelichting op dit zaaktype, zoals een beschrijving
+            van het procesverloop op de hoofdlijnen.
+        indicatieInternOfExtern:
+          allOf:
+          - $ref: '#/components/schemas/IndicatieInternOfExternEnum'
+          description: |-
+            Een aanduiding waarmee onderscheid wordt gemaakt tussen ZAAKTYPEn die Intern respectievelijk Extern geïnitieerd worden. Indien van beide sprake kan zijn, dan prevaleert de externe initiatie.
+
+            Uitleg bij mogelijke waarden:
+
+            * `inkomend` - Inkomend
+            * `intern` - Intern
+            * `uitgaand` - Uitgaand
+        handelingInitiator:
+          type: string
+          description: Werkwoord dat hoort bij de handeling die de initiator verricht
+            bij dit zaaktype. Meestal 'aanvragen', 'indienen' of 'melden'. Zie ook
+            het IOB model op https://www.gemmaonline.nl/index.php/Imztc_2.1/doc/attribuutsoort/zaaktype.handeling_initiator
+          maxLength: 20
+        onderwerp:
+          type: string
+          description: 'Het onderwerp van ZAAKen van dit ZAAKTYPE. In veel gevallen
+            nauw gerelateerd aan de product- of dienstnaam uit de Producten- en Dienstencatalogus
+            (PDC). Bijvoorbeeld: ''Evenementenvergunning'', ''Geboorte'', ''Klacht''.
+            Zie ook het IOB model op https://www.gemmaonline.nl/index.php/Imztc_2.1/doc/attribuutsoort/zaaktype.onderwerp'
+          maxLength: 80
+        handelingBehandelaar:
+          type: string
+          description: Werkwoord dat hoort bij de handeling die de behandelaar verricht
+            bij het afdoen van ZAAKen van dit ZAAKTYPE. Meestal 'behandelen', 'uitvoeren',
+            'vaststellen' of 'onderhouden'. Zie ook het IOB model op https://www.gemmaonline.nl/index.php/Imztc_2.1/doc/attribuutsoort/zaaktype.handeling_behandelaar
+          maxLength: 20
+        doorlooptijd:
+          type: string
+          format: duration
+          description: De periode waarbinnen volgens wet- en regelgeving een ZAAK
+            van het ZAAKTYPE afgerond dient te zijn, in kalenderdagen.
+        servicenorm:
+          type: string
+          format: duration
+          nullable: true
+          description: De periode waarbinnen verwacht wordt dat een ZAAK van het ZAAKTYPE
+            afgerond wordt conform de geldende servicenormen van de zaakbehandelende
+            organisatie(s).
+        opschortingEnAanhoudingMogelijk:
+          type: boolean
+          title: Opschorting/aanhouding mogelijk
+          description: Aanduiding die aangeeft of ZAAKen van dit mogelijk ZAAKTYPE
+            kunnen worden opgeschort en/of aangehouden.
+        verlengingMogelijk:
+          type: boolean
+          description: Aanduiding die aangeeft of de Doorlooptijd behandeling van
+            ZAAKen van dit ZAAKTYPE kan worden verlengd.
+        verlengingstermijn:
+          type: string
+          format: duration
+          nullable: true
+          description: De termijn (typisch een aantal dagen) waarmee de Doorlooptijd
+            behandeling van ZAAKen van dit ZAAKTYPE kan worden verlengd. Mag alleen
+            een waarde bevatten als verlenging mogelijk is.
+        trefwoorden:
+          type: array
+          items:
+            type: string
+            title: Trefwoord
+            maxLength: 30
+          description: Een trefwoord waarmee ZAAKen van het ZAAKTYPE kunnen worden
+            gekarakteriseerd.
+        publicatieIndicatie:
+          type: boolean
+          description: Aanduiding of (het starten van) een ZAAK dit ZAAKTYPE gepubliceerd
+            moet worden.
+        publicatietekst:
+          type: string
+          description: De generieke tekst van de publicatie van ZAAKen van dit ZAAKTYPE.
+        verantwoordingsrelatie:
+          type: array
+          items:
+            type: string
+            maxLength: 40
+          description: De relatie tussen ZAAKen van dit ZAAKTYPE en de beleidsmatige
+            en/of financiële verantwoording.
+        productenOfDiensten:
+          type: array
+          items:
+            type: string
+            format: uri
+            title: URL naar product/dienst
+            maxLength: 1000
+          description: Het product of de dienst die door ZAAKen van dit ZAAKTYPE wordt
+            voortgebracht.
+        selectielijstProcestype:
+          type: string
+          format: uri
+          description: URL-referentie naar een vanuit archiveringsoptiek onderkende
+            groep processen met dezelfde kenmerken (PROCESTYPE in de Selectielijst
+            API).
+          maxLength: 200
+        referentieproces:
+          allOf:
+          - $ref: '#/components/schemas/ReferentieProces'
+          description: Het Referentieproces dat ten grondslag ligt aan dit ZAAKTYPE.
+        concept:
+          type: boolean
+          readOnly: true
+          description: Geeft aan of het object een concept betreft. Concepten zijn
+            niet-definitieve versies en zouden niet gebruikt moeten worden buiten
+            deze API.
+        verantwoordelijke:
+          type: string
+          description: De (soort) organisatorische eenheid of (functie van) medewerker
+            die verantwoordelijk is voor de uitvoering van zaken van het ZAAKTYPE.
+          maxLength: 50
+        broncatalogus:
+          allOf:
+          - $ref: '#/components/schemas/BronCatalogus'
+          description: De CATALOGUS waaraan het ZAAKTYPE is ontleend.
+        bronzaaktype:
+          allOf:
+          - $ref: '#/components/schemas/BronZaaktype'
+          description: Het ZAAKTYPE binnen de CATALOGUS waaraan dit ZAAKTYPE is ontleend.
+        beginGeldigheid:
+          type: string
+          format: date
+          description: De datum waarop het is ontstaan.
+        eindeGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          description: De datum waarop het is opgeheven.
+        versiedatum:
+          type: string
+          format: date
+          description: De datum waarop de (gewijzigde) kenmerken van het ZAAKTYPE
+            geldig zijn geworden
+        beginObject:
+          type: string
+          format: date
+          readOnly: true
+          description: De datum waarop de eerst versie van het object ontstaan is.
+        eindeObject:
+          type: string
+          format: date
+          readOnly: true
+          description: De datum van de aller laatste versie van het object.
+        catalogus:
+          type: string
+          format: uri
+          description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+          maxLength: 1000
+          minLength: 1
+        statustypen:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          description: URL-referenties naar de STATUSTYPEN die mogelijk zijn binnen
+            dit ZAAKTYPE.
+        resultaattypen:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          description: URL-referenties naar de RESULTAATTYPEN die mogelijk zijn binnen
+            dit ZAAKTYPE.
+        eigenschappen:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          description: URL-referenties naar de EIGENSCHAPPEN die aanwezig moeten zijn
+            in ZAKEN van dit ZAAKTYPE.
+        informatieobjecttypen:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          description: URL-referenties naar de INFORMATIEOBJECTTYPEN die mogelijk
+            zijn binnen dit ZAAKTYPE.
+        roltypen:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          description: URL-referenties naar de ROLTYPEN die mogelijk zijn binnen dit
+            ZAAKTYPE.
+        besluittypen:
+          type: array
+          items:
+            type: string
+            format: uri
+            title: heeft relevante besluittypen
+          title: heeft relevante besluittypen
+          description: URL-referenties naar de BESLUITTYPEN die mogelijk zijn binnen
+            dit ZAAKTYPE.
+        deelzaaktypen:
+          type: array
+          items:
+            type: string
+            format: uri
+            nullable: true
+            maxLength: 1000
+            minLength: 1
+          description: De ZAAKTYPE(n) waaronder ZAAKen als deelzaak kunnen voorkomen
+            bij ZAAKen van dit ZAAKTYPE.
+        gerelateerdeZaaktypen:
+          type: array
+          items:
+            $ref: '#/components/schemas/ZaakTypenRelatie'
+          description: De ZAAKTYPEn van zaken die relevant zijn voor zaken van dit
+            ZAAKTYPE.
+        zaakobjecttypen:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          description: URL-referenties naar de ZAAKOBJECTTYPEN die mogelijk zijn binnen
+            dit ZAAKTYPE.
+      required:
+      - aanleiding
+      - beginGeldigheid
+      - beginObject
+      - besluittypen
+      - catalogus
+      - concept
+      - doel
+      - doorlooptijd
+      - eigenschappen
+      - eindeObject
+      - gerelateerdeZaaktypen
+      - handelingBehandelaar
+      - handelingInitiator
+      - indicatieInternOfExtern
+      - informatieobjecttypen
+      - omschrijving
+      - onderwerp
+      - opschortingEnAanhoudingMogelijk
+      - productenOfDiensten
+      - publicatieIndicatie
+      - referentieproces
+      - resultaattypen
+      - roltypen
+      - statustypen
+      - url
+      - verantwoordelijke
+      - verlengingMogelijk
+      - versiedatum
+      - vertrouwelijkheidaanduiding
+      - zaakobjecttypen
+    ZaakTypenRelatie:
+      type: object
+      properties:
+        zaaktype:
+          type: string
+          format: uri
+          description: URL referentie naar het gerelateerde zaaktype, mogelijks in
+            een extern ZTC.
+          maxLength: 200
+        aardRelatie:
+          allOf:
+          - $ref: '#/components/schemas/ZaakTypenRelatieAardRelatieEnum'
+          description: |-
+            Omschrijving van de aard van de relatie van zaken van het ZAAKTYPE tot zaken van het andere ZAAKTYPE
+
+            Uitleg bij mogelijke waarden:
+
+            * `vervolg` - Vervolg
+            * `bijdrage` - Bijdrage
+            * `onderwerp` - Onderwerp
+        toelichting:
+          type: string
+          description: Een toelichting op de aard van de relatie tussen beide ZAAKTYPEN.
+          maxLength: 255
+      required:
+      - aardRelatie
+      - zaaktype
+    ZaakTypenRelatieAardRelatieEnum:
+      enum:
+      - vervolg
+      - bijdrage
+      - onderwerp
+      type: string
   securitySchemes:
     JWT-Claims:
       type: http

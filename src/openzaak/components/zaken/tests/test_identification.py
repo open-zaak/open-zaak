@@ -23,31 +23,31 @@ class UWVIdentificationTests(TestCase):
 
     def test_current(self):
         with self.subTest("No identificatie"):
-            self.assertEqual(self.uwv.current(), "A00000000")
+            self.assertEqual(self.uwv.current(), "A00000000-01")
 
         with self.subTest("existing identificatie"):
-            ZaakIdentificatie.objects.create(identificatie="A00000006")
-            self.assertEqual(self.uwv.current(), "A00000006")
+            ZaakIdentificatie.objects.create(identificatie="A00000006-01")
+            self.assertEqual(self.uwv.current(), "A00000006-01")
 
         with self.subTest("other identificatie"):
             ZaakIdentificatie.objects.create(identificatie="ZAAK-2026-0000001")
-            self.assertEqual(self.uwv.current(), "A00000006")
+            self.assertEqual(self.uwv.current(), "A00000006-01")
 
         with self.subTest("later identificatie"):
-            ZaakIdentificatie.objects.create(identificatie="B00000001")
-            self.assertEqual(self.uwv.current(), "B00000001")
+            ZaakIdentificatie.objects.create(identificatie="B00000001-01")
+            self.assertEqual(self.uwv.current(), "B00000001-01")
 
     def test_next(self):
-        self.assertEqual(next(self.uwv._sequence("A00000000")), "A00000006")
-        self.assertEqual(next(self.uwv._sequence("A00000006")), "A00000023")
-        self.assertEqual(next(self.uwv._sequence("A99999999")), "B00000001")
-        self.assertEqual(next(self.uwv._sequence("Z99999988")), "Z99999990")
-        self.assertEqual(next(self.uwv._sequence("Z99999999")), "AA00000001")
-        self.assertEqual(next(self.uwv._sequence("AA9999999")), "AB00000003")
-        self.assertEqual(next(self.uwv._sequence("AZ9999999")), "BA00000002")
+        self.assertEqual(next(self.uwv._sequence("A00000000-01")), "A00000006-01")
+        self.assertEqual(next(self.uwv._sequence("A00000006-01")), "A00000023-01")
+        self.assertEqual(next(self.uwv._sequence("A99999999-01")), "B00000001-01")
+        self.assertEqual(next(self.uwv._sequence("Z99999988-01")), "Z99999990-01")
+        self.assertEqual(next(self.uwv._sequence("Z99999999-01")), "AA00000001-01")
+        self.assertEqual(next(self.uwv._sequence("AA9999999-01")), "AB00000003-01")
+        self.assertEqual(next(self.uwv._sequence("AZ9999999-01")), "BA00000002-01")
 
         with self.assertRaises(ValueError):
-            next(self.uwv._sequence("ZZ99999999"))
+            next(self.uwv._sequence("ZZ99999999-01"))
 
     def test_generate(self):
         with self.subTest("from 0"):
@@ -56,7 +56,7 @@ class UWVIdentificationTests(TestCase):
             self.assertEqual(ZaakIdentificatie.objects.count(), 1)
             iden = ZaakIdentificatie.objects.get()
 
-            self.assertEqual(iden.identificatie, "A00000006")
+            self.assertEqual(iden.identificatie, "A00000006-01")
             self.assertEqual(iden.bronorganisatie, "111222333")
 
         with self.subTest("next"):
@@ -64,16 +64,16 @@ class UWVIdentificationTests(TestCase):
 
             self.assertEqual(ZaakIdentificatie.objects.count(), 2)
             self.assertEqual(
-                ZaakIdentificatie.objects.last().identificatie, "A00000023"
+                ZaakIdentificatie.objects.last().identificatie, "A00000023-01"
             )
 
         with self.subTest("AA"):
             ZaakIdentificatie.objects.create(
-                identificatie="Z99999990", bronorganisatie="111222333"
+                identificatie="Z99999990-01", bronorganisatie="111222333"
             )
             self.uwv.generate()
             self.assertEqual(
-                ZaakIdentificatie.objects.last().identificatie, "AA00000001"
+                ZaakIdentificatie.objects.last().identificatie, "AA00000001-01"
             )
 
     def test_generate_bulk(self):
@@ -81,7 +81,13 @@ class UWVIdentificationTests(TestCase):
 
         self.assertEqual(ZaakIdentificatie.objects.count(), 5)
 
-        expected = ["A00000006", "A00000023", "A00000037", "A00000040", "A00000054"]
+        expected = [
+            "A00000006-01",
+            "A00000023-01",
+            "A00000037-01",
+            "A00000040-01",
+            "A00000054-01",
+        ]
 
         for i, iden in enumerate(ZaakIdentificatie.objects.order_by("pk")):
             self.assertEqual(iden.identificatie, expected[i])
@@ -96,12 +102,14 @@ assert _LETTER_SEQUENCE[_LETTER_SEQUENCE.index("AA") + 1] == "AB"
 assert _LETTER_SEQUENCE[_LETTER_SEQUENCE.index("AZ") + 1] == "BA"
 
 
-def _uwv_identifier() -> st.SearchStrategy[str]:
+def _uwv_identifier(postfix: str) -> st.SearchStrategy[str]:
     # this composite is better at searching the space for edge cases than
     # st.from_regex(r"^[A-Z]{1,2}[0-9]{8}$", fullmatch=True))
     return st.tuples(
         st.text(alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ", min_size=1, max_size=2),
-        st.integers(min_value=0, max_value=99_999_999).map(lambda n: f"{n:08d}"),
+        st.integers(min_value=0, max_value=99_999_999).map(
+            lambda n: f"{n:08d}{postfix}"
+        ),
     ).map("".join)
 
 
@@ -128,9 +136,13 @@ def _is_valid_uwv_identifier(identificatie: str) -> bool:
 
 
 class UWVRandomTests(HypothesisTestCase):
-    @given(current=_uwv_identifier())
+    @given(current=_uwv_identifier(UWVIdentification._POSTFIX))
     def test_uwv_generator(self, current):
         next_id = next(UWVIdentification("111222333")._sequence(current))
+
+        current = current.removesuffix(UWVIdentification._POSTFIX)
+        next_id = next_id.removesuffix(UWVIdentification._POSTFIX)
+
         self.assertTrue(_is_valid_uwv_identifier(next_id))
         self.assertTrue(len(next_id) > len(current) or next_id > current)
 

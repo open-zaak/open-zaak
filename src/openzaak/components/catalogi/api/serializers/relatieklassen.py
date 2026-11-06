@@ -4,11 +4,13 @@ from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
 from vng_api_common.serializers import (
-    CachedHyperlinkedRelatedField,
     add_choice_values_help_text,
 )
 from vng_api_common.utils import get_help_text
 
+from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceCachedHyperlinkedRelatedField,
+)
 from openzaak.utils.serializers import DeprecatedNamespaceHyperlinkedModelSerializer
 from openzaak.utils.validators import UniqueTogetherValidator
 
@@ -27,8 +29,8 @@ class ZaakTypeInformatieObjectTypeSerializer(
     Relatie met informatieobjecttype dat relevant is voor zaaktype.
     """
 
-    catalogus = CachedHyperlinkedRelatedField(
-        view_name="catalogi:catalogus-detail",
+    catalogus = DeprecatedNamespaceCachedHyperlinkedRelatedField(
+        view_name="zaken:catalogus-detail",
         source="zaaktype.catalogus",
         read_only=True,
         lookup_field="uuid",
@@ -48,6 +50,12 @@ class ZaakTypeInformatieObjectTypeSerializer(
         ),
         label="Informatie object type",
     )
+    inclusion_serializers = {
+        "zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "catalogus": "openzaak.components.catalogi.api.serializers.CatalogusSerializer",
+        "informatieobjecttype": "openzaak.components.catalogi.api.serializers.InformatieObjectTypeSerializer",
+        "statustype": "openzaak.components.catalogi.api.serializers.StatusTypeSerializer",
+    }
 
     class Meta:
         model = ZaakTypeInformatieObjectType
@@ -64,15 +72,15 @@ class ZaakTypeInformatieObjectTypeSerializer(
         extra_kwargs = {
             "url": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:zaaktypeinformatieobjecttype-detail",
+                "view_name": "zaken:zaaktypeinformatieobjecttype-detail",
             },
             "zaaktype": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:zaaktype-detail",
+                "view_name": "zaken:zaaktype-detail",
             },
             "statustype": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:statustype-detail",
+                "view_name": "zaken:statustype-detail",
             },
         }
         validators = [

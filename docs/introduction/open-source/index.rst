@@ -14,9 +14,9 @@ Public Code
 The Open Zaak project benefited from the expertise of the `Foundation for Public
 Code`_ who helped to scale our codebase, community and development process.
 
-.. _`EUPL license`: https://github.com/open-zaak/open-zaak/blob/master/LICENSE.md
-.. _`Python libraries`: https://github.com/open-zaak/open-zaak/blob/master/requirements/base.txt
-.. _`npm packages`: https://github.com/open-zaak/open-zaak/blob/master/package-lock.json
+.. _`EUPL license`: https://github.com/open-zaak/open-zaak/blob/main/LICENSE.md
+.. _`Python libraries`: https://github.com/open-zaak/open-zaak/blob/main/requirements/base.txt
+.. _`npm packages`: https://github.com/open-zaak/open-zaak/blob/main/package-lock.json
 .. _`Foundation for Public Code`: https://publiccode.net/
 
 .. toctree::

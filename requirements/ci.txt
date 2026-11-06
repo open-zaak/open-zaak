@@ -106,10 +106,11 @@ celery==5.5.3
     #   django-celery-beat
     #   flower
     #   notifications-api-common
-certifi==2024.7.4
+certifi==2026.10.19
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   commonground-api-common
     #   elastic-apm
     #   requests
     #   self-certifi
@@ -154,7 +155,7 @@ cloudevents==1.12.0
     #   -r requirements/base.txt
 codecov==2.1.13
     # via -r requirements/test-tools.in
-commonground-api-common==2.15.1
+commonground-api-common==3.1.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -333,7 +334,7 @@ django-log-outgoing-requests==0.9.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
-django-loose-fk==1.1.2
+django-loose-fk==2.0.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -387,7 +388,7 @@ django-sessionprofile==3.0.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
-django-setup-configuration==0.11.0
+django-setup-configuration==0.13.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -435,7 +436,7 @@ django-upgrade-check==1.1.0
     #   open-api-framework
 django-webtest==1.9.13
     # via -r requirements/test-tools.in
-djangorestframework==3.15.2
+djangorestframework==3.18.3
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -454,7 +455,7 @@ djangorestframework-camel-case==1.4.2
     #   -r requirements/base.txt
     #   commonground-api-common
     #   notifications-api-common
-djangorestframework-gis==1.2.0
+djangorestframework-gis==1.3.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -462,7 +463,7 @@ djangorestframework-inclusions==1.2.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-dnspython==2.8.0
+dnspython==2.9.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -492,6 +493,7 @@ drf-spectacular==0.27.2
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   commonground-api-common
+    #   django-loose-fk
     #   open-api-framework
 drf-spectacular-sidecar==2024.7.1
     # via
@@ -569,11 +571,6 @@ idna==3.18
     #   requests
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==8.7.0
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
-    #   opentelemetry-api
 inflection==0.5.1
     # via
     #   -c requirements/base.txt
@@ -644,7 +641,7 @@ maykin-2fa==1.0.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
-maykin-common==0.20.1
+maykin-common==0.22.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -680,24 +677,25 @@ nh3==0.3.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   textile
-notifications-api-common==0.13.0
+notifications-api-common==0.13.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   commonground-api-common
-oauthlib==3.3.1
+oauthlib==4.0.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   requests-oauthlib
-open-api-framework==0.14.1
+open-api-framework==0.16.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-opentelemetry-api==1.38.0
+opentelemetry-api==1.45.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   opentelemetry-exporter-http-transport
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-instrumentation
@@ -710,27 +708,38 @@ opentelemetry-api==1.38.0
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-opentelemetry-exporter-otlp==1.38.0
+opentelemetry-exporter-http-transport==0.66b2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-opentelemetry-exporter-otlp-proto-common==1.38.0
+    #   opentelemetry-exporter-otlp-proto-http
+opentelemetry-exporter-otlp==1.45.2
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+opentelemetry-exporter-otlp-common==0.66b2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-exporter-otlp-proto-grpc==1.38.0
+opentelemetry-exporter-otlp-proto-common==1.45.2
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
+opentelemetry-exporter-otlp-proto-grpc==1.45.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   opentelemetry-exporter-otlp
-opentelemetry-exporter-otlp-proto-http==1.38.0
+opentelemetry-exporter-otlp-proto-http==1.45.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   opentelemetry-exporter-otlp
-opentelemetry-instrumentation==0.59b0
+opentelemetry-instrumentation==0.66b2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -741,37 +750,37 @@ opentelemetry-instrumentation==0.59b0
     #   opentelemetry-instrumentation-redis
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
-opentelemetry-instrumentation-celery==0.59b0
+opentelemetry-instrumentation-celery==0.66b2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-opentelemetry-instrumentation-dbapi==0.59b0
+opentelemetry-instrumentation-dbapi==0.66b2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   opentelemetry-instrumentation-psycopg
-opentelemetry-instrumentation-django==0.59b0
+opentelemetry-instrumentation-django==0.66b2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-opentelemetry-instrumentation-psycopg==0.59b0
+opentelemetry-instrumentation-psycopg==0.66b2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-opentelemetry-instrumentation-redis==0.59b0
+opentelemetry-instrumentation-redis==0.66b2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-opentelemetry-instrumentation-requests==0.59b0
+opentelemetry-instrumentation-requests==0.66b2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-opentelemetry-instrumentation-wsgi==0.59b0
+opentelemetry-instrumentation-wsgi==0.66b2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   opentelemetry-instrumentation-django
-opentelemetry-proto==1.38.0
+opentelemetry-proto==1.45.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -782,14 +791,15 @@ opentelemetry-resource-detector-containerid==0.59b0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-opentelemetry-sdk==1.38.0
+opentelemetry-sdk==1.45.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   opentelemetry-exporter-otlp-common
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-resource-detector-containerid
-opentelemetry-semantic-conventions==0.59b0
+opentelemetry-semantic-conventions==0.66b2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -801,7 +811,7 @@ opentelemetry-semantic-conventions==0.59b0
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
-opentelemetry-util-http==0.59b0
+opentelemetry-util-http==0.66b2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -907,7 +917,7 @@ pygments==2.20.0
     #   rich
     #   sphinx
     #   sphinx-tabs
-pyjwt==2.13.0
+pyjwt==2.15.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -1021,6 +1031,7 @@ requests==2.33.1
     #   mozilla-django-oidc
     #   msal
     #   open-api-framework
+    #   opentelemetry-exporter-http-transport
     #   opentelemetry-exporter-otlp-proto-http
     #   requests-cache
     #   requests-mock
@@ -1140,7 +1151,7 @@ sphinxcontrib-serializinghtml==2.0.0
     # via
     #   -r requirements/test-tools.in
     #   sphinx
-sqlparse==0.5.5
+sqlparse==0.6.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -1150,6 +1161,7 @@ structlog==25.4.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   commonground-api-common
+    #   django-loose-fk
     #   django-structlog
     #   notifications-api-common
 tblib==1.7.0
@@ -1159,7 +1171,7 @@ textile==4.0.3
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-markup
-tornado==6.5.8
+tornado==6.6
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -1210,7 +1222,7 @@ url-normalize==1.4.3
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   requests-cache
-urllib3==2.7.0
+urllib3==2.8.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -1249,7 +1261,7 @@ webencodings==0.5.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   bleach
-webob==1.8.10
+webob==1.8.11
     # via webtest
 webtest==3.0.0
     # via django-webtest
@@ -1262,7 +1274,7 @@ wrapt==1.16.0
     #   opentelemetry-instrumentation-dbapi
     #   opentelemetry-instrumentation-redis
     #   vcrpy
-zgw-consumers==2.0.3
+zgw-consumers==2.1.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -1272,8 +1284,3 @@ zgw-consumers-oas==1.1.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-zipp==3.23.0
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
-    #   importlib-metadata

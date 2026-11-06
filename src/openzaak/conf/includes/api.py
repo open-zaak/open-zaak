@@ -2,13 +2,18 @@
 # Copyright (C) 2019 - 2022 Dimpact
 from vng_api_common.conf.api import BASE_REST_FRAMEWORK  # noqa: F401
 
+from openzaak import __version__
 from openzaak.api_standards import APIStandard
 
 AUTORISATIES_API_VERSION = "1.0.0"
 BESLUITEN_API_VERSION = "1.1.0"
 CATALOGI_API_VERSION = "1.3.1"
-DOCUMENTEN_API_VERSION = "1.4.2"
+DOCUMENTEN_API_VERSION = "1.7.0"
 ZAKEN_API_VERSION = "1.5.1"
+
+# Stored ETags are recalculated after a release, which may represent resources
+# differently
+ETAG_REPRESENTATION_VERSION = __version__
 
 REST_FRAMEWORK = BASE_REST_FRAMEWORK.copy()
 REST_FRAMEWORK["PAGE_SIZE"] = 100
@@ -21,7 +26,6 @@ REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = REST_FRAMEWORK[
 ] + ("openzaak.utils.renderers.ProblemJSONRenderer",)
 
 REST_FRAMEWORK["DEFAULT_SCHEMA_CLASS"] = "openzaak.utils.schema.AutoSchema"
-
 
 SECURITY_DEFINITION_NAME = "JWT-Claims"
 OPENZAAK_API_CONTACT_EMAIL = "support@maykin.nl"

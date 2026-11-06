@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from django.db import transaction
-from django.utils.text import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
-from vng_api_common.serializers import CachedHyperlinkedRelatedField
 from vng_api_common.utils import get_help_text
 
+from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceCachedHyperlinkedRelatedField,
+)
 from openzaak.utils.serializers import DeprecatedNamespaceHyperlinkedModelSerializer
 
 from ...models import BesluitType
@@ -33,18 +35,17 @@ class BesluitTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializer):
         ),
     )
 
-    zaaktypen = CachedHyperlinkedRelatedField(
+    zaaktypen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
         many=True,
-        view_name="catalogi:zaaktype-detail",
+        view_name="zaken:zaaktype-detail",
         lookup_field="uuid",
         read_only=True,
         help_text=get_help_text("catalogi.BesluitType", "zaaktypen"),
     )
 
-    resultaattypen = CachedHyperlinkedRelatedField(
+    resultaattypen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
         many=True,
-        source="resultaattype_set",
-        view_name="catalogi:resultaattype-detail",
+        view_name="zaken:resultaattype-detail",
         lookup_field="uuid",
         read_only=True,
         help_text=_(
@@ -54,7 +55,7 @@ class BesluitTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializer):
     )
     resultaattypen_omschrijving = serializers.SlugRelatedField(
         many=True,
-        source="resultaattype_set",
+        source="resultaattypen",
         read_only=True,
         slug_field="omschrijving",
         help_text=_("Omschrijving van de aard van resultaten van het RESULTAATTYPE."),
@@ -80,13 +81,20 @@ class BesluitTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializer):
         help_text=_("De datum van de aller laatste versie van het object."),
     )
 
+    inclusion_serializers = {
+        "catalogus": "openzaak.components.catalogi.api.serializers.CatalogusSerializer",
+        "zaaktypen": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "informatieobjecttypen": "openzaak.components.catalogi.api.serializers.InformatieObjectTypeSerializer",
+        "resultaattypen": "openzaak.components.catalogi.api.serializers.ResultaatTypeSerializer",
+    }
+
     class Meta:
         model = BesluitType
         extra_kwargs = {
             "url": {"lookup_field": "uuid", "view_name": "zaken:besluittype-detail"},
             "catalogus": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:catalogus-detail",
+                "view_name": "zaken:catalogus-detail",
             },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},

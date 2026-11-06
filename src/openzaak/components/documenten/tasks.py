@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2024 Dimpact
-import shutil
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -54,31 +53,25 @@ def copy_file_to_storage(src: Path, dst: Path) -> str:
         different from `dst` because characters can be appended to make the filename unique
     :rtype: str
     """
-    default_dir = get_default_path(EnkelvoudigInformatieObject.inhoud.field)
     storage = EnkelvoudigInformatieObject.inhoud.field.storage
-
-    if (
-        DocumentenBackendTypes.filesystem == settings.DOCUMENTEN_API_BACKEND
-        and not default_dir.exists()
-    ):
-        default_dir.mkdir(parents=True)
 
     match settings.DOCUMENTEN_API_BACKEND:
         case (
             DocumentenBackendTypes.azure_blob_storage
             | DocumentenBackendTypes.s3_storage
         ):
-            with open(src, "rb") as file:
-                # A file could already exist at `dst` in the storage, so the actual path
-                # to which the file ends up being saved is returned and stored on the
-                # `EnkelvoudigInformatieObject.inhoud`
-                name = storage.save(dst, file)
-            return name
+            name = dst
         case DocumentenBackendTypes.filesystem:
-            shutil.copy2(src, dst)
-            return str(dst)
+            # `get_default_path` includes the storage location
+            name = dst.relative_to(storage.location)
         case _:
             raise DocumentBackendNotImplementedError(settings.DOCUMENTEN_API_BACKEND)
+
+    with open(src, "rb") as file:
+        # A file could already exist at `dst` in the storage, e.g. from another row
+        # with the same file name, so the actual path to which the file ends up being
+        # saved is returned and stored on the `EnkelvoudigInformatieObject.inhoud`
+        return storage.save(str(name), file)
 
 
 def _import_document_row(

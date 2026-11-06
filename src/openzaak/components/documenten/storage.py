@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
 
+import os
 from typing import cast
 
 from django.conf import settings
@@ -11,6 +12,7 @@ import structlog
 from azure.core.exceptions import AzureError
 from azure.identity import ClientSecretCredential
 from azure.storage.blob import BlobServiceClient
+from botocore.exceptions import ClientError
 from privates.storages import STORAGE_ALIAS as PRIVATE_MEDIA_STORAGE_ALIAS
 from storages.backends.azure_storage import AzureStorage as _AzureStorage
 from storages.backends.s3 import S3Storage as _S3Storage
@@ -22,7 +24,61 @@ from .exceptions import DocumentBackendNotImplementedError
 logger = structlog.stdlib.get_logger(__name__)
 
 
+def _if_none_match(params, **kwargs):
+    params.setdefault("IfNoneMatch", "*")
+
+
 class S3Storage(_S3Storage):
+    """
+    S3 storage that doesn't overwrite objects unless ``file_overwrite`` is set.
+
+    ``get_available_name`` only checks if a name is free; an object only exists once
+    its upload is complete, so concurrent saves with the same name would all pick
+    it and overwrite each other. The upload is made conditional instead, and retried
+    with an alternative name if another save claimed the name first.
+    """
+
+    file_overwrite: bool  # set from AWS_S3_FILE_OVERWRITE by django-storages
+
+    @property
+    def connection(self):
+        is_new = getattr(self._connections, "connection", None) is None
+        connection = super().connection
+        if is_new and not self.file_overwrite:
+            # s3transfer doesn't pass `IfNoneMatch` from `upload_fileobj`'s ExtraArgs,
+            # so it's added to the requests directly. Once it does, this can be
+            # replaced by adding it in `_get_write_parameters`. See:
+            # https://github.com/boto/boto3/issues/4366
+            # https://github.com/boto/s3transfer/pull/371
+            assert connection.meta is not None
+            events = connection.meta.client.meta.events
+            for operation in ["PutObject", "CompleteMultipartUpload"]:
+                events.register(
+                    f"before-parameter-build.s3.{operation}",
+                    _if_none_match,
+                    unique_id=f"openzaak-if-none-match-{operation}",
+                )
+        return connection
+
+    def _save(self, name, content):
+        while True:
+            try:
+                return super()._save(name, content)
+            except ClientError as exc:
+                code = exc.response.get("Error", {}).get("Code")
+                if self.file_overwrite or code not in {
+                    "PreconditionFailed",  # another upload completed
+                    "ConditionalRequestConflict",  # another upload is completing
+                }:
+                    raise
+                dir_name, file_name = os.path.split(name)
+                file_root, file_ext = os.path.splitext(file_name)
+                name = self.get_available_name(
+                    os.path.join(
+                        dir_name, self.get_alternative_name(file_root, file_ext)
+                    )
+                )
+
     def connection_check(self) -> bool:
         """
         Checks if the storage backend is reachable and credentials are valid.

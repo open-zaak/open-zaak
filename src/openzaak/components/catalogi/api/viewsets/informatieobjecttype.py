@@ -18,14 +18,15 @@ from vng_api_common.viewsets import CheckQueryParamsMixin
 from openzaak.notifications.viewsets import (
     MultipleChannelNotificationViewSetMixin,
 )
+from openzaak.utils.expansion import EXPAND_QUERY_PARAM
 from openzaak.utils.help_text import mark_experimental
-from openzaak.utils.mixins import CacheQuerysetMixin
+from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, VALIDATION_ERROR_RESPONSES
 
 from ...models import InformatieObjectType
-from ..filters import InformatieObjectTypeFilter
+from ..filters import InformatieObjectDetailTypeFilter, InformatieObjectTypeFilter
 from ..kanalen import KANAAL_INFORMATIEOBJECTTYPEN
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_DELETE,
@@ -88,10 +89,11 @@ logger = structlog.stdlib.get_logger(__name__)
         ),
     ),
 )
-@conditional_retrieve()
+@conditional_retrieve(variant_params={EXPAND_QUERY_PARAM})
 class InformatieObjectTypeViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
+    ExpandMixin,
     ConceptMixin,
     M2MConceptDestroyMixin,
     MultipleChannelNotificationViewSetMixin,
@@ -116,13 +118,31 @@ class InformatieObjectTypeViewSet(
     queryset = (
         InformatieObjectType.objects.all()
         .select_related("catalogus")
-        .prefetch_related("zaaktypen", "besluittypen")
+        .prefetch_related(
+            "zaaktypen",
+            "besluittypen",
+        )
         .with_dates()
         .order_by("-pk")
     )
+
+    inclusion_viewsets = {
+        "zaaktypen": (
+            "zaaktypen",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "catalogus": (
+            "catalogus",
+            "openzaak.components.catalogi.api.viewsets.catalogus.CatalogusViewSet",
+        ),
+        "besluittypen": (
+            "besluittypen",
+            "openzaak.components.catalogi.api.viewsets.besluittype.BesluitTypeViewSet",
+        ),
+    }
+
     serializer_class = InformatieObjectTypeSerializer
     publish_serializer = InformatieObjectTypePublishSerializer
-    filterset_class = InformatieObjectTypeFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
     permission_classes = (AuthRequired,)
@@ -136,9 +156,24 @@ class InformatieObjectTypeViewSet(
         "publish": SCOPE_CATALOGI_WRITE,
     }
     notifications_kanalen = [
-        {"kanaal": KANAAL_INFORMATIEOBJECTTYPEN, "namespace": "documenten"},
+        {
+            "kanaal": KANAAL_INFORMATIEOBJECTTYPEN,
+            "namespace": "documenten",
+            "replace_urls_in_kenmerken": [
+                {"field": "catalogus", "namespace": "zaken"},
+            ],
+        },
     ]
     concept_related_fields = ["besluittypen", "zaaktypen"]
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return InformatieObjectDetailTypeFilter
+        return InformatieObjectTypeFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)

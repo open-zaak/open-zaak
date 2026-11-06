@@ -2433,8 +2433,8 @@ class InternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             {result["zaaktype"] for result in results},
             {
-                f"http://testserver{reverse(self.zaaktype)}",
-                f"http://testserver{reverse(other_zaaktype)}",
+                f"http://testserver{reverse(self.zaaktype, namespace='zaken')}",
+                f"http://testserver{reverse(other_zaaktype, namespace='zaken')}",
             },
         )
 
@@ -2478,7 +2478,7 @@ class InternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(
             results[0]["zaaktype"],
-            f"http://testserver{reverse(self.zaaktype)}",
+            f"http://testserver{reverse(self.zaaktype, namespace='zaken')}",
         )
 
     def test_zaak_retrieve(self):

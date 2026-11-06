@@ -74,6 +74,9 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         eigenschap_data = self.client.get(
             reverse(eigenschap, kwargs={"zaak_uuid": zaak.uuid})
         ).json()
+        # Remove _expand because a normal GET adds it, while the query parameter
+        # only adds it when a further expansion is requested.
+        zaaktype_data.pop("_expand", None)
 
         response = self.client.get(
             self.url,
@@ -82,6 +85,14 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         )
 
         data = response.json()["results"]
+
+        # The detail responses also include the _expand attribute, but the list response
+        # only has a _expand attribute at the root level (no _expand nested inside _expand)
+        del zaak_data["_expand"]
+        del hoofdzaak_data["_expand"]
+        del status_data["_expand"]
+        del resultaat_data["_expand"]
+
         expected_results = [
             {
                 **zaak_data,
@@ -170,7 +181,10 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         # The detail responses also include the _expand attribute, but the list response
         # only has a _expand attribute at the root level (no _expand nested inside _expand)
         del zaak_data["_expand"]
+        del zaaktype_data["_expand"]
         del hoofdzaak_data["_expand"]
+        del status_data["_expand"]
+        del resultaat_data["_expand"]
 
         response = self.client.post(
             reverse("zaken:zaak--zoek"),
@@ -195,6 +209,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()["results"]
+
         expected_results = [
             {
                 **zaak_data,
@@ -257,6 +272,9 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         zaak_data = self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).json()
         resultaat_data = self.client.get(reverse(resultaat)).json()
         resultaattype_data = self.client.get(reverse(resultaat.resultaattype)).json()
+        # Remove _expand because a normal GET adds it, while the query parameter
+        # only adds it when a further expansion is requested.
+        resultaattype_data.pop("_expand", None)
 
         response = self.client.get(
             self.url,
@@ -304,7 +322,10 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         # The detail responses also include the _expand attribute, but the list response
         # only has a _expand attribute at the root level (no _expand nested inside _expand)
         del zaak_data["_expand"]
+        del zaaktype_data["_expand"]
         del hoofdzaak_data["_expand"]
+        del status_data["_expand"]
+        del resultaat_data["_expand"]
 
         response = self.client.get(
             zaak_url,
@@ -331,7 +352,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
 class ZakenIncludePermissionsTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = False
     zaak_url = reverse_lazy("zaken:zaak-list")
-    zaaktype_url = reverse_lazy("catalogi:zaaktype-list")
+    zaaktype_url = reverse_lazy("zaken:zaaktype-list")
 
     @classmethod
     def setUpTestData(cls):
@@ -486,7 +507,7 @@ class ZakenIncludePermissionsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_zaken_list_expand_nested_catalogi_resource(self):
-        resultaattype_url = reverse("catalogi:resultaattype-list")
+        resultaattype_url = reverse("zaken:resultaattype-list")
 
         # Read zaken is allowed with SCOPE_ZAKEN_ALLES_LEZEN
         self.autorisatie.scopes = [SCOPE_ZAKEN_ALLES_LEZEN]

@@ -1,0 +1,203 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
+from unittest.mock import patch
+
+from django.test import override_settings, tag
+from django.urls import reverse
+
+from django_webtest import WebTest
+from freezegun import freeze_time
+from maykin_2fa.test import disable_admin_mfa
+
+from openzaak.components.catalogi.models import ZaakType
+from openzaak.components.catalogi.tests.factories import (
+    CatalogusFactory,
+    ZaakTypeFactory,
+)
+from openzaak.notifications.tests.mixins import NotificationsConfigMixin
+from openzaak.selectielijst.models import ReferentieLijstConfig
+from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
+from openzaak.tests.utils import ClearCachesMixin
+from openzaak.tests.utils.admin import AdminTestMixin
+
+
+@tag("notifications")
+@disable_admin_mfa()
+@override_settings(NOTIFICATIONS_DISABLED=False, LOG_NOTIFICATIONS_IN_DB=False)
+@freeze_time("2022-01-01")
+@patch("notifications_api_common.viewsets.send_notification.delay")
+class NotificationAdminTests(
+    NotificationsConfigMixin,
+    ReferentieLijstServiceMixin,
+    ClearCachesMixin,
+    AdminTestMixin,
+    WebTest,
+):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        # there are TransactionTestCases that truncate the DB, so we need to ensure
+        # there are available years
+        config = ReferentieLijstConfig.get_solo()
+        config.allowed_years = [2017, 2020]
+        config.save()
+
+        cls.catalogus = CatalogusFactory.create()
+        cls.catalogus_url = reverse(
+            "zaken:catalogus-detail",
+            kwargs={"uuid": cls.catalogus.uuid, "version": 1},
+        )
+
+    def test_zaaktype_notify_on_create(self, mock_notif):
+        url = reverse("admin:catalogi_zaaktype_add")
+
+        response = self.app.get(url)
+
+        form = response.forms["zaaktype_form"]
+        form["zaaktype_omschrijving"] = "test"
+        form["doel"] = "test"
+        form["aanleiding"] = "test"
+        form["indicatie_intern_of_extern"].select("intern")
+        form["handeling_initiator"] = "test"
+        form["onderwerp"] = "test"
+        form["handeling_behandelaar"] = "test"
+        form["doorlooptijd_behandeling_days"] = 12
+        form["opschorting_en_aanhouding_mogelijk"].select(False)
+        form["verlenging_mogelijk"].select(False)
+        form["vertrouwelijkheidaanduiding"].select("openbaar")
+        form["producten_of_diensten"] = "https://example.com/foobarbaz"
+        form["referentieproces_naam"] = "test"
+        form["catalogus"] = self.catalogus.pk
+        form["datum_begin_geldigheid"] = "21-11-2019"
+        form["verantwoordelijke"] = "063308836"
+
+        with self.captureOnCommitCallbacks(execute=True):
+            form.submit("_save")
+
+        zaaktype = ZaakType.objects.get()
+        zaaktype_url = reverse(
+            "zaken:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
+        )
+        mock_notif.assert_called_with(
+            {
+                "hoofdObject": f"http://testserver{zaaktype_url}",
+                "kanaal": "zaaktypen",
+                "aanmaakdatum": "2022-01-01T00:00:00Z",
+                "actie": "create",
+                "resource": "zaaktype",
+                "resourceUrl": f"http://testserver{zaaktype_url}",
+                "kenmerken": {
+                    "catalogus": f"http://testserver{self.catalogus_url}",
+                },
+            },
+            None,
+        )
+
+    def test_zaaktype_notify_on_change(self, mock_notif):
+        procestype_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            zaaktype_omschrijving="test",
+            vertrouwelijkheidaanduiding="openbaar",
+            trefwoorden=["test"],
+            verantwoordingsrelatie=["bla"],
+            selectielijst_procestype=procestype_url,
+            catalogus=self.catalogus,
+        )
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+
+        response = self.app.get(url)
+        form = response.forms["zaaktype_form"]
+        form["zaaktype_omschrijving"] = "different-test"
+
+        with self.captureOnCommitCallbacks(execute=True):
+            form.submit("_save")
+
+        zaaktype_url = reverse(
+            "zaken:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
+        )
+        mock_notif.assert_called_with(
+            {
+                "hoofdObject": f"http://testserver{zaaktype_url}",
+                "kanaal": "zaaktypen",
+                "aanmaakdatum": "2022-01-01T00:00:00Z",
+                "actie": "update",
+                "resource": "zaaktype",
+                "resourceUrl": f"http://testserver{zaaktype_url}",
+                "kenmerken": {
+                    "catalogus": f"http://testserver{self.catalogus_url}",
+                },
+            },
+            None,
+        )
+
+    def test_zaaktype_no_notify_on_no_change(self, mock_notif):
+        procestype_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            zaaktype_omschrijving="test",
+            vertrouwelijkheidaanduiding="openbaar",
+            trefwoorden=["test"],
+            verantwoordingsrelatie=["bla"],
+            selectielijst_procestype=procestype_url,
+        )
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+
+        response = self.app.get(url)
+        form = response.forms["zaaktype_form"]
+
+        with self.captureOnCommitCallbacks(execute=True):
+            form.submit("_save")
+
+        mock_notif.assert_not_called()
+
+    def test_zaaktype_notify_correct_resource_url_on_new_version(self, mock_notif):
+        procestype_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        zaaktype_old = ZaakTypeFactory.create(
+            concept=True,
+            zaaktype_omschrijving="test",
+            vertrouwelijkheidaanduiding="openbaar",
+            trefwoorden=["test"],
+            verantwoordingsrelatie=["bla"],
+            selectielijst_procestype=procestype_url,
+            catalogus=self.catalogus,
+        )
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype_old.pk,))
+
+        response = self.app.get(url)
+        form = response.forms["zaaktype_form"]
+        form["datum_einde_geldigheid"] = "2021-01-01"
+
+        with self.captureOnCommitCallbacks(execute=True):
+            form.submit("_addversion")
+
+        zaaktype_old.refresh_from_db()
+        zaaktype_new = ZaakType.objects.exclude(pk=zaaktype_old.pk).get()
+
+        zaaktype_new_url = reverse(
+            "zaken:zaaktype-detail", kwargs={"uuid": zaaktype_new.uuid, "version": 1}
+        )
+        mock_notif.assert_called_with(
+            {
+                "hoofdObject": f"http://testserver{zaaktype_new_url}",
+                "kanaal": "zaaktypen",
+                "aanmaakdatum": "2022-01-01T00:00:00Z",
+                "actie": "create",
+                "resource": "zaaktype",
+                "resourceUrl": f"http://testserver{zaaktype_new_url}",
+                "kenmerken": {
+                    "catalogus": f"http://testserver{self.catalogus_url}",
+                },
+            },
+            None,
+        )

@@ -16,6 +16,7 @@ from django.conf import settings
 from django.db import models, transaction
 
 import structlog
+from cloudevents.conversion import to_dict
 from cloudevents.exceptions import GenericException
 from cloudevents.http import CloudEvent, from_http
 from notifications_api_common.models import NotificationTypes
@@ -362,12 +363,12 @@ class CloudEventWebhook(APIView):
                 {"cloudevent": [str(e)]}, code="malformed-cloudevent"
             ) from e
 
-        bind_contextvars(cloud_event=event)
+        bind_contextvars(cloud_event=to_dict(event))
 
         errors = False
         for handle in self.handlers:
             try:
-                with bound_contextvars(handler=handle):
+                with bound_contextvars(handler=handle.__name__):
                     handle(event)
             except Exception:
                 logger.exception("incoming_cloud_event_uncaught_exception")

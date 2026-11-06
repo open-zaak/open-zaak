@@ -27,7 +27,10 @@ from openzaak.components.zaken.tests.factories import (
     StatusFactory,
     ZaakFactory,
 )
-from openzaak.components.zaken.tests.utils import utcdatetime
+from openzaak.components.zaken.tests.utils import (
+    ZAAK_READ_KWARGS,
+    utcdatetime,
+)
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
@@ -290,6 +293,45 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             self.zaak.startdatum_bewaartermijn + relativedelta(years=5),
         )
 
+    @tag("gh-2577")
+    def test_zaak_afsluiten_invalidates_deelzaak_etag(self):
+        """
+        Closing the hoofdzaak updates its deelzaken without signals, so the update
+        must invalidate their ETags itself.
+        """
+        deelzaak = ZaakFactory.create(zaaktype=self.zaaktype, hoofdzaak=self.zaak)
+        StatusFactory.create(
+            zaak=deelzaak,
+            statustype=self.statustype2,
+            datum_status_gezet=utcdatetime(2024, 4, 5),
+        )
+        ResultaatFactory.create(
+            zaak=deelzaak,
+            resultaattype=ResultaatTypeFactory.create(
+                zaaktype=self.zaaktype,
+                archiefactietermijn=relativedelta(years=10),
+                brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.hoofdzaak,
+            ),
+        )
+        deelzaak_url = reverse(deelzaak)
+        etag = self.client.get(deelzaak_url, **ZAAK_READ_KWARGS)["ETag"]
+
+        response = self.client.post(
+            self.status_list_url,
+            {
+                "zaak": self.zaak_url,
+                "statustype": f"http://testserver{self.statustype2_url}",
+                "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.get(
+            deelzaak_url, headers={"if-none-match": etag}, **ZAAK_READ_KWARGS
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNotNone(response.json()["archiefactiedatum"])
+
     def test_reopen_deelzaak(self):
         deelzaak = ZaakFactory.create(zaaktype=self.zaaktype, hoofdzaak=self.zaak)
         StatusFactory.create(
@@ -362,7 +404,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             )
 
     def test_queries_with_no_deelzaken(self):
-        with self.assertNumQueries(63):
+        with self.assertNumQueries(62):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -374,17 +416,21 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_queries_with_one_deelzaak(self):
-        self._generate_deelzaken(1)
         """
         Query count when closing a hoofdzaak with one deelzaak.
 
         Compared to the "no deelzaken" case, the additional queries are:
 
-        (1) 58: check whether the hoofdzaak has deelzaken
-        (2) 59: update archiving fields for the deelzaak(s)
-        (3) 60: release savepoint
+        (1) 27: check whether the hoofdzaak has open deelzaken (without status)
+        (2) 28: check whether the hoofdzaak has deelzaken without eindstatus
+        (3) 57: lock the deelzaken with afleidingswijze "hoofdzaak" before updating
+        (4) 58: select the besluiten of the deelzaken to invalidate their ETags
+        (5) 59: update archiving fields for the deelzaken
+        (6) 60: select the besluiten of the deelzaken to invalidate their ETags
+        (7) 61: select the deelzaken to invalidate their ETags
         """
-        with self.assertNumQueries(66):
+        self._generate_deelzaken(1)
+        with self.assertNumQueries(69):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -396,9 +442,12 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_queries_with_many_deelzaken(self):
+        """
+        The number of queries does not depend on the number of deelzaken.
+        """
         self._generate_deelzaken(20)
 
-        with self.assertNumQueries(66):
+        with self.assertNumQueries(69):
             response = self.client.post(
                 self.status_list_url,
                 {

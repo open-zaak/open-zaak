@@ -1,10 +1,55 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2026 Dimpact
-from datetime import date
+# Copyright (C) 2020 Dimpact
+from datetime import date, timedelta
 
 from django.db import connection
 
+from dateutil.relativedelta import relativedelta
+
 from openzaak.tests.utils import TestMigrations
+
+
+class MigrateDurationFieldTest(TestMigrations):
+    migrate_from = "0027_alter_resultaattype_brondatum_archiefprocedure_objecttype"
+    migrate_to = "0028_alter_statustype_doorlooptijd"
+    app = "catalogi"
+
+    def setUpBeforeMigration(self, apps):
+        StatusType = apps.get_model("catalogi", "StatusType")
+
+        # use the historical models, the current models (and their signals) expect
+        # columns that are only added by later migrations
+        zaaktype, _ = _create_zaaktype_and_iotype(apps)
+        status_type = StatusType.objects.create(
+            zaaktype=zaaktype,
+            statustypevolgnummer=123,
+            doorlooptijd="P5D",
+        )
+
+        self.status_type_pk = status_type.pk
+
+    def test_doorlooptijd_values(self):
+        # status_type before migration
+        StatusType = self.old_apps.get_model("catalogi", "StatusType")
+        status_type = StatusType.objects.get(pk=self.status_type_pk)
+        self.assertEqual(status_type.doorlooptijd, timedelta(days=5))
+
+        # status_type after migration
+        StatusType = self.apps.get_model("catalogi", "StatusType")
+        status_type = StatusType.objects.get(pk=self.status_type_pk)
+        self.assertEqual(status_type.doorlooptijd, relativedelta(days=+5))
+
+        # accept years and month
+        status_type.doorlooptijd = "P1Y5M5D"
+        status_type.save()
+        self.assertEqual(
+            status_type.doorlooptijd, relativedelta(years=+1, months=+5, days=+5)
+        )
+
+        # accept null
+        status_type.doorlooptijd = None
+        status_type.save()
+        self.assertIsNone(status_type.doorlooptijd)
 
 
 def _create_zaaktype_and_iotype(apps):
@@ -64,8 +109,8 @@ class ZaakTypeInformatieObjectTypeLooseFkForwardTests(TestMigrations):
     """
 
     app = "catalogi"
-    migrate_from = "0027_alter_resultaattype_brondatum_archiefprocedure_objecttype"
-    migrate_to = "0028_informatieobjecttype_loose_fk"
+    migrate_from = "0029_alter_resultaattype_besluittypen"
+    migrate_to = "0030_informatieobjecttype_loose_fk"
 
     def setUpBeforeMigration(self, apps):
         ZaakTypeInformatieObjectType = apps.get_model(
@@ -103,8 +148,8 @@ class ZaakTypeInformatieObjectTypeLooseFkForwardTests(TestMigrations):
 
 class ZaakTypeInformatieObjectTypeLooseFkBackwardTests(TestMigrations):
     app = "catalogi"
-    migrate_from = "0028_informatieobjecttype_loose_fk"
-    migrate_to = "0027_alter_resultaattype_brondatum_archiefprocedure_objecttype"
+    migrate_from = "0030_informatieobjecttype_loose_fk"
+    migrate_to = "0029_alter_resultaattype_besluittypen"
 
     def setUpBeforeMigration(self, apps):
         ZaakTypeInformatieObjectType = apps.get_model(
@@ -150,8 +195,8 @@ def _create_besluittype(apps, catalogus):
 
 class BesluitTypeInformatieObjectTypenForwardTests(TestMigrations):
     app = "catalogi"
-    migrate_from = "0028_informatieobjecttype_loose_fk"
-    migrate_to = "0029_besluittype_informatieobjecttypen_through"
+    migrate_from = "0030_informatieobjecttype_loose_fk"
+    migrate_to = "0031_besluittype_informatieobjecttypen_through"
 
     def setUpBeforeMigration(self, apps):
         _, self.iotype = _create_zaaktype_and_iotype(apps)
@@ -195,8 +240,8 @@ class BesluitTypeInformatieObjectTypenForwardTests(TestMigrations):
 
 class BesluitTypeInformatieObjectTypenBackwardTests(TestMigrations):
     app = "catalogi"
-    migrate_from = "0029_besluittype_informatieobjecttypen_through"
-    migrate_to = "0028_informatieobjecttype_loose_fk"
+    migrate_from = "0031_besluittype_informatieobjecttypen_through"
+    migrate_to = "0030_informatieobjecttype_loose_fk"
 
     def setUpBeforeMigration(self, apps):
         BesluitTypeInformatieObjectType = apps.get_model(
