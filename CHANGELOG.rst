@@ -1,6 +1,15 @@
 Changelog
 =========
 
+1.31.2 (2026-11-06)
+-------------------
+
+**Bugfixes**
+
+* [:open-zaak:`2631`] Fix issue introduced in 1.31.0 that causes Documenten API requests to
+  fail due to their request size exceeding 2.5MB (Django's default request body limit).
+* [:open-zaak:`2623`] Fix broken autorisaties admin form.
+
 1.31.1 (2026-10-23)
 -------------------
 
@@ -91,6 +100,13 @@ Changelog
     detected. The reasoning behind each check, when it can be wrong, how to estimate the
     remaining risk and those undetectable cases are in
     :ref:`installation_reference_overwritten_documents`.
+
+.. warning::
+
+  This version introduces a bug with uploads via the Documenten API, due to underlying
+  library upgrades the maximum API request size is 2.5 MB, which causes issues for documenten
+  with ``inhoud`` larger than 2.5MB. Version 1.31.2 fixes this issue and sets the default to
+  4 GiB like it was before.
 
 **New features**
 

@@ -5,8 +5,8 @@
             "tag": "latest"
         },
         {
-            "gitRef": "1.31.0",
-            "tag": "1.31.0"
+            "gitRef": "stable/1.31.x",
+            "tag": null
         },
         {
             "gitRef": "1.30.0",
