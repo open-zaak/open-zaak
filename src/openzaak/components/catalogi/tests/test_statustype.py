@@ -143,7 +143,7 @@ class StatusTypeAPITests(APITestCase):
         self.assertEqual(response.json()["referentiecode"], "A1")
         self.assertEqual(StatusType.objects.get().referentiecode, "A1")
 
-    def test_create_statustype_empty_referentiecode_stored_as_null(self):
+    def test_create_statustype_null_referentiecode(self):
         zaaktype = ZaakTypeFactory.create()
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
         url = reverse("statustype-list")
@@ -156,7 +156,7 @@ class StatusTypeAPITests(APITestCase):
                         "omschrijving": f"Status {volgnummer}",
                         "zaaktype": f"http://testserver{zaaktype_url}",
                         "volgnummer": volgnummer,
-                        "referentiecode": "",
+                        "referentiecode": None,
                     },
                 )
 
@@ -164,6 +164,25 @@ class StatusTypeAPITests(APITestCase):
                 self.assertIsNone(response.json()["referentiecode"])
 
         self.assertEqual(StatusType.objects.filter(referentiecode=None).count(), 2)
+
+    def test_create_statustype_empty_referentiecode_not_allowed(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+
+        response = self.client.post(
+            reverse("statustype-list"),
+            {
+                "omschrijving": "Status 1",
+                "zaaktype": f"http://testserver{zaaktype_url}",
+                "volgnummer": 1,
+                "referentiecode": "",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "referentiecode")
+        self.assertEqual(error["code"], "blank")
+        self.assertFalse(StatusType.objects.exists())
 
     def test_create_statustype_duplicate_referentiecode_same_zaaktype(self):
         zaaktype = ZaakTypeFactory.create()

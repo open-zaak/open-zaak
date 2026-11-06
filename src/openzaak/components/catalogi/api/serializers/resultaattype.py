@@ -166,7 +166,7 @@ class ResultaatTypeSerializer(
             "informatieobjecttypen": {"lookup_field": "uuid", "required": False},
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
-            "referentiecode": {"default": None},
+            "referentiecode": {"default": None, "allow_blank": False},
         }
         validators = [
             UniqueTogetherValidator(
@@ -188,9 +188,6 @@ class ResultaatTypeSerializer(
             ),
             StartBeforeEndValidator(),
         ]
-
-    def validate_referentiecode(self, value):
-        return value or None
 
     def get_fields(self):
         fields = super().get_fields()

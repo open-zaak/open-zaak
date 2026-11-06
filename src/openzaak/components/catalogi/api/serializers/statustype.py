@@ -129,13 +129,10 @@ class StatusTypeSerializer(
             "zaaktype": {"lookup_field": "uuid"},
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
-            "referentiecode": {"default": None},
+            "referentiecode": {"default": None, "allow_blank": False},
         }
         validators = [
             ReferentiecodeUniqueValidator(),
             ZaakTypeConceptValidator(),
             StartBeforeEndValidator(),
         ]
-
-    def validate_referentiecode(self, value):
-        return value or None

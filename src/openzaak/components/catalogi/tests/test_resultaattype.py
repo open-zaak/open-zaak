@@ -274,21 +274,34 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch_resource_validator
     @requests_mock.Mocker()
-    def test_create_resultaattype_empty_referentiecode_stored_as_null(
-        self, mock_shape, mock_fetch, m
-    ):
+    def test_create_resultaattype_null_referentiecode(self, mock_shape, mock_fetch, m):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
 
         for omschrijving in ("een", "twee"):
             with self.subTest(omschrijving=omschrijving):
                 response = self._post_resultaattype(
-                    m, zaaktype, omschrijving=omschrijving, referentiecode=""
+                    m, zaaktype, omschrijving=omschrijving, referentiecode=None
                 )
 
                 self.assertEqual(response.status_code, status.HTTP_201_CREATED)
                 self.assertIsNone(response.json()["referentiecode"])
 
         self.assertEqual(ResultaatType.objects.filter(referentiecode=None).count(), 2)
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch_resource_validator
+    @requests_mock.Mocker()
+    def test_create_resultaattype_empty_referentiecode_not_allowed(
+        self, mock_shape, mock_fetch, m
+    ):
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
+
+        response = self._post_resultaattype(m, zaaktype, referentiecode="")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "referentiecode")
+        self.assertEqual(error["code"], "blank")
+        self.assertFalse(ResultaatType.objects.exists())
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch_resource_validator

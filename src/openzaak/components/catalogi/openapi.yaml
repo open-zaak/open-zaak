@@ -13354,6 +13354,7 @@ components:
         referentiecode:
           type: string
           nullable: true
+          minLength: 1
           description: '**EXPERIMENTEEL** Code waarmee dit resultaattype in een extern
             systeem wordt geïdentificeerd. Moet uniek zijn indien gespecificeerd,
             behalve tussen de versies van hetzelfde resultaattype.'
@@ -13469,6 +13470,7 @@ components:
         referentiecode:
           type: string
           nullable: true
+          minLength: 1
           description: '**EXPERIMENTEEL** Code waarmee dit statustype in een extern
             systeem wordt geïdentificeerd. Moet uniek zijn indien gespecificeerd,
             behalve tussen de versies van hetzelfde statustype.'
@@ -14115,6 +14117,7 @@ components:
         referentiecode:
           type: string
           nullable: true
+          minLength: 1
           description: '**EXPERIMENTEEL** Code waarmee dit resultaattype in een extern
             systeem wordt geïdentificeerd. Moet uniek zijn indien gespecificeerd,
             behalve tussen de versies van hetzelfde resultaattype.'
@@ -14456,6 +14459,7 @@ components:
         referentiecode:
           type: string
           nullable: true
+          minLength: 1
           description: '**EXPERIMENTEEL** Code waarmee dit statustype in een extern
             systeem wordt geïdentificeerd. Moet uniek zijn indien gespecificeerd,
             behalve tussen de versies van hetzelfde statustype.'
