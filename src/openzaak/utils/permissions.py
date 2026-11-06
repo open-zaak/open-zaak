@@ -40,10 +40,17 @@ class AuthRequired(permissions.BasePermission):
             raise exceptions.ParseError()
         return {field: data.get(field) for field in permission_fields}
 
-    def format_data(self, obj, request, main_resource) -> dict:
-        serializer_class = main_resource.serializer_class
-        serializer = serializer_class(obj, context={"request": request})
-        return serializer.data
+    def format_data(
+        self, obj, request, main_resource, permission_fields: Sequence[str]
+    ) -> dict:
+        serializer = main_resource.serializer_class(obj, context={"request": request})
+        fields = {name: serializer.fields[name] for name in permission_fields}
+        return {
+            name: None
+            if (value := field.get_attribute(obj)) is None
+            else field.to_representation(value)
+            for name, field in fields.items()
+        }
 
     def get_main_resource(self, main_resource):
         if not main_resource:
@@ -123,7 +130,9 @@ class AuthRequired(permissions.BasePermission):
                     code="incorrect_match",
                 )
 
-            main_object_data = self.format_data(main_object, request, main_resource)
+            main_object_data = self.format_data(
+                main_object, request, main_resource, permission_fields
+            )
             fields = self.get_fields(main_object_data, permission_fields)
 
         return fields
@@ -179,7 +188,9 @@ class AuthRequired(permissions.BasePermission):
         else:
             main_object = self.get_main_object(obj, view.permission_main_object)
 
-        main_object_data = self.format_data(main_object, request, main_resource)
+        main_object_data = self.format_data(
+            main_object, request, main_resource, self.permission_fields
+        )
         fields = self.get_fields(main_object_data, self.permission_fields)
         return request.jwt_auth.has_auth(scopes_required, component, **fields)
 
@@ -276,7 +287,9 @@ class MultipleObjectsAuthRequired(AuthRequired):
                     # currently unused by convenience endpoints that use MultipleObjectsAuthRequired
                     main_object = obj.get(view.permission_main_object)
 
-                main_object_data = self.format_data(main_object, request, main_resource)
+                main_object_data = self.format_data(
+                    main_object, request, main_resource, permission_fields
+                )
                 fields = self.get_fields(main_object_data, permission_fields)
 
             if not request.jwt_auth.has_auth(scopes_required, component, **fields):

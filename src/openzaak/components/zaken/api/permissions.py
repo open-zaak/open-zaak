@@ -26,7 +26,10 @@ class ZaakNestedAuthRequired(ZaakAuthRequired):
 
         main_object = view._get_zaak()
         main_object_data = self.format_data(
-            main_object, request, self.get_main_resource(self.main_resource)
+            main_object,
+            request,
+            self.get_main_resource(self.main_resource),
+            self.permission_fields,
         )
 
         fields = self.get_fields(main_object_data, self.permission_fields)
