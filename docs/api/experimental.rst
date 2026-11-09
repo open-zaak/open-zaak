@@ -293,9 +293,15 @@ Attributes
 
     * ``brondatumArchiefprocedure.datumkenmerk`` is changed and supports nested path as value
     * ``brondatumArchiefprocedure.afleidingswijze``: ``gerelateerde_zaak`` has been marked as deprecated
+    * ``referentiecode`` is added: a code (max. 20 characters) to identify the resultaattype
+      in an external system. If specified, it must be globally unique, except that it may be reused by
+      resultaattypen in other versions of the same zaaktype (same ``catalogus`` and ``identificatie``)
 
 * ``StatusType``:
     * ``eigenschappen`` is made read-only. `The reason <https://github.com/VNG-Realisatie/gemma-zaken/issues/2343>`__
+    * ``referentiecode`` is added: a code (max. 20 characters) to identify the statustype
+      in an external system. If specified, it must be globally unique, except that it may be reused by
+      statustypen in other versions of the same zaaktype (same ``catalogus`` and ``identificatie``)
 
 * ``BesluitType``, ``Eigenschap``, ``InformatieObjectType``, ``ZaakType``, ``ResultaatType``,
   ``RolType``, ``StatusType``, ``ZaakObjectType``:
@@ -319,6 +325,14 @@ Query parameters
 
     * ``zaaktype``
     * ``omschrijving__icontains`` - filter by (a part of the) ``omschrijving`` (case-insensitive match).
+
+* ``/api/v1/resultaattypen`` endpoint. Added new parameters:
+
+    * ``referentiecode`` - filter by the exact ``referentiecode``.
+
+* ``/api/v1/statustypen`` endpoint. Added new parameters:
+
+    * ``referentiecode`` - filter by the exact ``referentiecode``.
 
 * ``/api/v1/roltypen`` endpoint. Added new parameters:
 
