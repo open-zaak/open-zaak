@@ -736,11 +736,12 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_queries_with_many_deelzaken_with_external_catalogi(self):
         """
-        A single deelzaak with external catalogi costs 82 queries, and each further one 9.
-        82 + (9*9) = 163
+        A single deelzaak with external catalogi costs 82 queries, and each further one 7:
+        the shared external statustype and resultaattype are fetched once (#2572).
+        82 + (9*7) = 145
         """
         self._generate_deelzaken(10, False)
-        with self.assertNumQueries(163):
+        with self.assertNumQueries(145):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -757,7 +758,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         self._generate_deelzaken(10, True)
         self._generate_deelzaken(10, False)
 
-        with self.assertNumQueries(165):
+        with self.assertNumQueries(147):
             response = self.client.post(
                 self.status_list_url,
                 {

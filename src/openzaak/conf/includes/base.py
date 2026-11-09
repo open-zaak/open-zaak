@@ -151,6 +151,8 @@ MIDDLEWARE = [
     "openzaak.utils.middleware.XWarningMiddleware",
     "openzaak.utils.middleware.EnabledMiddleware",
     "axes.middleware.AxesMiddleware",
+    # innermost, so the scope covers the view and its on_commit callbacks
+    "openzaak.utils.middleware.SnapshotMiddleware",
 ]
 
 #
