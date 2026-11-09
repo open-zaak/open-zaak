@@ -21,6 +21,7 @@ from django.utils.translation import gettext_lazy as _
 
 import structlog
 from drf_extra_fields.fields import Base64FileField
+from drf_spectacular.utils import extend_schema_field
 from humanize import naturalsize
 from privates.fields import PrivateMediaFileField
 from rest_framework import serializers
@@ -282,6 +283,13 @@ class BestandsDeelSerializer(serializers.HyperlinkedModelSerializer):
         return valid_attrs
 
 
+@extend_schema_field({"type": "boolean", "default": None})
+class InhoudIsVervallenField(serializers.BooleanField):
+    """
+    Nullable boolean whose default is explicitly ``null`` in the API schema.
+    """
+
+
 class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
     """
     Serializer for the EnkelvoudigInformatieObject model
@@ -348,6 +356,15 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         many=True,
         source="canonical.bestandsdelen",
         read_only=True,
+    )
+
+    inhoud_is_vervallen = InhoudIsVervallenField(
+        label=_("inhoud is vervallen"),
+        required=False,
+        allow_null=True,
+        help_text=EnkelvoudigInformatieObject._meta.get_field(
+            "inhoud_is_vervallen"
+        ).help_text,
     )
 
     inclusion_serializers = {
