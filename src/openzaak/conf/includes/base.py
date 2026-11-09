@@ -211,6 +211,23 @@ MIN_UPLOAD_SIZE = config(
         )
     ),
 )
+# DRF 3.17.2 now enforces DATA_UPLOAD_MAX_MEMORY_SIZE
+DATA_UPLOAD_MAX_MEMORY_SIZE = config(
+    "DATA_UPLOAD_MAX_MEMORY_SIZE",
+    default=MIN_UPLOAD_SIZE,
+    documentation=DocumentationParams(
+        help_text=(
+            "Maximum request body size in bytes for JSON and form data. "
+            "Defaults to MIN_UPLOAD_SIZE (4 GiB unless configured otherwise). "
+            "Base64-encoded document content counts towards this limit and is approximately "
+            "33% larger than the original file. Large JSON requests are processed in memory "
+            "and can exhaust available memory, especially with concurrent uploads. "
+            "Use multipart bestandsdelen uploads for large documents. "
+            "The web server must also allow the configured request size."
+        ),
+        auto_display_default=False,
+    ),
+)
 # default to the MIN_UPLOAD_SIZE, as that is typically the maximum post body size configured
 # in the webserver
 DOCUMENTEN_UPLOAD_CHUNK_SIZE = config(

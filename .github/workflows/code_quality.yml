@@ -35,7 +35,7 @@ jobs:
           persist-credentials: false
       - uses: maykinmedia/setup-django-backend@4a6c5facc65bb1dd510cf06be20871db11a156b3 # v1.4.2
         with:
-          apt-packages: "libxml2 libxmlsec1 libxmlsec1-openssl"
+          apt-packages: "libxml2-dev libxmlsec1-dev"
           python-version: "3.12"
           setup-node: false
       - name: Run check

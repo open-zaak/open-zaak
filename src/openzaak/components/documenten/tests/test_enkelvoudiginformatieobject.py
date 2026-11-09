@@ -159,6 +159,34 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         data = response.json()
         self.assertEqual(data["bestandsomvang"], three_giga_bites)
 
+    @tag("gh-2631")
+    def test_create_with_large_file(self):
+        """
+        Regression test for #2631 to verify that files over 2.5MB (Django's default for
+        DATA_UPLOAD_MAX_MEMORY_SIZE) can be uploaded via the API. This setting is enforced
+        by django-rest-framework since 3.17.2
+        """
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+
+        content = {
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-06-27",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": "dummy.txt",
+            "inhoud": b64encode(b"a" * (3 * 1024 * 1024)).decode("utf-8"),
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+        }
+
+        # Send to the API
+        response = self.client.post(self.list_url, content)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        data = response.json()
+        self.assertEqual(data["bestandsomvang"], (3 * 1024 * 1024))
+
     @tag("gh-1306")
     def test_create_identificatie_all_characters_allowed(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)

@@ -8,7 +8,7 @@ import { Err } from './types';
 
 const ErrorList = (props) => {
     const { errors } = props;
-    if (!errors.length) {
+    if (!errors?.length) {
         return null;
     }
 
