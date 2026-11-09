@@ -185,7 +185,8 @@ class ObjecttypeInformatieobjecttypeRelationValidator:
         elif isinstance(informatieobject, str):
             io_path = urlparse(informatieobject).path
             io = get_resource_for_path(io_path)
-            io_type = getattr(io, "informatieobjecttype")
+            assert isinstance(io, EnkelvoudigInformatieObject)
+            io_type = io.informatieobjecttype
         else:
             io_type = informatieobject.latest_version.informatieobjecttype
 

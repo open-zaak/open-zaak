@@ -6,12 +6,12 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
 
 from rest_framework.renderers import BrowsableAPIRenderer
-from rest_framework.request import Request
 from rest_framework.test import APIRequestFactory
 
 from openzaak.components.zaken.api.viewsets import ZaakViewSet
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.utils.permissions import AuthRequired, MultipleObjectsAuthRequired
+from openzaak.utils.typing import AuthorizedRequest
 
 
 class AuthRequiredTests(TestCase):
@@ -28,7 +28,7 @@ class AuthRequiredTests(TestCase):
         factory = APIRequestFactory()
         django_request = factory.get("/some-url/")
 
-        drf_request = Request(django_request)
+        drf_request = AuthorizedRequest(django_request)
         drf_request.accepted_renderer = BrowsableAPIRenderer()
         view = ZaakViewSet()
         result = self.auth.has_permission(drf_request, view)
@@ -47,7 +47,7 @@ class MultipleObjectsAuthRequiredTests(TestCase):
         factory = APIRequestFactory()
         django_request = factory.get("/some-url/")
 
-        drf_request = Request(django_request)
+        drf_request = AuthorizedRequest(django_request)
         drf_request.accepted_renderer = BrowsableAPIRenderer()
         view = ZaakViewSet()
 
@@ -62,7 +62,7 @@ class MultipleObjectsAuthRequiredTests(TestCase):
         factory = APIRequestFactory()
         django_request = factory.get("/some-url/")
 
-        drf_request = Request(django_request)
+        drf_request = AuthorizedRequest(django_request)
         view = ZaakViewSet()
         view.action = "list"
         view.viewset_classes = None
@@ -78,7 +78,7 @@ class MultipleObjectsAuthRequiredTests(TestCase):
         factory = APIRequestFactory()
         django_request = factory.get("/some-url/")
 
-        drf_request = Request(django_request)
+        drf_request = AuthorizedRequest(django_request)
         view = ZaakViewSet()
         view.action = None
 

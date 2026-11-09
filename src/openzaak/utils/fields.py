@@ -122,13 +122,13 @@ class FkOrServiceUrlField(FkOrURLField):
         fk_filled = ~empty_fk_field & empty_url_base_field
         url_filled = empty_fk_field & ~empty_url_base_field
 
-        constraint = models.CheckConstraint(  # pyright: ignore[reportCallIssue]
+        constraint = models.CheckConstraint(
             name=name.format(
                 prefix=f"{options.app_label}_{options.model_name}_",
                 fk_field=self.fk_field,
                 url_base_field=url_base_field,
             ),
-            check=fk_filled | url_filled,  # pyright: ignore[reportCallIssue]
+            condition=fk_filled | url_filled,
         )
         options.constraints.append(constraint)  # pyright: ignore[reportAttributeAccessIssue]
         # ensure this can be picked up by migrations by making it "explicitly defined"
@@ -136,9 +136,7 @@ class FkOrServiceUrlField(FkOrURLField):
             options.original_attrs["constraints"] = options.constraints
         return
 
-    def check(  # pyright: ignore[reportIncompatibleMethodOverride]
-        self, **kwargs
-    ) -> list[checks.Error]:
+    def check(self, **kwargs) -> list[checks.CheckMessage]:
         errors = []
         if not isinstance(self._fk_field, models.ForeignKey):
             errors.append(

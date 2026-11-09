@@ -540,7 +540,13 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
 def get_expand_options_for_serializer(
     serializer_class: Type[Serializer],
 ) -> list[tuple]:
-    choices = [(opt, opt) for opt in getattr(serializer_class, "inclusion_serializers")]
+    assert hasattr(serializer_class, "inclusion_serializers"), (
+        f"{serializer_class} must define `inclusion_serializers`"
+    )
+    choices = [
+        (opt, opt)
+        for opt in serializer_class.inclusion_serializers  # pyright: ignore[reportAttributeAccessIssue]
+    ]
     return choices
 
 

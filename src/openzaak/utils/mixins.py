@@ -2,11 +2,14 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from django.db.models import Prefetch, QuerySet
 from django.utils.module_loading import import_string
 
 from dictdiffer import diff
 from rest_framework.renderers import BaseRenderer
+from rest_framework.serializers import BaseSerializer
 from rest_framework.viewsets import GenericViewSet
 from rest_framework_inclusions.renderer import (
     get_allowed_paths,
@@ -226,7 +229,7 @@ class ExpandMixin(GenericViewSet):
         return permissions
 
 
-class FieldsMixin:
+class FieldsMixin(GenericViewSet):
     """
     Validate and cache search filters and field selections.
     Limit serializer fields and provide selected expansion paths.
@@ -237,6 +240,10 @@ class FieldsMixin:
     _selected_fields: dict | None = None
     _selected_inclusions: tuple[str, ...] | None = None
 
+    if TYPE_CHECKING:
+
+        def get_search_input_serializer_class(self) -> type[BaseSerializer] | None: ...
+
     def has_fields(self, request) -> bool:
         """Check whether the zoek request includes a fields selection"""
         return getattr(self, "action", None) == "_zoek" and "fields" in request.data
@@ -244,15 +251,16 @@ class FieldsMixin:
     def get_search_input(self):
         """Validate the request once, store the selected fields, and return search filters"""
         if self._search_input is None:
-            serializer = self.get_search_input_serializer_class()(  # pyright: ignore[reportAttributeAccessIssue]
-                data=self.request.data,  # pyright: ignore[reportAttributeAccessIssue]
-                context=self.get_serializer_context(),  # pyright: ignore[reportAttributeAccessIssue]
+            serializer_class = self.get_search_input_serializer_class()
+            assert serializer_class is not None, "No serializer class set"
+            serializer = serializer_class(
+                data=self.request.data,
+                context=self.get_serializer_context(),
             )
             serializer.is_valid(raise_exception=True)
-            self._search_input = serializer.validated_data.copy()
-            self._selected_fields = self._search_input.pop(  # pyright: ignore[reportOptionalMemberAccess]
-                "fields", None
-            )
+            search_input = serializer.validated_data.copy()
+            self._selected_fields = search_input.pop("fields", None)
+            self._search_input = search_input
         return self._search_input
 
     def get_requested_inclusions(self, request):
@@ -274,14 +282,14 @@ class FieldsMixin:
         return ",".join(self._selected_inclusions)
 
     def get_serializer(self, *args, **kwargs):
-        serializer = super().get_serializer(*args, **kwargs)  # pyright: ignore[reportAttributeAccessIssue]
+        serializer = super().get_serializer(*args, **kwargs)
 
         if self._selected_fields is not None:
             limit_serializer_fields(serializer, self._selected_fields)
         return serializer
 
 
-class CacheQuerysetMixin:
+class CacheQuerysetMixin(GenericViewSet):
     """
     Mixin for ViewSets to avoid doing redundant calls to `ViewSet.get_queryset()`
 
@@ -303,5 +311,5 @@ class CacheQuerysetMixin:
         # the result on the ViewSet instance which is a different instance for every request,
         # so this caching will only be applied for the same request
         if self._cached_queryset is None:
-            self._cached_queryset = super().get_queryset()  # pyright: ignore[reportAttributeAccessIssue]
+            self._cached_queryset = super().get_queryset()
         return self._cached_queryset

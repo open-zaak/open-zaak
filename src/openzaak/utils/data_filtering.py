@@ -5,6 +5,8 @@ from collections.abc import Mapping
 from rest_framework.viewsets import GenericViewSet
 from vng_api_common.scopes import Scope
 
+from openzaak.utils.typing import AuthorizedRequest
+
 
 class ListFilterByAuthorizationsMixin(GenericViewSet):
     """
@@ -19,6 +21,7 @@ class ListFilterByAuthorizationsMixin(GenericViewSet):
     :class:`openzaak.utils.query.LooseFkAuthorizationsFilterMixin`
     """
 
+    request: AuthorizedRequest  # pyright: ignore[reportIncompatibleVariableOverride]
     required_scopes: Mapping[str, Scope]
 
     def get_queryset(self):
@@ -37,7 +40,8 @@ class ListFilterByAuthorizationsMixin(GenericViewSet):
             return base
 
         # get the auth apps that are relevant for this particular request
-        apps = self.request.jwt_auth.applicaties  # pyright: ignore[reportAttributeAccessIssue]
+        apps = self.request.jwt_auth.applicaties
+        assert apps is not None
 
         # as soon as there's one matching app that gives you all permissions,
         # you're good - no further detailed data filtering is applied
@@ -46,7 +50,7 @@ class ListFilterByAuthorizationsMixin(GenericViewSet):
 
         scope_needed = self.required_scopes[self.action]
         component = base.model._meta.app_label
-        jwt_auth = self.request.jwt_auth  # pyright: ignore[reportAttributeAccessIssue]
+        jwt_auth = self.request.jwt_auth
         authorizations = jwt_auth.get_autorisaties(component)
         catalogus_authorizations = jwt_auth.get_catalogus_autorisaties(component)
         return base.filter_for_authorizations(  # pyright: ignore[reportAttributeAccessIssue]

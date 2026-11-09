@@ -44,7 +44,7 @@ class BlockChangeMixin:
 
 class LooseFkAuthorizationsFilterMixin(models.QuerySet):
     auth_fields: list[str] = []
-    loose_fk_field: str = None  # pyright: ignore[reportAssignmentType]
+    loose_fk_field: str
     vertrouwelijkheidaanduiding_use = True
     authorizations_lookup: str | None = None
 
