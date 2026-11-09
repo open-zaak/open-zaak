@@ -941,7 +941,7 @@ platformdirs==4.3.8
     #   -r requirements/ci.txt
     #   requests-cache
     #   virtualenv
-playwright==1.57.0
+playwright==1.64.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
