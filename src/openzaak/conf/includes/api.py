@@ -5,7 +5,7 @@ from vng_api_common.conf.api import BASE_REST_FRAMEWORK  # noqa: F401
 from openzaak import __version__
 from openzaak.api_standards import APIStandard
 
-AUTORISATIES_API_VERSION = "1.0.0"
+AUTORISATIES_API_VERSION = "1.1.0"
 BESLUITEN_API_VERSION = "1.1.0"
 CATALOGI_API_VERSION = "1.3.3"
 DOCUMENTEN_API_VERSION = "1.7.0"
