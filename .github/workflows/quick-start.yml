@@ -15,6 +15,6 @@ permissions:
 
 jobs:
   open-api-workflow-quick-start:
-    uses: maykinmedia/open-api-workflows/.github/workflows/quick-start.yml@31eaea25acd18bb681fe0d01b2452c3dd8d299b9 # v7.0.0
+    uses: maykinmedia/open-api-workflows/.github/workflows/quick-start.yml@776c60ffef1d34cbdee5a2402322cae6278ec237 # v7.0.1
     with:
       service_name: web.local
