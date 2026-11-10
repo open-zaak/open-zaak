@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Catalogi API
-  version: 1.3.3
+  version: 1.4.0
   description: |
     Een API om een zaaktypecatalogus (ZTC) te benaderen.
 
@@ -2164,7 +2164,10 @@ paths:
           description: Internal server error
     delete:
       operationId: catalogus_delete
-      description: Verwijder een CATALOGUS.
+      description: |-
+        Verwijder een CATALOGUS.
+
+        **Let op**: De CATALOGUS mag alleen verwijderd worden als er geen ZAAKTYPEN, INFORMATIEOBJECTTYPEN en BESLUITTYPEN in zitten.
       summary: Verwijder een CATALOGUS.
       parameters:
       - in: path

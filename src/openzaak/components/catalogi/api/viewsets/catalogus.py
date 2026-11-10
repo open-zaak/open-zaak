@@ -49,7 +49,11 @@ logger = structlog.stdlib.get_logger(__name__)
         description="Werk een CATALOGUS deels bij.",
     ),
     destroy=extend_schema(
-        summary="Verwijder een CATALOGUS.", description="Verwijder een CATALOGUS."
+        summary="Verwijder een CATALOGUS.",
+        description=(
+            "Verwijder een CATALOGUS.\n\n**Let op**: De CATALOGUS mag alleen verwijderd "
+            "worden als er geen ZAAKTYPEN, INFORMATIEOBJECTTYPEN en BESLUITTYPEN in zitten."
+        ),
     ),
 )
 @conditional_retrieve(variant_params={EXPAND_QUERY_PARAM})
