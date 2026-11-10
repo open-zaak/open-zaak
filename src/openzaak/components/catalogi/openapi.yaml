@@ -13628,6 +13628,7 @@ components:
         servicenorm:
           type: string
           format: duration
+          default: null
           nullable: true
           description: De periode waarbinnen verwacht wordt dat een ZAAK van het ZAAKTYPE
             afgerond wordt conform de geldende servicenormen van de zaakbehandelende
@@ -14687,6 +14688,7 @@ components:
         servicenorm:
           type: string
           format: duration
+          default: null
           nullable: true
           description: De periode waarbinnen verwacht wordt dat een ZAAK van het ZAAKTYPE
             afgerond wordt conform de geldende servicenormen van de zaakbehandelende
@@ -15140,6 +15142,7 @@ components:
         servicenorm:
           type: string
           format: duration
+          default: null
           nullable: true
           description: De periode waarbinnen verwacht wordt dat een ZAAK van het ZAAKTYPE
             afgerond wordt conform de geldende servicenormen van de zaakbehandelende
