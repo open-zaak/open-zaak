@@ -1,9 +1,12 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.db import transaction
+from django.utils.translation import gettext_lazy as _
 
 import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, viewsets
+from rest_framework.serializers import ValidationError
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
@@ -15,6 +18,7 @@ from openzaak.utils.permissions import AuthRequired
 from ...models import Catalogus
 from ..filters import CatalogusDetailFilter, CatalogusFilter
 from ..scopes import (
+    SCOPE_CATALOGI_FORCED_DELETE,
     SCOPE_CATALOGI_FORCED_WRITE,
     SCOPE_CATALOGI_READ,
     SCOPE_CATALOGI_WRITE,
@@ -44,6 +48,9 @@ logger = structlog.stdlib.get_logger(__name__)
         summary="Werk een CATALOGUS deels bij.",
         description="Werk een CATALOGUS deels bij.",
     ),
+    destroy=extend_schema(
+        summary="Verwijder een CATALOGUS.", description="Verwijder een CATALOGUS."
+    ),
 )
 @conditional_retrieve(variant_params={EXPAND_QUERY_PARAM})
 class CatalogusViewSet(
@@ -52,6 +59,7 @@ class CatalogusViewSet(
     ExpandMixin,
     mixins.CreateModelMixin,
     mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
     viewsets.ReadOnlyModelViewSet,
 ):
     """
@@ -89,6 +97,7 @@ class CatalogusViewSet(
         "create": SCOPE_CATALOGI_WRITE,
         "update": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_WRITE,
         "partial_update": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_WRITE,
+        "destroy": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_DELETE,
     }
 
     @property
@@ -117,4 +126,24 @@ class CatalogusViewSet(
             client_id=self.request.jwt_auth.client_id,
             uuid=str(instance.uuid),
             partial=serializer.partial,
+        )
+
+    @transaction.atomic
+    def perform_destroy(self, instance):
+        uuid = str(instance.uuid)
+        if (
+            instance.zaaktype_set.exists()
+            or instance.besluittype_set.exists()
+            or instance.informatieobjecttype_set.exists()
+        ):
+            code = "catalogus-not-empty"
+            msg = _(
+                "Een CATALOGUS met gerelateerde zaaktypen, besluittypen of informatieobjecttypen kan niet verwijderd worden."
+            )
+            raise ValidationError({"nonFieldErrors": msg}, code=code)
+        super().perform_destroy(instance)
+        logger.info(
+            "catalogus_deleted",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=uuid,
         )
