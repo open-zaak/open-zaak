@@ -248,6 +248,33 @@ class CatalogusAPITests(APITestCase):
             "Selecteer een geldige keuze. zaaktypen.catalogus is geen beschikbare keuze.",
         )
 
+    def test_delete_catalogus(self):
+        response = self.client.delete(self.catalogus_detail_url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Catalogus.objects.filter(pk=self.catalogus.pk).exists())
+
+    def test_delete_catalogus_with_related_types_fails(self):
+        factories = {
+            "zaaktype": ZaakTypeFactory,
+            "besluittype": BesluitTypeFactory,
+            "informatieobjecttype": InformatieObjectTypeFactory,
+        }
+        for name, factory in factories.items():
+            with self.subTest(type=name):
+                catalogus = CatalogusFactory.create()
+                factory.create(catalogus=catalogus)
+
+                response = self.client.delete(reverse(catalogus))
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                error = get_validation_errors(response, "nonFieldErrors")
+                self.assertEqual(error["code"], "catalogus-not-empty")
+                self.assertTrue(Catalogus.objects.filter(pk=catalogus.pk).exists())
+                self.assertTrue(
+                    factory._meta.model.objects.filter(catalogus=catalogus).exists()
+                )
+
 
 class CatalogusFilterAPITests(APITestCase):
     maxDiff = None
