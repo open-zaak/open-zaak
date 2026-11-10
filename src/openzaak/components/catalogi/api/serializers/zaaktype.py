@@ -20,6 +20,7 @@ from rest_framework.serializers import (
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import (
     CachedHyperlinkedRelatedField,
+    DurationField,
     GegevensGroepSerializer,
     NestedGegevensGroepMixin,
     add_choice_values_help_text,
@@ -136,6 +137,16 @@ class BronZaaktypeSerializer(GegevensGroepSerializer):
         gegevensgroep = "bronzaaktype"
 
 
+@extend_schema_field({"type": "string", "format": "duration", "default": None})
+class ServicenormField(DurationField):
+    """
+    Duration that is ``null`` unless specified.
+
+    drf-spectacular does not document a ``None`` default by itself, so the explicit
+    ``default: null`` is set through the schema override.
+    """
+
+
 class ZaakTypeSerializer(
     NestedGegevensGroepMixin,
     NestedCreateMixin,
@@ -156,6 +167,13 @@ class ZaakTypeSerializer(
         allow_null=False,
         required=False,
         help_text=_("De CATALOGUS waaraan het ZAAKTYPE is ontleend."),
+    )
+    servicenorm = ServicenormField(
+        source="servicenorm_behandeling",
+        required=False,
+        allow_null=True,
+        validators=[NonZeroRelativeDeltaValidator()],
+        help_text=ZaakType._meta.get_field("servicenorm_behandeling").help_text,
     )
 
     bronzaaktype = BronZaaktypeSerializer(
@@ -346,10 +364,6 @@ class ZaakTypeSerializer(
             "omschrijving_generiek": {"source": "zaaktype_omschrijving_generiek"},
             "catalogus": {"lookup_field": "uuid"},
             "doorlooptijd": {"source": "doorlooptijd_behandeling"},
-            "servicenorm": {
-                "source": "servicenorm_behandeling",
-                "validators": [NonZeroRelativeDeltaValidator()],
-            },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
             "concept": {"read_only": True},
