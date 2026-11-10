@@ -13431,8 +13431,10 @@ components:
         indicatieSpecifiek:
           type: boolean
           nullable: true
-          description: Aanduiding of het, vanuit archiveringsoptiek, een resultaattype
-            betreft dat specifiek is voor een bepaalde procesobjectaard.
+          description: 'Aanduiding of het, vanuit archiveringsoptiek, een resultaattype
+            betreft dat specifiek is voor een bepaalde procesobjectaard. **LET OP**:
+            Dit attribuut zal verwijderd worden in versie 2.0.'
+          deprecated: true
         procestermijn:
           type: string
           format: duration
@@ -14014,8 +14016,10 @@ components:
         indicatieSpecifiek:
           type: boolean
           nullable: true
-          description: Aanduiding of het, vanuit archiveringsoptiek, een resultaattype
-            betreft dat specifiek is voor een bepaalde procesobjectaard.
+          description: 'Aanduiding of het, vanuit archiveringsoptiek, een resultaattype
+            betreft dat specifiek is voor een bepaalde procesobjectaard. **LET OP**:
+            Dit attribuut zal verwijderd worden in versie 2.0.'
+          deprecated: true
         procestermijn:
           type: string
           format: duration
@@ -14172,8 +14176,10 @@ components:
         indicatieSpecifiek:
           type: boolean
           nullable: true
-          description: Aanduiding of het, vanuit archiveringsoptiek, een resultaattype
-            betreft dat specifiek is voor een bepaalde procesobjectaard.
+          description: 'Aanduiding of het, vanuit archiveringsoptiek, een resultaattype
+            betreft dat specifiek is voor een bepaalde procesobjectaard. **LET OP**:
+            Dit attribuut zal verwijderd worden in versie 2.0.'
+          deprecated: true
         procestermijn:
           type: string
           format: duration
