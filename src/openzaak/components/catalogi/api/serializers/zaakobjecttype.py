@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.utils.translation import gettext as _
 
+from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 from rest_framework.serializers import HyperlinkedModelSerializer
 from vng_api_common.serializers import CachedHyperlinkedRelatedField
@@ -15,6 +16,14 @@ from ..validators import (
 )
 
 
+@extend_schema_serializer(
+    deprecate_fields=[
+        "resultaattypen",
+        "statustype",
+        "begin_geldigheid",
+        "einde_geldigheid",
+    ]
+)
 class ZaakObjectTypeSerializer(HyperlinkedModelSerializer):
     zaaktype_identificatie = serializers.SlugRelatedField(
         source="zaaktype",
@@ -72,11 +81,33 @@ class ZaakObjectTypeSerializer(HyperlinkedModelSerializer):
                 "lookup_field": "uuid",
                 "read_only": True,
                 "many": True,
-                "help_text": _("URL-referenties naar de RESULTAATTYPEN."),
+                "help_text": _(
+                    "URL-referenties naar de RESULTAATTYPEN. **LET OP**: Dit attribuut "
+                    "zal verwijderd worden in versie 2.0."
+                ),
             },
-            "statustype": {"lookup_field": "uuid"},
-            "begin_geldigheid": {"source": "datum_begin_geldigheid"},
-            "einde_geldigheid": {"source": "datum_einde_geldigheid"},
+            "statustype": {
+                "lookup_field": "uuid",
+                "help_text": _(
+                    "URL-referentie naar het STATUSTYPE. **LET OP**: Dit attribuut "
+                    "zal verwijderd worden in versie 2.0, maak in plaats van dit "
+                    "attribuut gebruik van `StatusType.zaakobjecttypen`."
+                ),
+            },
+            "begin_geldigheid": {
+                "source": "datum_begin_geldigheid",
+                "help_text": _(
+                    "De datum waarop het is ontstaan. **LET OP**: Dit attribuut zal "
+                    "verwijderd worden in versie 2.0."
+                ),
+            },
+            "einde_geldigheid": {
+                "source": "datum_einde_geldigheid",
+                "help_text": _(
+                    "De datum waarop het is opgeheven. **LET OP**: Dit attribuut zal "
+                    "verwijderd worden in versie 2.0."
+                ),
+            },
         }
         validators = [
             ZaakTypeConceptValidator(),

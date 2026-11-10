@@ -12210,12 +12210,15 @@ components:
                 items:
                   $ref: '#/components/schemas/ResultaatType'
                 readOnly: true
-                description: URL-referenties naar de RESULTAATTYPEN.
+                description: 'URL-referenties naar de RESULTAATTYPEN. **LET OP**:
+                  Dit attribuut zal verwijderd worden in versie 2.0.'
               statustype:
                 allOf:
                 - $ref: '#/components/schemas/StatusType'
                 nullable: true
-                description: URL-referentie naar het STATUSTYPE
+                description: 'URL-referentie naar het STATUSTYPE. **LET OP**: Dit
+                  attribuut zal verwijderd worden in versie 2.0, maak in plaats van
+                  dit attribuut gebruik van `StatusType.zaakobjecttypen`.'
               catalogus:
                 allOf:
                 - $ref: '#/components/schemas/Catalogus'
@@ -13612,19 +13615,26 @@ components:
           type: string
           format: uri
           nullable: true
-          description: URL-referentie naar het STATUSTYPE
+          description: 'URL-referentie naar het STATUSTYPE. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `StatusType.zaakobjecttypen`.'
           maxLength: 1000
           minLength: 1
+          deprecated: true
         beginGeldigheid:
           type: string
           format: date
           nullable: true
-          description: De datum waarop het is ontstaan.
+          description: 'De datum waarop het is ontstaan. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0.'
+          deprecated: true
         eindeGeldigheid:
           type: string
           format: date
           nullable: true
-          description: De datum waarop het is opgeheven.
+          description: 'De datum waarop het is opgeheven. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0.'
+          deprecated: true
     PatchedZaakTypeInformatieObjectTypeRequest:
       type: object
       description: |-
@@ -14640,14 +14650,19 @@ components:
             maxLength: 1000
             minLength: 1
           readOnly: true
-          description: URL-referenties naar de RESULTAATTYPEN.
+          description: 'URL-referenties naar de RESULTAATTYPEN. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0.'
+          deprecated: true
         statustype:
           type: string
           format: uri
           nullable: true
-          description: URL-referentie naar het STATUSTYPE
+          description: 'URL-referentie naar het STATUSTYPE. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `StatusType.zaakobjecttypen`.'
           maxLength: 1000
           minLength: 1
+          deprecated: true
         catalogus:
           type: string
           format: uri
@@ -14657,12 +14672,16 @@ components:
           type: string
           format: date
           nullable: true
-          description: De datum waarop het is ontstaan.
+          description: 'De datum waarop het is ontstaan. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0.'
+          deprecated: true
         eindeGeldigheid:
           type: string
           format: date
           nullable: true
-          description: De datum waarop het is opgeheven.
+          description: 'De datum waarop het is opgeheven. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0.'
+          deprecated: true
         beginObject:
           type: string
           format: date
@@ -14715,19 +14734,26 @@ components:
           type: string
           format: uri
           nullable: true
-          description: URL-referentie naar het STATUSTYPE
+          description: 'URL-referentie naar het STATUSTYPE. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `StatusType.zaakobjecttypen`.'
           maxLength: 1000
           minLength: 1
+          deprecated: true
         beginGeldigheid:
           type: string
           format: date
           nullable: true
-          description: De datum waarop het is ontstaan.
+          description: 'De datum waarop het is ontstaan. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0.'
+          deprecated: true
         eindeGeldigheid:
           type: string
           format: date
           nullable: true
-          description: De datum waarop het is opgeheven.
+          description: 'De datum waarop het is opgeheven. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0.'
+          deprecated: true
       required:
       - anderObjecttype
       - objecttype
