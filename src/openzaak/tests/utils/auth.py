@@ -28,6 +28,7 @@ class JWTAuthMixin:
 
     scopes: Collection[Scope] | None = None
     heeft_alle_autorisaties = False
+    alleen_is_gereed_voor_publicatie: bool = False
     component: ComponentTypes | None = None
     zaaktype: Model | str | None = None
     informatieobjecttype: Model | str | None = None
@@ -59,6 +60,7 @@ class JWTAuthMixin:
             client_ids=[cls.client_id],
             label="for test",
             heeft_alle_autorisaties=cls.heeft_alle_autorisaties,
+            alleen_is_gereed_voor_publicatie=cls.alleen_is_gereed_voor_publicatie,
         )
 
         if cls.heeft_alle_autorisaties is False:
