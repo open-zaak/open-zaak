@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Documenten API
-  version: 1.7.0
+  version: 1.8.0
   description: |
     Een API om een documentregistratiecomponent (DRC) te benaderen.
 
@@ -2583,6 +2583,25 @@ paths:
             schema:
               type: object
               properties:
+                fields:
+                  title: Fields
+                  type: array
+                  items:
+                    oneOf:
+                    - type: string
+                    - type: object
+                  example:
+                  - url
+                  - identificatie
+                  - titel
+                  - informatieobjecttype:
+                    - omschrijving
+                  description: |-
+                    De elementen (fields) die worden teruggegeven in de respons conform het expand-mechanisme. Het voorbeeld geeft aan hoe het werkt. Hierin betekent "*" dat alle elementen van een resource worden teruggegeven.
+
+                    Voor gerelateerde resources uit de Catalogi API is `catalogi.lezen` nodig.
+
+                    **Let op:** Het gebruik van het "fields" en "expand" element is mutual exclusive. Of je gebruikt de één of de ander maar nooit te gelijk.
                 uuid__in:
                   type: array
                   items:
@@ -6811,6 +6830,7 @@ components:
           description: Een lijst van trefwoorden gescheiden door comma's.
         inhoudIsVervallen:
           type: boolean
+          default: null
           nullable: true
           description: |-
             Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
@@ -6997,6 +7017,7 @@ components:
           description: Een lijst van trefwoorden gescheiden door comma's.
         inhoudIsVervallen:
           type: boolean
+          default: null
           nullable: true
           description: |-
             Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
@@ -7202,6 +7223,7 @@ components:
           description: Een lijst van trefwoorden gescheiden door comma's.
         inhoudIsVervallen:
           type: boolean
+          default: null
           nullable: true
           description: |-
             Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
@@ -7392,6 +7414,7 @@ components:
           description: Een lijst van trefwoorden gescheiden door comma's.
         inhoudIsVervallen:
           type: boolean
+          default: null
           nullable: true
           description: |-
             Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
@@ -7573,6 +7596,7 @@ components:
           description: Een lijst van trefwoorden gescheiden door comma's.
         inhoudIsVervallen:
           type: boolean
+          default: null
           nullable: true
           description: |-
             Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
@@ -8280,6 +8304,7 @@ components:
           description: Een lijst van trefwoorden gescheiden door comma's.
         inhoudIsVervallen:
           type: boolean
+          default: null
           nullable: true
           description: |-
             Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
