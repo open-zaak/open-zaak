@@ -20,10 +20,12 @@ from vng_api_common.tests import (
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
+from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
 from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
+from openzaak.components.zaken.tests.utils import ZAAK_READ_KWARGS
 from openzaak.tests.utils import JWTAuthMixin
 
 from ..api.scopes import (
@@ -31,6 +33,7 @@ from ..api.scopes import (
     SCOPE_DOCUMENTEN_ALLES_LEZEN,
     SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN,
     SCOPE_DOCUMENTEN_BIJWERKEN,
+    SCOPE_DOCUMENTEN_LOCK,
 )
 from ..constants import ObjectInformatieObjectTypes
 from ..models import ObjectInformatieObject, ReservedDocument
@@ -1305,4 +1308,333 @@ class ReserveDocumentAuthTests(JWTAuthMixin, APITestCase):
                 identificatie=response_data["identificatie"],
                 bronorganisatie=self.bronorganisatie,
             ).exists()
+        )
+
+
+@tag("gh-2452")
+@temp_private_root()
+@override_settings(OPENZAAK_DOMAIN="testserver")
+class AlleenIsGereedVoorPublicatieTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = False
+    alleen_is_gereed_voor_publicatie = True
+
+    component = ComponentTypes.drc
+    scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN, SCOPE_DOCUMENTEN_LOCK]
+    maxDiff = None
+
+    def setUp(self):
+        super().setUp()
+
+        informatieobjecttype = InformatieObjectTypeFactory()
+        self.autorisatie.informatieobjecttype = (
+            f"http://testserver{reverse(informatieobjecttype)}"
+        )
+        self.autorisatie.save(update_fields=["informatieobjecttype"])
+
+        # Create three documents, two that are is_gereed_voor_publicatie=True and one that is not.
+        self.is_gereed_voor_publicatie_data = EnkelvoudigInformatieObjectFactory(
+            informatieobjecttype=informatieobjecttype,
+            is_gereed_voor_publicatie=True,
+        )
+        EnkelvoudigInformatieObjectFactory(
+            informatieobjecttype=informatieobjecttype,
+            is_gereed_voor_publicatie=True,
+        )
+        self.niet_gereed_voor_publicatie_data = EnkelvoudigInformatieObjectFactory(
+            informatieobjecttype=informatieobjecttype,
+            is_gereed_voor_publicatie=False,
+        )
+
+    def test_list_and_get_includes_all_documents_if_alleen_is_gereed_voor_publicatie_false(
+        self,
+    ):
+        # This test should all get all the EIO documents
+        self.applicatie.alleen_is_gereed_voor_publicatie = False
+        self.applicatie.save(update_fields=["alleen_is_gereed_voor_publicatie"])
+
+        # Get list
+        response = self.client.get(reverse("enkelvoudiginformatieobject-list"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 3)
+
+        # Get detail
+        response = self.client.get(reverse(self.is_gereed_voor_publicatie_data))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get(reverse(self.niet_gereed_voor_publicatie_data))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_list_excludes_niet_gereed_voor_publicatie_documents(self):
+        response = self.client.get(reverse("enkelvoudiginformatieobject-list"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 2)
+        self.assertEqual(
+            response.data["results"][0]["url"],
+            f"http://testserver{reverse(self.is_gereed_voor_publicatie_data)}",
+        )
+
+    def test_search_excludes_niet_gereed_voor_publicatie_documents(self):
+        response = self.client.post(
+            reverse("enkelvoudiginformatieobject--zoek"),
+            {
+                "uuid__in": [
+                    str(self.is_gereed_voor_publicatie_data.uuid),
+                    str(self.niet_gereed_voor_publicatie_data.uuid),
+                ]
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(
+            response.data["results"][0]["url"],
+            f"http://testserver{reverse(self.is_gereed_voor_publicatie_data)}",
+        )
+
+    def test_detail_excludes_niet_gereed_voor_publicatie_documents(self):
+        response = self.client.get(reverse(self.niet_gereed_voor_publicatie_data))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_detail_includes_is_gereed_voor_publicatie_documents(self):
+        response = self.client.get(reverse(self.is_gereed_voor_publicatie_data))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_download_excludes_niet_gereed_voor_publicatie_documents(self):
+        response = self.client.get(
+            reverse(
+                "enkelvoudiginformatieobject-download",
+                kwargs={"uuid": self.niet_gereed_voor_publicatie_data.uuid},
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_download_includes_is_gereed_voor_publicatie_documents(self):
+        response = self.client.get(
+            reverse(
+                "enkelvoudiginformatieobject-download",
+                kwargs={"uuid": self.is_gereed_voor_publicatie_data.uuid},
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_lock_excludes_niet_gereed_voor_publicatie_documents(self):
+        response = self.client.post(
+            reverse(
+                "enkelvoudiginformatieobject-lock",
+                kwargs={"uuid": self.niet_gereed_voor_publicatie_data.uuid},
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_lock_includes_is_gereed_voor_publicatie_documents(self):
+        response = self.client.post(
+            reverse(
+                "enkelvoudiginformatieobject-lock",
+                kwargs={"uuid": self.is_gereed_voor_publicatie_data.uuid},
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_all_authorizations_still_restrict_is_gereed_voor_publicatie(self):
+        self.applicatie.autorisaties.all().delete()
+        self.applicatie.heeft_alle_autorisaties = True
+        self.applicatie.save(update_fields=["heeft_alle_autorisaties"])
+
+        response = self.client.get(reverse("enkelvoudiginformatieobject-list"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 2)
+        self.assertEqual(
+            response.data["results"][0]["url"],
+            f"http://testserver{reverse(self.is_gereed_voor_publicatie_data)}",
+        )
+
+        # Test that the detail view still restricts access to documents that are not is_gereed_voor_publicatie.
+        response = self.client.get(reverse(self.niet_gereed_voor_publicatie_data))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_related_resource_uses_latest_io_with_is_gereed_voor_publicatie(self):
+        """
+        Test that if a document has multiple versions,
+        the related resource will use the latest version that is is_gereed_voor_publicatie=True
+        """
+        resource = GebruiksrechtenFactory(
+            informatieobject=self.niet_gereed_voor_publicatie_data.canonical
+        )
+        response = self.client.get(reverse(resource))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        EnkelvoudigInformatieObjectFactory(
+            informatieobjecttype=self.niet_gereed_voor_publicatie_data.informatieobjecttype,
+            canonical=self.niet_gereed_voor_publicatie_data.canonical,
+            uuid=self.niet_gereed_voor_publicatie_data.uuid,
+            versie=2,
+            is_gereed_voor_publicatie=True,
+        )
+        response = self.client.get(reverse(resource))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_related_lists_exclude_documents_niet_gereed_voor_publicatie(self):
+        for factory, endpoint, paginated in (
+            (GebruiksrechtenFactory, "gebruiksrechten-list", False),
+            (VerzendingFactory, "verzending-list", True),
+        ):
+            with self.subTest(endpoint=endpoint):
+                included = factory(
+                    informatieobject=self.is_gereed_voor_publicatie_data.canonical
+                )
+                factory(
+                    informatieobject=self.niet_gereed_voor_publicatie_data.canonical
+                )
+
+                response = self.client.get(reverse(endpoint))
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                results = response.data["results"] if paginated else response.data
+                self.assertEqual(
+                    [item["url"] for item in results],
+                    [f"http://testserver{reverse(included)}"],
+                )
+
+    def test_eio_old_version_with_niet_gereed_voor_publicatie_access_denied(self):
+        """
+        Test that an old version of an informatieobject with is_gereed_voor_publicatie=False is denied access.
+        Then access it with a new version that is is_gereed_voor_publicatie=True and check that access is granted.
+        """
+        EnkelvoudigInformatieObjectFactory(
+            informatieobjecttype=self.niet_gereed_voor_publicatie_data.informatieobjecttype,
+            canonical=self.niet_gereed_voor_publicatie_data.canonical,
+            uuid=self.niet_gereed_voor_publicatie_data.uuid,
+            versie=2,
+            is_gereed_voor_publicatie=True,
+        )
+        response = self.client.get(
+            reverse(self.niet_gereed_voor_publicatie_data), {"versie": 1}
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        response = self.client.get(reverse(self.niet_gereed_voor_publicatie_data))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_niet_gereed_voor_publicatie_document_follows_configured_scopes(
+        self,
+    ):
+        url = reverse(self.niet_gereed_voor_publicatie_data)
+
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self.autorisatie.scopes.append(SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN)
+        self.autorisatie.save(update_fields=["scopes"])
+
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_zaak_list_filters_document_links_and_expansions(self):
+        """
+        Checks that the zaak list endpoint filters the zaakinformatieobjecten
+        based on the is_gereed_voor_publicatie status of the linked documents,
+        and that the expand parameter works correctly.
+        """
+        zaak = ZaakFactory()
+        other_zaak = ZaakFactory(zaaktype=zaak.zaaktype)
+
+        # Add zaak auth
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=[SCOPE_ZAKEN_ALLES_LEZEN],
+            zaaktype=f"http://testserver{reverse(zaak.zaaktype)}",
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        included = ZaakInformatieObjectFactory(
+            zaak=zaak, informatieobject=self.is_gereed_voor_publicatie_data.canonical
+        )
+        excluded = ZaakInformatieObjectFactory(
+            zaak=zaak, informatieobject=self.niet_gereed_voor_publicatie_data.canonical
+        )
+
+        for is_gereed_voor_publicatie in (True, False):
+            # Set the applicatie allen_is_gereed_voor_publicatie auth
+            self.applicatie.alleen_is_gereed_voor_publicatie = is_gereed_voor_publicatie
+            self.applicatie.save(update_fields=["alleen_is_gereed_voor_publicatie"])
+
+            # Prepare the expected results
+            expected = [included] if is_gereed_voor_publicatie else [included, excluded]
+            expected_urls = [
+                f"http://testserver{reverse(relation)}" for relation in expected
+            ]
+
+            with self.subTest(
+                is_gereed_voor_publicatie=is_gereed_voor_publicatie,
+            ):
+                response = self.client.get(
+                    reverse("zaak-list"),
+                    {
+                        "expand": "zaakinformatieobjecten,zaakinformatieobjecten.informatieobject"
+                    },
+                    **ZAAK_READ_KWARGS,
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+                # Check that the results only include the expected zaak URLs.
+                results = {item["url"]: item for item in response.json()["results"]}
+                self.assertCountEqual(
+                    results,
+                    [
+                        f"http://testserver{reverse(item)}"
+                        for item in (zaak, other_zaak)
+                    ],
+                )
+
+                data = results[f"http://testserver{reverse(zaak)}"]
+                # Check the zaakinformatieobjected URLs in the main data
+                self.assertCountEqual(data["zaakinformatieobjecten"], expected_urls)
+
+                # Check the zaakinformatieobjected URLs in the expanded data
+                self.assertCountEqual(
+                    [item["url"] for item in data["_expand"]["zaakinformatieobjecten"]],
+                    expected_urls,
+                )
+
+    def test_zaakinformatieobject_list_omits_niet_gereed_voor_publicatie_documents(
+        self,
+    ):
+        # Prepare 3 documents that are ready for publication and 2 that are not, all linked to the same zaak.
+        zio_gereed_voor_publicatie = ZaakInformatieObjectFactory.create_batch(
+            3, informatieobject=self.is_gereed_voor_publicatie_data.canonical
+        )
+        zio_niet_gereed_voor_publicatie = ZaakInformatieObjectFactory.create_batch(
+            2, informatieobject=self.niet_gereed_voor_publicatie_data.canonical
+        )
+
+        # Add zaak auth
+        for i in range(len(zio_gereed_voor_publicatie)):
+            Autorisatie.objects.create(
+                applicatie=self.applicatie,
+                component=ComponentTypes.zrc,
+                scopes=[SCOPE_ZAKEN_ALLES_LEZEN],
+                zaaktype=f"http://testserver{reverse(zio_gereed_voor_publicatie[i].zaak.zaaktype)}",
+                max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+            )
+
+        for i in range(len(zio_niet_gereed_voor_publicatie)):
+            Autorisatie.objects.create(
+                applicatie=self.applicatie,
+                component=ComponentTypes.zrc,
+                scopes=[SCOPE_ZAKEN_ALLES_LEZEN],
+                zaaktype=f"http://testserver{reverse(zio_niet_gereed_voor_publicatie[i].zaak.zaaktype)}",
+                max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+            )
+
+        response = self.client.get(
+            reverse("zaakinformatieobject-list"), {"expand": "informatieobject"}
+        )
+
+        data = response.json()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertCountEqual(
+            sorted([item["uuid"] for item in data]),
+            sorted([str(item.uuid) for item in zio_gereed_voor_publicatie]),
         )
