@@ -23,6 +23,7 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
 )
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.validators import URNValidator
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -1169,6 +1170,109 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             zaak.uiterlijke_einddatum_afdoening,
             startdatum + relativedelta(days=30),
         )
+
+    @tag("gh-2537")
+    def test_zaak_saves_valid_tsaverwijzing(self):
+        # Create valid URN based on RFC 8141 succeeds
+        valid_urns: list[str | None] = [
+            "urn:example:12345",
+            "urn:example:hello!@world",
+            "urn:example:hello%20world",
+            "urn:example:hello?+resolver?=query#fragment",
+            "urn:example:abc123!@:$&'()*+,;=/path%20value?+resolver/path?=query/value#fragment",
+            None,
+        ]
+        for urn in valid_urns:
+            with self.subTest(urn=urn):
+                zaak = ZaakFactory.create(zaaktype=self.zaaktype, tsaverwijzing=None)
+                detail_url = reverse(zaak)
+
+                response = self.client.patch(
+                    detail_url, {"tsaverwijzing": urn}, **ZAAK_WRITE_KWARGS
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+                self.assertEqual(response.data["tsaverwijzing"], urn)
+                zaak.refresh_from_db()
+                self.assertEqual(zaak.tsaverwijzing, urn)
+
+    @tag("gh-2537")
+    def test_zaak_rejects_invalid_tsaverwijzing(self):
+        invalid_urns: list[str] = [
+            "urn:isbn:9780201038019\n",
+            "urn:isbn:9780201038019\r\n",
+            " urn:isbn:9780201038019",
+            "urn:isbn:9780201038019 ",
+            "http:isbn:hello",
+            "urn:a:12345",
+            "urn::12345",
+            "urn:-isbn:hello",
+            "urn:123456789012345678901234567890123:abc",
+        ]
+        for urn in invalid_urns:
+            with self.subTest(urn=urn):
+                zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+                url = reverse(zaak)
+
+                response = self.client.patch(
+                    url,
+                    {"tsaverwijzing": urn},
+                    **ZAAK_WRITE_KWARGS,
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                error = get_validation_errors(response, "tsaverwijzing")
+
+                assert error is not None
+                self.assertEqual(error["code"], "invalid_urn")
+                self.assertEqual(
+                    error["reason"],
+                    str(URNValidator.message),
+                )
+
+                zaak.refresh_from_db()
+                self.assertIsNone(zaak.tsaverwijzing)
+
+        # Assert other types
+        invalid_other_types: list[bool | int] = [
+            True,
+            False,
+            123,
+            0,
+            -123,
+        ]
+        for urn in invalid_other_types:
+            with self.subTest(urn=urn):
+                zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+                url = reverse(zaak)
+
+                response = self.client.patch(
+                    url,
+                    {"tsaverwijzing": urn},
+                    **ZAAK_WRITE_KWARGS,
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+                error = get_validation_errors(response, "tsaverwijzing")
+
+                assert error is not None
+                if isinstance(urn, bool):
+                    self.assertEqual(error["code"], "invalid")
+                    self.assertEqual(
+                        error["reason"],
+                        "Not a valid string.",
+                    )
+                else:
+                    self.assertEqual(error["code"], "invalid_urn")
+                    self.assertEqual(
+                        error["reason"],
+                        str(URNValidator.message),
+                    )
+
+                zaak.refresh_from_db()
+                self.assertIsNone(zaak.tsaverwijzing)
 
 
 class ZakenFilterTests(JWTAuthMixin, APITestCase):

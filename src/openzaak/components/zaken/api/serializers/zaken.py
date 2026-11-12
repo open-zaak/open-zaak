@@ -55,7 +55,10 @@ from vng_api_common.serializers import (
     add_choice_values_help_text,
 )
 from vng_api_common.utils import get_help_text
-from vng_api_common.validators import IsImmutableValidator, UntilNowValidator
+from vng_api_common.validators import (
+    IsImmutableValidator,
+    UntilNowValidator,
+)
 
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 from openzaak.components.zaken.archiving import calculate_archiving_data
@@ -490,6 +493,7 @@ class ZaakSerializer(
             "laatst_geopend",
             "communicatiekanaal",
             "communicatiekanaal_naam",
+            "tsaverwijzing",
             # TODO: add shape validator once we know the shape
             "producten_of_diensten",
             "vertrouwelijkheidaanduiding",
@@ -583,6 +587,10 @@ class ZaakSerializer(
             },
             "laatste_betaaldatum": {"validators": [UntilNowValidator()]},
             "relevante_andere_zaken": {"swagger_schema_fields": {"deprecated": True}},
+            "tsaverwijzing": {
+                # Preserve whitespace so invalid URNs are rejected instead of trimmed
+                "trim_whitespace": False,
+            },
         }
         validators = [
             # Replace a default "unique together" constraint.

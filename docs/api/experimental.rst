@@ -202,6 +202,7 @@ Attributes
 
     * ``relevanteAndereZaken`` is marked as deprecated
     * ``gerelateerdeZaken`` is added
+    * ``tsaverwijzing`` is added to reference a Zaak to an external zaak system, such as GZAC.
 
 * ``ZaakObject``:
     * ``objectType`` is changed: a new enum value "product" is added

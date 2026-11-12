@@ -28,7 +28,7 @@ from vng_api_common.constants import (
     ZaakobjectTypes,
 )
 from vng_api_common.descriptors import GegevensGroepType
-from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
+from vng_api_common.fields import RSINField, URNField, VertrouwelijkheidsAanduidingField
 from vng_api_common.notes.models import NotitieBaseClass
 from zgw_consumers.models import ServiceUrlField
 
@@ -486,6 +486,15 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
             _(
                 "Tijdstip waarop de ZAAK voor het laatst geopend is door de eigenaar van de ZAAK."
             )
+        ),
+        null=True,
+        blank=True,
+    )
+
+    tsaverwijzing = URNField(
+        _("TSA-verwijzing"),
+        help_text=mark_experimental(
+            "URN-verwijzing naar het dossier van de ZAAK in een taak specifieke applicatie (TSA)."
         ),
         null=True,
         blank=True,
