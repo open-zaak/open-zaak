@@ -4,7 +4,7 @@ import json
 from urllib.parse import urlencode
 
 from django.contrib.gis.geos import Point
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.urls import reverse
 
 import requests_mock
@@ -361,3 +361,89 @@ class ZaakAdminTests(AdminTestMixin, WebTest):
         zaak.refresh_from_db()
         self.assertTrue(zaak.opschorting_indicatie)
         self.assertTrue(zaak.opschorting_eerdere_opschorting)
+
+    @tag("gh-2537")
+    def test_zaak_saves_valid_urn_to_tsaverwijzing_from_admin(self):
+        # Create valid URN based on RFC 8141 succeeds
+        valid_urns: list[str] = [
+            "urn:example:12345",
+            "urn:example:hello!@world",
+            "urn:example:hello%20world",
+            "urn:example:hello?+resolver?=query#fragment",
+            "urn:example:abc123!@:$&'()*+,;=/path%20value?+resolver/path?=query/value#fragment",
+        ]
+        for urn in valid_urns:
+            with self.subTest(urn=urn):
+                # Create a zaak with empty tsaverwijzing
+                zaak = ZaakFactory.create(tsaverwijzing=None)
+                url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
+
+                response = self.app.get(url)
+
+                form = response.forms["zaak_form"]
+                form["tsaverwijzing"] = urn
+                submit_response = form.submit()
+                self.assertEqual(submit_response.status_code, 302)
+
+                # Check that the URN is saved to the database
+                zaak.refresh_from_db()
+                self.assertEqual(zaak.tsaverwijzing, urn)
+
+    @tag("gh-2537")
+    @override_settings(LANGUAGE_CODE="nl")
+    def test_zaak_does_not_save_invalid_urn_to_tsaverwijzing_from_admin(self):
+        invalid_urns: list[str] = [
+            # Invalid scheme or missing prefix
+            "http:isbn:hello",
+            "isbn:9780143127796",
+            # Invalid NID
+            "urn:a:12345",  # NID too short
+            "urn::12345",  # Empty NID
+            "urn:-isbn:hello",  # NID starts with '-'
+            "urn:isbn-:hello",  # NID ends with '-'
+            "urn:123456789012345678901234567890123:abc",  # NID too long
+            "urn:in valid:123",  # Space in NID
+            "urn:!invalid:123",  # Invalid character in NID
+            # Missing or empty NSS
+            "urn:isbn",
+            "urn:isbn:",
+            # Invalid characters in NSS
+            "urn:isbn:hello world",  # Space
+            "urn:isbn:hello<world>",  # Angle brackets
+            "urn:isbn:hello[world]",  # Square brackets
+            "urn:isbn:hello|world",  # Pipe
+            "urn:isbn:hello\\world",  # Backslash
+            "urn:isbn:hello^world",  # Caret
+            # Invalid percent encoding
+            "urn:isbn:hello%",
+            "urn:isbn:hello%GG",
+            # Invalid RFC 8141 components
+            "urn:isbn:hello?+",  # Empty r-component
+            "urn:isbn:hello?=",  # Empty q-component
+            "urn:isbn:hello?x=1",  # Invalid '?' syntax
+        ]
+        for urn in invalid_urns:
+            with self.subTest(urn=urn):
+                # Create a zaak with empty tsaverwijzing
+                zaak = ZaakFactory.create(tsaverwijzing=None)
+                url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
+
+                response = self.app.get(url)
+
+                form = response.forms["zaak_form"]
+                form["tsaverwijzing"] = urn
+
+                submit_response = form.submit()
+                response_form = submit_response.context["adminform"].form
+                error = response_form.errors.get_json_data()["tsaverwijzing"][0]
+                self.assertEqual(error["code"], "invalid_urn")
+                self.assertEqual(
+                    error["message"],
+                    (
+                        "Voer een geldige URN in. Juiste indeling: ‘urn:<namespace>:<resource>’ "
+                        "(bijv., urn:isbn:9780143127796)."
+                    ),
+                )
+
+                zaak.refresh_from_db()
+                self.assertIsNone(zaak.tsaverwijzing)
