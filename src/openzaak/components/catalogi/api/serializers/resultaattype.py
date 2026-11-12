@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
+from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 from vng_api_common.constants import (
     Archiefnominatie,
@@ -51,6 +52,7 @@ class BrondatumArchiefprocedureSerializer(GegevensGroepSerializer):
         return fields
 
 
+@extend_schema_serializer(deprecate_fields=["indicatie_specifiek"])
 class ResultaatTypeSerializer(
     NestedGegevensGroepMixin, serializers.HyperlinkedModelSerializer
 ):
@@ -164,6 +166,13 @@ class ResultaatTypeSerializer(
             "informatieobjecttypen": {"lookup_field": "uuid", "required": False},
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
+            "indicatie_specifiek": {
+                "help_text": _(
+                    "Aanduiding of het, vanuit archiveringsoptiek, een resultaattype betreft "
+                    "dat specifiek is voor een bepaalde procesobjectaard. **LET OP**: Dit "
+                    "attribuut zal verwijderd worden in versie 2.0."
+                )
+            },
         }
         validators = [
             UniqueTogetherValidator(

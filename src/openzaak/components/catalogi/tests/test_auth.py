@@ -17,7 +17,7 @@ from vng_api_common.constants import (
     RolOmschrijving,
     VertrouwelijkheidsAanduiding,
 )
-from vng_api_common.tests import AuthCheckMixin, reverse
+from vng_api_common.tests import AuthCheckMixin, get_validation_errors, reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -248,6 +248,23 @@ class PublishedTypesForcedDeletionTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(ZaakType.objects.exists())
+
+    def test_force_delete_empty_catalogus(self):
+        catalogus = CatalogusFactory.create()
+
+        response = self.client.delete(reverse(catalogus))
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_force_delete_catalogus_with_related_types_fails(self):
+        catalogus = CatalogusFactory.create()
+        ZaakTypeFactory.create(catalogus=catalogus, concept=False)
+
+        response = self.client.delete(reverse(catalogus))
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "catalogus-not-empty")
 
 
 class PublishedTypesForcedWriteTests(APITestCase):

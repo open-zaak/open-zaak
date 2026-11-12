@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Catalogi API
-  version: 1.3.3
+  version: 1.4.0
   description: |
     Een API om een zaaktypecatalogus (ZTC) te benaderen.
 
@@ -2054,6 +2054,143 @@ paths:
               schema:
                 $ref: '#/components/schemas/ValidatieFout'
           description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '404':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not found
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+    delete:
+      operationId: catalogus_delete
+      description: |-
+        Verwijder een CATALOGUS.
+
+        **Let op**: De CATALOGUS mag alleen verwijderd worden als er geen ZAAKTYPEN, INFORMATIEOBJECTTYPEN en BESLUITTYPEN in zitten.
+      summary: Verwijder een CATALOGUS.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
+      tags:
+      - catalogussen
+      security:
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
+      responses:
+        '204':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          description: No response body
         '401':
           headers:
             API-version:
@@ -12076,12 +12213,15 @@ components:
                 items:
                   $ref: '#/components/schemas/ResultaatType'
                 readOnly: true
-                description: URL-referenties naar de RESULTAATTYPEN.
+                description: 'URL-referenties naar de RESULTAATTYPEN. **LET OP**:
+                  Dit attribuut zal verwijderd worden in versie 2.0.'
               statustype:
                 allOf:
                 - $ref: '#/components/schemas/StatusType'
                 nullable: true
-                description: URL-referentie naar het STATUSTYPE
+                description: 'URL-referentie naar het STATUSTYPE. **LET OP**: Dit
+                  attribuut zal verwijderd worden in versie 2.0, maak in plaats van
+                  dit attribuut gebruik van `StatusType.zaakobjecttypen`.'
               catalogus:
                 allOf:
                 - $ref: '#/components/schemas/Catalogus'
@@ -13297,8 +13437,10 @@ components:
         indicatieSpecifiek:
           type: boolean
           nullable: true
-          description: Aanduiding of het, vanuit archiveringsoptiek, een resultaattype
-            betreft dat specifiek is voor een bepaalde procesobjectaard.
+          description: 'Aanduiding of het, vanuit archiveringsoptiek, een resultaattype
+            betreft dat specifiek is voor een bepaalde procesobjectaard. **LET OP**:
+            Dit attribuut zal verwijderd worden in versie 2.0.'
+          deprecated: true
         procestermijn:
           type: string
           format: duration
@@ -13476,19 +13618,26 @@ components:
           type: string
           format: uri
           nullable: true
-          description: URL-referentie naar het STATUSTYPE
+          description: 'URL-referentie naar het STATUSTYPE. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `StatusType.zaakobjecttypen`.'
           maxLength: 1000
           minLength: 1
+          deprecated: true
         beginGeldigheid:
           type: string
           format: date
           nullable: true
-          description: De datum waarop het is ontstaan.
+          description: 'De datum waarop het is ontstaan. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0.'
+          deprecated: true
         eindeGeldigheid:
           type: string
           format: date
           nullable: true
-          description: De datum waarop het is opgeheven.
+          description: 'De datum waarop het is opgeheven. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0.'
+          deprecated: true
     PatchedZaakTypeInformatieObjectTypeRequest:
       type: object
       description: |-
@@ -13628,6 +13777,7 @@ components:
         servicenorm:
           type: string
           format: duration
+          default: null
           nullable: true
           description: De periode waarbinnen verwacht wordt dat een ZAAK van het ZAAKTYPE
             afgerond wordt conform de geldende servicenormen van de zaakbehandelende
@@ -13879,8 +14029,10 @@ components:
         indicatieSpecifiek:
           type: boolean
           nullable: true
-          description: Aanduiding of het, vanuit archiveringsoptiek, een resultaattype
-            betreft dat specifiek is voor een bepaalde procesobjectaard.
+          description: 'Aanduiding of het, vanuit archiveringsoptiek, een resultaattype
+            betreft dat specifiek is voor een bepaalde procesobjectaard. **LET OP**:
+            Dit attribuut zal verwijderd worden in versie 2.0.'
+          deprecated: true
         procestermijn:
           type: string
           format: duration
@@ -14037,8 +14189,10 @@ components:
         indicatieSpecifiek:
           type: boolean
           nullable: true
-          description: Aanduiding of het, vanuit archiveringsoptiek, een resultaattype
-            betreft dat specifiek is voor een bepaalde procesobjectaard.
+          description: 'Aanduiding of het, vanuit archiveringsoptiek, een resultaattype
+            betreft dat specifiek is voor een bepaalde procesobjectaard. **LET OP**:
+            Dit attribuut zal verwijderd worden in versie 2.0.'
+          deprecated: true
         procestermijn:
           type: string
           format: duration
@@ -14499,14 +14653,19 @@ components:
             maxLength: 1000
             minLength: 1
           readOnly: true
-          description: URL-referenties naar de RESULTAATTYPEN.
+          description: 'URL-referenties naar de RESULTAATTYPEN. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0.'
+          deprecated: true
         statustype:
           type: string
           format: uri
           nullable: true
-          description: URL-referentie naar het STATUSTYPE
+          description: 'URL-referentie naar het STATUSTYPE. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `StatusType.zaakobjecttypen`.'
           maxLength: 1000
           minLength: 1
+          deprecated: true
         catalogus:
           type: string
           format: uri
@@ -14516,12 +14675,16 @@ components:
           type: string
           format: date
           nullable: true
-          description: De datum waarop het is ontstaan.
+          description: 'De datum waarop het is ontstaan. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0.'
+          deprecated: true
         eindeGeldigheid:
           type: string
           format: date
           nullable: true
-          description: De datum waarop het is opgeheven.
+          description: 'De datum waarop het is opgeheven. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0.'
+          deprecated: true
         beginObject:
           type: string
           format: date
@@ -14574,19 +14737,26 @@ components:
           type: string
           format: uri
           nullable: true
-          description: URL-referentie naar het STATUSTYPE
+          description: 'URL-referentie naar het STATUSTYPE. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `StatusType.zaakobjecttypen`.'
           maxLength: 1000
           minLength: 1
+          deprecated: true
         beginGeldigheid:
           type: string
           format: date
           nullable: true
-          description: De datum waarop het is ontstaan.
+          description: 'De datum waarop het is ontstaan. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0.'
+          deprecated: true
         eindeGeldigheid:
           type: string
           format: date
           nullable: true
-          description: De datum waarop het is opgeheven.
+          description: 'De datum waarop het is opgeheven. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0.'
+          deprecated: true
       required:
       - anderObjecttype
       - objecttype
@@ -14687,6 +14857,7 @@ components:
         servicenorm:
           type: string
           format: duration
+          default: null
           nullable: true
           description: De periode waarbinnen verwacht wordt dat een ZAAK van het ZAAKTYPE
             afgerond wordt conform de geldende servicenormen van de zaakbehandelende
@@ -15140,6 +15311,7 @@ components:
         servicenorm:
           type: string
           format: duration
+          default: null
           nullable: true
           description: De periode waarbinnen verwacht wordt dat een ZAAK van het ZAAKTYPE
             afgerond wordt conform de geldende servicenormen van de zaakbehandelende
