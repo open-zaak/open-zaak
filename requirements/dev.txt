@@ -1030,7 +1030,7 @@ pygments==2.20.0
     #   sphinx-tabs
 pygraphviz==2.0.1
     # via -r requirements/dev.in
-pyinstrument==5.0.1
+pyinstrument==5.1.3
     # via -r requirements/dev.in
 pyjwt==2.15.1
     # via

@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2025 Dimpact
-from typing import Dict, cast
 
 from django.db.models import Field, Model
 
@@ -12,7 +11,7 @@ from vng_api_common.tests import reverse
 
 class Kanaal(_Kanaal):
     @staticmethod
-    def get_field(model: Model, field: str) -> Field:
+    def get_field(model: type[Model], field: str) -> Field:
         """
         Function to retrieve a field from a Model, can also be passed a path to a field
         (e.g. `zaaktype.catalogus`)
@@ -25,14 +24,15 @@ class Kanaal(_Kanaal):
                 if fk_field := getattr(model_field, "fk_field", None):
                     model_field = model._meta.get_field(fk_field)
                 if i != len(bits):
-                    model = cast(Model, model_field.related_model)
+                    assert model_field.related_model
+                    model = model_field.related_model
             assert model_field, "Could not find field on model"
             return model_field
         return model._meta.get_field(field)
 
     def get_kenmerken(
         self, obj: Model, data: dict | None = None, request: Request | None = None
-    ) -> Dict:
+    ) -> dict:
         """
         Overridden to support sending kenmerken that are not directly part of the main
         resource (e.g `Zaak.zaaktype.catalogus`)

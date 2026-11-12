@@ -1,6 +1,14 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-class ListFilterByAuthorizationsMixin:
+from collections.abc import Mapping
+
+from rest_framework.viewsets import GenericViewSet
+from vng_api_common.scopes import Scope
+
+from openzaak.utils.typing import AuthorizedRequest
+
+
+class ListFilterByAuthorizationsMixin(GenericViewSet):
     """
     Filter list-action data by the authorizations configured.
 
@@ -12,6 +20,9 @@ class ListFilterByAuthorizationsMixin:
     method ``filter_for_authorizations``, which is provided by
     :class:`openzaak.utils.query.LooseFkAuthorizationsFilterMixin`
     """
+
+    request: AuthorizedRequest  # pyright: ignore[reportIncompatibleVariableOverride]
+    required_scopes: Mapping[str, Scope]
 
     def get_queryset(self):
         base = super().get_queryset()
@@ -30,6 +41,7 @@ class ListFilterByAuthorizationsMixin:
 
         # get the auth apps that are relevant for this particular request
         apps = self.request.jwt_auth.applicaties
+        assert apps is not None
 
         # as soon as there's one matching app that gives you all permissions,
         # you're good - no further detailed data filtering is applied
@@ -38,10 +50,9 @@ class ListFilterByAuthorizationsMixin:
 
         scope_needed = self.required_scopes[self.action]
         component = base.model._meta.app_label
-        authorizations = self.request.jwt_auth.get_autorisaties(component)
-        catalogus_authorizations = self.request.jwt_auth.get_catalogus_autorisaties(
-            component
-        )
-        return base.filter_for_authorizations(
+        jwt_auth = self.request.jwt_auth
+        authorizations = jwt_auth.get_autorisaties(component)
+        catalogus_authorizations = jwt_auth.get_catalogus_autorisaties(component)
+        return base.filter_for_authorizations(  # pyright: ignore[reportAttributeAccessIssue]
             scope_needed, authorizations, catalogus_authorizations
         )

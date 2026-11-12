@@ -2,7 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import os
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Optional
 
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
@@ -45,8 +45,8 @@ def override_request_host(request: HttpRequest) -> None:
             del request.META["HTTP_X_FORWARDED_HOST"]
 
         # for logging/debugging purposes: track the original host
-        request._raw_host = request._get_raw_host()
-        request.META["HTTP_X_ORIGINAL_HOST"] = request._raw_host
+        request._raw_host = request._get_raw_host()  # pyright: ignore[reportAttributeAccessIssue]
+        request.META["HTTP_X_ORIGINAL_HOST"] = request._raw_host  # pyright: ignore[reportAttributeAccessIssue]
         # overwrite with our own host information
         request.META["HTTP_HOST"] = settings.OPENZAAK_DOMAIN
         request.__dict__.pop("_current_scheme_host", None)
@@ -105,7 +105,7 @@ class LogHeadersMiddleware:
         )
 
 
-def get_version_mapping() -> Dict[str, str]:
+def get_version_mapping() -> dict[str, str]:
     apis = ("autorisaties", "besluiten", "catalogi", "documenten", "zaken")
     version = settings.REST_FRAMEWORK["DEFAULT_VERSION"]
 

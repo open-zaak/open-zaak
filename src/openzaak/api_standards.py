@@ -9,14 +9,13 @@ Utilities to deal with OpenAPI 3 specifications.
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict
 
 import requests
 import yaml
 
 __all__ = ["SPECIFICATIONS", "APIStandard"]
 
-SPECIFICATIONS: Dict[str, "APIStandard"] = {}
+SPECIFICATIONS: dict[str, "APIStandard"] = {}
 
 
 @dataclass

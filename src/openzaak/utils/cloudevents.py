@@ -16,8 +16,8 @@ resources could trigger the same cloud event twice. To avoid duplicate cloud eve
 within the same transaction, we keep track of a registry with scheduled event types
 per object, which is reset for each request-response cycle
 """
-_scheduled_events_registry = contextvars.ContextVar(
-    "scheduled_events_registry", default=None
+_scheduled_events_registry: contextvars.ContextVar[dict[str, set[int]] | None] = (
+    contextvars.ContextVar("scheduled_events_registry", default=None)
 )
 
 

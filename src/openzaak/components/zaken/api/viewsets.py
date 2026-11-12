@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
-from typing import Dict, List, Optional, Union
+from typing import Optional
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -2719,7 +2719,7 @@ class ZaakBijwerkenViewset(
     def notify(
         self,
         status_code: int,
-        data: Union[List, Dict],
+        data: list | dict,
         instance: models.Model = None,
         rollen_version_before_edit=None,
         **kwargs,

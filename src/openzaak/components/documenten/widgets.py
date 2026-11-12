@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from typing import Any, Optional, Union
+from typing import Optional
 
 from django.contrib.admin.widgets import AdminFileWidget as _AdminFileWidget
 from django.core.files.uploadedfile import InMemoryUploadedFile, UploadedFile
@@ -12,9 +12,7 @@ from .storage import documenten_storage
 
 
 class PrivateFileWidget(_PrivateFileWidget):
-    def get_display_value(
-        self, value: Optional[Union[InMemoryUploadedFile, FieldFile]]
-    ):
+    def get_display_value(self, value: Optional[InMemoryUploadedFile | FieldFile]):
         if not value or not hasattr(value, "instance"):
             return super().get_display_value(value)
 
@@ -38,7 +36,7 @@ class AdminFileWidget(_AdminFileWidget):
         self,
         name: str,
         value: FieldFile | UploadedFile | None,
-        attrs: dict[str, Any] | None,
+        attrs: dict[str, object] | None,
     ):
         """
         Return value-related substitutions.
@@ -55,6 +53,6 @@ class AdminFileWidget(_AdminFileWidget):
             context["display_value"] = self.get_display_value(value)
         return context
 
-    def get_display_value(self, value: Union[InMemoryUploadedFile, FieldFile]) -> str:
+    def get_display_value(self, value: InMemoryUploadedFile | FieldFile) -> str:
         # TODO this currently ignores `bestandsnaam` as attachment filename
         return value.path

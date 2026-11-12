@@ -15,7 +15,7 @@ class XWarningTests(SimpleTestCase):
         add_x_warning(request, "first")
         add_x_warning(request, "second")
 
-        self.assertEqual(request._x_warnings, ["first", "second"])
+        self.assertEqual(getattr(request, "_x_warnings"), ["first", "second"])
 
     def test_drf_request_stores_on_underlying_request(self):
         django_request = RequestFactory().get("/")
@@ -23,7 +23,7 @@ class XWarningTests(SimpleTestCase):
 
         add_x_warning(drf_request, "a warning")
 
-        self.assertEqual(django_request._x_warnings, ["a warning"])
+        self.assertEqual(getattr(django_request, "_x_warnings"), ["a warning"])
 
     def test_middleware_sets_header(self):
         request = RequestFactory().get("/")
@@ -35,6 +35,7 @@ class XWarningTests(SimpleTestCase):
 
         response = XWarningMiddleware(view)(request)
 
+        assert response is not None
         self.assertEqual(response["X-Warning"], "first; second")
 
     def test_middleware_without_warnings_sets_no_header(self):
@@ -42,6 +43,7 @@ class XWarningTests(SimpleTestCase):
 
         response = XWarningMiddleware(lambda request: HttpResponse())(request)
 
+        assert response is not None
         self.assertNotIn("X-Warning", response)
 
     def test_middleware_skips_header_for_error_responses(self):
@@ -53,6 +55,7 @@ class XWarningTests(SimpleTestCase):
 
         response = XWarningMiddleware(view)(request)
 
+        assert response is not None
         self.assertNotIn("X-Warning", response)
 
     def test_middleware_without_get_response_returns_none(self):
