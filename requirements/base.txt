@@ -86,7 +86,7 @@ click-repl==0.2.0
     # via celery
 cloudevents==1.12.0
     # via -r requirements/base.in
-commonground-api-common==3.2.0
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@7e5ec32fbb548a362cc791368001b1b34627f15a
     # via
     #   -r requirements/base.in
     #   open-api-framework
@@ -231,9 +231,7 @@ django-sendfile2==0.7.2
 django-sessionprofile==3.0.0
     # via open-api-framework
 django-setup-configuration==0.13.0
-    # via
-    #   commonground-api-common
-    #   open-api-framework
+    # via open-api-framework
 django-simple-certmanager==4.0.0
     # via
     #   open-api-framework
@@ -571,13 +569,10 @@ requests==2.33.1
     #   opentelemetry-exporter-http-transport
     #   opentelemetry-exporter-otlp-proto-http
     #   requests-cache
-    #   requests-mock
     #   requests-oauthlib
     #   zgw-consumers
 requests-cache==1.2.1
     # via -r requirements/base.in
-requests-mock==1.12.1
-    # via commonground-api-common
 requests-oauthlib==2.0.0
     # via zgw-consumers
 rich==15.0.0
@@ -687,6 +682,4 @@ zgw-consumers==2.1.0
     #   commonground-api-common
     #   notifications-api-common
 zgw-consumers-oas==1.1.0
-    # via
-    #   -r requirements/base.in
-    #   commonground-api-common
+    # via -r requirements/base.in
