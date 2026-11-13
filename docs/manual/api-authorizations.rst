@@ -50,6 +50,13 @@ Het vinkje **Heeft alle autorisaties** laat je toe om snel een applicatie alle m
 rechten te geven. Merk op dat dit bijna altijd betekent dat een applicatie meer mag dan
 nodig is!
 
+Beperking voor publicatie van documenten (Autorisatie API 1.1.0)
+-------------------------------------------------------------------
+Wanneer voor een applicatie ``alleenIsGereedVoorPublicatie`` is ingeschakeld,
+zijn leesacties voor documenten beperkt tot versies waarbij ``isGereedVoorPublicatie=true`` is.
+Dit geldt ook voor applicaties met ``heeftAlleAutorisaties=true``.
+Beide vlaggen mogen tegelijk ``true`` zijn.
+
 Zorg ervoor dat je minstens één combinatie van *Client ID* en *Secret*
 `genereert <https://passwords-generator.org//>`_. De applicatie heeft deze gegevens nodig
 om tokens te kunnen genereren - communiceer deze dus op een veilige manier naar de

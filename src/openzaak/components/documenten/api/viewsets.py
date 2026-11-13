@@ -275,6 +275,8 @@ class EnkelvoudigInformatieObjectViewSet(
     notifications_kanaal = KANAAL_DOCUMENTEN
     audit = AUDIT_DRC
 
+    gereed_voor_publicatie_filter_field = "is_gereed_voor_publicatie"
+
     def get_renderers(self):
         if self.action == "download":
             return [BinaryFileRenderer]
@@ -742,6 +744,10 @@ class GebruiksrechtenViewSet(
     audit = AUDIT_DRC
     audittrail_main_resource_key = "informatieobject"
 
+    gereed_voor_publicatie_filter_field = (
+        "informatieobject__latest_version__is_gereed_voor_publicatie"
+    )
+
     @property
     def filterset_class(self):
         """
@@ -891,6 +897,10 @@ class ObjectInformatieObjectViewSet(
         "update": SCOPE_DOCUMENTEN_BIJWERKEN,
         "partial_update": SCOPE_DOCUMENTEN_BIJWERKEN,
     }
+
+    gereed_voor_publicatie_filter_field = (
+        "informatieobject__latest_version__is_gereed_voor_publicatie"
+    )
 
     @property
     def filterset_class(self):
@@ -1043,6 +1053,10 @@ class VerzendingViewSet(
         "update": SCOPE_DOCUMENTEN_BIJWERKEN,
         "partial_update": SCOPE_DOCUMENTEN_BIJWERKEN,
     }
+
+    gereed_voor_publicatie_filter_field = (
+        "informatieobject__latest_version__is_gereed_voor_publicatie"
+    )
 
     @property
     def filterset_class(self):
