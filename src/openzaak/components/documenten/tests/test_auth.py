@@ -1325,7 +1325,8 @@ class AlleenIsGereedVoorPublicatieTests(JWTAuthMixin, APITestCase):
     def setUp(self):
         super().setUp()
 
-        informatieobjecttype = InformatieObjectTypeFactory()
+        informatieobjecttype = InformatieObjectTypeFactory(concept=False)
+        self.informatieobjecttype = informatieobjecttype
         self.autorisatie.informatieobjecttype = (
             f"http://testserver{reverse(informatieobjecttype)}"
         )
@@ -1516,20 +1517,6 @@ class AlleenIsGereedVoorPublicatieTests(JWTAuthMixin, APITestCase):
         response = self.client.get(reverse(self.niet_gereed_voor_publicatie_data))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_delete_niet_gereed_voor_publicatie_document_follows_configured_scopes(
-        self,
-    ):
-        url = reverse(self.niet_gereed_voor_publicatie_data)
-
-        response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        self.autorisatie.scopes.append(SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN)
-        self.autorisatie.save(update_fields=["scopes"])
-
-        response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-
     def test_zaak_list_filters_document_links_and_expansions(self):
         """
         Checks that the zaak list endpoint filters the zaakinformatieobjecten
@@ -1554,49 +1541,77 @@ class AlleenIsGereedVoorPublicatieTests(JWTAuthMixin, APITestCase):
             zaak=zaak, informatieobject=self.niet_gereed_voor_publicatie_data.canonical
         )
 
-        for is_gereed_voor_publicatie in (True, False):
-            # Set the applicatie allen_is_gereed_voor_publicatie auth
-            self.applicatie.alleen_is_gereed_voor_publicatie = is_gereed_voor_publicatie
-            self.applicatie.save(update_fields=["alleen_is_gereed_voor_publicatie"])
-
+        # Get list with only is_gereed_voor_publicatie=True
+        with self.subTest(is_gereed_voor_publicatie=True):
             # Prepare the expected results
-            expected = [included] if is_gereed_voor_publicatie else [included, excluded]
+            expected = [included]
             expected_urls = [
                 f"http://testserver{reverse(relation)}" for relation in expected
             ]
+            response = self.client.get(
+                reverse("zaak-list"),
+                {
+                    "expand": "zaakinformatieobjecten,zaakinformatieobjecten.informatieobject"
+                },
+                **ZAAK_READ_KWARGS,
+            )
 
-            with self.subTest(
-                is_gereed_voor_publicatie=is_gereed_voor_publicatie,
-            ):
-                response = self.client.get(
-                    reverse("zaak-list"),
-                    {
-                        "expand": "zaakinformatieobjecten,zaakinformatieobjecten.informatieobject"
-                    },
-                    **ZAAK_READ_KWARGS,
-                )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-                self.assertEqual(response.status_code, status.HTTP_200_OK)
+            # Check that the results only include the expected zaak URLs.
+            results = {item["url"]: item for item in response.json()["results"]}
+            self.assertCountEqual(
+                results,
+                [f"http://testserver{reverse(item)}" for item in (zaak, other_zaak)],
+            )
 
-                # Check that the results only include the expected zaak URLs.
-                results = {item["url"]: item for item in response.json()["results"]}
-                self.assertCountEqual(
-                    results,
-                    [
-                        f"http://testserver{reverse(item)}"
-                        for item in (zaak, other_zaak)
-                    ],
-                )
+            data = results[f"http://testserver{reverse(zaak)}"]
+            # Check the zaakinformatieobjected URLs in the main data
+            self.assertCountEqual(data["zaakinformatieobjecten"], expected_urls)
 
-                data = results[f"http://testserver{reverse(zaak)}"]
-                # Check the zaakinformatieobjected URLs in the main data
-                self.assertCountEqual(data["zaakinformatieobjecten"], expected_urls)
+            # Check the zaakinformatieobjected URLs in the expanded data
+            self.assertCountEqual(
+                [item["url"] for item in data["_expand"]["zaakinformatieobjecten"]],
+                expected_urls,
+            )
 
-                # Check the zaakinformatieobjected URLs in the expanded data
-                self.assertCountEqual(
-                    [item["url"] for item in data["_expand"]["zaakinformatieobjecten"]],
-                    expected_urls,
-                )
+        # Get list with only is_gereed_voor_publicatie=False
+        with self.subTest(is_gereed_voor_publicatie=False):
+            # Set alleen_is_gereed_voor_publicatie=False in AC
+            self.applicatie.alleen_is_gereed_voor_publicatie = False
+            self.applicatie.save(update_fields=["alleen_is_gereed_voor_publicatie"])
+
+            # Prepare the expected results
+            expected = [included, excluded]
+            expected_urls = [
+                f"http://testserver{reverse(relation)}" for relation in expected
+            ]
+            response = self.client.get(
+                reverse("zaak-list"),
+                {
+                    "expand": "zaakinformatieobjecten,zaakinformatieobjecten.informatieobject"
+                },
+                **ZAAK_READ_KWARGS,
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            # Check that the results only include the expected zaak URLs.
+            results = {item["url"]: item for item in response.json()["results"]}
+            self.assertCountEqual(
+                results,
+                [f"http://testserver{reverse(item)}" for item in (zaak, other_zaak)],
+            )
+
+            data = results[f"http://testserver{reverse(zaak)}"]
+            # Check the zaakinformatieobjected URLs in the main data
+            self.assertCountEqual(data["zaakinformatieobjecten"], expected_urls)
+
+            # Check the zaakinformatieobjected URLs in the expanded data
+            self.assertCountEqual(
+                [item["url"] for item in data["_expand"]["zaakinformatieobjecten"]],
+                expected_urls,
+            )
 
     def test_zaakinformatieobject_list_omits_niet_gereed_voor_publicatie_documents(
         self,
@@ -1638,3 +1653,184 @@ class AlleenIsGereedVoorPublicatieTests(JWTAuthMixin, APITestCase):
             sorted([item["uuid"] for item in data]),
             sorted([str(item.uuid) for item in zio_gereed_voor_publicatie]),
         )
+
+    def test_eio_patch_and_put_access_document_with_is_gereed_voor_publicatie_false_without_scope_returns_403(
+        self,
+    ):
+        """
+        With alleen_is_gereed_voor_publicatie=True withou SCOPE_DOCUMENTEN_BIJWERKEN
+        Get eio with is_gereed_voor_publicatie=False, send PATCH/PUT returns 403
+        """
+
+        response = self.client.get(reverse(self.niet_gereed_voor_publicatie_data))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        data = {"titel": "foo"}
+        # PATCH request
+        patch_response = self.client.patch(
+            reverse(self.niet_gereed_voor_publicatie_data), data
+        )
+        self.assertEqual(patch_response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # PUT request
+        put_response = self.client.put(
+            reverse(self.niet_gereed_voor_publicatie_data), data
+        )
+        self.assertEqual(put_response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_eio_patch_access_document_with_is_gereed_voor_publicatie_true_without_scope_returns_403(
+        self,
+    ):
+        """
+        With alleen_is_gereed_voor_publicatie=True without SCOPE_DOCUMENTEN_BIJWERKEN
+        Get eio with is_gereed_voor_publicatie=True, send PATCH returns 403
+        """
+
+        # Retrieve should return 200
+        response = self.client.get(reverse(self.is_gereed_voor_publicatie_data))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Change the is_gereed_voor_publicatie from True to False
+        data = {"is_gereed_voor_publicatie": False}
+        response = self.client.patch(reverse(self.is_gereed_voor_publicatie_data), data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # After PATCH, retrieve should return 200 but data is not changed
+        response = self.client.get(reverse(self.is_gereed_voor_publicatie_data))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        self.assertTrue(data["isGereedVoorPublicatie"])
+
+    def test_patch_eio_succeeds_but_subsequent_get_returns_403(
+        self,
+    ):
+        """
+        With alleen_is_gereed_voor_publicatie=True with SCOPE_DOCUMENTEN_BIJWERKEN
+        Get eio with is_gereed_voor_publicatie=True, send PATCH returns 200
+        Data is changed, send a GET request return 403
+        """
+
+        # Retrieve should return 200
+        response = self.client.get(reverse(self.is_gereed_voor_publicatie_data))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.json()["isGereedVoorPublicatie"])
+
+        # Add SCOPE_DOCUMENTEN_BIJWERKEN auth
+        self.autorisatie.scopes.append(SCOPE_DOCUMENTEN_BIJWERKEN)
+        self.autorisatie.save(update_fields=["scopes"])
+
+        self.is_gereed_voor_publicatie_data.canonical.lock = "foo-patch"
+        self.is_gereed_voor_publicatie_data.canonical.save()
+
+        # Change the is_gereed_voor_publicatie from True to False
+        data = {
+            "titel": "foo-patch",
+            "lock": "foo-patch",
+            "is_gereed_voor_publicatie": False,
+        }
+
+        patch_response = self.client.patch(
+            reverse(self.is_gereed_voor_publicatie_data), data
+        )
+        self.assertEqual(patch_response.status_code, status.HTTP_200_OK)
+        data = patch_response.json()
+        self.assertFalse(data["isGereedVoorPublicatie"])
+        self.assertEqual(data["titel"], "foo-patch")
+
+        # After PATCH, retrieve should return 403
+        response = self.client.get(reverse(self.is_gereed_voor_publicatie_data))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_put_eio_succeeds_but_subsequent_get_returns_403(
+        self,
+    ):
+        """
+        With alleen_is_gereed_voor_publicatie=True with SCOPE_DOCUMENTEN_BIJWERKE
+        Get eio with is_gereed_voor_publicatie=True, send PUT returns 200
+        """
+
+        # Retrieve should return 200
+        response = self.client.get(reverse(self.is_gereed_voor_publicatie_data))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.json()["isGereedVoorPublicatie"])
+
+        # Add SCOPE_DOCUMENTEN_BIJWERKEN auth
+        self.autorisatie.scopes.append(SCOPE_DOCUMENTEN_BIJWERKEN)
+        self.autorisatie.save(update_fields=["scopes"])
+
+        self.is_gereed_voor_publicatie_data.canonical.lock = "foo-put"
+        self.is_gereed_voor_publicatie_data.canonical.save()
+
+        # Change the is_gereed_voor_publicatie from True to False
+        data = {
+            "titel": "foo-put",
+            "lock": "foo-put",
+            "is_gereed_voor_publicatie": False,
+            "bronorganisatie": "000000000",
+            "creatiedatum": "2026-11-13",
+            "auteur": "Test Auteur",
+            "taal": "nld",
+            "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype)}",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+        }
+        put_response = self.client.put(
+            reverse(self.is_gereed_voor_publicatie_data), data
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = put_response.json()
+        self.assertFalse(data["isGereedVoorPublicatie"])
+        self.assertEqual(data["titel"], "foo-put")
+
+        # After PUT, retrieve should return 403
+        response = self.client.get(reverse(self.is_gereed_voor_publicatie_data))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_eio_without_scope_returns_403(self):
+        """
+        Test auth for alleen_gereed_voor_publicatie=True without SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN returns 403
+        """
+        response = self.client.delete(reverse(self.niet_gereed_voor_publicatie_data))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_eio_has_is_gereed_voor_publicatie_false_with_scope_returns_403(
+        self,
+    ):
+        """
+        Test auth for alleen_is_gereed_voor_publicatie=True with SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN
+        should not access documents with is_gereed_voor_publicatie=False
+        """
+
+        # Document with is_gereed_voor_publicatie=False returns 403
+        url = reverse(self.niet_gereed_voor_publicatie_data)
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Add delete scope
+        self.autorisatie.scopes.append(SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN)
+        self.autorisatie.save(update_fields=["scopes"])
+
+        # Should not be able to delete the document returns 403
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_eio_has_is_gereed_voor_publicatie_true_with_scope_returns_204(
+        self,
+    ):
+        """
+        Test auth for alleen_is_gereed_voor_publicatie=True with SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN
+        can delete documents with is_gereed_voor_publicatie=True
+        """
+
+        # Document with is_gereed_voor_publicatie=True returns 403 because no delete scope
+        url = reverse(self.is_gereed_voor_publicatie_data)
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Add delete scope
+        self.autorisatie.scopes.append(SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN)
+        self.autorisatie.save(update_fields=["scopes"])
+
+        # Should be able to delete the document
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
