@@ -8,6 +8,7 @@ from rest_framework import status
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
+from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.tests.utils import ClearCachesMixin
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
@@ -342,6 +343,22 @@ class BesluitTypeAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(BesluitType.objects.exists())
+
+    def test_delete_besluittype_protected(self):
+        besluit = BesluitFactory.create()
+        besluittype = besluit.besluittype
+        besluittype_url = reverse(
+            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+        )
+
+        response = self.client.delete(besluittype_url)
+
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data["title"], "Resource is protected.")
+        self.assertEqual(
+            response.data["detail"],
+            "The resource is referenced by other resources and cannot be deleted.",
+        )
 
     def test_delete_besluittype_fail_not_concept(self):
         besluittype = BesluitTypeFactory.create(concept=False)

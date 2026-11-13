@@ -7,6 +7,8 @@ from rest_framework import status
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
+from openzaak.components.zaken.tests.factories import StatusFactory
+
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import ZaakTypeConceptValidator
 from ..models import CheckListItem, StatusType
@@ -255,6 +257,20 @@ class StatusTypeAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(StatusType.objects.filter(id=statustype.id))
+
+    def test_delete_statustype_protected(self):
+        obj_status = StatusFactory.create()
+        statustype = obj_status.statustype
+        statustype_url = reverse("statustype-detail", kwargs={"uuid": statustype.uuid})
+
+        response = self.client.delete(statustype_url)
+
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data["title"], "Resource is protected.")
+        self.assertEqual(
+            response.data["detail"],
+            "The resource is referenced by other resources and cannot be deleted.",
+        )
 
     def test_delete_statustype_fail_not_concept_zaaktype(self):
         statustype = StatusTypeFactory.create(zaaktype__concept=False)
