@@ -20,6 +20,7 @@ from vng_api_common.tests import (
     reverse_lazy,
 )
 
+from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.utils import build_absolute_url
@@ -717,6 +718,20 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(ZaakType.objects.filter(id=zaaktype.id))
+
+    def test_delete_zaaktype_protected(self):
+        zaak = ZaakFactory.create()
+        zaaktype = zaak.zaaktype
+        zaaktype_url = get_operation_url("zaaktype_read", uuid=zaaktype.uuid)
+
+        response = self.client.delete(zaaktype_url)
+
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data["title"], "Resource is protected.")
+        self.assertEqual(
+            response.data["detail"],
+            "The resource is referenced by other resources and cannot be deleted.",
+        )
 
     def test_delete_zaaktype_fail_not_concept(self):
         zaaktype = ZaakTypeFactory.create(concept=False)

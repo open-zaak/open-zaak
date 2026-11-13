@@ -155,7 +155,7 @@ cloudevents==1.12.0
     #   -r requirements/base.txt
 codecov==2.1.13
     # via -r requirements/test-tools.in
-commonground-api-common==3.2.0
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@7e5ec32fbb548a362cc791368001b1b34627f15a
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -1043,10 +1043,7 @@ requests-cache==1.2.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
 requests-mock==1.12.1
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
-    #   -r requirements/test-tools.in
+    # via -r requirements/test-tools.in
 requests-oauthlib==2.0.0
     # via
     #   -c requirements/base.txt
