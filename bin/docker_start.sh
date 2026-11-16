@@ -2,6 +2,10 @@
 
 set -ex
 
+# Figure out abspath of this script
+SCRIPT=$(readlink -f "$0")
+SCRIPTPATH=$(dirname "$SCRIPT")
+
 # Wait for the database container
 # See: https://docs.docker.com/compose/startup-order/
 export PGHOST=${DB_HOST:-db}
