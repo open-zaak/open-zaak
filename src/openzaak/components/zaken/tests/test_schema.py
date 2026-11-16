@@ -36,3 +36,29 @@ class ZakenSchemaTests(WebTest):
 
         self.assertSetEqual(params_in["header"], vng_header_params)
         self.assertSetEqual(params_in["query"] - extra_params, vng_query_params)
+
+    def test_accept_crs_header_is_required(self):
+        response = self.app.get(reverse("schema-zaken-json", kwargs={"version": 1}))
+        paths = response.json["paths"]
+
+        def get_accept_crs(path: str, method: str):
+            parameters = paths[path][method]["parameters"]
+            return next((p for p in parameters if p["name"] == "Accept-Crs"), None)
+
+        with self.subTest("list and create"):
+            for method in ("get", "post"):
+                param = get_accept_crs("/zaken", method)
+
+                self.assertIsNotNone(param, method)
+                self.assertEqual(param["in"], "header")
+                self.assertTrue(param["required"], method)
+
+        with self.subTest("detail"):
+            for method in ("get", "put", "patch"):
+                param = get_accept_crs("/zaken/{uuid}", method)
+
+                self.assertIsNotNone(param, method)
+                self.assertTrue(param["required"], method)
+
+        with self.subTest("delete has no Accept-Crs"):
+            self.assertIsNone(get_accept_crs("/zaken/{uuid}", "delete"))

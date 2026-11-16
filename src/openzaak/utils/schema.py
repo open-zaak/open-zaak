@@ -505,7 +505,7 @@ class AutoSchema(_AutoSchema):
                     name=HEADER_ACCEPT,
                     type=str,
                     location=OpenApiParameter.HEADER,
-                    required=False,
+                    required=True,
                     description=_(
                         "The desired 'Coordinate Reference System' (CRS) of the response data. "
                         "According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 "
