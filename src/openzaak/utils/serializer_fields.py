@@ -15,6 +15,20 @@ from rest_framework.exceptions import ValidationError
 from vng_api_common.validators import URLValidator
 
 
+@extend_schema_field({"type": "boolean", "nullable": True, "default": None})
+class NullableBooleanField(serializers.BooleanField):
+    """
+    Boolean field that accepts ``null`` and defaults to ``null`` when omitted.
+
+    The default is also documented explicitly as ``null`` in the API schema.
+    """
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault("allow_null", True)
+        kwargs.setdefault("default", None)
+        super().__init__(**kwargs)
+
+
 class LengthValidationMixin:
     default_error_messages = {
         "max_length": _("Ensure this field has no more than {max_length} characters."),

@@ -40,6 +40,7 @@ from openzaak.contrib.verzoeken.validators import verzoek_validator
 from openzaak.utils.serializer_fields import (
     FKOrServiceUrlField,
     LengthHyperlinkedRelatedField,
+    NullableBooleanField,
     ZoekFieldsSerializer,
     zoek_fields_schema,
 )
@@ -285,13 +286,6 @@ class BestandsDeelSerializer(serializers.HyperlinkedModelSerializer):
         return valid_attrs
 
 
-@extend_schema_field({"type": "boolean", "default": None})
-class InhoudIsVervallenField(serializers.BooleanField):
-    """
-    Nullable boolean whose default is explicitly ``null`` in the API schema.
-    """
-
-
 class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
     """
     Serializer for the EnkelvoudigInformatieObject model
@@ -360,13 +354,12 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         read_only=True,
     )
 
-    inhoud_is_vervallen = InhoudIsVervallenField(
+    inhoud_is_vervallen = NullableBooleanField(
         label=_("inhoud is vervallen"),
         required=False,
-        allow_null=True,
-        help_text=EnkelvoudigInformatieObject._meta.get_field(
-            "inhoud_is_vervallen"
-        ).help_text,
+        help_text=get_help_text(
+            "documenten.EnkelvoudigInformatieObject", "inhoud_is_vervallen"
+        ),
     )
 
     inclusion_serializers = {

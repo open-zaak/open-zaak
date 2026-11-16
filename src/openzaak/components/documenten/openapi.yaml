@@ -6830,8 +6830,8 @@ components:
           description: Een lijst van trefwoorden gescheiden door comma's.
         inhoudIsVervallen:
           type: boolean
-          default: null
           nullable: true
+          default: null
           description: |-
             Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
             * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
@@ -7017,8 +7017,8 @@ components:
           description: Een lijst van trefwoorden gescheiden door comma's.
         inhoudIsVervallen:
           type: boolean
-          default: null
           nullable: true
+          default: null
           description: |-
             Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
             * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
@@ -7223,8 +7223,8 @@ components:
           description: Een lijst van trefwoorden gescheiden door comma's.
         inhoudIsVervallen:
           type: boolean
-          default: null
           nullable: true
+          default: null
           description: |-
             Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
             * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
@@ -7414,8 +7414,8 @@ components:
           description: Een lijst van trefwoorden gescheiden door comma's.
         inhoudIsVervallen:
           type: boolean
-          default: null
           nullable: true
+          default: null
           description: |-
             Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
             * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
@@ -7596,8 +7596,8 @@ components:
           description: Een lijst van trefwoorden gescheiden door comma's.
         inhoudIsVervallen:
           type: boolean
-          default: null
           nullable: true
+          default: null
           description: |-
             Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
             * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
@@ -8304,8 +8304,8 @@ components:
           description: Een lijst van trefwoorden gescheiden door comma's.
         inhoudIsVervallen:
           type: boolean
-          default: null
           nullable: true
+          default: null
           description: |-
             Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
             * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
