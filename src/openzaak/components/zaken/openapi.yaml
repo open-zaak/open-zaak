@@ -3973,6 +3973,7 @@ paths:
         description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
+        required: true
       - in: header
         name: Content-Crs
         schema:
@@ -4113,6 +4114,7 @@ paths:
         description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
+        required: true
       - in: header
         name: Content-Crs
         schema:
@@ -8810,6 +8812,7 @@ paths:
         description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
+        required: true
       - in: query
         name: archiefactiedatum
         schema:
@@ -9480,6 +9483,7 @@ paths:
         description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
+        required: true
       - in: header
         name: Content-Crs
         schema:
@@ -9681,6 +9685,7 @@ paths:
         description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
+        required: true
       - in: header
         name: If-None-Match
         schema:
@@ -9928,6 +9933,7 @@ paths:
         description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
+        required: true
       - in: header
         name: Content-Crs
         schema:
@@ -10156,6 +10162,7 @@ paths:
         description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
+        required: true
       - in: header
         name: Content-Crs
         schema:
@@ -10535,6 +10542,7 @@ paths:
         description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
+        required: true
       - in: header
         name: If-None-Match
         schema:
@@ -12567,6 +12575,7 @@ paths:
         description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
+        required: true
       - in: header
         name: Content-Crs
         schema:
