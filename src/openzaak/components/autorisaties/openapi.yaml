@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Autorisaties API
-  version: 1.0.0
+  version: 1.1.0
   description: |
     Een API om een autorisatiecomponent (AC) te benaderen.
 

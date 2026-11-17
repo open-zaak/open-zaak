@@ -470,6 +470,24 @@ class ZaakViewSet(
             # on the base queryset, because it adds an extra join
             qs = qs.select_related("_zaaktype__catalogus")
 
+        # Autorisaties API 1.1.0 introduced `alleen_is_gereed_voor_publicatie`
+        # When enabled, only include documents with `is_gereed_voor_publicatie=True`
+        if (
+            action in ("list", "_zoek", "retrieve")
+            and hasattr(self.request, "jwt_auth")
+            and any(
+                app.alleen_is_gereed_voor_publicatie
+                for app in self.request.jwt_auth.applicaties
+            )
+        ):
+            qs = self._prefetch_inclusion(
+                qs,
+                "zaakinformatieobject_set",
+                ZaakInformatieObjectViewSet.queryset.filter(
+                    _informatieobject__latest_version__is_gereed_voor_publicatie=True
+                ),
+            )
+
         return qs
 
     @property
@@ -1112,13 +1130,9 @@ class ZaakInformatieObjectViewSet(
     Opvragen en bewerken van ZAAK-INFORMATIEOBJECT relaties.
     """
 
-    queryset = (
-        ZaakInformatieObject.objects.select_related(
-            "zaak", "status", "_informatieobject"
-        )
-        .prefetch_related("_informatieobject__enkelvoudiginformatieobject_set")
-        .order_by("-pk")
-    )
+    queryset = ZaakInformatieObject.objects.select_related(
+        "zaak", "_informatieobject__latest_version"
+    ).order_by("-pk")
     inclusion_viewsets = {
         "zaak": ("zaak", "openzaak.components.zaken.api.viewsets.ZaakViewSet"),
         "zaak.zaaktype": (
@@ -1139,9 +1153,6 @@ class ZaakInformatieObjectViewSet(
             "openzaak.components.documenten.api.viewsets.EnkelvoudigInformatieObjectViewSet",
         ),
     }
-    queryset = ZaakInformatieObject.objects.select_related(
-        "zaak", "_informatieobject__latest_version"
-    ).order_by("-pk")
     serializer_class = ZaakInformatieObjectSerializer
     lookup_field = "uuid"
     notifications_kanaal = KANAAL_ZAKEN
@@ -1161,6 +1172,10 @@ class ZaakInformatieObjectViewSet(
         | SCOPE_ZAKEN_ALLES_VERWIJDEREN,
     }
     audit = AUDIT_ZRC
+
+    gereed_voor_publicatie_filter_field = (
+        "_informatieobject__latest_version__is_gereed_voor_publicatie"
+    )
 
     @property
     def filterset_class(self):

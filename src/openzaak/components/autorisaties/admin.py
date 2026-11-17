@@ -66,11 +66,13 @@ class ApplicatieAdmin(admin.ModelAdmin):
         "client_ids",
         "label",
         "heeft_alle_autorisaties",
+        "alleen_is_gereed_voor_publicatie",
         "ready",
         "hints",
     )
     list_filter = (
         "heeft_alle_autorisaties",
+        "alleen_is_gereed_voor_publicatie",
         InvalidApplicationsFilter,
     )
     readonly_fields = ("uuid",)

@@ -22,6 +22,7 @@ from openzaak.components.catalogi.tests.factories import (
 )
 from openzaak.components.documenten.api.scopes import (
     SCOPE_DOCUMENTEN_AANMAKEN,
+    SCOPE_DOCUMENTEN_ALLES_LEZEN,
     SCOPE_DOCUMENTEN_BIJWERKEN,
 )
 from openzaak.components.zaken.api.scopes import (
@@ -68,6 +69,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(applicatie.client_ids, ["id1", "id2"])
         self.assertEqual(applicatie.label, "Melding Openbare Ruimte consumer")
         self.assertEqual(applicatie.heeft_alle_autorisaties, True)
+        self.assertFalse(applicatie.alleen_is_gereed_voor_publicatie)
 
     def test_create_application_with_detail_permissions(self):
         """
@@ -342,6 +344,56 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
         response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    @tag("gh-2452")
+    def test_create_application_with_alleen_is_gereed_voor_publicatie(self):
+        response = self.client.post(
+            get_operation_url("applicatie_create"),
+            {
+                "client_ids": ["id1", "id2"],
+                "label": "Publication-ready documents",
+                "heeftAlleAutorisaties": False,
+                "alleenIsGereedVoorPublicatie": True,
+                "autorisaties": [
+                    {
+                        "component": ComponentTypes.drc,
+                        "scopes": [str(SCOPE_DOCUMENTEN_ALLES_LEZEN)],
+                        "informatieobjecttype": "https://example.com/informatieobjecttypen/1",
+                        "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                    }
+                ],
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        application = Applicatie.objects.get(client_ids=["id1", "id2"])
+        self.assertFalse(application.heeft_alle_autorisaties)
+        self.assertTrue(application.alleen_is_gereed_voor_publicatie)
+
+        authorization = application.autorisaties.get()
+        self.assertEqual(authorization.component, ComponentTypes.drc)
+        self.assertEqual(authorization.scopes, [str(SCOPE_DOCUMENTEN_ALLES_LEZEN)])
+
+    def test_create_application_allows_both_heeft_alle_autorisaties_and_alleen_is_gereed_voor_publicatie(
+        self,
+    ):
+        response = self.client.post(
+            get_operation_url("applicatie_create"),
+            {
+                "client_ids": ["both-client"],
+                "label": "both permissions",
+                "heeftAlleAutorisaties": True,
+                "alleenIsGereedVoorPublicatie": True,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        application = Applicatie.objects.get(client_ids=["both-client"])
+        self.assertTrue(application.heeft_alle_autorisaties)
+        self.assertTrue(application.alleen_is_gereed_voor_publicatie)
+        self.assertFalse(application.autorisaties.exists())
 
 
 class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
@@ -644,6 +696,21 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
             data["next"], f"http://testserver{url}?clientIds=id3&page=2&pageSize=5"
         )
 
+    @tag("gh-2452")
+    def test_list_application_with_alleen_is_gereed_voor_publicatie(self):
+        application = ApplicatieFactory.create(
+            heeft_alle_autorisaties=True, alleen_is_gereed_voor_publicatie=True
+        )
+
+        response = self.client.get(
+            get_operation_url("applicatie_list"),
+            {"clientIds": application.client_ids[0]},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertTrue(response.data["results"][0]["alleen_is_gereed_voor_publicatie"])
+
 
 class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
     scopes = [str(SCOPE_AUTORISATIES_BIJWERKEN)]
@@ -807,3 +874,24 @@ class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             autorisatie.zaaktype, f"http://testserver.com{reverse(zaaktype)}"
         )
+
+    @tag("gh-2452")
+    def test_update_alleen_is_gereed_voor_publicatie(self):
+        url = get_operation_url("applicatie_partial_update", uuid=self.applicatie.uuid)
+
+        for ready_for_publication in (True, False):
+            with self.subTest(alleen_is_gereed_voor_publicatie=ready_for_publication):
+                response = self.client.patch(
+                    url, {"alleenIsGereedVoorPublicatie": ready_for_publication}
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual(
+                    response.data["alleen_is_gereed_voor_publicatie"],
+                    ready_for_publication,
+                )
+                self.applicatie.refresh_from_db()
+                self.assertEqual(
+                    self.applicatie.alleen_is_gereed_voor_publicatie,
+                    ready_for_publication,
+                )
