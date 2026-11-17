@@ -21,6 +21,7 @@ from django.utils.translation import gettext_lazy as _
 
 import structlog
 from drf_extra_fields.fields import Base64FileField
+from drf_spectacular.utils import extend_schema_field
 from humanize import naturalsize
 from privates.fields import PrivateMediaFileField
 from rest_framework import serializers
@@ -39,6 +40,9 @@ from openzaak.contrib.verzoeken.validators import verzoek_validator
 from openzaak.utils.serializer_fields import (
     FKOrServiceUrlField,
     LengthHyperlinkedRelatedField,
+    NullableBooleanField,
+    ZoekFieldsSerializer,
+    zoek_fields_schema,
 )
 from openzaak.utils.serializers import (
     ConvenienceSerializer,
@@ -348,6 +352,14 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         many=True,
         source="canonical.bestandsdelen",
         read_only=True,
+    )
+
+    inhoud_is_vervallen = NullableBooleanField(
+        label=_("inhoud is vervallen"),
+        required=False,
+        help_text=get_help_text(
+            "documenten.EnkelvoudigInformatieObject", "inhoud_is_vervallen"
+        ),
     )
 
     inclusion_serializers = {
@@ -890,7 +902,32 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
         return self.instance
 
 
+@extend_schema_field(
+    zoek_fields_schema(
+        example=[
+            "url",
+            "identificatie",
+            "titel",
+            {"informatieobjecttype": ["omschrijving"]},
+        ]
+    )
+)
+class EIOZoekFieldsSerializer(ZoekFieldsSerializer):
+    parent_serializer_class = EnkelvoudigInformatieObjectSerializer
+
+
 class EIOZoekSerializer(serializers.Serializer):
+    fields = EIOZoekFieldsSerializer(
+        required=False,
+        help_text=_(
+            "De elementen (fields) die worden teruggegeven in de respons"
+            " conform het expand-mechanisme. Het voorbeeld geeft aan hoe het werkt."
+            ' Hierin betekent "*" dat alle elementen van een resource worden teruggegeven.'
+            "\n\nVoor gerelateerde resources uit de Catalogi API is `catalogi.lezen` nodig."
+            '\n\n**Let op:** Het gebruik van het "fields" en "expand" element is'
+            " mutual exclusive. Of je gebruikt de één of de ander maar nooit te gelijk."
+        ),
+    )
     uuid__in = serializers.ListField(
         child=serializers.UUIDField(),
         help_text=_("Array of unieke resource identifiers (UUID4)"),

@@ -27,10 +27,11 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.tests.utils.auth import JWTAuthMixin
+from openzaak.utils.serializer_fields import ZoekFieldsSerializer
 
 from ..api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
 from ..api.serializers import ZaakSerializer, ZaakZoekSerializer
-from ..api.serializers.zaken import ZaakZoekFieldsSerializer, ZoekFieldsSerializer
+from ..api.serializers.zaken import ZaakZoekFieldsSerializer
 from ..api.viewsets import ZaakViewSet
 from .factories import (
     ResultaatFactory,

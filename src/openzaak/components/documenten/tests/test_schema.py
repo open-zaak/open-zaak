@@ -44,6 +44,6 @@ class DocumentenSchemaTests(WebTest):
         ]["properties"]
 
         self.assertSetEqual(
-            {"uuid__in", "identificatie", "bronorganisatie", "expand"},
+            {"uuid__in", "identificatie", "bronorganisatie", "expand", "fields"},
             set(body_properties),
         )
