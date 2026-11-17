@@ -29,10 +29,10 @@ class InformationObjectAuthRequired(AuthRequired):
 
         # Autorisaties API 1.1.0 introduced `alleen_is_gereed_voor_publicatie`
         # When enabled, only include documents with `is_gereed_voor_publicatie=True`
-        has_alleen_is_gereed_voor_publicatie = not any(
+        has_alleen_is_gereed_voor_publicatie = any(
             app.alleen_is_gereed_voor_publicatie for app in request.jwt_auth.applicaties
         )
-        if has_alleen_is_gereed_voor_publicatie:
+        if not has_alleen_is_gereed_voor_publicatie:
             return True
 
         document = (

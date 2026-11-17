@@ -4,12 +4,13 @@
 Guarantee that the proper authorization amchinery is in place.
 """
 
-from django.test import RequestFactory, override_settings, tag
+from django.test import override_settings, tag
 
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.renderers import BrowsableAPIRenderer
-from rest_framework.test import APITestCase
+from rest_framework.request import Request
+from rest_framework.test import APIRequestFactory, APITestCase
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import (
@@ -21,6 +22,9 @@ from vng_api_common.tests import (
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
+from openzaak.components.documenten.api.viewsets import (
+    EnkelvoudigInformatieObjectViewSet,
+)
 from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
 from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
@@ -1496,14 +1500,18 @@ class AlleenIsGereedVoorPublicatieTests(JWTAuthMixin, APITestCase):
 
     @override_settings(DEBUG=True)
     def test_debug_browsable_api_bypasses_permissions_without_jwt(self):
-        request = RequestFactory().get("/")
-        request.accepted_renderer = BrowsableAPIRenderer()
+        factory = APIRequestFactory()
+        django_request = factory.get("/some-url/")
 
-        self.assertTrue(
-            InformationObjectAuthRequired().has_object_permission(
-                request, None, self.niet_gereed_voor_publicatie_data
-            )
+        drf_request = Request(django_request)
+        drf_request.accepted_renderer = BrowsableAPIRenderer()
+        view = EnkelvoudigInformatieObjectViewSet()
+        auth = InformationObjectAuthRequired()
+
+        obj_result = auth.has_object_permission(
+            drf_request, view, self.niet_gereed_voor_publicatie_data
         )
+        self.assertTrue(obj_result)
 
     def test_heeft_alle_autorisaties_true_with_alleen_is_gereed_voor_publicatie_true_restrict_related_resource(
         self,
