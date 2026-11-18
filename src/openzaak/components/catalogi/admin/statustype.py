@@ -49,6 +49,7 @@ class StatusTypeAdmin(
                     "statustype_omschrijving",
                     "statustype_omschrijving_generiek",
                     "statustypevolgnummer",
+                    "referentiecode",
                     "informeren",
                     "statustekst",
                     "toelichting",

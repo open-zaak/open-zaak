@@ -637,6 +637,124 @@ class ResultaattypeAdminTests(
         )
 
 
+PROCESTYPE_URL = (
+    "https://selectielijst.openzaak.nl/api/v1/"
+    "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+)
+SELECTIELIJSTKLASSE_URL = (
+    "https://selectielijst.openzaak.nl/api/v1/"
+    "resultaten/8320ab7d-3a8d-4c8b-b94a-14b4fa374d0a"
+)
+RESULTAATTYPEOMSCHRIJVING_URL = (
+    "https://selectielijst.openzaak.nl/api/v1/"
+    "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
+)
+
+
+@disable_admin_mfa()
+class ResultaatTypeReferentiecodeAdminTests(
+    ReferentieLijstServiceMixin, ClearCachesMixin, AdminTestMixin, WebTest
+):
+    def setUp(self):
+        super().setUp()
+
+        m = self.requests_mocker
+        mock_resource_list(m, "resultaattypeomschrijvingen")
+        mock_resource_get(m, "procestypen", PROCESTYPE_URL)
+        mock_resource_get(m, "resultaten", SELECTIELIJSTKLASSE_URL)
+        mock_resource_get(
+            m, "resultaattypeomschrijvingen", RESULTAATTYPEOMSCHRIJVING_URL
+        )
+
+    def _new_zaaktype(self, **kwargs):
+        return ZaakTypeFactory.create(
+            concept=True, selectielijst_procestype=PROCESTYPE_URL, **kwargs
+        )
+
+    def _add_resultaattype(self, zaaktype, omschrijving, referentiecode=""):
+        response = self.app.get(
+            reverse("admin:catalogi_resultaattype_add"), {"zaaktype": zaaktype.id}
+        )
+        form = response.forms["resultaattype_form"]
+        form["zaaktype"] = zaaktype.pk
+        form["omschrijving"] = omschrijving
+        form["selectielijstklasse"] = SELECTIELIJSTKLASSE_URL
+        form["resultaattypeomschrijving"] = RESULTAATTYPEOMSCHRIJVING_URL
+        form["brondatum_archiefprocedure_afleidingswijze"] = (
+            BrondatumArchiefprocedureAfleidingswijze.ingangsdatum_besluit
+        )
+        form["referentiecode"] = referentiecode
+        return form.submit()
+
+    def test_empty_referentiecode_stored_as_null(self):
+        zaaktype = self._new_zaaktype()
+
+        for omschrijving in ("een", "twee"):
+            with self.subTest(omschrijving=omschrijving):
+                response = self._add_resultaattype(zaaktype, omschrijving)
+
+                self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(ResultaatType.objects.filter(referentiecode=None).count(), 2)
+
+    def test_duplicate_referentiecode_same_zaaktype_not_allowed(self):
+        zaaktype = self._new_zaaktype()
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, omschrijving="bestaand", referentiecode="A1"
+        )
+
+        response = self._add_resultaattype(zaaktype, "ander", referentiecode="A1")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("referentiecode", response.context["adminform"].form.errors)
+        self.assertEqual(ResultaatType.objects.count(), 1)
+
+    def test_same_referentiecode_other_zaaktype_family_not_allowed(self):
+        ResultaatTypeFactory.create(omschrijving="bestaand", referentiecode="A1")
+        zaaktype = self._new_zaaktype()
+
+        response = self._add_resultaattype(zaaktype, "bestaand", referentiecode="A1")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("referentiecode", response.context["adminform"].form.errors)
+        self.assertEqual(ResultaatType.objects.count(), 1)
+
+    def test_same_referentiecode_new_zaaktype_version_allowed(self):
+        old = ResultaatTypeFactory.create(omschrijving="bestaand", referentiecode="A1")
+        new_zaaktype = self._new_zaaktype(
+            catalogus=old.zaaktype.catalogus,
+            identificatie=old.zaaktype.identificatie,
+        )
+
+        response = self._add_resultaattype(
+            new_zaaktype, "bestaand", referentiecode="A1"
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(ResultaatType.objects.filter(referentiecode="A1").count(), 2)
+
+    def test_referentiecode_of_other_omschrijving_in_new_version_allowed(self):
+        old = ResultaatTypeFactory.create(omschrijving="bestaand", referentiecode="A1")
+        new_zaaktype = self._new_zaaktype(
+            catalogus=old.zaaktype.catalogus,
+            identificatie=old.zaaktype.identificatie,
+        )
+
+        response = self._add_resultaattype(new_zaaktype, "ander", referentiecode="A1")
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(ResultaatType.objects.filter(referentiecode="A1").count(), 2)
+
+    def test_referentiecode_max_length(self):
+        zaaktype = self._new_zaaktype()
+
+        response = self._add_resultaattype(zaaktype, "een", referentiecode="x" * 21)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("referentiecode", response.context["adminform"].form.errors)
+        self.assertEqual(ResultaatType.objects.count(), 0)
+
+
 @disable_admin_mfa()
 class ResultaattypeAdminVCRTests(
     VCRMixin, ReferentieLijstServiceMixin, ClearCachesMixin, WebTest
