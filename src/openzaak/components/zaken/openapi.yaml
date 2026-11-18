@@ -14667,7 +14667,7 @@ components:
                 description: URL-referentie naar de ZAAK.
               resultaattype:
                 allOf:
-                - $ref: https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.2.0/src/openapi.yaml#/components/schemas/ResultaatType
+                - $ref: https://raw.githubusercontent.com/VNG-Realisatie/gemma-zaken/master/api-specificatie/ztc/1.3.x/openapi.yaml#/components/schemas/ResultaatType
                 description: URL-referentie naar het RESULTAATTYPE (in de Catalogi
                   API).
     ExpandRol:
@@ -14686,7 +14686,7 @@ components:
                 description: URL-referentie naar de ZAAK.
               roltype:
                 allOf:
-                - $ref: https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.2.0/src/openapi.yaml#/components/schemas/RolType
+                - $ref: https://raw.githubusercontent.com/VNG-Realisatie/gemma-zaken/master/api-specificatie/ztc/1.3.x/openapi.yaml#/components/schemas/RolType
                 description: URL-referentie naar een roltype binnen het ZAAKTYPE van
                   de ZAAK.
               statussen:
@@ -14712,7 +14712,7 @@ components:
                 description: URL-referentie naar de ZAAK.
               statustype:
                 allOf:
-                - $ref: https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.2.0/src/openapi.yaml#/components/schemas/StatusType
+                - $ref: https://raw.githubusercontent.com/VNG-Realisatie/gemma-zaken/master/api-specificatie/ztc/1.3.x/openapi.yaml#/components/schemas/StatusType
                 description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
               gezetdoor:
                 allOf:
@@ -14739,7 +14739,7 @@ components:
             properties:
               zaaktype:
                 allOf:
-                - $ref: https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.2.0/src/openapi.yaml#/components/schemas/ZaakType
+                - $ref: https://raw.githubusercontent.com/VNG-Realisatie/gemma-zaken/master/api-specificatie/ztc/1.3.x/openapi.yaml#/components/schemas/ZaakType
                 description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
               hoofdzaak:
                 allOf:
@@ -14804,7 +14804,7 @@ components:
             properties:
               besluit:
                 allOf:
-                - $ref: https://raw.githubusercontent.com/vng-Realisatie/besluiten-api/1.0.1.post0/src/openapi.yaml#/components/schemas/Besluit
+                - $ref: https://raw.githubusercontent.com/VNG-Realisatie/gemma-zaken/master/api-specificatie/brc/1.1.x/openapi.yaml#/components/schemas/Besluit
                 description: URL-referentie naar het BESLUIT (in de Besluiten API).
     ExpandZaakInformatieObject:
       allOf:
@@ -14829,7 +14829,7 @@ components:
                   bereiken van die STATUS en/of de communicatie daarover.
               informatieobject:
                 allOf:
-                - $ref: https://raw.githubusercontent.com/vng-Realisatie/documenten-api/1.0.1.post1/src/openapi.yaml#/components/schemas/EnkelvoudigInformatieObject
+                - $ref: https://raw.githubusercontent.com/VNG-Realisatie/gemma-zaken/master/api-specificatie/drc/1.5.x/1.5.0/openapi.yaml#/components/schemas/EnkelvoudigInformatieObject
                 description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
                   API), waar ook de relatieinformatie opgevraagd kan worden.
     ExpandZaakObject:
@@ -14848,7 +14848,7 @@ components:
                 description: URL-referentie naar de ZAAK.
               zaakobjecttype:
                 allOf:
-                - $ref: https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.2.0/src/openapi.yaml#/components/schemas/ZaakObjectType
+                - $ref: https://raw.githubusercontent.com/VNG-Realisatie/gemma-zaken/master/api-specificatie/ztc/1.3.x/openapi.yaml#/components/schemas/ZaakObjectType
                 description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi
                   API).
     FieldValidationError:
