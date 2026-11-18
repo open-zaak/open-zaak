@@ -1596,13 +1596,13 @@ Open Zaak now supports:
 
 **New features**
 
-* [#1466] `Catalogi API 1.3 <https://github.com/VNG-Realisatie/catalogi-api/blob/master/CHANGELOG.rst>`_
+* [#1466] `Catalogi API 1.3 <https://vng-realisatie.github.io/gemma-zaken/standaard/catalogi/release_notes.html>`_
   features implemented:
 
     - [#1555] Removed `informatieobjecttypeOmschrijving` property from `ZaakTypeInformatieObjectType` resource
     - [#1558] Changed `besluittype.zaaktypen` property to read-only
 
-* [#1464] `Documenten API 1.4 <https://github.com/VNG-Realisatie/documenten-api/blob/master/CHANGELOG.rst>`_
+* [#1464] `Documenten API 1.4 <https://vng-realisatie.github.io/gemma-zaken/standaard/documenten/release_notes.html>`_
   features implemented:
 
     - [#1545] Added `trefwoorden` property to `Enkelvoudiginformatieobject` resource, also add it as query param (**NOTE** this change is not supported when CMIS is enabled)
@@ -1613,7 +1613,7 @@ Open Zaak now supports:
     - [#1550] Added `lock` field to `BestandsDeel` response
     - [#1525] Added 'enkelvoudiginformatieobjecten' list query params to `zoek` endpoint
 
-* [#1465] `Zaken API 1.5 <https://github.com/VNG-Realisatie/zaken-api/blob/master/CHANGELOG.rst>`_
+* [#1465] `Zaken API 1.5 <https://vng-realisatie.github.io/gemma-zaken/standaard/zaken/release_notes.html>`_
   features implemented:
 
     - [#1152, #1537] Added `expand` query param into zaken list and detail endpoints
@@ -1668,12 +1668,12 @@ Open Zaak now supports:
 
 **New features**
 
-* [#1412] `Besluiten API 1.1 <https://github.com/VNG-Realisatie/besluiten-api/blob/master/CHANGELOG.rst>`_
+* [#1412] `Besluiten API 1.1 <https://vng-realisatie.github.io/gemma-zaken/standaard/besluiten/release_notes_1.1.0.html>`_
   features implemented:
 
     - [#1413] Added HTTP cache-related ``ETag`` header support
 
-* [#1411] `Catalogi API 1.2 <https://github.com/VNG-Realisatie/catalogi-api/blob/master/CHANGELOG.rst>`_
+* [#1411] `Catalogi API 1.2 <https://vng-realisatie.github.io/gemma-zaken/standaard/catalogi/release_notes.html>`_
   features implemented:
 
     - [#1415] Added 'Correcties' - new permission claim for update and partial_update
@@ -1686,7 +1686,7 @@ Open Zaak now supports:
     - [#1483] Changed `ResultaatType.omschrijving` max length from 20 to 30
     - [#1486] Replaced unique constraint of `ZaakType.omschrijving` & `ZaakType.catalogus` with `ZaakType.identificatie` & `ZaakType.catalogus`
 
-* [#1410] `Documenten API 1.3 <https://github.com/VNG-Realisatie/documenten-api/blob/master/CHANGELOG.rst>`_
+* [#1410] `Documenten API 1.3 <https://vng-realisatie.github.io/gemma-zaken/standaard/documenten/release_notes.html>`_
   features implemented:
 
     - [#1424] Added a new claim `documenten.geforceerd-bijwerken`
@@ -1697,7 +1697,7 @@ Open Zaak now supports:
     - [#1429] Added validation: locked documents cannot be deleted
     - [#1439] Removed validation: `EnkelvoudigInformatieObject.informatieobject` is now mutable
 
-* [#1407] `Zaken API 1.4 <https://github.com/VNG-Realisatie/zaken-api/blob/master/CHANGELOG.rst>`_
+* [#1407] `Zaken API 1.4 <https://vng-realisatie.github.io/gemma-zaken/standaard/zaken/release_notes.html>`_
   features implemented:
 
     - [#1075] Added new query params `zaak_list` for rollen:
@@ -1815,7 +1815,7 @@ The notable new features are:
 
 **New features**
 
-* [#1218] `Zaken API 1.2 <https://github.com/VNG-Realisatie/zaken-api/blob/master/CHANGELOG.rst>`_
+* [#1218] `Zaken API 1.2 <https://vng-realisatie.github.io/gemma-zaken/standaard/zaken/release_notes.html>`_
   features implemented
 
     - ``ZaakObject.objectTypeOverigeDefinitie`` which can refer to object type and
@@ -1825,7 +1825,7 @@ The notable new features are:
     - Added PUT, PATCH and DELETE operations to ``ZaakEigenschap`` and ``ZaakObject``
       resources
 
-* [#1223] `Documenten API 1.1 <https://github.com/VNG-Realisatie/documenten-api/blob/master/CHANGELOG.rst>`_
+* [#1223] `Documenten API 1.1 <https://vng-realisatie.github.io/gemma-zaken/standaard/documenten/release_notes.html>`_
   features implemented
 
     - Added support for "large file uploads" via file chunking
@@ -2354,7 +2354,7 @@ The biggest changes are:
    nlx-url-rewriter package to zgw-consumers. In 1.4.0, the nlx-url-rewriter package
    is dropped and no longer present.
 
-.. _1.0.3 changelog: https://github.com/VNG-Realisatie/zaken-api/blob/stable/1.0.x/CHANGELOG.rst
+.. _1.0.3 changelog: https://vng-realisatie.github.io/gemma-zaken/standaard/zaken/release_notes.html
 
 1.3.5 (2021-03-25)
 ------------------
