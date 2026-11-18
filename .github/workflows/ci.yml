@@ -61,20 +61,12 @@ jobs:
 
     strategy:
       matrix:
-        postgres: ["14", "15", "16", "17"]
-        postgis: ["3.2", "3.5"]
+        postgres: ["15", "16", "17", "18"]
+        postgis: ["3.6", "3.7"]
         use_pooling: [false]
-        exclude:
-          # postgis 3.2 is not compatible with recent postgres versions
-          - postgres: "17"
-            postgis: "3.2"
-          - postgres: "16"
-            postgis: "3.2"
-          - postgres: "15"
-            postgis: "3.2"
         include:
-          - postgres: "17"
-            postgis: "3.5"
+          - postgres: "18"
+            postgis: "3.7"
             use_pooling: true
 
     name: Tests (PG ${{ matrix.postgres }}, postgis ${{ matrix.postgis }}) ${{matrix.use_pooling && 'with connection pooling' || ''}}
@@ -96,7 +88,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@4a6c5facc65bb1dd510cf06be20871db11a156b3 # v1.4.2
+        uses: maykinmedia/setup-django-backend@de45f894bd82c649e07f8343abe4f2afdd89a111 # v1.4.3
         with:
           apt-packages: "libxml2-dev libxmlsec1-dev gettext postgresql-client gdal-bin jq"
           python-version: "3.12"
@@ -168,7 +160,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@4a6c5facc65bb1dd510cf06be20871db11a156b3 # v1.4.2
+        uses: maykinmedia/setup-django-backend@de45f894bd82c649e07f8343abe4f2afdd89a111 # v1.4.3
         with:
           apt-packages: "gdal-bin"
           python-version: "3.12"
