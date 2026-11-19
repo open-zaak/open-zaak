@@ -53,10 +53,12 @@ from openzaak.notifications.viewsets import (
 )
 from openzaak.utils.cloudevents import get_url, process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.expansion import EXPAND_QUERY_PARAM
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import (
     CacheQuerysetMixin,
     ExpandMixin,
+    FieldsMixin,
 )
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
@@ -236,10 +238,11 @@ REGISTRATIE_QUERY_PARAM = OpenApiParameter(
         ),
     ),
 )
-@conditional_retrieve()
+@conditional_retrieve(variant_params={EXPAND_QUERY_PARAM})
 class EnkelvoudigInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
+    FieldsMixin,
     SearchMixin,
     ExpandMixin,
     NotificationViewSetMixin,
@@ -273,6 +276,8 @@ class EnkelvoudigInformatieObjectViewSet(
     }
     notifications_kanaal = KANAAL_DOCUMENTEN
     audit = AUDIT_DRC
+
+    gereed_voor_publicatie_filter_field = "is_gereed_voor_publicatie"
 
     def get_renderers(self):
         if self.action == "download":
@@ -471,6 +476,16 @@ class EnkelvoudigInformatieObjectViewSet(
         if not request.data:
             err = ErrorDetail(
                 _("Search parameters must be specified"), code="empty_search_body"
+            )
+            raise ValidationError({api_settings.NON_FIELD_ERRORS_KEY: err})
+        elif self.has_expand(request) and self.has_fields(request):
+            # Het gebruik van het "fields" en "expand" element is mutual exclusive.
+            # Of je gebruikt de één of de ander maar nooit te gelijk.
+            err = ErrorDetail(
+                _(
+                    "Het gebruik van het `fields` en `expand` element is mutual exclusive."
+                ),
+                code="invalid_field",
             )
             raise ValidationError({api_settings.NON_FIELD_ERRORS_KEY: err})
 
@@ -694,7 +709,7 @@ class EnkelvoudigInformatieObjectImportDestroyView(ImportDestroyView):
         ),
     ),
 )
-@conditional_retrieve()
+@conditional_retrieve(variant_params={EXPAND_QUERY_PARAM})
 class GebruiksrechtenViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
@@ -740,6 +755,10 @@ class GebruiksrechtenViewSet(
     }
     audit = AUDIT_DRC
     audittrail_main_resource_key = "informatieobject"
+
+    gereed_voor_publicatie_filter_field = (
+        "informatieobject__latest_version__is_gereed_voor_publicatie"
+    )
 
     @property
     def filterset_class(self):
@@ -843,7 +862,7 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(AuditTrailViewSet):
         ),
     ),
 )
-@conditional_retrieve()
+@conditional_retrieve(variant_params={EXPAND_QUERY_PARAM})
 class ObjectInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
@@ -890,6 +909,10 @@ class ObjectInformatieObjectViewSet(
         "update": SCOPE_DOCUMENTEN_BIJWERKEN,
         "partial_update": SCOPE_DOCUMENTEN_BIJWERKEN,
     }
+
+    gereed_voor_publicatie_filter_field = (
+        "informatieobject__latest_version__is_gereed_voor_publicatie"
+    )
 
     @property
     def filterset_class(self):
@@ -1013,7 +1036,7 @@ class BestandsDeelViewSet(UpdateWithoutPartialMixin, viewsets.GenericViewSet):
         summary="Verwijder een VERZENDING.", description="Verwijder een VERZENDING."
     ),
 )
-@conditional_retrieve()
+@conditional_retrieve(variant_params={EXPAND_QUERY_PARAM})
 class VerzendingViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
@@ -1042,6 +1065,10 @@ class VerzendingViewSet(
         "update": SCOPE_DOCUMENTEN_BIJWERKEN,
         "partial_update": SCOPE_DOCUMENTEN_BIJWERKEN,
     }
+
+    gereed_voor_publicatie_filter_field = (
+        "informatieobject__latest_version__is_gereed_voor_publicatie"
+    )
 
     @property
     def filterset_class(self):

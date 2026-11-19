@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Autorisaties API
-  version: 1.0.0
+  version: 1.1.0
   description: |
     Een API om een autorisatiecomponent (AC) te benaderen.
 
@@ -1180,6 +1180,10 @@ components:
           description: Indien alle autorisaties gegeven zijn, dan hoeven deze niet
             individueel opgegeven te worden. Gebruik dit alleen als je de consumer
             helemaal vertrouwt.
+        alleenIsGereedVoorPublicatie:
+          type: boolean
+          description: Indien `true` mag de betreffende applicatie alleen documenten
+            lezen met waarde `true` voor `isGereedVoorPublicatie`.
         autorisaties:
           type: array
           items:
@@ -1209,6 +1213,10 @@ components:
           description: Indien alle autorisaties gegeven zijn, dan hoeven deze niet
             individueel opgegeven te worden. Gebruik dit alleen als je de consumer
             helemaal vertrouwt.
+        alleenIsGereedVoorPublicatie:
+          type: boolean
+          description: Indien `true` mag de betreffende applicatie alleen documenten
+            lezen met waarde `true` voor `isGereedVoorPublicatie`.
         autorisaties:
           type: array
           items:
@@ -1476,6 +1484,10 @@ components:
           description: Indien alle autorisaties gegeven zijn, dan hoeven deze niet
             individueel opgegeven te worden. Gebruik dit alleen als je de consumer
             helemaal vertrouwt.
+        alleenIsGereedVoorPublicatie:
+          type: boolean
+          description: Indien `true` mag de betreffende applicatie alleen documenten
+            lezen met waarde `true` voor `isGereedVoorPublicatie`.
         autorisaties:
           type: array
           items:

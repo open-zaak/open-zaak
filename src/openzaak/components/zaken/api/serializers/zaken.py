@@ -24,13 +24,13 @@ from django.utils.translation import gettext_lazy as _
 
 import structlog
 from django_loose_fk.virtual_models import ProxyMixin
-from drf_spectacular.utils import extend_schema_serializer
+from drf_spectacular.utils import extend_schema_field, extend_schema_serializer
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin, UniqueFieldsMixin
 from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
 from rest_framework_gis.fields import GeometryField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
-from vng_api_common.caching.etags import track_object_serializer
+from vng_api_common.caching import batched_invalidation, invalidating_update
 from vng_api_common.constants import (
     Archiefnominatie,
     Archiefstatus,
@@ -52,7 +52,10 @@ from vng_api_common.serializers import (
     add_choice_values_help_text,
 )
 from vng_api_common.utils import get_help_text
-from vng_api_common.validators import IsImmutableValidator, UntilNowValidator
+from vng_api_common.validators import (
+    IsImmutableValidator,
+    UntilNowValidator,
+)
 
 from openzaak.components.besluiten.api.serializers import BesluitSerializer
 from openzaak.components.besluiten.models import Besluit
@@ -88,6 +91,8 @@ from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.serializer_fields import (
     DeprecatedNamespaceLengthHyperlinkedRelatedField,
     FKOrServiceUrlField,
+    ZoekFieldsSerializer,
+    zoek_fields_schema,
 )
 from openzaak.utils.serializers import (
     ConvenienceSerializer,
@@ -487,7 +492,9 @@ class ZaakSerializer(
         "status.statustype": "openzaak.components.catalogi.api.serializers.StatusTypeSerializer",
         "resultaat.resultaattype": "openzaak.components.catalogi.api.serializers.ResultaatTypeSerializer",
         "rollen.roltype": "openzaak.components.catalogi.api.serializers.RolTypeSerializer",
-        # we can't show 'zaakinformatieobjecten.informatieobject' because it's the resource from another API
+        # Use for _zoek endpoint
+        "zaaktype.catalogus": "openzaak.components.catalogi.api.serializers.CatalogusSerializer",
+        "zaakinformatieobjecten.informatieobject": "openzaak.components.documenten.api.serializers.EnkelvoudigInformatieObjectSerializer",
     }
 
     class Meta:
@@ -511,6 +518,7 @@ class ZaakSerializer(
             "laatst_geopend",
             "communicatiekanaal",
             "communicatiekanaal_naam",
+            "tsaverwijzing",
             # TODO: add shape validator once we know the shape
             "producten_of_diensten",
             "vertrouwelijkheidaanduiding",
@@ -605,6 +613,10 @@ class ZaakSerializer(
             },
             "laatste_betaaldatum": {"validators": [UntilNowValidator()]},
             "relevante_andere_zaken": {"swagger_schema_fields": {"deprecated": True}},
+            "tsaverwijzing": {
+                # Preserve whitespace so invalid URNs are rejected instead of trimmed
+                "trim_whitespace": False,
+            },
         }
         validators = [
             # Replace a default "unique together" constraint.
@@ -717,12 +729,15 @@ class ZaakSerializer(
                 startdatum + zaaktype.doorlooptijd_behandeling
             )
 
-        obj = super().create(validated_data)
-        track_object_serializer(obj, self)
+        # the nested relations, and their reverse relations, would each invalidate
+        # the zaak's ETag on their own
+        with batched_invalidation(savepoint=False):
+            obj = super().create(validated_data)
 
         # ⚡️ - a just created zaak cannot have a result, so we can avoid this DB query
-        # by assigning the descriptor already
-        obj.resultaat = None
+        # by caching it as absent. Assigning None to a reverse one-to-one descriptor
+        # clears its cache instead.
+        type(obj).resultaat.related.set_cached_value(obj, None)
         # ⚡️ - avoid status query for just created zaak
         obj.current_status_uuid = None
 
@@ -782,7 +797,52 @@ class GeoWithinSerializer(serializers.Serializer):
     within = GeometryField(required=False)
 
 
+@extend_schema_field(
+    zoek_fields_schema(
+        example=[
+            "url",
+            "uuid",
+            "identificatie",
+            "bronorganisatie",
+            {
+                "zaaktype": [
+                    "identificatie",
+                    "omschrijving",
+                    {"catalogus": ["domein"]},
+                ],
+                "status": [{"statustype": "volgnummer"}, "datumStatusGezet"],
+                "resultaat": ["*"],
+                "zaakinformatieobjecten": [
+                    {
+                        "informatieobject": [
+                            "inhoud",
+                            "bestandsnaam",
+                            "bestandsomvang",
+                        ]
+                    }
+                ],
+                "processobject": ["identificatie"],
+            },
+        ]
+    )
+)
+class ZaakZoekFieldsSerializer(ZoekFieldsSerializer):
+    parent_serializer_class = ZaakSerializer
+
+
 class ZaakZoekSerializer(serializers.Serializer):
+    fields = ZaakZoekFieldsSerializer(
+        required=False,
+        help_text=_(
+            "De elementen (fields) die worden teruggegeven in de response"
+            " conform het expand-mechanisme. Het voorbeeld geeft aan hoe het werkt."
+            ' Hierin betekent "*" dat alle elementen van een resource worden teruggegeven.'
+            "\n\nVoor gerelateerde resources uit de Catalogi API is `catalogi.lezen` nodig;"
+            " voor informatieobjecten uit de Documenten API is `documenten.lezen` nodig."
+            '\n\n**Let op:** Het gebruik van het "fields" en "expand" element is'
+            " mutual exclusive. Of je gebruikt de één of de ander maar nooit te gelijk."
+        ),
+    )
     zaakgeometrie = GeoWithinSerializer(required=False)
     uuid__in = serializers.ListField(
         child=serializers.UUIDField(),
@@ -813,6 +873,16 @@ POSTPONABLE_AFLEIDINGSWIJZES = {
 
 
 class StatusSerializer(serializers.HyperlinkedModelSerializer):
+    inclusion_serializers = {
+        "zaak": "openzaak.components.zaken.api.serializers.ZaakSerializer",
+        "zaak.zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "statustype": "openzaak.components.catalogi.api.serializers.StatusTypeSerializer",
+        "gezetdoor": "openzaak.components.zaken.api.serializers.RolSerializer",
+        "gezetdoor.roltype": "openzaak.components.catalogi.api.serializers.RolTypeSerializer",
+        "zaakinformatieobjecten": "openzaak.components.zaken.api.serializers.ZaakInformatieObjectSerializer",
+        "zaakinformatieobjecten.informatieobject": "openzaak.components.documenten.api.serializers.EnkelvoudigInformatieObjectSerializer",
+    }
+
     class Meta:
         model = Status
         fields = (
@@ -1069,9 +1139,10 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             ),
         )
 
-        qs.filter(
-            resultaat__resultaattype__brondatum_archiefprocedure_afleidingswijze=Afleidingswijze.hoofdzaak
-        ).update(
+        invalidating_update(
+            qs.filter(
+                resultaat__resultaattype__brondatum_archiefprocedure_afleidingswijze=Afleidingswijze.hoofdzaak
+            ),
             # If the hoofdzaak is closed with `blijvend_bewaren`, the brondatum will be
             # empty, but the `archiefnominatie` still has to be set for deelzaken
             archiefnominatie=F("resultaattype_archiefnominatie")
@@ -1150,6 +1221,15 @@ class SubStatusSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
+    inclusion_serializers = {
+        "zaak": "openzaak.components.zaken.api.serializers.ZaakSerializer",
+        "zaak.zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "status": "openzaak.components.zaken.api.serializers.StatusSerializer",
+        "status.statustype": "openzaak.components.catalogi.api.serializers.StatusTypeSerializer",
+        "status.gezetdoor": "openzaak.components.zaken.api.serializers.RolSerializer",
+        "informatieobject": "openzaak.components.documenten.api.serializers.EnkelvoudigInformatieObjectSerializer",
+    }
+
     aard_relatie_weergave = serializers.ChoiceField(
         source="get_aard_relatie_display",
         read_only=True,
@@ -1203,7 +1283,9 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         }
 
     def create(self, validated_data):
-        with transaction.atomic():
+        # a batch, as the ZIO's signals save its zaak too: see
+        # zaak_related_resource_trigger_zaak_gemuteerd
+        with batched_invalidation():
             zio = super().create(validated_data)
 
         # we now expect to be in autocommit mode, i.e. - the transaction before has been
@@ -1233,7 +1315,8 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         try:
             response = create_remote_oio(io_url, zaak_url)
         except Exception:
-            zio.delete()
+            with batched_invalidation():
+                zio.delete()
             logger.exception(
                 "Could not create remote relation due to an unexpected error"
             )
@@ -1247,7 +1330,8 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             )
         else:
             zio._objectinformatieobject_url = response["url"]
-            zio.save()
+            with batched_invalidation():
+                zio.save(update_fields=["_objectinformatieobject_url"])
 
         return zio
 
@@ -1339,6 +1423,14 @@ class ContactPersoonRolSerializer(GegevensGroepSerializer):
 
 
 class RolSerializer(PolymorphicSerializer):
+    inclusion_serializers = {
+        "zaak": "openzaak.components.zaken.api.serializers.ZaakSerializer",
+        "zaak.zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "roltype": "openzaak.components.catalogi.api.serializers.RolTypeSerializer",
+        "statussen": "openzaak.components.zaken.api.serializers.StatusSerializer",
+        "statussen.statustype": "openzaak.components.catalogi.api.serializers.StatusTypeSerializer",
+    }
+
     discriminator = Discriminator(
         discriminator_field="betrokkene_type",
         mapping={
@@ -1527,6 +1619,12 @@ class RolUpdateSubSerializer(RolSubSerializer):
 
 
 class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
+    inclusion_serializers = {
+        "zaak": "openzaak.components.zaken.api.serializers.ZaakSerializer",
+        "zaak.zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "resultaattype": "openzaak.components.catalogi.api.serializers.ResultaatTypeSerializer",
+    }
+
     class Meta:
         model = Resultaat
         fields = ("url", "uuid", "zaak", "resultaattype", "toelichting")
@@ -1565,6 +1663,10 @@ class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
         min_length=1,
         help_text=get_help_text("zaken.ZaakBesluit", "besluit"),
     )
+
+    inclusion_serializers = {
+        "besluit": "openzaak.components.besluiten.api.serializers.BesluitSerializer",
+    }
 
     parent_lookup_kwargs = {"zaak_uuid": "zaak__uuid"}
 

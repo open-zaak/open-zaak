@@ -1,6 +1,83 @@
 Changelog
 =========
 
+1.31.2 (2026-11-09)
+-------------------
+
+**Bugfixes**
+
+* [:open-zaak:`2631`] Fix issue introduced in 1.31.0 that causes Documenten API requests to
+  fail due to their request size exceeding 2.5MB (Django's default request body limit).
+* [:open-zaak:`2623`] Fix broken autorisaties admin form.
+
+**Project maintenance**
+
+* [:open-zaak:`2625`] Install libxml2 and xmlsec via their -dev packages in CI
+* [:open-zaak:`2625`] Upgrade playwright to 1.64.1
+* [:open-zaak:`2616`] Upgrade image: postgis/postgis:17-3.5 in bin-check CI pipeline (on ubuntu-26.04)
+
+1.31.1 (2026-10-23)
+-------------------
+
+**New features**
+
+* [:open-zaak:`2471`] Upgrade the Zaken API to version 1.7.0.
+
+  * ``ZaakEigenschap.waarde`` is now always validated against ``Eigenschap.specificatie``.
+    If it does not match, the zaakeigenschap is still saved and a warning is returned in
+    the ``X-Warning`` response header, as described in the standard. With
+    ``ZAAK_EIGENSCHAP_WAARDE_VALIDATION=true`` a mismatch is still rejected with a
+    ``waarde-incorrect-format`` error.
+
+**New features**
+
+* [:open-zaak:`2479`] Upgrade the Catalogi API to version 1.3.3. The following read-only
+  attributes are added:
+
+  * ``zaaktypeIdentificaties`` on ``/besluittypen``
+  * ``besluittypeOmschrijvingen`` on ``/catalogussen``, ``/zaaktypen`` and
+    ``/informatieobjecttypen``
+  * ``informatieobjecttypeOmschrijvingen`` on ``/besluittypen``, ``/catalogussen`` and
+    ``/zaaktypen``
+  * ``deelzaaktypeIdentificaties`` on ``/zaaktypen``
+  * ``zaaktypeIdentificatie`` on the ``zaaktypenrelaties`` of a zaaktype
+
+**Bugfixes**
+
+* [:open-zaak:`2577`] Fix responses with a stale ``ETag``, so a conditional request could
+  get a ``304 Not Modified`` for a changed resource. This happened after:
+
+  * deleting a related object, such as a rol or the resultaat of a zaak;
+  * closing a hoofdzaak, for the ETags of its deelzaken;
+  * adding a bestandsdeel to a document;
+  * unlocking documents or resetting a zaaktype's selectielijst in the admin;
+  * a deploy that changes how resources are represented.
+
+* [:open-zaak:`2577`] Responses to requests with ``?expand=`` no longer have an ``ETag``,
+  and are never a ``304 Not Modified``. Their ``ETag`` was that of the representation
+  without ``expand``.
+* [:open-zaak:`2577`] Writes no longer recalculate ETags: they only invalidate the ETags of
+  the resources they change, and the first ``GET`` after a write calculates the ``ETag``.
+  Adding documents to a zaak no longer gets slower the more documents it has.
+* [:open-zaak:`2577`] A request that PostgreSQL cancels to resolve a deadlock with a
+  concurrent request gets a ``503 Service Unavailable`` with ``Retry-After: 1`` instead
+  of a ``500``. Nothing of it was written, so it can be retried.
+* [:open-zaak:`2607`] Fix a ``500`` when updating a document's ``informatieobjecttype``
+  from an external to a local one, or the other way round.
+
+**Project maintenance**
+
+* [:open-zaak:`2577`] Upgrade ``commonground-api-common`` to 3.1.1
+* [`commonground-api-common#190`_] Remove the ``LIST_SERIALIZER_ERRORS_AS_DICT`` workaround,
+  now that ``commonground-api-common`` handles DRF 3.18's list-serializer errors
+* [:open-zaak:`2607`] Upgrade ``django-loose-fk`` to 2.0.1
+* [:open-zaak:`2577`] Upgrade ``certifi`` to 2026.10.19, which no longer trusts the
+  eMudhra root certificates
+* [:open-zaak:`2577`] Record the S3 test cassettes against moto instead of MinIO, whose
+  community edition is abandoned
+
+.. _commonground-api-common#190: https://github.com/maykinmedia/commonground-api-common/issues/190
+
 1.31.0 (2026-10-09)
 -------------------
 
@@ -53,6 +130,13 @@ Changelog
     remaining risk and those undetectable cases are in
     :ref:`installation_reference_overwritten_documents`.
 
+.. warning::
+
+  This version introduces a bug with uploads via the Documenten API, due to underlying
+  library upgrades the maximum API request size is 2.5 MB, which causes issues for documenten
+  with ``inhoud`` larger than 2.5MB. Version 1.31.2 fixes this issue and sets the default to
+  4 GiB like it was before.
+
 **New features**
 
 * [:open-zaak:`2570`] Additions to Verzending admin UI
@@ -97,6 +181,7 @@ Changelog
 * [:open-archiefbeheer:`1071`] Fixed a related zaakobject without an end date preventing a zaak from being closed
 * [:open-zaak:`2506`] Fix 500 error for writes to ``/statustypen`` with a valid doorlooptijd
 * [:open-zaak:`2426`] Fix 500 error that occurred when attempting to add a new service via the Service configuration view in the admin
+* [:open-zaak:`2519`] Add constraint to allow only users with change permission to publish data
 
 **Project maintenance**
 

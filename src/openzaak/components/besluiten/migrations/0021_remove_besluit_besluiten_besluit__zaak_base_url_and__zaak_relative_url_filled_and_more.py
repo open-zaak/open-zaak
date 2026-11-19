@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('besluiten', '0020_alter_besluit_besluittype'),
-        ('zaken', '0053_remove_zaakeigenschap_zaken_zaakeigenschap__eigenschap_or__eigenschap_base_url_filled_and_more'),
+        ('zaken', '0055_remove_zaakeigenschap_zaken_zaakeigenschap__eigenschap_or__eigenschap_base_url_filled_and_more'),
     ]
 
     operations = [

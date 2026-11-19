@@ -85,13 +85,16 @@ def sync_zaakbesluit(sender: ModelBase, instance: Besluit, **kwargs) -> None:
     * updates are not allowed
     * creating a Besluit with zaak creates the ZaakBesluit
     * deleting a Besluit with zaak deletes the ZaakBesluit. This is not done here:
-      ``ZaakBesluit._besluit`` has ``on_delete=CASCADE``. Depending on the other
+      ``ZaakBesluit.besluit`` has ``on_delete=CASCADE``. Depending on the other
       objects related to the Besluit, the ZaakBesluit is already deleted before the
       ``post_delete`` signal of the Besluit is sent, so it can't be looked up then.
     """
 
     # loading fixtures -> skip
     if kwargs["raw"]:
+        return
+    # Skip saving when only the ETag is being updated
+    if kwargs.get("update_fields") == frozenset({"_etag"}):
         return
 
     created = kwargs["created"]
@@ -167,7 +170,6 @@ def send_zaak_gemuteerd_event(sender, instance, created, **kwargs):
     if kwargs.get("update_fields") in (
         frozenset({"laatst_gemuteerd"}),
         frozenset({"laatst_geopend"}),
-        frozenset({"_etag"}),
     ):
         return
 
@@ -185,7 +187,6 @@ def send_zaak_verwijderd_event(sender, instance, **kwargs):
 
 def zaak_related_resource_trigger_zaak_gemuteerd(sender, instance, **kwargs):
     if kwargs.get("update_fields") in (
-        frozenset({"_etag"}),
         frozenset({"laatst_gemuteerd"}),
         frozenset({"laatst_geopend"}),
     ):

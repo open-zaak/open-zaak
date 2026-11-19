@@ -306,6 +306,7 @@ class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
                 "bronorganisatie": "517439943",
                 "communicatiekanaal": "",
                 "communicatiekanaalNaam": "",
+                "tsaverwijzing": None,
                 "deelzaken": [],
                 "eigenschappen": [],
                 "einddatum": None,

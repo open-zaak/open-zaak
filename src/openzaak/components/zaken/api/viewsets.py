@@ -39,7 +39,7 @@ from vng_api_common.audittrails.viewsets import (
     AuditTrailMixin,
     AuditTrailViewsetMixin,
 )
-from vng_api_common.caching import conditional_retrieve
+from vng_api_common.caching import batched_invalidation, conditional_retrieve
 from vng_api_common.client import to_internal_data
 from vng_api_common.constants import CommonResourceAction
 from vng_api_common.filters_backend import Backend
@@ -73,10 +73,12 @@ from openzaak.utils.api import (
 )
 from openzaak.utils.cloudevents import get_url, process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.expansion import EXPAND_QUERY_PARAM
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import (
     CacheQuerysetMixin,
     ExpandMixin,
+    FieldsMixin,
 )
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
@@ -117,18 +119,24 @@ from .cloudevents import (
 )
 from .filters import (
     KlantContactFilter,
+    ResultaatDetailFilter,
     ResultaatFilter,
+    RolDetailFilter,
     RolFilter,
+    StatusDetailFilter,
     StatusFilter,
+    ZaakBesluitFilter,
     ZaakContactMomentFilter,
     ZaakDetailFilter,
     ZaakFilter,
+    ZaakInformatieObjectDetailFilter,
     ZaakInformatieObjectFilter,
+    ZaakObjectDetailFilter,
     ZaakObjectFilter,
     ZaakVerzoekFilter,
 )
 from .kanalen import KANAAL_ZAKEN
-from .mixins import ClosedZaakMixin, UpdateOnlyModelMixin
+from .mixins import BatchedWritesMixin, ClosedZaakMixin, UpdateOnlyModelMixin
 from .permissions import (
     ZaakActionAuthRequired,
     ZaakAuthRequired,
@@ -176,6 +184,17 @@ ZAAK_UUID_PARAMETER = OpenApiParameter(
     type=OpenApiTypes.UUID,
     location=OpenApiParameter.PATH,
     description="Unieke resource identifier (UUID4)",
+)
+
+X_WARNING_PARAMETER = OpenApiParameter(
+    name="X-Warning",
+    type=OpenApiTypes.STR,
+    location=OpenApiParameter.HEADER,
+    description=(
+        "Waarschuwing indien `waarde` niet voldoet aan `eigenschap.specificatie`. "
+        "De ZAAKEIGENSCHAP is in dat geval wel opgeslagen."
+    ),
+    response=[200, 201],
 )
 
 
@@ -287,9 +306,10 @@ ZAAK_UUID_PARAMETER = OpenApiParameter(
         ),
     ),
 )
-@conditional_retrieve(extra_depends_on={"status"})
+@conditional_retrieve(extra_depends_on={"status"}, variant_params={EXPAND_QUERY_PARAM})
 class ZaakViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    FieldsMixin,
     ExpandMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
@@ -309,9 +329,11 @@ class ZaakViewSet(
 
     queryset = (
         Zaak.objects.prefetch_related(
-            # Prefetch _zaaktype instead of using `.select_related`, because using the latter
+            # Prefetch zaaktype instead of using `.select_related`, because using the latter
             # causes the main Zaak query to contain a lot of duplicate data, increasing overhead
-            "zaaktype",
+            models.Prefetch(
+                "zaaktype", queryset=ZaakType.objects.with_dates("identificatie")
+            ),
             "deelzaken",
             models.Prefetch(
                 "relevante_andere_zaken",
@@ -339,6 +361,87 @@ class ZaakViewSet(
         .order_by("-pk")
         .distinct()
     )
+    inclusion_viewsets = {
+        "zaaktype": (
+            "zaaktype",
+            "openzaak.components.catalogi.api.viewsets.ZaakTypeViewSet",
+        ),
+        "hoofdzaak": (
+            "hoofdzaak",
+            "openzaak.components.zaken.api.viewsets.ZaakViewSet",
+        ),
+        "deelzaken": (
+            "deelzaken",
+            "openzaak.components.zaken.api.viewsets.ZaakViewSet",
+        ),
+        "eigenschappen": (
+            "zaakeigenschap_set",
+            "openzaak.components.zaken.api.viewsets.ZaakEigenschapViewSet",
+        ),
+        "status": (
+            "status_set",
+            "openzaak.components.zaken.api.viewsets.StatusViewSet",
+        ),
+        "resultaat": (
+            "resultaat",
+            "openzaak.components.zaken.api.viewsets.ResultaatViewSet",
+        ),
+        "rollen": ("rol_set", "openzaak.components.zaken.api.viewsets.RolViewSet"),
+        "zaakinformatieobjecten": (
+            "zaakinformatieobject_set",
+            "openzaak.components.zaken.api.viewsets.ZaakInformatieObjectViewSet",
+        ),
+        "zaakobjecten": (
+            "zaakobject_set",
+            "openzaak.components.zaken.api.viewsets.ZaakObjectViewSet",
+        ),
+        "eigenschappen.eigenschap": (
+            "zaakeigenschap_set__eigenschap",
+            "openzaak.components.catalogi.api.viewsets.EigenschapViewSet",
+        ),
+        "status.statustype": (
+            "prefetched_statuses__statustype",
+            "openzaak.components.catalogi.api.viewsets.StatusTypeViewSet",
+        ),
+        "resultaat.resultaattype": (
+            "resultaat__resultaattype",
+            "openzaak.components.catalogi.api.viewsets.ResultaatTypeViewSet",
+        ),
+        "rollen.roltype": (
+            "rol_set__roltype",
+            "openzaak.components.catalogi.api.viewsets.RolTypeViewSet",
+        ),
+        # Use for _zoek endpoint
+        "zaaktype.catalogus": (
+            "zaaktype__catalogus",
+            "openzaak.components.catalogi.api.viewsets.CatalogusViewSet",
+        ),
+        "zaakinformatieobjecten.informatieobject": (
+            "zaakinformatieobject_set___informatieobject__latest_version",
+            "openzaak.components.documenten.api.viewsets.EnkelvoudigInformatieObjectViewSet",
+        ),
+    }
+    # Reuse the same relations when expanding a hoofdzaak or deelzaken
+    inclusion_viewsets.update(
+        {
+            f"{parent}.{name}": (f"{parent}__{lookup}", viewset)
+            for name, (lookup, viewset) in inclusion_viewsets.items()
+            if name
+            in (
+                "zaaktype",
+                "status",
+                "status.statustype",
+                "resultaat",
+                "resultaat.resultaattype",
+                "rollen",
+                "rollen.roltype",
+                "zaakinformatieobjecten",
+                "zaakobjecten",
+            )
+            for parent in ("hoofdzaak", "deelzaken")
+        }
+    )
+
     serializer_class = ZaakSerializer
     search_input_serializer_class = ZaakZoekSerializer
     filter_backends = (Backend,)
@@ -377,6 +480,24 @@ class ZaakViewSet(
             # on the base queryset, because it adds an extra join
             qs = qs.select_related("zaaktype__catalogus")
 
+        # Autorisaties API 1.1.0 introduced `alleen_is_gereed_voor_publicatie`
+        # When enabled, only include documents with `is_gereed_voor_publicatie=True`
+        if (
+            action in ("list", "_zoek", "retrieve")
+            and hasattr(self.request, "jwt_auth")
+            and any(
+                app.alleen_is_gereed_voor_publicatie
+                for app in self.request.jwt_auth.applicaties
+            )
+        ):
+            qs = self._prefetch_inclusion(
+                qs,
+                "zaakinformatieobject_set",
+                ZaakInformatieObjectViewSet.queryset.filter(
+                    _informatieobject__latest_version__is_gereed_voor_publicatie=True
+                ),
+            )
+
         return qs
 
     @property
@@ -407,6 +528,17 @@ class ZaakViewSet(
         if not request.data:
             err = serializers.ErrorDetail(
                 _("Search parameters must be specified"), code="empty_search_body"
+            )
+            raise serializers.ValidationError({api_settings.NON_FIELD_ERRORS_KEY: err})
+
+        elif self.has_expand(request) and self.has_fields(request):
+            # Het gebruik van het "fields" en "expand" element is mutual exclusive.
+            # Of je gebruikt de één of de ander maar nooit te gelijk.
+            err = serializers.ErrorDetail(
+                _(
+                    "Het gebruik van het `fields` en `expand` element is mutual exclusive."
+                ),
+                code="invalid_field",
             )
             raise serializers.ValidationError({api_settings.NON_FIELD_ERRORS_KEY: err})
 
@@ -556,13 +688,6 @@ class ZaakViewSet(
             zaaktype=str(instance.zaaktype),
         )
 
-    def get_search_input(self):
-        serializer = self.get_search_input_serializer_class()(
-            data=self.request.data, context={"request": self.request}
-        )
-        serializer.is_valid(raise_exception=True)
-        return serializer.validated_data
-
 
 @extend_schema_view(
     list=extend_schema(
@@ -597,10 +722,12 @@ class ZaakViewSet(
 @conditional_retrieve()
 class StatusViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
+    BatchedWritesMixin,
     mixins.CreateModelMixin,
     viewsets.ReadOnlyModelViewSet,
 ):
@@ -609,13 +736,41 @@ class StatusViewSet(
     """
 
     queryset = (
-        Status.objects.select_related("statustype", "zaak", "gezetdoor")
+        Status.objects.select_related(
+            "statustype",
+            "zaak",
+            "gezetdoor",
+        )
         .prefetch_related("zaakinformatieobjecten")
         .annotate_with_max_datum_status_gezet()
         .order_by("-datum_status_gezet", "-pk")
     )
+    inclusion_viewsets = {
+        "zaak": ("zaak", "openzaak.components.zaken.api.viewsets.ZaakViewSet"),
+        "zaak.zaaktype": (
+            "zaak__zaaktype",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "statustype": (
+            "statustype",
+            "openzaak.components.catalogi.api.viewsets.statustype.StatusTypeViewSet",
+        ),
+        "gezetdoor": ("gezetdoor", "openzaak.components.zaken.api.viewsets.RolViewSet"),
+        "gezetdoor.roltype": (
+            "gezetdoor__roltype",
+            "openzaak.components.catalogi.api.viewsets.roltype.RolTypeViewSet",
+        ),
+        "zaakinformatieobjecten": (
+            "zaakinformatieobjecten",
+            "openzaak.components.zaken.api.viewsets.ZaakInformatieObjectViewSet",
+        ),
+        "zaakinformatieobjecten.informatieobject": (
+            "zaakinformatieobjecten___informatieobject__latest_version",
+            "openzaak.components.documenten.api.viewsets.EnkelvoudigInformatieObjectViewSet",
+        ),
+    }
+
     serializer_class = StatusSerializer
-    filterset_class = StatusFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
 
@@ -630,6 +785,15 @@ class StatusViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return StatusDetailFilter
+        return StatusFilter
 
     def perform_create(self, serializer):
         """
@@ -714,6 +878,7 @@ class SubStatusViewSet(
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
+    BatchedWritesMixin,
     mixins.CreateModelMixin,
     viewsets.ReadOnlyModelViewSet,
 ):
@@ -807,12 +972,14 @@ class SubStatusViewSet(
 )
 class ZaakObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     CheckQueryParamsMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
     ClosedZaakMixin,
+    BatchedWritesMixin,
     viewsets.ModelViewSet,
 ):
     """
@@ -822,8 +989,18 @@ class ZaakObjectViewSet(
     queryset = ZaakObject.objects.select_related("zaak", "zaakobjecttype").order_by(
         "-pk"
     )
+    inclusion_viewsets = {
+        "zaak": ("zaak", "openzaak.components.zaken.api.viewsets.ZaakViewSet"),
+        "zaak.zaaktype": (
+            "zaak__zaaktype",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "zaakobjecttype": (
+            "zaakobjecttype",
+            "openzaak.components.catalogi.api.viewsets.zaakobjecttype.ZaakObjectTypeViewSet",
+        ),
+    }
     serializer_class = ZaakObjectSerializer
-    filterset_class = ZaakObjectFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
 
@@ -843,6 +1020,15 @@ class ZaakObjectViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return ZaakObjectDetailFilter
+        return ZaakObjectFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -944,6 +1130,7 @@ class ZaakObjectViewSet(
 @conditional_retrieve()
 class ZaakInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationCreateMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -955,12 +1142,29 @@ class ZaakInformatieObjectViewSet(
     Opvragen en bewerken van ZAAK-INFORMATIEOBJECT relaties.
     """
 
-    queryset = (
-        ZaakInformatieObject.objects.select_related("zaak", "_informatieobject")
-        .prefetch_related("_informatieobject__enkelvoudiginformatieobject_set")
-        .order_by("-pk")
-    )
-    filterset_class = ZaakInformatieObjectFilter
+    queryset = ZaakInformatieObject.objects.select_related(
+        "zaak", "_informatieobject__latest_version"
+    ).order_by("-pk")
+    inclusion_viewsets = {
+        "zaak": ("zaak", "openzaak.components.zaken.api.viewsets.ZaakViewSet"),
+        "zaak.zaaktype": (
+            "zaak__zaaktype",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "status": ("status", "openzaak.components.zaken.api.viewsets.StatusViewSet"),
+        "status.statustype": (
+            "status__statustype",
+            "openzaak.components.catalogi.api.viewsets.statustype.StatusTypeViewSet",
+        ),
+        "status.gezetdoor": (
+            "status__gezetdoor",
+            "openzaak.components.zaken.api.viewsets.RolViewSet",
+        ),
+        "informatieobject": (
+            "_informatieobject__latest_version",
+            "openzaak.components.documenten.api.viewsets.EnkelvoudigInformatieObjectViewSet",
+        ),
+    }
     serializer_class = ZaakInformatieObjectSerializer
     lookup_field = "uuid"
     notifications_kanaal = KANAAL_ZAKEN
@@ -980,6 +1184,19 @@ class ZaakInformatieObjectViewSet(
         | SCOPE_ZAKEN_ALLES_VERWIJDEREN,
     }
     audit = AUDIT_ZRC
+
+    gereed_voor_publicatie_filter_field = (
+        "_informatieobject__latest_version__is_gereed_voor_publicatie"
+    )
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return ZaakInformatieObjectDetailFilter
+        return ZaakInformatieObjectFilter
 
     @property
     def notifications_wrap_in_atomic_block(self):
@@ -1012,6 +1229,8 @@ class ZaakInformatieObjectViewSet(
             client_id=self.request.jwt_auth.client_id,
         )
 
+    # a batch, as the ZIO's signals save its zaak too
+    @batched_invalidation()
     def perform_update(self, serializer):
         super().perform_update(serializer)
 
@@ -1029,7 +1248,8 @@ class ZaakInformatieObjectViewSet(
         uuid = str(instance.uuid)
         zaak_uuid = str(instance.zaak.uuid)
 
-        with transaction.atomic():
+        # a batch, as the ZIO's signals save its zaak too
+        with batched_invalidation():
             super().perform_destroy(instance)
 
         if (
@@ -1040,7 +1260,8 @@ class ZaakInformatieObjectViewSet(
                 delete_remote_oio(instance._objectinformatieobject_url)
             except Exception:
                 # bring back the instance
-                instance.save()
+                with batched_invalidation():
+                    instance.save()
                 raise ValidationError(
                     {"informatieobject": _("Could not delete remote relation")},
                     code="pending-relations",
@@ -1071,22 +1292,27 @@ class ZaakInformatieObjectViewSet(
             "\n"
             "**Er wordt gevalideerd op**\n"
             "\n"
-            "- **EXPERIMENTEEL** `waarde` moet worden gevalideerd tegen "
-            "`eigenschap.specificatie` indien `ZAAK_EIGENSCHAP_WAARDE_VALIDATION` "
-            "op `True` staat."
+            "- `waarde` wordt gevalideerd tegen `eigenschap.specificatie`. Voldoet "
+            "de `waarde` niet, dan wordt de ZAAKEIGENSCHAP toch opgeslagen en wordt "
+            "een waarschuwing teruggegeven in de `X-Warning` response header. Staat "
+            "`ZAAK_EIGENSCHAP_WAARDE_VALIDATION` op `True`, dan wordt de ZAAKEIGENSCHAP "
+            "in dat geval afgewezen met een `waarde-incorrect-format` fout."
         ),
+        parameters=[X_WARNING_PARAMETER],
     ),
     update=extend_schema(
         summary="Werk een ZAAKEIGENSCHAP in zijn geheel bij.",
         description=(
             "**Er wordt gevalideerd op**\n\n- Alleen de WAARDE mag gewijzigd worden"
         ),
+        parameters=[X_WARNING_PARAMETER],
     ),
     partial_update=extend_schema(
         summary="Werk een ZAAKEIGENSCHAP deels bij.",
         description=(
             "**Er wordt gevalideerd op**\n\n- Alleen de WAARDE mag gewijzigd worden"
         ),
+        parameters=[X_WARNING_PARAMETER],
     ),
     destroy=extend_schema(
         summary="Verwijder een ZAAKEIGENSCHAP.",
@@ -1286,6 +1512,7 @@ class KlantContactViewSet(
 @conditional_retrieve()
 class RolViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -1301,7 +1528,7 @@ class RolViewSet(
     """
 
     queryset = (
-        Rol.objects.select_related("roltype", "zaak")
+        Rol.objects.select_related("roltype", "zaak", "zaak__zaaktype")
         .prefetch_related(
             "natuurlijkpersoon",
             "nietnatuurlijkpersoon",
@@ -1309,11 +1536,26 @@ class RolViewSet(
             "organisatorischeeenheid",
             "medewerker",
             "statussen",
+            "statussen__statustype",
         )
         .order_by("-pk")
     )
+    inclusion_viewsets = {
+        "zaak": ("zaak", "openzaak.components.zaken.api.viewsets.ZaakViewSet"),
+        "zaak.zaaktype": (
+            "zaak__zaaktype",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "roltype": (
+            "roltype",
+            "openzaak.components.catalogi.api.viewsets.roltype.RolTypeViewSet",
+        ),
+        "statussen": (
+            "statussen",
+            "openzaak.components.zaken.api.viewsets.StatusViewSet",
+        ),
+    }
     serializer_class = RolSerializer
-    filterset_class = RolFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
 
@@ -1328,6 +1570,15 @@ class RolViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return RolDetailFilter
+        return RolFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -1409,11 +1660,13 @@ class RolViewSet(
 @conditional_retrieve()
 class ResultaatViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
     ClosedZaakMixin,
+    BatchedWritesMixin,
     viewsets.ModelViewSet,
 ):
     """
@@ -1421,8 +1674,18 @@ class ResultaatViewSet(
     """
 
     queryset = Resultaat.objects.select_related("resultaattype", "zaak").order_by("-pk")
+    inclusion_viewsets = {
+        "zaak": ("zaak", "openzaak.components.zaken.api.viewsets.ZaakViewSet"),
+        "zaak.zaaktype": (
+            "zaak__zaaktype",
+            "openzaak.components.catalogi.api.viewsets.zaaktype.ZaakTypeViewSet",
+        ),
+        "resultaattype": (
+            "resultaattype",
+            "openzaak.components.catalogi.api.viewsets.resultaattype.ResultaatTypeViewSet",
+        ),
+    }
     serializer_class = ResultaatSerializer
-    filterset_class = ResultaatFilter
     lookup_field = "uuid"
     pagination_class = ExactPagination
 
@@ -1438,6 +1701,15 @@ class ResultaatViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return ResultaatDetailFilter
+        return ResultaatFilter
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -1536,6 +1808,8 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
 )
 class ZaakBesluitViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    ExpandMixin,
+    CheckQueryParamsMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
@@ -1549,8 +1823,15 @@ class ZaakBesluitViewSet(
     Opvragen en beheren van zaak-besluiten.
     """
 
-    queryset = ZaakBesluit.objects.order_by("-pk")
+    queryset = ZaakBesluit.objects.select_related("zaak", "besluit").order_by("-pk")
+    inclusion_viewsets = {
+        "besluit": (
+            "besluit",
+            "openzaak.components.besluiten.api.viewsets.BesluitViewSet",
+        ),
+    }
     serializer_class = ZaakBesluitSerializer
+    filterset_class = ZaakBesluitFilter
     lookup_field = "uuid"
     parent_retrieve_kwargs = {"zaak_uuid": "uuid"}
     permission_classes = (ZaakNestedAuthRequired,)
@@ -1564,7 +1845,9 @@ class ZaakBesluitViewSet(
     audit = AUDIT_ZRC
 
     def get_queryset(self):
-        if not self.kwargs:  # this happens during schema generation, and causes crashes
+        if (
+            "zaak_uuid" not in self.kwargs
+        ):  # this happens during schema generation, and causes crashes
             return self.queryset.none()
         return super().get_queryset()
 
@@ -1576,9 +1859,10 @@ class ZaakBesluitViewSet(
     def get_serializer_context(self):
         context = super().get_serializer_context()
         # DRF introspection
-        if getattr(self, "kwargs", None):
-            context["parent_object"] = self._get_zaak()
+        if not getattr(self, "kwargs", None) or "zaak_uuid" not in self.kwargs:
+            return context
 
+        context["parent_object"] = self._get_zaak()
         return context
 
     def perform_create(self, serializer):
@@ -1769,18 +2053,24 @@ class ZaakContactMomentViewSet(
 
 @extend_schema_view(
     list=extend_schema(
-        summary="Alle ZAAK-VERZOEK opvragen.", description="Alle ZAAK-VERZOEK opvragen."
+        summary="Alle ZAAK-VERZOEK opvragen.",
+        description="Alle ZAAK-VERZOEK opvragen.",
+        deprecated=True,
     ),
     retrieve=extend_schema(
         summary="Een specifiek ZAAK-VERZOEK opvragen.",
         description="Een specifiek ZAAK-VERZOEK opvragen.",
+        deprecated=True,
     ),
     create=extend_schema(
         summary="Maak een ZAAK-VERZOEK aan.",
         description=("**Er wordt gevalideerd op**\n- geldigheid URL naar de VERZOEK"),
+        deprecated=True,
     ),
     destroy=extend_schema(
-        summary="Verwijder een ZAAK-VERZOEK.", description="Verwijder een ZAAK-VERZOEK."
+        summary="Verwijder een ZAAK-VERZOEK.",
+        description="Verwijder een ZAAK-VERZOEK.",
+        deprecated=True,
     ),
 )
 class ZaakVerzoekViewSet(
@@ -1869,13 +2159,11 @@ class ZaakVerzoekViewSet(
     create=extend_schema(
         operation_id="zaaknummer_reserveren",
         summary="Reserveer een zaaknummer",
-        description=mark_experimental(
-            "Reserveer een zaaknummer binnen een specifieke bronorganisatie zonder direct een Zaak aan te maken. "
-            "Dit zaaknummer zal toegekend worden aan de eerstvolgende Zaak die met dit zaaknummer wordt aangemaakt "
-            "binnen de bronorganisatie en het zaaknummer kan daarna niet hergebruikt worden.\n\n"
-            "Als `aantal` niet wordt opgegeven of gelijk is aan 1, wordt een enkel object teruggegeven.\n"
-            "Als `aantal > 1`, wordt een lijst van objecten teruggegeven."
-        ),
+        description="Reserveer een zaaknummer binnen een specifieke bronorganisatie zonder direct een Zaak aan te maken. "
+        "Dit zaaknummer zal toegekend worden aan de eerstvolgende Zaak die met dit zaaknummer wordt aangemaakt "
+        "binnen de bronorganisatie en het zaaknummer kan daarna niet hergebruikt worden.\n\n"
+        "Als `aantal` niet wordt opgegeven of gelijk is aan 1, wordt een enkel object teruggegeven.\n"
+        "Als `aantal > 1`, wordt een lijst van objecten teruggegeven.",
         request=ReserveZaakIdentificatieSerializer,
         responses={
             status.HTTP_201_CREATED: OpenApiResponse(
@@ -1970,29 +2258,29 @@ class DeprecatedReserveerZaakNummerViewSet(ReserveerZaakNummerViewSet):
 @extend_schema_view(
     list=extend_schema(
         summary="Alle ZAAKNOTITIEs opvragen.",
-        description=mark_experimental("Alle ZAAKNOTITIEs opvragen."),
+        description="Alle ZAAKNOTITIEs opvragen.",
     ),
     retrieve=extend_schema(
         summary="Een specifieke ZAAKNOTITIE opvragen.",
-        description=mark_experimental("Een specifieke ZAAKNOTITIE opvragen."),
+        description="Een specifieke ZAAKNOTITIE opvragen.",
     ),
     create=extend_schema(
         summary="Maak een ZAAKNOTITIE aan.",
-        description=mark_experimental("Maak een ZAAKNOTITIE aan."),
+        description="Maak een ZAAKNOTITIE aan.",
     ),
     update=extend_schema(
         summary="Werk een ZAAKNOTITIE in zijn geheel bij.",
-        description=mark_experimental("Werk een ZAAKNOTITIE in zijn geheel bij.")
+        description="Werk een ZAAKNOTITIE in zijn geheel bij."
         + "\n\n **WARNING**: Notitie can only be modified when status is `concept`",
     ),
     partial_update=extend_schema(
         summary="Werk een ZAAKNOTITIE deels bij.",
-        description=mark_experimental("Werk een ZAAKNOTITIE deels bij.")
+        description="Werk een ZAAKNOTITIE deels bij."
         + "\n\n **WARNING**: Notitie can only be modified when status is `concept`",
     ),
     destroy=extend_schema(
         summary="Verwijder een ZAAKNOTITIE.",
-        description=mark_experimental("Verwijder een ZAAKNOTITIE."),
+        description="Verwijder een ZAAKNOTITIE.",
     ),
 )
 class ZaakNotitieViewSet(
@@ -2649,9 +2937,7 @@ class ZaakInzageViewSet(
             "zaaktype__besluittypen",
             queryset=BesluitType.objects.select_related("catalogus")
             .with_dates()
-            .prefetch_related(
-                "informatieobjecttypen", "zaaktypen", "resultaattype_set"
-            ),
+            .prefetch_related("informatieobjecttypen", "zaaktypen", "resultaattypen"),
         ),
         models.Prefetch(
             "zaaktype__eigenschap_set",

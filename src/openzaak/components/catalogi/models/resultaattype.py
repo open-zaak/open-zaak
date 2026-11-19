@@ -18,6 +18,7 @@ from vng_api_common.constants import (
 from vng_api_common.descriptors import GegevensGroepType
 
 from openzaak.utils.fields import DurationField
+from openzaak.utils.mixins import APIMixin
 
 from .mixins import OptionalGeldigheidMixin
 from .validators import validate_zaaktype_concept
@@ -25,7 +26,7 @@ from .validators import validate_zaaktype_concept
 logger: FilteringBoundLogger = get_logger(__name__)
 
 
-class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
+class ResultaatType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
     """
     Het betreft de indeling of groepering van resultaten van zaken van hetzelfde
     ZAAKTYPE naar hun aard, zoals 'verleend', 'geweigerd', 'verwerkt', et cetera.
@@ -272,6 +273,7 @@ class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
             "Het BESLUITTYPE van besluiten die gepaard gaan "
             "met resultaten van het RESULTAATTYPE."
         ),
+        related_name="resultaattypen",
     )
     zaakobjecttypen = models.ManyToManyField(
         "ZaakObjectType",

@@ -63,6 +63,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "trefwoorden": ["some", "other"],
             "inhoudIsVervallen": False,
             "tonenAanInitiator": True,
+            "isGereedVoorPublicatie": True,
         }
 
         # Send to the API
@@ -94,6 +95,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(stored_object.trefwoorden, ["some", "other"])
         self.assertFalse(stored_object.inhoud_is_vervallen)
         self.assertTrue(stored_object.tonen_aan_initiator)
+        self.assertTrue(stored_object.is_gereed_voor_publicatie)
 
         expected_url = reverse(stored_object)
         expected_file_url = get_operation_url(
@@ -155,6 +157,34 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         data = response.json()
         self.assertEqual(data["bestandsomvang"], three_giga_bites)
 
+    @tag("gh-2631")
+    def test_create_with_large_file(self):
+        """
+        Regression test for #2631 to verify that files over 2.5MB (Django's default for
+        DATA_UPLOAD_MAX_MEMORY_SIZE) can be uploaded via the API. This setting is enforced
+        by django-rest-framework since 3.17.2
+        """
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+
+        content = {
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-06-27",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": "dummy.txt",
+            "inhoud": b64encode(b"a" * (3 * 1024 * 1024)).decode("utf-8"),
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+        }
+
+        # Send to the API
+        response = self.client.post(self.list_url, content)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        data = response.json()
+        self.assertEqual(data["bestandsomvang"], (3 * 1024 * 1024))
+
     @tag("gh-1306")
     def test_create_identificatie_all_characters_allowed(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
@@ -177,6 +207,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "trefwoorden": ["some", "other"],
             "inhoudIsVervallen": None,
             "tonenAanInitiator": False,
+            "isGereedVoorPublicatie": False,
         }
 
         # Send to the API
@@ -208,6 +239,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(stored_object.trefwoorden, ["some", "other"])
         self.assertIsNone(stored_object.inhoud_is_vervallen)
         self.assertFalse(stored_object.tonen_aan_initiator)
+        self.assertFalse(stored_object.is_gereed_voor_publicatie)
 
         expected_url = reverse(stored_object)
         expected_file_url = get_operation_url(
@@ -387,6 +419,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "_expand": {},
             "inhoudIsVervallen": test_object.inhoud_is_vervallen,
             "tonenAanInitiator": test_object.tonen_aan_initiator,
+            "isGereedVoorPublicatie": test_object.is_gereed_voor_publicatie,
         }
 
         response_data = response.json()
@@ -1084,6 +1117,9 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
         iotype_data = self.client.get(
             reverse(eio.informatieobjecttype, namespace="documenten")
         ).json()
+        # Remove _expand because a normal GET adds it, while the query parameter
+        # only adds it when a further expansion is requested.
+        iotype_data.pop("_expand", None)
 
         response = self.client.get(
             self.url,
@@ -1106,6 +1142,9 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
         iotype_data = self.client.get(
             reverse(eio.informatieobjecttype, namespace="documenten")
         ).json()
+        # Remove _expand because a normal GET adds it, while the query parameter
+        # only adds it when a further expansion is requested.
+        iotype_data.pop("_expand", None)
 
         response = self.client.get(
             url,

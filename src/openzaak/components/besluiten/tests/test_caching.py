@@ -39,17 +39,17 @@ class BesluitCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertIn("head", endpoint)
 
     def test_conditional_get_304(self):
-        besluit = BesluitFactory.create(with_etag=True)
+        besluit = BesluitFactory.create()
+        etag = self.client.get(reverse(besluit))["ETag"]
 
         response = self.client.get(
-            reverse(besluit, namespace=self.NAMESPACE),
-            headers={"if-none-match": f'"{besluit._etag}"'},
+            reverse(besluit, namespace=self.NAMESPACE), headers={"if-none-match": etag}
         )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
     def test_conditional_get_stale(self):
-        besluit = BesluitFactory.create(with_etag=True)
+        besluit = BesluitFactory.create()
 
         response = self.client.get(
             reverse(besluit, namespace=self.NAMESPACE),
@@ -87,17 +87,18 @@ class BesluitInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertIn("head", endpoint)
 
     def test_conditional_get_304(self):
-        bio = BesluitInformatieObjectFactory.create(with_etag=True)
+        bio = BesluitInformatieObjectFactory.create()
+        etag = self.client.get(reverse(bio))["ETag"]
 
         response = self.client.get(
             reverse(bio, namespace=self.NAMESPACE),
-            headers={"if-none-match": f'"{bio._etag}"'},
+            headers={"if-none-match": etag},
         )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
     def test_conditional_get_stale(self):
-        bio = BesluitInformatieObjectFactory.create(with_etag=True)
+        bio = BesluitInformatieObjectFactory.create()
 
         response = self.client.get(
             reverse(bio, namespace=self.NAMESPACE), headers={"if-none-match": '"old"'}

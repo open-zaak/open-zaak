@@ -147,6 +147,7 @@ class ApplicatieSerializer(serializers.HyperlinkedModelSerializer):
             "client_ids",
             "label",
             "heeft_alle_autorisaties",
+            "alleen_is_gereed_voor_publicatie",
             "autorisaties",
         )
         extra_kwargs = {

@@ -12,6 +12,9 @@ from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
 )
+from openzaak.components.catalogi.tests.factories import (
+    BesluitTypeFactory,
+)
 from openzaak.components.zaken.models import Zaak, ZaakBesluit
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.tests.utils import AdminTestMixin
@@ -27,6 +30,28 @@ class BesluitAdminTests(WebTest):
         super().setUp()
 
         self.app.set_user(self.user)
+
+    def test_besluiten_besluit_add(self):
+        zaak = ZaakFactory.create()
+
+        besluittype = BesluitTypeFactory.create(concept=False)
+        add_url = reverse("admin:besluiten_besluit_add")
+        self.assertFalse(ZaakBesluit.objects.exists())
+
+        response = self.app.get(add_url)
+        form = response.forms["besluit_form"]
+        form["ingangsdatum"] = "15-11-2019"
+        form["datum"] = "15-11-2019"
+        form["verantwoordelijke_organisatie"] = "517439943"
+        form["zaak"] = zaak.pk
+        form["besluittype"] = besluittype.id
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = form.submit()
+
+        self.assertTrue(ZaakBesluit.objects.exists())
+        obj = ZaakBesluit.objects.get()
+        self.assertEqual(obj.zaak, zaak)
 
     def test_non_alphanumeric_identificatie_validation(self):
         """

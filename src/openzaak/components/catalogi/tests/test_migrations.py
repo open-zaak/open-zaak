@@ -109,8 +109,8 @@ class ZaakTypeInformatieObjectTypeLooseFkForwardTests(TestMigrations):
     """
 
     app = "catalogi"
-    migrate_from = "0028_alter_statustype_doorlooptijd"
-    migrate_to = "0029_informatieobjecttype_loose_fk"
+    migrate_from = "0029_alter_resultaattype_besluittypen"
+    migrate_to = "0030_informatieobjecttype_loose_fk"
 
     def setUpBeforeMigration(self, apps):
         ZaakTypeInformatieObjectType = apps.get_model(
@@ -148,8 +148,8 @@ class ZaakTypeInformatieObjectTypeLooseFkForwardTests(TestMigrations):
 
 class ZaakTypeInformatieObjectTypeLooseFkBackwardTests(TestMigrations):
     app = "catalogi"
-    migrate_from = "0029_informatieobjecttype_loose_fk"
-    migrate_to = "0028_alter_statustype_doorlooptijd"
+    migrate_from = "0030_informatieobjecttype_loose_fk"
+    migrate_to = "0029_alter_resultaattype_besluittypen"
 
     def setUpBeforeMigration(self, apps):
         ZaakTypeInformatieObjectType = apps.get_model(
@@ -195,8 +195,8 @@ def _create_besluittype(apps, catalogus):
 
 class BesluitTypeInformatieObjectTypenForwardTests(TestMigrations):
     app = "catalogi"
-    migrate_from = "0029_informatieobjecttype_loose_fk"
-    migrate_to = "0030_besluittype_informatieobjecttypen_through"
+    migrate_from = "0030_informatieobjecttype_loose_fk"
+    migrate_to = "0031_besluittype_informatieobjecttypen_through"
 
     def setUpBeforeMigration(self, apps):
         _, self.iotype = _create_zaaktype_and_iotype(apps)
@@ -240,8 +240,8 @@ class BesluitTypeInformatieObjectTypenForwardTests(TestMigrations):
 
 class BesluitTypeInformatieObjectTypenBackwardTests(TestMigrations):
     app = "catalogi"
-    migrate_from = "0030_besluittype_informatieobjecttypen_through"
-    migrate_to = "0029_informatieobjecttype_loose_fk"
+    migrate_from = "0031_besluittype_informatieobjecttypen_through"
+    migrate_to = "0030_informatieobjecttype_loose_fk"
 
     def setUpBeforeMigration(self, apps):
         BesluitTypeInformatieObjectType = apps.get_model(
