@@ -26,10 +26,10 @@ The supported versions in the table below are tested in the CI pipeline. Other v
 *may* work but we offer no guarantees.
 
 ============ ============ ============ ============ ============
-Matrix       Postgres 14  Postgres 15  Postgres 16  Postgres 17
+Matrix       Postgres 15  Postgres 16  Postgres 17  Postgres 18
 ============ ============ ============ ============ ============
-Postgis 3.2  V            X            X            X
-Postgis 3.5  V            V            V            V
+Postgis 3.6  V            V            V            V
+Postgis 3.7  V            V            V            V
 ============ ============ ============ ============ ============
 
 .. warning:: Open Zaak only supports maintained versions of PostgreSQL. Once a version is
