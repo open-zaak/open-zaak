@@ -21,7 +21,7 @@ You need the following libraries and/or programs:
 * `Python`_ 3.12
 * Python `Virtualenv`_ and `Pip`_ 26.0.1 or above
 * `uv`_ 0.9.5 or above (recommended)
-* `PostgreSQL`_ 14.0 or above, with the `PostGIS-extension`_ version 3.2 or above
+* `PostgreSQL`_ 15.0 or above, with the `PostGIS-extension`_ version 3.6 or above
 * `Node.js`_ 24.0 or above
 * `npm`_ 8.0 or above
 * `Docker`_ 29.2.1 or above (and `docker compose v2`_)
