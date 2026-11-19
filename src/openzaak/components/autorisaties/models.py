@@ -48,6 +48,15 @@ class Applicatie(APIMixin, models.Model):
         ),
     )
 
+    alleen_is_gereed_voor_publicatie = models.BooleanField(
+        _("alleen is gereed voor publicatie"),
+        default=False,
+        help_text=_(
+            "Indien `true` mag de betreffende applicatie alleen documenten lezen "
+            "met waarde `true` voor `isGereedVoorPublicatie`."
+        ),
+    )
+
     objects = ApplicatieManager()
 
     class Meta:

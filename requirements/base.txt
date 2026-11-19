@@ -86,7 +86,7 @@ click-repl==0.2.0
     # via celery
 cloudevents==1.12.0
     # via -r requirements/base.in
-commonground-api-common==3.1.1
+commonground-api-common==3.2.0
     # via
     #   -r requirements/base.in
     #   open-api-framework
@@ -110,7 +110,7 @@ deprecation==2.1.0
     # via cloudevents
 dictdiffer==0.9.0
     # via -r requirements/base.in
-django==5.2.17
+django==5.2.19
     # via
     #   commonground-api-common
     #   django-admin-index

@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import json
 import uuid
 from datetime import date
 from functools import partial
@@ -70,6 +71,22 @@ class MockSchemasMixin:
         mock_drc_oas_get(mocker)
         mock_zrc_oas_get(mocker)
         mock_ztc_oas_get(mocker)
+
+
+def mock_get_with_etag(m: Mocker, url: str, body: dict, etag: str = '"1"') -> None:
+    """
+    Serve ``body`` at ``url`` with an ``ETag``, and 304 when revalidated with it.
+    """
+
+    def text(request, context) -> str:
+        context.headers["ETag"] = etag
+        if request.headers.get("If-None-Match") == etag:
+            context.status_code = 304
+            return ""
+        context.headers["Content-Type"] = "application/json"
+        return json.dumps(body)
+
+    m.get(url, text=text)
 
 
 def get_eio_response(url, **overrides):

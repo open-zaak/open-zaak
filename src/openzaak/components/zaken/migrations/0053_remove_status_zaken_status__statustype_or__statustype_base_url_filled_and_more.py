@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("catalogi", "0026_set_P0D_servicenorms_to_none"),
-        ("zaken", "0050_alter_zaakobject_object_type"),
+        ("zaken", "0052_zaak_tsaverwijzing"),
     ]
 
     operations = [

@@ -71,7 +71,7 @@ exclude_also = [
     "if settings.DEBUG",
     "if bypass_permissions(request)",
     "if TYPE_CHECKING:",
-    'case _:\n\s*(assert_never|raise)',
+    'case [_\w]+:\n\s*(assert_never|raise)',
 ]
 
 

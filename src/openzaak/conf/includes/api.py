@@ -5,11 +5,11 @@ from vng_api_common.conf.api import BASE_REST_FRAMEWORK  # noqa: F401
 from openzaak import __version__
 from openzaak.api_standards import APIStandard
 
-AUTORISATIES_API_VERSION = "1.0.0"
+AUTORISATIES_API_VERSION = "1.1.0"
 BESLUITEN_API_VERSION = "1.1.0"
-CATALOGI_API_VERSION = "1.3.1"
-DOCUMENTEN_API_VERSION = "1.7.0"
-ZAKEN_API_VERSION = "1.5.1"
+CATALOGI_API_VERSION = "1.3.3"
+DOCUMENTEN_API_VERSION = "1.8.0"
+ZAKEN_API_VERSION = "1.7.0"
 
 # Stored ETags are recalculated after a release, which may represent resources
 # differently

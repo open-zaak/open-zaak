@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Zaken API
-  version: 1.5.1
+  version: 1.7.0
   description: |
     Een API om een zaakregistratiecomponent (ZRC) te benaderen.
 
@@ -7484,6 +7484,7 @@ paths:
         description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
+        required: true
       - in: header
         name: Content-Crs
         schema:
@@ -7624,6 +7625,7 @@ paths:
         description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
+        required: true
       - in: header
         name: Content-Crs
         schema:
@@ -9513,7 +9515,7 @@ paths:
   /zaaknotities:
     get:
       operationId: zaaknotitie_list
-      description: '**EXPERIMENTEEL** Alle ZAAKNOTITIEs opvragen.'
+      description: Alle ZAAKNOTITIEs opvragen.
       summary: Alle ZAAKNOTITIEs opvragen.
       parameters:
       - in: query
@@ -9770,7 +9772,7 @@ paths:
           description: Internal server error
     post:
       operationId: zaaknotitie_create
-      description: '**EXPERIMENTEEL** Maak een ZAAKNOTITIE aan.'
+      description: Maak een ZAAKNOTITIE aan.
       summary: Maak een ZAAKNOTITIE aan.
       parameters:
       - in: header
@@ -9921,7 +9923,7 @@ paths:
   /zaaknotities/{uuid}:
     get:
       operationId: zaaknotitie_read
-      description: '**EXPERIMENTEEL** Een specifieke ZAAKNOTITIE opvragen.'
+      description: Een specifieke ZAAKNOTITIE opvragen.
       summary: Een specifieke ZAAKNOTITIE opvragen.
       parameters:
       - in: path
@@ -10060,7 +10062,7 @@ paths:
     put:
       operationId: zaaknotitie_update
       description: |-
-        **EXPERIMENTEEL** Werk een ZAAKNOTITIE in zijn geheel bij.
+        Werk een ZAAKNOTITIE in zijn geheel bij.
 
          **WARNING**: Notitie can only be modified when status is `concept`
       summary: Werk een ZAAKNOTITIE in zijn geheel bij.
@@ -10227,7 +10229,7 @@ paths:
     patch:
       operationId: zaaknotitie_partial_update
       description: |-
-        **EXPERIMENTEEL** Werk een ZAAKNOTITIE deels bij.
+        Werk een ZAAKNOTITIE deels bij.
 
          **WARNING**: Notitie can only be modified when status is `concept`
       summary: Werk een ZAAKNOTITIE deels bij.
@@ -10392,7 +10394,7 @@ paths:
           description: Internal server error
     delete:
       operationId: zaaknotitie_delete
-      description: '**EXPERIMENTEEL** Verwijder een ZAAKNOTITIE.'
+      description: Verwijder een ZAAKNOTITIE.
       summary: Verwijder een ZAAKNOTITIE.
       parameters:
       - in: path
@@ -10528,7 +10530,7 @@ paths:
     post:
       operationId: zaaknummer_reserveren
       description: |-
-        **EXPERIMENTEEL** Reserveer een zaaknummer binnen een specifieke bronorganisatie zonder direct een Zaak aan te maken. Dit zaaknummer zal toegekend worden aan de eerstvolgende Zaak die met dit zaaknummer wordt aangemaakt binnen de bronorganisatie en het zaaknummer kan daarna niet hergebruikt worden.
+        Reserveer een zaaknummer binnen een specifieke bronorganisatie zonder direct een Zaak aan te maken. Dit zaaknummer zal toegekend worden aan de eerstvolgende Zaak die met dit zaaknummer wordt aangemaakt binnen de bronorganisatie en het zaaknummer kan daarna niet hergebruikt worden.
 
         Als `aantal` niet wordt opgegeven of gelijk is aan 1, wordt een enkel object teruggegeven.
         Als `aantal > 1`, wordt een lijst van objecten teruggegeven.
@@ -12321,6 +12323,7 @@ paths:
         description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
+        required: true
       - in: query
         name: archiefactiedatum
         schema:
@@ -12992,6 +12995,7 @@ paths:
         description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
+        required: true
       - in: header
         name: Content-Crs
         schema:
@@ -13193,6 +13197,7 @@ paths:
         description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
+        required: true
       - in: header
         name: If-None-Match
         schema:
@@ -13440,6 +13445,7 @@ paths:
         description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
+        required: true
       - in: header
         name: Content-Crs
         schema:
@@ -13668,6 +13674,7 @@ paths:
         description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
+        required: true
       - in: header
         name: Content-Crs
         schema:
@@ -14047,6 +14054,7 @@ paths:
         description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
+        required: true
       - in: header
         name: If-None-Match
         schema:
@@ -15176,7 +15184,7 @@ paths:
 
         **Er wordt gevalideerd op**
 
-        - **EXPERIMENTEEL** `waarde` moet worden gevalideerd tegen `eigenschap.specificatie` indien `ZAAK_EIGENSCHAP_WAARDE_VALIDATION` op `True` staat.
+        - `waarde` wordt gevalideerd tegen `eigenschap.specificatie`. Voldoet de `waarde` niet, dan wordt de ZAAKEIGENSCHAP toch opgeslagen en wordt een waarschuwing teruggegeven in de `X-Warning` response header. Staat `ZAAK_EIGENSCHAP_WAARDE_VALIDATION` op `True`, dan wordt de ZAAKEIGENSCHAP in dat geval afgewezen met een `waarde-incorrect-format` fout.
       summary: Maak een ZAAKEIGENSCHAP aan.
       parameters:
       - in: header
@@ -15228,6 +15236,11 @@ paths:
                 type: string
                 format: uri
               description: URL waar de resource leeft.
+            X-Warning:
+              schema:
+                type: string
+              description: Waarschuwing indien `waarde` niet voldoet aan `eigenschap.specificatie`.
+                De ZAAKEIGENSCHAP is in dat geval wel opgeslagen.
           content:
             application/json:
               schema:
@@ -15558,6 +15571,11 @@ paths:
                 type: string
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
+            X-Warning:
+              schema:
+                type: string
+              description: Waarschuwing indien `waarde` niet voldoet aan `eigenschap.specificatie`.
+                De ZAAKEIGENSCHAP is in dat geval wel opgeslagen.
           content:
             application/json:
               schema:
@@ -15731,6 +15749,11 @@ paths:
                 type: string
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
+            X-Warning:
+              schema:
+                type: string
+              description: Waarschuwing indien `waarde` niet voldoet aan `eigenschap.specificatie`.
+                De ZAAKEIGENSCHAP is in dat geval wel opgeslagen.
           content:
             application/json:
               schema:
@@ -16068,6 +16091,7 @@ paths:
         description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
+        required: true
       - in: header
         name: Content-Crs
         schema:
@@ -18430,18 +18454,34 @@ components:
           format: date
           readOnly: true
           description: De datum van de aller laatste versie van het object.
+        zaaktypeIdentificaties:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: De identificaties van ZAAKTYPEs met ZAAKen die relevant kunnen
+            zijn voor dit BESLUITTYPE.
+        informatieobjecttypeOmschrijvingen:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: De omschrijvingen van INFORMATIEOBJECTTYPEs van informatieobjecten
+            waarin besluiten van dit BESLUITTYPE worden vastgelegd.
       required:
       - beginGeldigheid
       - beginObject
       - catalogus
       - concept
       - eindeObject
+      - informatieobjecttypeOmschrijvingen
       - informatieobjecttypen
       - publicatieIndicatie
       - resultaattypen
       - resultaattypenOmschrijving
       - url
       - vastgelegdIn
+      - zaaktypeIdentificaties
       - zaaktypen
     BesluitTypeRequest:
       type: object
@@ -18778,6 +18818,12 @@ components:
           readOnly: true
           description: URL-referenties naar BESLUITTYPEn die in deze CATALOGUS worden
             ontsloten.
+        besluittypeOmschrijvingen:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
         informatieobjecttypen:
           type: array
           items:
@@ -18786,6 +18832,12 @@ components:
           readOnly: true
           description: URL-referenties naar INFORMATIEOBJECTTYPEn die in deze CATALOGUS
             worden ontsloten.
+        informatieobjecttypeOmschrijvingen:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
         naam:
           type: string
           description: De benaming die is gegeven aan de zaaktypecatalogus.
@@ -18801,9 +18853,11 @@ components:
           description: Datum waarop de versie van de zaaktypecatalogus van toepassing
             is geworden.
       required:
+      - besluittypeOmschrijvingen
       - besluittypen
       - contactpersoonBeheerNaam
       - domein
+      - informatieobjecttypeOmschrijvingen
       - informatieobjecttypen
       - rsin
       - url
@@ -19648,6 +19702,12 @@ components:
             minLength: 1
           readOnly: true
           description: URL-referenties naar de BESLUITTYPEN
+        besluittypeOmschrijvingen:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
         informatieobjectcategorie:
           type: string
           title: Categorie
@@ -19687,6 +19747,7 @@ components:
       required:
       - beginGeldigheid
       - beginObject
+      - besluittypeOmschrijvingen
       - besluittypen
       - catalogus
       - concept
@@ -22084,6 +22145,16 @@ components:
           description: '**EXPERIMENTEEL** De naam van het medium waarlangs de aanleiding
             om een zaak te starten is ontvangen.'
           maxLength: 250
+        tsaverwijzing:
+          type: string
+          format: urn
+          example: urn:namespace:component:resource:uuid
+          nullable: true
+          title: TSA-verwijzing
+          description: '**EXPERIMENTEEL** URN-verwijzing naar het dossier van de ZAAK
+            in een taak specifieke applicatie (TSA).'
+          pattern: ^urn:[A-Za-z0-9](?:[A-Za-z0-9]|-){0,30}[A-Za-z0-9]:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/)*(?:\?\+(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?(?:\?=(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?(?:#(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?$
+          maxLength: 255
         productenOfDiensten:
           type: array
           items:
@@ -22324,6 +22395,16 @@ components:
           description: '**EXPERIMENTEEL** De naam van het medium waarlangs de aanleiding
             om een zaak te starten is ontvangen.'
           maxLength: 250
+        tsaverwijzing:
+          type: string
+          format: urn
+          example: urn:namespace:component:resource:uuid
+          nullable: true
+          title: TSA-verwijzing
+          description: '**EXPERIMENTEEL** URN-verwijzing naar het dossier van de ZAAK
+            in een taak specifieke applicatie (TSA).'
+          pattern: ^urn:[A-Za-z0-9](?:[A-Za-z0-9]|-){0,30}[A-Za-z0-9]:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/)*(?:\?\+(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?(?:\?=(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?(?:#(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?$
+          maxLength: 255
         productenOfDiensten:
           type: array
           items:
@@ -24234,6 +24315,16 @@ components:
           description: '**EXPERIMENTEEL** De naam van het medium waarlangs de aanleiding
             om een zaak te starten is ontvangen.'
           maxLength: 250
+        tsaverwijzing:
+          type: string
+          format: urn
+          example: urn:namespace:component:resource:uuid
+          nullable: true
+          title: TSA-verwijzing
+          description: '**EXPERIMENTEEL** URN-verwijzing naar het dossier van de ZAAK
+            in een taak specifieke applicatie (TSA).'
+          pattern: ^urn:[A-Za-z0-9](?:[A-Za-z0-9]|-){0,30}[A-Za-z0-9]:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/)*(?:\?\+(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?(?:\?=(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?(?:#(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?$
+          maxLength: 255
         productenOfDiensten:
           type: array
           items:
@@ -25000,6 +25091,16 @@ components:
           description: '**EXPERIMENTEEL** De naam van het medium waarlangs de aanleiding
             om een zaak te starten is ontvangen.'
           maxLength: 250
+        tsaverwijzing:
+          type: string
+          format: urn
+          example: urn:namespace:component:resource:uuid
+          nullable: true
+          title: TSA-verwijzing
+          description: '**EXPERIMENTEEL** URN-verwijzing naar het dossier van de ZAAK
+            in een taak specifieke applicatie (TSA).'
+          pattern: ^urn:[A-Za-z0-9](?:[A-Za-z0-9]|-){0,30}[A-Za-z0-9]:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/)*(?:\?\+(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?(?:\?=(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?(?:#(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?$
+          maxLength: 255
         productenOfDiensten:
           type: array
           items:
@@ -25562,6 +25663,12 @@ components:
             $ref: '#/components/schemas/ZaakTypeInformatieObjectType'
           readOnly: true
           description: INFORMATIEOBJECTTYPEN die mogelijk zijn binnen dit ZAAKTYPE.
+        informatieobjecttypeOmschrijvingen:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
         roltypen:
           type: array
           items:
@@ -25574,6 +25681,12 @@ components:
             $ref: '#/components/schemas/BesluitType'
           readOnly: true
           description: BESLUITTYPEN die mogelijk zijn binnen dit ZAAKTYPE.
+        besluittypeOmschrijvingen:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
         deelzaaktypen:
           type: array
           items:
@@ -25584,6 +25697,13 @@ components:
             minLength: 1
           description: De ZAAKTYPE(n) waaronder ZAAKen als deelzaak kunnen voorkomen
             bij ZAAKen van dit ZAAKTYPE.
+        deelzaaktypeIdentificaties:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Unieke identificaties van de ZAAKTYPE(n) waaronder ZAAKen als
+            deelzaak kunnen voorkomen bij ZAAKen van dit ZAAKTYPE.
         gerelateerdeZaaktypen:
           type: array
           items:
@@ -25600,9 +25720,11 @@ components:
       - aanleiding
       - beginGeldigheid
       - beginObject
+      - besluittypeOmschrijvingen
       - besluittypen
       - catalogus
       - concept
+      - deelzaaktypeIdentificaties
       - doel
       - doorlooptijd
       - eigenschappen
@@ -25611,6 +25733,7 @@ components:
       - handelingBehandelaar
       - handelingInitiator
       - indicatieInternOfExtern
+      - informatieobjecttypeOmschrijvingen
       - informatieobjecttypen
       - omschrijving
       - onderwerp
@@ -26247,6 +26370,17 @@ components:
           description: '**EXPERIMENTEEL** De naam van het medium waarlangs de aanleiding
             om een zaak te starten is ontvangen.'
           maxLength: 250
+        tsaverwijzing:
+          type: string
+          format: urn
+          example: urn:namespace:component:resource:uuid
+          readOnly: true
+          nullable: true
+          title: TSA-verwijzing
+          description: '**EXPERIMENTEEL** URN-verwijzing naar het dossier van de ZAAK
+            in een taak specifieke applicatie (TSA).'
+          pattern: ^urn:[A-Za-z0-9](?:[A-Za-z0-9]|-){0,30}[A-Za-z0-9]:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/)*(?:\?\+(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?(?:\?=(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?(?:#(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?$
+          maxLength: 255
         productenOfDiensten:
           type: array
           items:
@@ -26510,6 +26644,7 @@ components:
       - startdatumBewaartermijn
       - status
       - toelichting
+      - tsaverwijzing
       - uiterlijkeEinddatumAfdoening
       - url
       - uuid
@@ -26663,6 +26798,16 @@ components:
           description: '**EXPERIMENTEEL** De naam van het medium waarlangs de aanleiding
             om een zaak te starten is ontvangen.'
           maxLength: 250
+        tsaverwijzing:
+          type: string
+          format: urn
+          example: urn:namespace:component:resource:uuid
+          nullable: true
+          title: TSA-verwijzing
+          description: '**EXPERIMENTEEL** URN-verwijzing naar het dossier van de ZAAK
+            in een taak specifieke applicatie (TSA).'
+          pattern: ^urn:[A-Za-z0-9](?:[A-Za-z0-9]|-){0,30}[A-Za-z0-9]:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/)*(?:\?\+(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?(?:\?=(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?(?:#(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?$
+          maxLength: 255
         productenOfDiensten:
           type: array
           items:
@@ -26935,6 +27080,16 @@ components:
           description: '**EXPERIMENTEEL** De naam van het medium waarlangs de aanleiding
             om een zaak te starten is ontvangen.'
           maxLength: 250
+        tsaverwijzing:
+          type: string
+          format: urn
+          example: urn:namespace:component:resource:uuid
+          nullable: true
+          title: TSA-verwijzing
+          description: '**EXPERIMENTEEL** URN-verwijzing naar het dossier van de ZAAK
+            in een taak specifieke applicatie (TSA).'
+          pattern: ^urn:[A-Za-z0-9](?:[A-Za-z0-9]|-){0,30}[A-Za-z0-9]:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/)*(?:\?\+(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?(?:\?=(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?(?:#(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?$
+          maxLength: 255
         productenOfDiensten:
           type: array
           items:
@@ -27243,6 +27398,16 @@ components:
           description: '**EXPERIMENTEEL** De naam van het medium waarlangs de aanleiding
             om een zaak te starten is ontvangen.'
           maxLength: 250
+        tsaverwijzing:
+          type: string
+          format: urn
+          example: urn:namespace:component:resource:uuid
+          nullable: true
+          title: TSA-verwijzing
+          description: '**EXPERIMENTEEL** URN-verwijzing naar het dossier van de ZAAK
+            in een taak specifieke applicatie (TSA).'
+          pattern: ^urn:[A-Za-z0-9](?:[A-Za-z0-9]|-){0,30}[A-Za-z0-9]:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/)*(?:\?\+(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?(?:\?=(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?(?:#(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?$
+          maxLength: 255
         productenOfDiensten:
           type: array
           items:
@@ -27644,6 +27809,12 @@ components:
           readOnly: true
           description: URL-referenties naar de INFORMATIEOBJECTTYPEN die mogelijk
             zijn binnen dit ZAAKTYPE.
+        informatieobjecttypeOmschrijvingen:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
         roltypen:
           type: array
           items:
@@ -27661,6 +27832,12 @@ components:
           title: heeft relevante besluittypen
           description: URL-referenties naar de BESLUITTYPEN die mogelijk zijn binnen
             dit ZAAKTYPE.
+        besluittypeOmschrijvingen:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
         deelzaaktypen:
           type: array
           items:
@@ -27671,6 +27848,13 @@ components:
             minLength: 1
           description: De ZAAKTYPE(n) waaronder ZAAKen als deelzaak kunnen voorkomen
             bij ZAAKen van dit ZAAKTYPE.
+        deelzaaktypeIdentificaties:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Unieke identificaties van de ZAAKTYPE(n) waaronder ZAAKen als
+            deelzaak kunnen voorkomen bij ZAAKen van dit ZAAKTYPE.
         gerelateerdeZaaktypen:
           type: array
           items:
@@ -27689,9 +27873,11 @@ components:
       - aanleiding
       - beginGeldigheid
       - beginObject
+      - besluittypeOmschrijvingen
       - besluittypen
       - catalogus
       - concept
+      - deelzaaktypeIdentificaties
       - doel
       - doorlooptijd
       - eigenschappen
@@ -27700,6 +27886,7 @@ components:
       - handelingBehandelaar
       - handelingInitiator
       - indicatieInternOfExtern
+      - informatieobjecttypeOmschrijvingen
       - informatieobjecttypen
       - omschrijving
       - onderwerp
@@ -27798,6 +27985,10 @@ components:
           description: URL referentie naar het gerelateerde zaaktype, mogelijks in
             een extern ZTC.
           maxLength: 200
+        zaaktypeIdentificatie:
+          type: string
+          description: Identificatie van het gerelateerde zaaktype.
+          readOnly: true
         aardRelatie:
           allOf:
           - $ref: '#/components/schemas/ZaakTypenRelatieAardRelatieEnum'
@@ -27816,6 +28007,7 @@ components:
       required:
       - aardRelatie
       - zaaktype
+      - zaaktypeIdentificatie
     ZaakTypenRelatieAardRelatieEnum:
       enum:
       - vervolg
@@ -27965,6 +28157,17 @@ components:
           description: '**EXPERIMENTEEL** De naam van het medium waarlangs de aanleiding
             om een zaak te starten is ontvangen.'
           maxLength: 250
+        tsaverwijzing:
+          type: string
+          format: urn
+          example: urn:namespace:component:resource:uuid
+          readOnly: true
+          nullable: true
+          title: TSA-verwijzing
+          description: '**EXPERIMENTEEL** URN-verwijzing naar het dossier van de ZAAK
+            in een taak specifieke applicatie (TSA).'
+          pattern: ^urn:[A-Za-z0-9](?:[A-Za-z0-9]|-){0,30}[A-Za-z0-9]:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/)*(?:\?\+(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?(?:\?=(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?(?:#(?:(?:[A-Za-z0-9]|[-._~]|%[0-9A-Fa-f][0-9A-Fa-f]|[!$&'()*+,;=]|[:@])|/|\?)*)?$
+          maxLength: 255
         productenOfDiensten:
           type: array
           items:
@@ -28228,6 +28431,7 @@ components:
       - startdatumBewaartermijn
       - status
       - toelichting
+      - tsaverwijzing
       - uiterlijkeEinddatumAfdoening
       - url
       - uuid

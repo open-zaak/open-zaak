@@ -340,6 +340,7 @@ class ZaakAfsluitenTests(JWTAuthMixin, APITestCase):
                 "bronorganisatie": "517439943",
                 "communicatiekanaal": "",
                 "communicatiekanaalNaam": "",
+                "tsaverwijzing": None,
                 "deelzaken": [],
                 "eigenschappen": [],
                 "einddatum": "2023-01-01",

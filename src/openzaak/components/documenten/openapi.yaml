@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Documenten API
-  version: 1.7.0
+  version: 1.8.0
   description: |
     Een API om een documentregistratiecomponent (DRC) te benaderen.
 
@@ -2600,6 +2600,25 @@ paths:
             schema:
               type: object
               properties:
+                fields:
+                  title: Fields
+                  type: array
+                  items:
+                    oneOf:
+                    - type: string
+                    - type: object
+                  example:
+                  - url
+                  - identificatie
+                  - titel
+                  - informatieobjecttype:
+                    - omschrijving
+                  description: |-
+                    De elementen (fields) die worden teruggegeven in de respons conform het expand-mechanisme. Het voorbeeld geeft aan hoe het werkt. Hierin betekent "*" dat alle elementen van een resource worden teruggegeven.
+
+                    Voor gerelateerde resources uit de Catalogi API is `catalogi.lezen` nodig.
+
+                    **Let op:** Het gebruik van het "fields" en "expand" element is mutual exclusive. Of je gebruikt de één of de ander maar nooit te gelijk.
                 uuid__in:
                   type: array
                   items:
@@ -7673,18 +7692,34 @@ components:
           format: date
           readOnly: true
           description: De datum van de aller laatste versie van het object.
+        zaaktypeIdentificaties:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: De identificaties van ZAAKTYPEs met ZAAKen die relevant kunnen
+            zijn voor dit BESLUITTYPE.
+        informatieobjecttypeOmschrijvingen:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: De omschrijvingen van INFORMATIEOBJECTTYPEs van informatieobjecten
+            waarin besluiten van dit BESLUITTYPE worden vastgelegd.
       required:
       - beginGeldigheid
       - beginObject
       - catalogus
       - concept
       - eindeObject
+      - informatieobjecttypeOmschrijvingen
       - informatieobjecttypen
       - publicatieIndicatie
       - resultaattypen
       - resultaattypenOmschrijving
       - url
       - vastgelegdIn
+      - zaaktypeIdentificaties
       - zaaktypen
     BestandsDeel:
       type: object
@@ -7987,6 +8022,12 @@ components:
           readOnly: true
           description: URL-referenties naar BESLUITTYPEn die in deze CATALOGUS worden
             ontsloten.
+        besluittypeOmschrijvingen:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
         informatieobjecttypen:
           type: array
           items:
@@ -7995,6 +8036,12 @@ components:
           readOnly: true
           description: URL-referenties naar INFORMATIEOBJECTTYPEn die in deze CATALOGUS
             worden ontsloten.
+        informatieobjecttypeOmschrijvingen:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
         naam:
           type: string
           description: De benaming die is gegeven aan de zaaktypecatalogus.
@@ -8010,9 +8057,11 @@ components:
           description: Datum waarop de versie van de zaaktypecatalogus van toepassing
             is geworden.
       required:
+      - besluittypeOmschrijvingen
       - besluittypen
       - contactpersoonBeheerNaam
       - domein
+      - informatieobjecttypeOmschrijvingen
       - informatieobjecttypen
       - rsin
       - url
@@ -8283,6 +8332,7 @@ components:
         inhoudIsVervallen:
           type: boolean
           nullable: true
+          default: null
           description: |-
             Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
             * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
@@ -8469,6 +8519,7 @@ components:
         inhoudIsVervallen:
           type: boolean
           nullable: true
+          default: null
           description: |-
             Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
             * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
@@ -8674,6 +8725,7 @@ components:
         inhoudIsVervallen:
           type: boolean
           nullable: true
+          default: null
           description: |-
             Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
             * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
@@ -8864,6 +8916,7 @@ components:
         inhoudIsVervallen:
           type: boolean
           nullable: true
+          default: null
           description: |-
             Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
             * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
@@ -9045,6 +9098,7 @@ components:
         inhoudIsVervallen:
           type: boolean
           nullable: true
+          default: null
           description: |-
             Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
             * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
@@ -9390,6 +9444,12 @@ components:
             minLength: 1
           readOnly: true
           description: URL-referenties naar de BESLUITTYPEN
+        besluittypeOmschrijvingen:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
         informatieobjectcategorie:
           type: string
           title: Categorie
@@ -9429,6 +9489,7 @@ components:
       required:
       - beginGeldigheid
       - beginObject
+      - besluittypeOmschrijvingen
       - besluittypen
       - catalogus
       - concept
@@ -10071,6 +10132,7 @@ components:
         inhoudIsVervallen:
           type: boolean
           nullable: true
+          default: null
           description: |-
             Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
             * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
@@ -11002,6 +11064,12 @@ components:
           readOnly: true
           description: URL-referenties naar de INFORMATIEOBJECTTYPEN die mogelijk
             zijn binnen dit ZAAKTYPE.
+        informatieobjecttypeOmschrijvingen:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
         roltypen:
           type: array
           items:
@@ -11019,6 +11087,12 @@ components:
           title: heeft relevante besluittypen
           description: URL-referenties naar de BESLUITTYPEN die mogelijk zijn binnen
             dit ZAAKTYPE.
+        besluittypeOmschrijvingen:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
         deelzaaktypen:
           type: array
           items:
@@ -11029,6 +11103,13 @@ components:
             minLength: 1
           description: De ZAAKTYPE(n) waaronder ZAAKen als deelzaak kunnen voorkomen
             bij ZAAKen van dit ZAAKTYPE.
+        deelzaaktypeIdentificaties:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Unieke identificaties van de ZAAKTYPE(n) waaronder ZAAKen als
+            deelzaak kunnen voorkomen bij ZAAKen van dit ZAAKTYPE.
         gerelateerdeZaaktypen:
           type: array
           items:
@@ -11047,9 +11128,11 @@ components:
       - aanleiding
       - beginGeldigheid
       - beginObject
+      - besluittypeOmschrijvingen
       - besluittypen
       - catalogus
       - concept
+      - deelzaaktypeIdentificaties
       - doel
       - doorlooptijd
       - eigenschappen
@@ -11058,6 +11141,7 @@ components:
       - handelingBehandelaar
       - handelingInitiator
       - indicatieInternOfExtern
+      - informatieobjecttypeOmschrijvingen
       - informatieobjecttypen
       - omschrijving
       - onderwerp
@@ -11083,6 +11167,10 @@ components:
           description: URL referentie naar het gerelateerde zaaktype, mogelijks in
             een extern ZTC.
           maxLength: 200
+        zaaktypeIdentificatie:
+          type: string
+          description: Identificatie van het gerelateerde zaaktype.
+          readOnly: true
         aardRelatie:
           allOf:
           - $ref: '#/components/schemas/ZaakTypenRelatieAardRelatieEnum'
@@ -11101,6 +11189,7 @@ components:
       required:
       - aardRelatie
       - zaaktype
+      - zaaktypeIdentificatie
     ZaakTypenRelatieAardRelatieEnum:
       enum:
       - vervolg

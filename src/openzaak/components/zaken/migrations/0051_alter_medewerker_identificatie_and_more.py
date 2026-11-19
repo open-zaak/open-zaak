@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('zaken', '0054_remove_zaakbesluit_zaken_zaakbesluit__besluit_or__besluit_base_url_filled_and_more'),
+        ('zaken', '0050_alter_zaakobject_object_type'),
     ]
 
     operations = [

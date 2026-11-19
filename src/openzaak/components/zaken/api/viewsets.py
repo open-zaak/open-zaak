@@ -186,6 +186,17 @@ ZAAK_UUID_PARAMETER = OpenApiParameter(
     description="Unieke resource identifier (UUID4)",
 )
 
+X_WARNING_PARAMETER = OpenApiParameter(
+    name="X-Warning",
+    type=OpenApiTypes.STR,
+    location=OpenApiParameter.HEADER,
+    description=(
+        "Waarschuwing indien `waarde` niet voldoet aan `eigenschap.specificatie`. "
+        "De ZAAKEIGENSCHAP is in dat geval wel opgeslagen."
+    ),
+    response=[200, 201],
+)
+
 
 @extend_schema_view(
     list=extend_schema(
@@ -468,6 +479,24 @@ class ZaakViewSet(
             # kenmerk. The read operations are slightly slower if we include this `select_related`
             # on the base queryset, because it adds an extra join
             qs = qs.select_related("zaaktype__catalogus")
+
+        # Autorisaties API 1.1.0 introduced `alleen_is_gereed_voor_publicatie`
+        # When enabled, only include documents with `is_gereed_voor_publicatie=True`
+        if (
+            action in ("list", "_zoek", "retrieve")
+            and hasattr(self.request, "jwt_auth")
+            and any(
+                app.alleen_is_gereed_voor_publicatie
+                for app in self.request.jwt_auth.applicaties
+            )
+        ):
+            qs = self._prefetch_inclusion(
+                qs,
+                "zaakinformatieobject_set",
+                ZaakInformatieObjectViewSet.queryset.filter(
+                    _informatieobject__latest_version__is_gereed_voor_publicatie=True
+                ),
+            )
 
         return qs
 
@@ -1113,13 +1142,9 @@ class ZaakInformatieObjectViewSet(
     Opvragen en bewerken van ZAAK-INFORMATIEOBJECT relaties.
     """
 
-    queryset = (
-        ZaakInformatieObject.objects.select_related(
-            "zaak", "status", "_informatieobject"
-        )
-        .prefetch_related("_informatieobject__enkelvoudiginformatieobject_set")
-        .order_by("-pk")
-    )
+    queryset = ZaakInformatieObject.objects.select_related(
+        "zaak", "_informatieobject__latest_version"
+    ).order_by("-pk")
     inclusion_viewsets = {
         "zaak": ("zaak", "openzaak.components.zaken.api.viewsets.ZaakViewSet"),
         "zaak.zaaktype": (
@@ -1140,9 +1165,6 @@ class ZaakInformatieObjectViewSet(
             "openzaak.components.documenten.api.viewsets.EnkelvoudigInformatieObjectViewSet",
         ),
     }
-    queryset = ZaakInformatieObject.objects.select_related(
-        "zaak", "_informatieobject__latest_version"
-    ).order_by("-pk")
     serializer_class = ZaakInformatieObjectSerializer
     lookup_field = "uuid"
     notifications_kanaal = KANAAL_ZAKEN
@@ -1162,6 +1184,10 @@ class ZaakInformatieObjectViewSet(
         | SCOPE_ZAKEN_ALLES_VERWIJDEREN,
     }
     audit = AUDIT_ZRC
+
+    gereed_voor_publicatie_filter_field = (
+        "_informatieobject__latest_version__is_gereed_voor_publicatie"
+    )
 
     @property
     def filterset_class(self):
@@ -1266,22 +1292,27 @@ class ZaakInformatieObjectViewSet(
             "\n"
             "**Er wordt gevalideerd op**\n"
             "\n"
-            "- **EXPERIMENTEEL** `waarde` moet worden gevalideerd tegen "
-            "`eigenschap.specificatie` indien `ZAAK_EIGENSCHAP_WAARDE_VALIDATION` "
-            "op `True` staat."
+            "- `waarde` wordt gevalideerd tegen `eigenschap.specificatie`. Voldoet "
+            "de `waarde` niet, dan wordt de ZAAKEIGENSCHAP toch opgeslagen en wordt "
+            "een waarschuwing teruggegeven in de `X-Warning` response header. Staat "
+            "`ZAAK_EIGENSCHAP_WAARDE_VALIDATION` op `True`, dan wordt de ZAAKEIGENSCHAP "
+            "in dat geval afgewezen met een `waarde-incorrect-format` fout."
         ),
+        parameters=[X_WARNING_PARAMETER],
     ),
     update=extend_schema(
         summary="Werk een ZAAKEIGENSCHAP in zijn geheel bij.",
         description=(
             "**Er wordt gevalideerd op**\n\n- Alleen de WAARDE mag gewijzigd worden"
         ),
+        parameters=[X_WARNING_PARAMETER],
     ),
     partial_update=extend_schema(
         summary="Werk een ZAAKEIGENSCHAP deels bij.",
         description=(
             "**Er wordt gevalideerd op**\n\n- Alleen de WAARDE mag gewijzigd worden"
         ),
+        parameters=[X_WARNING_PARAMETER],
     ),
     destroy=extend_schema(
         summary="Verwijder een ZAAKEIGENSCHAP.",
@@ -2128,13 +2159,11 @@ class ZaakVerzoekViewSet(
     create=extend_schema(
         operation_id="zaaknummer_reserveren",
         summary="Reserveer een zaaknummer",
-        description=mark_experimental(
-            "Reserveer een zaaknummer binnen een specifieke bronorganisatie zonder direct een Zaak aan te maken. "
-            "Dit zaaknummer zal toegekend worden aan de eerstvolgende Zaak die met dit zaaknummer wordt aangemaakt "
-            "binnen de bronorganisatie en het zaaknummer kan daarna niet hergebruikt worden.\n\n"
-            "Als `aantal` niet wordt opgegeven of gelijk is aan 1, wordt een enkel object teruggegeven.\n"
-            "Als `aantal > 1`, wordt een lijst van objecten teruggegeven."
-        ),
+        description="Reserveer een zaaknummer binnen een specifieke bronorganisatie zonder direct een Zaak aan te maken. "
+        "Dit zaaknummer zal toegekend worden aan de eerstvolgende Zaak die met dit zaaknummer wordt aangemaakt "
+        "binnen de bronorganisatie en het zaaknummer kan daarna niet hergebruikt worden.\n\n"
+        "Als `aantal` niet wordt opgegeven of gelijk is aan 1, wordt een enkel object teruggegeven.\n"
+        "Als `aantal > 1`, wordt een lijst van objecten teruggegeven.",
         request=ReserveZaakIdentificatieSerializer,
         responses={
             status.HTTP_201_CREATED: OpenApiResponse(
@@ -2229,29 +2258,29 @@ class DeprecatedReserveerZaakNummerViewSet(ReserveerZaakNummerViewSet):
 @extend_schema_view(
     list=extend_schema(
         summary="Alle ZAAKNOTITIEs opvragen.",
-        description=mark_experimental("Alle ZAAKNOTITIEs opvragen."),
+        description="Alle ZAAKNOTITIEs opvragen.",
     ),
     retrieve=extend_schema(
         summary="Een specifieke ZAAKNOTITIE opvragen.",
-        description=mark_experimental("Een specifieke ZAAKNOTITIE opvragen."),
+        description="Een specifieke ZAAKNOTITIE opvragen.",
     ),
     create=extend_schema(
         summary="Maak een ZAAKNOTITIE aan.",
-        description=mark_experimental("Maak een ZAAKNOTITIE aan."),
+        description="Maak een ZAAKNOTITIE aan.",
     ),
     update=extend_schema(
         summary="Werk een ZAAKNOTITIE in zijn geheel bij.",
-        description=mark_experimental("Werk een ZAAKNOTITIE in zijn geheel bij.")
+        description="Werk een ZAAKNOTITIE in zijn geheel bij."
         + "\n\n **WARNING**: Notitie can only be modified when status is `concept`",
     ),
     partial_update=extend_schema(
         summary="Werk een ZAAKNOTITIE deels bij.",
-        description=mark_experimental("Werk een ZAAKNOTITIE deels bij.")
+        description="Werk een ZAAKNOTITIE deels bij."
         + "\n\n **WARNING**: Notitie can only be modified when status is `concept`",
     ),
     destroy=extend_schema(
         summary="Verwijder een ZAAKNOTITIE.",
-        description=mark_experimental("Verwijder een ZAAKNOTITIE."),
+        description="Verwijder een ZAAKNOTITIE.",
     ),
 )
 class ZaakNotitieViewSet(

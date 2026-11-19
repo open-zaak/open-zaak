@@ -58,6 +58,7 @@ from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import (
     CacheQuerysetMixin,
     ExpandMixin,
+    FieldsMixin,
 )
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
@@ -241,6 +242,7 @@ REGISTRATIE_QUERY_PARAM = OpenApiParameter(
 class EnkelvoudigInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
+    FieldsMixin,
     SearchMixin,
     ExpandMixin,
     NotificationViewSetMixin,
@@ -274,6 +276,8 @@ class EnkelvoudigInformatieObjectViewSet(
     }
     notifications_kanaal = KANAAL_DOCUMENTEN
     audit = AUDIT_DRC
+
+    gereed_voor_publicatie_filter_field = "is_gereed_voor_publicatie"
 
     def get_renderers(self):
         if self.action == "download":
@@ -472,6 +476,16 @@ class EnkelvoudigInformatieObjectViewSet(
         if not request.data:
             err = ErrorDetail(
                 _("Search parameters must be specified"), code="empty_search_body"
+            )
+            raise ValidationError({api_settings.NON_FIELD_ERRORS_KEY: err})
+        elif self.has_expand(request) and self.has_fields(request):
+            # Het gebruik van het "fields" en "expand" element is mutual exclusive.
+            # Of je gebruikt de één of de ander maar nooit te gelijk.
+            err = ErrorDetail(
+                _(
+                    "Het gebruik van het `fields` en `expand` element is mutual exclusive."
+                ),
+                code="invalid_field",
             )
             raise ValidationError({api_settings.NON_FIELD_ERRORS_KEY: err})
 
@@ -742,6 +756,10 @@ class GebruiksrechtenViewSet(
     audit = AUDIT_DRC
     audittrail_main_resource_key = "informatieobject"
 
+    gereed_voor_publicatie_filter_field = (
+        "informatieobject__latest_version__is_gereed_voor_publicatie"
+    )
+
     @property
     def filterset_class(self):
         """
@@ -891,6 +909,10 @@ class ObjectInformatieObjectViewSet(
         "update": SCOPE_DOCUMENTEN_BIJWERKEN,
         "partial_update": SCOPE_DOCUMENTEN_BIJWERKEN,
     }
+
+    gereed_voor_publicatie_filter_field = (
+        "informatieobject__latest_version__is_gereed_voor_publicatie"
+    )
 
     @property
     def filterset_class(self):
@@ -1043,6 +1065,10 @@ class VerzendingViewSet(
         "update": SCOPE_DOCUMENTEN_BIJWERKEN,
         "partial_update": SCOPE_DOCUMENTEN_BIJWERKEN,
     }
+
+    gereed_voor_publicatie_filter_field = (
+        "informatieobject__latest_version__is_gereed_voor_publicatie"
+    )
 
     @property
     def filterset_class(self):

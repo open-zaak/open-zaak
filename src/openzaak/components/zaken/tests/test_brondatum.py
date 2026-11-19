@@ -3,12 +3,13 @@
 from datetime import date, datetime
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase
 
 from rest_framework.test import APITestCase
 from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
 
-from openzaak.components.zaken.brondatum import BrondatumCalculator
+from openzaak.components.zaken.brondatum import BrondatumCalculator, get_brondatum
+from openzaak.components.zaken.models import Zaak
 from openzaak.components.zaken.tests.factories import (
     ResultaatFactory,
     ZaakEigenschapFactory,
@@ -16,6 +17,14 @@ from openzaak.components.zaken.tests.factories import (
 )
 
 from ...besluiten.tests.factories import BesluitFactory
+
+
+class BrondatumValidationTests(SimpleTestCase):
+    def test_unknown_afleidingswijze(self):
+        with self.assertRaisesMessage(
+            ValueError, 'Onbekende "Afleidingswijze": onbekend'
+        ):
+            get_brondatum(Zaak(), afleidingswijze="onbekend")
 
 
 @patch(

@@ -499,6 +499,7 @@ class ZaakInzageTests(JWTAuthMixin, APITestCase):
             "bronorganisatie": zaak.bronorganisatie,
             "omschrijving": zaak.omschrijving,
             "toelichting": "",
+            "tsaverwijzing": None,
             "zaaktype": {
                 "url": self._format_url(reverse(zaaktype)),
                 "identificatie": zaaktype.identificatie,
@@ -621,6 +622,9 @@ class ZaakInzageTests(JWTAuthMixin, APITestCase):
                         "eindeObject": None,
                     },
                 ],
+                "informatieobjecttypeOmschrijvingen": [
+                    zaaktypeinformatieobjecttype.informatieobjecttype.omschrijving
+                ],
                 "informatieobjecttypen": [
                     {
                         "url": self._format_url(reverse(zaaktypeinformatieobjecttype)),
@@ -652,7 +656,9 @@ class ZaakInzageTests(JWTAuthMixin, APITestCase):
                         "eindeObject": None,
                     },
                 ],
+                "besluittypeOmschrijvingen": [],
                 "besluittypen": [],
+                "deelzaaktypeIdentificaties": [],
                 "deelzaaktypen": [],
                 "gerelateerdeZaaktypen": [],
                 "zaakobjecttypen": [
@@ -999,9 +1005,12 @@ class ZaakInzageTests(JWTAuthMixin, APITestCase):
                 "statustypen": [],
                 "resultaattypen": [],
                 "eigenschappen": [],
+                "informatieobjecttypeOmschrijvingen": [],
                 "informatieobjecttypen": [],
                 "roltypen": [],
+                "besluittypeOmschrijvingen": [],
                 "besluittypen": [],
+                "deelzaaktypeIdentificaties": [],
                 "deelzaaktypen": [],
                 "gerelateerdeZaaktypen": [],
                 "zaakobjecttypen": [],
@@ -1011,6 +1020,7 @@ class ZaakInzageTests(JWTAuthMixin, APITestCase):
             "startdatum": zaak.startdatum.isoformat(),
             "einddatum": zaak.einddatum,
             "einddatumGepland": zaak.einddatum_gepland,
+            "tsaverwijzing": None,
             "uiterlijkeEinddatumAfdoening": zaak.uiterlijke_einddatum_afdoening,
             "publicatiedatum": zaak.publicatiedatum,
             "laatstGemuteerd": self._format_dt(zaak.laatst_gemuteerd),

@@ -155,7 +155,7 @@ cloudevents==1.12.0
     #   -r requirements/base.txt
 codecov==2.1.13
     # via -r requirements/test-tools.in
-commonground-api-common==3.1.1
+commonground-api-common==3.2.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -203,7 +203,7 @@ dictdiffer==0.9.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-django==5.2.17
+django==5.2.19
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -848,7 +848,7 @@ platformdirs==4.3.8
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   requests-cache
-playwright==1.57.0
+playwright==1.64.1
     # via -r requirements/test-tools.in
 pluggy==1.5.0
     # via pytest

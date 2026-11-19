@@ -148,8 +148,11 @@ MIDDLEWARE = [
     "csp.middleware.CSPMiddleware",
     "openzaak.utils.middleware.APIVersionHeaderMiddleware",
     "openzaak.utils.middleware.DeprecationMiddleware",
+    "openzaak.utils.middleware.XWarningMiddleware",
     "openzaak.utils.middleware.EnabledMiddleware",
     "axes.middleware.AxesMiddleware",
+    # innermost, so the scope covers the view and its on_commit callbacks
+    "openzaak.utils.middleware.SnapshotMiddleware",
 ]
 
 #
@@ -209,6 +212,23 @@ MIN_UPLOAD_SIZE = config(
             "the max allowed size of POST bodies, in bytes. Defaults to 4GiB. "
             "Note that you should also configure your web server to allow this."
         )
+    ),
+)
+# DRF 3.17.2 now enforces DATA_UPLOAD_MAX_MEMORY_SIZE
+DATA_UPLOAD_MAX_MEMORY_SIZE = config(
+    "DATA_UPLOAD_MAX_MEMORY_SIZE",
+    default=MIN_UPLOAD_SIZE,
+    documentation=DocumentationParams(
+        help_text=(
+            "Maximum request body size in bytes for JSON and form data. "
+            "Defaults to MIN_UPLOAD_SIZE (4 GiB unless configured otherwise). "
+            "Base64-encoded document content counts towards this limit and is approximately "
+            "33% larger than the original file. Large JSON requests are processed in memory "
+            "and can exhaust available memory, especially with concurrent uploads. "
+            "Use multipart bestandsdelen uploads for large documents. "
+            "The web server must also allow the configured request size."
+        ),
+        auto_display_default=False,
     ),
 )
 # default to the MIN_UPLOAD_SIZE, as that is typically the maximum post body size configured
@@ -563,8 +583,11 @@ ZAAK_EIGENSCHAP_WAARDE_VALIDATION = config(
     default=False,
     documentation=DocumentationParams(
         help_text=(
-            "if this variable is set to ``true``, ``yes`` or ``1``, ``ZaakEigenschap.waarde`` "
-            "property would be validated against the related ``Eigenschap.specificatie``."
+            "``ZaakEigenschap.waarde`` is always validated against the related "
+            "``Eigenschap.specificatie``. By default a mismatch is saved and reported in the "
+            "``X-Warning`` response header (as in the Zaken API 1.7 standard). If this variable "
+            "is set to ``true``, ``yes`` or ``1``, a mismatch is rejected with a "
+            "``waarde-incorrect-format`` error instead."
         )
     ),
 )

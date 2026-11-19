@@ -1,8 +1,46 @@
 Changelog
 =========
 
+1.31.2 (2026-11-09)
+-------------------
+
+**Bugfixes**
+
+* [:open-zaak:`2631`] Fix issue introduced in 1.31.0 that causes Documenten API requests to
+  fail due to their request size exceeding 2.5MB (Django's default request body limit).
+* [:open-zaak:`2623`] Fix broken autorisaties admin form.
+
+**Project maintenance**
+
+* [:open-zaak:`2625`] Install libxml2 and xmlsec via their -dev packages in CI
+* [:open-zaak:`2625`] Upgrade playwright to 1.64.1
+* [:open-zaak:`2616`] Upgrade image: postgis/postgis:17-3.5 in bin-check CI pipeline (on ubuntu-26.04)
+
 1.31.1 (2026-10-23)
 -------------------
+
+**New features**
+
+* [:open-zaak:`2471`] Upgrade the Zaken API to version 1.7.0.
+
+  * ``ZaakEigenschap.waarde`` is now always validated against ``Eigenschap.specificatie``.
+    If it does not match, the zaakeigenschap is still saved and a warning is returned in
+    the ``X-Warning`` response header, as described in the standard. With
+    ``ZAAK_EIGENSCHAP_WAARDE_VALIDATION=true`` a mismatch is still rejected with a
+    ``waarde-incorrect-format`` error.
+
+**New features**
+
+* [:open-zaak:`2479`] Upgrade the Catalogi API to version 1.3.3. The following read-only
+  attributes are added:
+
+  * ``zaaktypeIdentificaties`` on ``/besluittypen``
+  * ``besluittypeOmschrijvingen`` on ``/catalogussen``, ``/zaaktypen`` and
+    ``/informatieobjecttypen``
+  * ``informatieobjecttypeOmschrijvingen`` on ``/besluittypen``, ``/catalogussen`` and
+    ``/zaaktypen``
+  * ``deelzaaktypeIdentificaties`` on ``/zaaktypen``
+  * ``zaaktypeIdentificatie`` on the ``zaaktypenrelaties`` of a zaaktype
 
 **Bugfixes**
 
@@ -91,6 +129,13 @@ Changelog
     detected. The reasoning behind each check, when it can be wrong, how to estimate the
     remaining risk and those undetectable cases are in
     :ref:`installation_reference_overwritten_documents`.
+
+.. warning::
+
+  This version introduces a bug with uploads via the Documenten API, due to underlying
+  library upgrades the maximum API request size is 2.5 MB, which causes issues for documenten
+  with ``inhoud`` larger than 2.5MB. Version 1.31.2 fixes this issue and sets the default to
+  4 GiB like it was before.
 
 **New features**
 
