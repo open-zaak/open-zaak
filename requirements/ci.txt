@@ -347,11 +347,12 @@ django-ordered-model==3.7.4
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-admin-index
-django-otp==1.5.0
+django-otp==1.7.5
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-two-factor-auth
+    #   maykin-2fa
 django-phonenumber-field==7.3.0
     # via
     #   -c requirements/base.txt
@@ -424,7 +425,7 @@ django-timezone-field==7.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-celery-beat
-django-two-factor-auth==1.17.0
+django-two-factor-auth==1.18.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -636,12 +637,12 @@ markupsafe==2.1.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   jinja2
-maykin-2fa==1.0.1
+maykin-2fa==3.0.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
-maykin-common==0.22.0
+maykin-common==0.23.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -838,11 +839,6 @@ packaging==24.0
     #   opentelemetry-instrumentation
     #   pytest
     #   sphinx
-phonenumberslite==8.13.35
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
-    #   django-two-factor-auth
 platformdirs==4.3.8
     # via
     #   -c requirements/base.txt
