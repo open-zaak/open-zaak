@@ -1,6 +1,17 @@
 Changelog
 =========
 
+1.32.0 (Unreleased)
+-------------------
+
+**Project maintenance**
+
+* [:open-api-framework:`236`] Upgrade postgres and postgis support in CI
+    * Drop support for postgres 14 (EOL)
+    * Drop support for postgis 3.2 and 3.5
+    * Add support for postgres 18
+    * Add support for postgis 3.7 
+
 1.31.2 (2026-11-09)
 -------------------
 
