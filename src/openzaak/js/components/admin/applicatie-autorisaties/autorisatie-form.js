@@ -70,9 +70,15 @@ TypeSelector.defaultProps = {
     errors: {},
 };
 
+const FORM_DEFAULT_DATA = {
+    errors: {},
+    values: {
+        scopes: []
+    }
+};
 
 const AutorisatieForm = (props) => {
-    const { index, data } = props;
+    const { index, data = FORM_DEFAULT_DATA } = props;
     const { values, errors } = data;
 
     const {scopeChoices, componentPrefixes } = useContext(ConstantsContext);
@@ -165,10 +171,6 @@ AutorisatieForm.propTypes = {
         errors: PropTypes.object.isRequired,
         values: PropTypes.object.isRequired,
     }),
-};
-
-AutorisatieForm.defaultProps = {
-    data: {errors: {}, values: {scopes: []}}
 };
 
 export { AutorisatieForm };
