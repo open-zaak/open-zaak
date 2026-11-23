@@ -138,7 +138,7 @@ class BronZaaktypeSerializer(GegevensGroepSerializer):
 
 
 @extend_schema_field({"type": "string", "format": "duration", "default": None})
-class ServicenormField(DurationField):
+class NullableDurationField(DurationField):
     """
     Duration that is ``null`` unless specified.
 
@@ -168,7 +168,7 @@ class ZaakTypeSerializer(
         required=False,
         help_text=_("De CATALOGUS waaraan het ZAAKTYPE is ontleend."),
     )
-    servicenorm = ServicenormField(
+    servicenorm = NullableDurationField(
         source="servicenorm_behandeling",
         required=False,
         allow_null=True,
