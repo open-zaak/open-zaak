@@ -76,11 +76,7 @@ COMMONGROUND_API_COMMON_GET_DOMAIN = "openzaak.utils.get_openzaak_domain"
 #
 
 # Spec from gemma-zaken.
-GEMMA_ZAKEN = (
-    "https://raw.githubusercontent.com/"
-    "VNG-Realisatie/gemma-zaken/master/api-specificatie"
-)
-
+GEMMA_ZAKEN = "https://raw.githubusercontent.com/VNG-Realisatie/gemma-zaken/master/docs/standaard/"
 # TODO: deduplicate
 vrl_ref = "4533cc71dcd17e997fce9e31445db852b7540321"
 REFERENTIELIJSTEN_API_STANDARD = APIStandard(
@@ -98,28 +94,28 @@ SELECTIELIJST_API_STANDARD = APIStandard(
     is_standardized=False,
 )
 
-ztc_ref = "1.3.0"
+ztc_ref = "1.3.3"
 ZTC_API_STANDARD = APIStandard(
     alias=f"catalogi-{ztc_ref}",
-    oas_url=f"{GEMMA_ZAKEN}/ztc/1.3.x/openapi.yaml",
+    oas_url=f"{GEMMA_ZAKEN}catalogi/ztc/1.3.x/{ztc_ref}/openapi.yaml",
 )
 
-drc_ref = "1.5.0"
+drc_ref = "1.8.0"
 DRC_API_STANDARD = APIStandard(
     alias=f"documenten-{drc_ref}",
-    oas_url=f"{GEMMA_ZAKEN}/drc/1.5.x/{drc_ref}/openapi.yaml",
+    oas_url=f"{GEMMA_ZAKEN}documenten/drc/1.8.x/{drc_ref}/openapi.yaml",
 )
 
-zrc_ref = "1.6.0"
+zrc_ref = "1.7.0"
 ZRC_API_STANDARD = APIStandard(
     alias=f"zaken-{zrc_ref}",
-    oas_url=f"{GEMMA_ZAKEN}/zrc/1.6.x/openapi.yaml",
+    oas_url=f"{GEMMA_ZAKEN}zaken/zrc/1.7.x/{zrc_ref}/openapi.yaml",
 )
 
 brc_ref = "1.1.0"
 BRC_API_STANDARD = APIStandard(
     alias=f"besluiten-{brc_ref}",
-    oas_url=f"{GEMMA_ZAKEN}/brc/1.1.x/openapi.yaml",
+    oas_url=f"{GEMMA_ZAKEN}besluiten/brc/{brc_ref}/openapi.yaml",
 )
 
 cmc_ref = "20f149a66163047b6ae3719709a600285fbb1c36"
