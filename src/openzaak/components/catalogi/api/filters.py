@@ -188,7 +188,13 @@ class ResultaatTypeFilter(FilterSet):
 
     class Meta:
         model = ResultaatType
-        fields = ("zaaktype", "status", "datum_geldigheid", "zaaktype_identificatie")
+        fields = (
+            "zaaktype",
+            "status",
+            "datum_geldigheid",
+            "zaaktype_identificatie",
+            "referentiecode",
+        )
 
 
 class ResultaatTypeDetailFilter(FilterSet):
@@ -214,7 +220,13 @@ class StatusTypeFilter(FilterSet):
 
     class Meta:
         model = StatusType
-        fields = ("zaaktype", "status", "datum_geldigheid", "zaaktype_identificatie")
+        fields = (
+            "zaaktype",
+            "status",
+            "datum_geldigheid",
+            "zaaktype_identificatie",
+            "referentiecode",
+        )
 
 
 class StatusTypeDetailFilter(FilterSet):
