@@ -61,10 +61,10 @@ class WarmCacheCommandTests(SelectieLijstMixin, ClearCachesMixin, TestCase):
             "Populating OpenAPI specs cache...",
             "API spec for 'vrl-0.5.6' written.",
             "API spec for 'selectielijst-1.0.0' written.",
-            "API spec for 'catalogi-1.2.0' written.",
-            "API spec for 'documenten-1.0.1.post1' written.",
-            "API spec for 'zaken-1.0.3' written.",
-            "API spec for 'besluiten-1.0.1.post0' written.",
+            "API spec for 'catalogi-1.3.3' written.",
+            "API spec for 'documenten-1.8.0' written.",
+            "API spec for 'zaken-1.7.0' written.",
+            "API spec for 'besluiten-1.1.0' written.",
             "API spec for 'contactmomenten-2021-09-13' written.",
             "API spec for 'verzoeken-2021-06-21' written.",
         ]
@@ -102,9 +102,9 @@ class WarmCacheCommandTests(SelectieLijstMixin, ClearCachesMixin, TestCase):
             output = stdout.getvalue().splitlines()
             expected_output = [
                 "Populating OpenAPI specs cache...",
-                "API spec for 'documenten-1.0.1.post1' written.",
-                "API spec for 'zaken-1.0.3' written.",
-                "API spec for 'besluiten-1.0.1.post0' written.",
+                "API spec for 'documenten-1.8.0' written.",
+                "API spec for 'zaken-1.7.0' written.",
+                "API spec for 'besluiten-1.1.0' written.",
             ]
             self.assertEqual(output, expected_output)
 
@@ -113,7 +113,7 @@ class WarmCacheCommandTests(SelectieLijstMixin, ClearCachesMixin, TestCase):
             expected_errors = [
                 "Failed populating the API spec cache for 'vrl-0.5.6'.",
                 "Failed populating the API spec cache for 'selectielijst-1.0.0'.",
-                "Failed populating the API spec cache for 'catalogi-1.2.0'.",
+                "Failed populating the API spec cache for 'catalogi-1.3.3'.",
                 "Failed populating the API spec cache for 'contactmomenten-2021-09-13'.",
                 "Failed populating the API spec cache for 'verzoeken-2021-06-21'.",
             ]
