@@ -373,7 +373,7 @@ msal-extensions==1.3.1
     # via azure-identity
 nh3==0.3.0
     # via textile
-notifications-api-common==0.13.1
+notifications-api-common==0.13.2
     # via
     #   -r requirements/base.in
     #   commonground-api-common
