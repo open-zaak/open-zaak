@@ -29,6 +29,7 @@ from ..validators import (
     M2MConceptCreateValidator,
     M2MConceptUpdateValidator,
     ProcesTypeValidator,
+    ReferentiecodeUniqueValidator,
     RelationCatalogValidator,
     StartBeforeEndValidator,
     ZaakTypeConceptValidator,
@@ -157,6 +158,7 @@ class ResultaatTypeSerializer(
             "einde_geldigheid",
             "begin_object",
             "einde_object",
+            "referentiecode",
         )
         extra_kwargs = {
             "url": {
@@ -189,12 +191,14 @@ class ResultaatTypeSerializer(
             },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
+            "referentiecode": {"default": None, "allow_blank": False},
         }
         validators = [
             UniqueTogetherValidator(
                 queryset=ResultaatType.objects.all(),
                 fields=["zaaktype", "omschrijving"],
             ),
+            ReferentiecodeUniqueValidator(),
             ProcesTypeValidator("selectielijstklasse"),
             ProcestermijnAfleidingswijzeValidator("selectielijstklasse"),
             BrondatumArchiefprocedureValidator(),

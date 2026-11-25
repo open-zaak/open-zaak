@@ -10,7 +10,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("catalogi", "0029_alter_resultaattype_besluittypen"),
+        ("catalogi", "0030_resultaattype_referentiecode_and_more"),
         ("zgw_consumers", "0001_initial_to_v120"),
     ]
 
