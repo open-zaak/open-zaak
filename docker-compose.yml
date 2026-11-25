@@ -5,13 +5,13 @@ version: '3.4'
 
 services:
   db:
-    image: postgis/postgis:17-3.5
+    image: postgis/postgis:18-3.7
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     command: postgres -c max_connections=300 -c log_min_messages=LOG
     volumes:
       - ./docker/postgres.entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
-      - db:/var/lib/postgresql/data
+      - db:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
       interval: 10s
