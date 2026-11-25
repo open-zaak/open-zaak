@@ -3,6 +3,7 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.gis.admin import GISModelAdmin
+from django.db import transaction
 from django.db.models import CharField, F, Prefetch
 from django.db.models.functions import Concat
 from django.utils.translation import gettext_lazy as _
@@ -15,6 +16,7 @@ from openzaak.utils.admin import (
     link_to_related_objects,
 )
 
+from ...besluiten.models import Besluit
 from ..api.validators import match_eigenschap_specificatie
 from ..constants import AardZaakRelatie
 from ..models import (
@@ -527,6 +529,22 @@ class ZaakBesluitAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     ordering = ("zaak", "besluit")
     raw_id_fields = ("zaak", "besluit")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakBesluitViewSet"
+
+    def delete_model(self, request, obj):
+        """
+        Deleting the relation also removes the zaak from the (local) besluit,
+        because Besluit.zaak is the source of truth for ZaakBesluit.
+        """
+        with transaction.atomic():
+            super().delete_model(request, obj)
+
+            if not obj.besluit_id:
+                return
+
+            besluit = Besluit.objects.get(pk=obj.besluit_id)
+            if besluit.zaak == obj.zaak:
+                besluit.zaak = None
+                besluit.save()
 
 
 @admin.register(ZaakContactMoment)

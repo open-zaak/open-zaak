@@ -99,6 +99,8 @@ class StatusTypeAPITests(APITestCase):
             "eindeGeldigheid": None,
             "beginObject": None,
             "eindeObject": None,
+            "_expand": {},
+            "referentiecode": None,
         }
 
         self.assertEqual(expected, response.json())
@@ -130,6 +132,205 @@ class StatusTypeAPITests(APITestCase):
         self.assertEqual(statustype.datum_begin_geldigheid, date(2023, 1, 1))
         self.assertEqual(statustype.datum_einde_geldigheid, date(2023, 12, 1))
         self.assertEqual(statustype.doorlooptijd, relativedelta(days=+10))
+
+    def test_create_statustype_with_referentiecode(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
+        data = {
+            "omschrijving": "Besluit genomen",
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "volgnummer": 2,
+            "referentiecode": "A1",
+        }
+
+        response = self.client.post(reverse("catalogi:statustype-list"), data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.json()["referentiecode"], "A1")
+        self.assertEqual(StatusType.objects.get().referentiecode, "A1")
+
+    def test_create_statustype_null_referentiecode(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
+        url = reverse("catalogi:statustype-list")
+
+        for volgnummer in (1, 2):
+            with self.subTest(volgnummer=volgnummer):
+                response = self.client.post(
+                    url,
+                    {
+                        "omschrijving": f"Status {volgnummer}",
+                        "zaaktype": f"http://testserver{zaaktype_url}",
+                        "volgnummer": volgnummer,
+                        "referentiecode": None,
+                    },
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+                self.assertIsNone(response.json()["referentiecode"])
+
+        self.assertEqual(StatusType.objects.filter(referentiecode=None).count(), 2)
+
+    def test_create_statustype_empty_referentiecode_not_allowed(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
+
+        response = self.client.post(
+            reverse("catalogi:statustype-list"),
+            {
+                "omschrijving": "Status 1",
+                "zaaktype": f"http://testserver{zaaktype_url}",
+                "volgnummer": 1,
+                "referentiecode": "",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "referentiecode")
+        self.assertEqual(error["code"], "blank")
+        self.assertFalse(StatusType.objects.exists())
+
+    def test_create_statustype_duplicate_referentiecode_same_zaaktype(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
+        StatusTypeFactory.create(zaaktype=zaaktype, referentiecode="A1")
+
+        response = self.client.post(
+            reverse("catalogi:statustype-list"),
+            {
+                "omschrijving": "Besluit genomen",
+                "zaaktype": f"http://testserver{zaaktype_url}",
+                "volgnummer": 5,
+                "referentiecode": "A1",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "referentiecode")
+        self.assertEqual(error["code"], "unique")
+
+    def test_create_statustype_same_referentiecode_other_zaaktype_family(self):
+        StatusTypeFactory.create(referentiecode="A1", statustypevolgnummer=2)
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
+
+        response = self.client.post(
+            reverse("catalogi:statustype-list"),
+            {
+                "omschrijving": "Besluit genomen",
+                "zaaktype": f"http://testserver{zaaktype_url}",
+                "volgnummer": 2,
+                "referentiecode": "A1",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "referentiecode")
+        self.assertEqual(error["code"], "unique")
+
+    def test_create_statustype_same_referentiecode_new_zaaktype_version(self):
+        old_statustype = StatusTypeFactory.create(
+            referentiecode="A1", statustypevolgnummer=2
+        )
+        old_zaaktype = old_statustype.zaaktype
+        new_zaaktype = ZaakTypeFactory.create(
+            catalogus=old_zaaktype.catalogus, identificatie=old_zaaktype.identificatie
+        )
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": new_zaaktype.uuid}
+        )
+
+        response = self.client.post(
+            reverse("catalogi:statustype-list"),
+            {
+                "omschrijving": "Besluit genomen",
+                "zaaktype": f"http://testserver{zaaktype_url}",
+                "volgnummer": 2,
+                "referentiecode": "A1",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_statustype_referentiecode_of_other_volgnummer_in_new_version(self):
+        old_statustype = StatusTypeFactory.create(
+            referentiecode="A1", statustypevolgnummer=2
+        )
+        old_zaaktype = old_statustype.zaaktype
+        new_zaaktype = ZaakTypeFactory.create(
+            catalogus=old_zaaktype.catalogus, identificatie=old_zaaktype.identificatie
+        )
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": new_zaaktype.uuid}
+        )
+
+        response = self.client.post(
+            reverse("catalogi:statustype-list"),
+            {
+                "omschrijving": "Besluit genomen",
+                "zaaktype": f"http://testserver{zaaktype_url}",
+                "volgnummer": 3,
+                "referentiecode": "A1",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_filter_referentiecode(self):
+        StatusTypeFactory.create(zaaktype__concept=False, referentiecode="A1")
+        StatusTypeFactory.create(zaaktype__concept=False, referentiecode="B2")
+
+        response = self.client.get(
+            reverse("catalogi:statustype-list"), {"referentiecode": "A1"}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = response.json()["results"]
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["referentiecode"], "A1")
+
+    def test_create_statustype_referentiecode_too_long(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
+
+        response = self.client.post(
+            reverse("catalogi:statustype-list"),
+            {
+                "omschrijving": "Besluit genomen",
+                "zaaktype": f"http://testserver{zaaktype_url}",
+                "volgnummer": 2,
+                "referentiecode": "x" * 21,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "referentiecode")
+        self.assertEqual(error["code"], "max_length")
+
+    def test_update_statustype_keep_own_referentiecode(self):
+        statustype = StatusTypeFactory.create(
+            zaaktype__concept=True, referentiecode="A1"
+        )
+
+        response = self.client.patch(
+            reverse(statustype), {"referentiecode": "A1", "toelichting": "nieuw"}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        statustype.refresh_from_db()
+        self.assertEqual(statustype.referentiecode, "A1")
 
     def test_create_statustype_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
@@ -459,6 +660,117 @@ class StatusTypeAPITests(APITestCase):
         self.assertEqual(new_checklistitem.itemnaam, "new")
         self.assertNotEqual(old_checklistitem.id, new_checklistitem.id)
         self.assertFalse(CheckListItem.objects.filter(id=old_checklistitem.id).exists())
+
+    def test_get_detail_expand_catalogus(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        statustype = StatusTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+
+        response = self.client.get(
+            reverse(statustype),
+            {"expand": "catalogus"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["_expand"]["catalogus"]["url"],
+            f"http://testserver{reverse(self.catalogus)}",
+        )
+
+    def test_get_detail_expand_zaaktype(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        statustype = StatusTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+
+        response = self.client.get(
+            reverse(statustype),
+            {"expand": "zaaktype"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["_expand"]["zaaktype"]["url"],
+            f"http://testserver{reverse(zaaktype)}",
+        )
+
+    def test_get_detail_expand_eigenschappen(self):
+        statustype = StatusTypeFactory.create(
+            zaaktype__catalogus=self.catalogus,
+        )
+        eigenschap = EigenschapFactory.create(
+            statustype=statustype,
+        )
+
+        response = self.client.get(
+            reverse(statustype),
+            {"expand": "eigenschappen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("eigenschappen", data["_expand"])
+        self.assertEqual(
+            data["_expand"]["eigenschappen"][0]["url"],
+            f"http://testserver{reverse(eigenschap)}",
+        )
+
+    def test_get_detail_expand_multiple(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        statustype = StatusTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+        EigenschapFactory.create(
+            statustype=statustype,
+        )
+
+        response = self.client.get(
+            reverse(statustype),
+            {"expand": "catalogus,zaaktype,eigenschappen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("catalogus", data["_expand"])
+        self.assertIn("zaaktype", data["_expand"])
+        self.assertIn("eigenschappen", data["_expand"])
+
+    def test_get_detail_expand_nested_not_supported(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        statustype = StatusTypeFactory.create(
+            zaaktype=zaaktype,
+        )
+
+        response = self.client.get(
+            reverse(statustype),
+            {"expand": "catalogus.zaaktypen"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        errors = get_validation_errors(response, "expand")
+        self.assertEqual(
+            errors["reason"],
+            "Selecteer een geldige keuze. catalogus.zaaktypen is geen beschikbare keuze.",
+        )
+
+    def test_get_detail_without_expand(self):
+        statustype = StatusTypeFactory.create()
+
+        response = self.client.get(reverse(statustype))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["_expand"], {})
 
 
 class StatusTypeFilterAPITests(APITestCase):

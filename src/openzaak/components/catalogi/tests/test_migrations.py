@@ -20,6 +20,14 @@ class MigrateDurationFieldTest(TestMigrations):
         # use the historical models, the current models (and their signals) expect
         # columns that are only added by later migrations
         zaaktype, _ = _create_zaaktype_and_iotype(apps)
+
+        # FROM MAIN
+        # # the factory uses the current models, while the database is at an older
+        # # migration state, the ETag signal handlers would query columns that don't
+        # # exist yet
+        # with mute_signals(post_save):
+        #     zaaktype_pk = ZaakTypeFactory.create().pk
+
         status_type = StatusType.objects.create(
             zaaktype=zaaktype,
             statustypevolgnummer=123,
@@ -109,8 +117,8 @@ class ZaakTypeInformatieObjectTypeLooseFkForwardTests(TestMigrations):
     """
 
     app = "catalogi"
-    migrate_from = "0028_alter_statustype_doorlooptijd"
-    migrate_to = "0029_informatieobjecttype_loose_fk"
+    migrate_from = "0030_resultaattype_referentiecode_and_more"
+    migrate_to = "0031_informatieobjecttype_loose_fk"
 
     def setUpBeforeMigration(self, apps):
         ZaakTypeInformatieObjectType = apps.get_model(
@@ -148,8 +156,8 @@ class ZaakTypeInformatieObjectTypeLooseFkForwardTests(TestMigrations):
 
 class ZaakTypeInformatieObjectTypeLooseFkBackwardTests(TestMigrations):
     app = "catalogi"
-    migrate_from = "0029_informatieobjecttype_loose_fk"
-    migrate_to = "0028_alter_statustype_doorlooptijd"
+    migrate_from = "0031_informatieobjecttype_loose_fk"
+    migrate_to = "0030_resultaattype_referentiecode_and_more"
 
     def setUpBeforeMigration(self, apps):
         ZaakTypeInformatieObjectType = apps.get_model(
@@ -195,8 +203,8 @@ def _create_besluittype(apps, catalogus):
 
 class BesluitTypeInformatieObjectTypenForwardTests(TestMigrations):
     app = "catalogi"
-    migrate_from = "0029_informatieobjecttype_loose_fk"
-    migrate_to = "0030_besluittype_informatieobjecttypen_through"
+    migrate_from = "0031_informatieobjecttype_loose_fk"
+    migrate_to = "0032_besluittype_informatieobjecttypen_through"
 
     def setUpBeforeMigration(self, apps):
         _, self.iotype = _create_zaaktype_and_iotype(apps)
@@ -240,8 +248,8 @@ class BesluitTypeInformatieObjectTypenForwardTests(TestMigrations):
 
 class BesluitTypeInformatieObjectTypenBackwardTests(TestMigrations):
     app = "catalogi"
-    migrate_from = "0030_besluittype_informatieobjecttypen_through"
-    migrate_to = "0029_informatieobjecttype_loose_fk"
+    migrate_from = "0032_besluittype_informatieobjecttypen_through"
+    migrate_to = "0031_informatieobjecttype_loose_fk"
 
     def setUpBeforeMigration(self, apps):
         BesluitTypeInformatieObjectType = apps.get_model(

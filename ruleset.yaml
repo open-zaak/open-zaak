@@ -9,3 +9,6 @@ rules:
   # See also: https://github.com/stoplightio/spectral/issues/2959#issuecomment-4526418689
   duplicated-entry-in-enum: off
   paths-open-api-json-resource-exists: off
+  # Errors come from gemma-zaken's Zaken API 1.6.0 spec, which our spec loads via the
+  # Besluiten API 1.1.0 spec: `$ref` siblings in RolEmbedded.zaak and StatusEmbedded.statustype. 
+  no-$ref-siblings: warn

@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -18,14 +19,20 @@ from vng_api_common.constants import (
 from vng_api_common.descriptors import GegevensGroepType
 
 from openzaak.utils.fields import DurationField
+from openzaak.utils.help_text import mark_experimental
+from openzaak.utils.mixins import APIMixin
 
 from .mixins import OptionalGeldigheidMixin
-from .validators import validate_zaaktype_concept
+from .validators import (
+    REFERENTIECODE_IN_USE_MESSAGE,
+    is_referentiecode_in_use,
+    validate_zaaktype_concept,
+)
 
 logger: FilteringBoundLogger = get_logger(__name__)
 
 
-class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
+class ResultaatType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
     """
     Het betreft de indeling of groepering van resultaten van zaken van hetzelfde
     ZAAKTYPE naar hun aard, zoals 'verleend', 'geweigerd', 'verwerkt', et cetera.
@@ -272,6 +279,7 @@ class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
             "Het BESLUITTYPE van besluiten die gepaard gaan "
             "met resultaten van het RESULTAATTYPE."
         ),
+        related_name="resultaattypen",
     )
     zaakobjecttypen = models.ManyToManyField(
         "ZaakObjectType",
@@ -281,6 +289,19 @@ class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
             "De ZAAKOBJECTTYPEn die verplicht gerelateerd moeten zijn aan "
             "ZAAKen van dit ZAAKTYPE voordat een resultaat van dit RESULTAATTYPE "
             "kan worden gezet."
+        ),
+    )
+
+    referentiecode = models.CharField(
+        _("referentiecode"),
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text=mark_experimental(
+            _(
+                "Code waarmee dit resultaattype in een extern systeem wordt geïdentificeerd. "
+                "Moet uniek zijn indien gespecificeerd, behalve tussen de versies van hetzelfde resultaattype."
+            )
         ),
     )
 
@@ -294,6 +315,14 @@ class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
 
     class Meta:
         unique_together = ("zaaktype", "omschrijving")
+        constraints = [
+            models.UniqueConstraint(
+                fields=("zaaktype", "referentiecode"),
+                condition=models.Q(referentiecode__isnull=False)
+                & ~models.Q(referentiecode=""),
+                name="unique_resultaattype_referentiecode_per_zaaktype",
+            )
+        ]
         verbose_name = _("resultaattype")
         verbose_name_plural = _("resultaattypen")
 
@@ -346,6 +375,16 @@ class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
         super().clean()
 
         validate_zaaktype_concept(self.zaaktype)
+
+        if is_referentiecode_in_use(
+            type(self),
+            zaaktype=self.zaaktype,
+            referentiecode=self.referentiecode,
+            pk=self.pk,
+        ):
+            raise ValidationError(
+                {"referentiecode": REFERENTIECODE_IN_USE_MESSAGE}, code="unique"
+            )
 
     def __str__(self):
         return f"{self.zaaktype} - {self.omschrijving}"

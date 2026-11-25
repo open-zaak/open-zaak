@@ -18,10 +18,12 @@ from vng_api_common.middleware import (
 from openzaak.config.models import InternalService
 
 from .constants import COMPONENT_MAPPING
+from .snapshot import snapshot_scope
 
 logger = structlog.stdlib.get_logger(__name__)
 
 WARNING_HEADER = "Warning"
+X_WARNING_HEADER = "X-Warning"
 DEPRECATION_WARNING_CODE = 299
 
 
@@ -69,6 +71,22 @@ class OverrideHostMiddleware:
         if is_api_request(request):
             override_request_host(request)
         return self.get_response(request)
+
+
+class SnapshotMiddleware:
+    """
+    Read each external resource at most once per epoch while handling a request.
+
+    See :mod:`openzaak.utils.snapshot`. The ``on_commit`` callbacks of atomic views
+    run inside the scope as well.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        with snapshot_scope():
+            return self.get_response(request)
 
 
 class LogHeadersMiddleware:
@@ -171,6 +189,20 @@ class Warning:
         return f'{self.code} "{self.agent}" "{self.text}"'
 
 
+def add_x_warning(request, text: str) -> None:
+    """
+    Register a warning that is returned in the ``X-Warning`` response header.
+
+    ``request`` may be a DRF request, in which case the underlying Django request is
+    used, because that is what the middleware sees.
+    """
+    request = getattr(request, "_request", request)
+    warnings = getattr(request, "_x_warnings", None)
+    if warnings is None:
+        warnings = request._x_warnings = []
+    warnings.append(text)
+
+
 class DeprecationMiddleware:
     """
     Include a header outputting a deprecation warning.
@@ -208,6 +240,30 @@ class DeprecationMiddleware:
         )
 
         return None
+
+
+class XWarningMiddleware:
+    """
+    Include the warnings registered with ``add_x_warning`` in the ``X-Warning`` header.
+
+    The header is only set on successful responses, as the warnings concern data that
+    was processed.
+    """
+
+    def __init__(self, get_response=None):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if self.get_response is None:
+            return None
+
+        response = self.get_response(request)
+
+        x_warnings = getattr(request, "_x_warnings", None)
+        if x_warnings and response.status_code < 400:
+            response[X_WARNING_HEADER] = "; ".join(x_warnings)
+
+        return response
 
 
 class PyInstrumentMiddleware:  # pragma:no cover

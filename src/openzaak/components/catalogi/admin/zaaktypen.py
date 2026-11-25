@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 
 import structlog
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
+from vng_api_common.caching import invalidating_update
 
 from openzaak.selectielijst.admin_fields import (
     get_processtype_readonly_field,
@@ -426,7 +427,8 @@ class ZaakTypeAdmin(
             obj.selectielijst_procestype = ""
             obj.save()
             # reset specified selectielijstklasse on related resultaattypen
-            obj.resultaattypen.update(
+            invalidating_update(
+                obj.resultaattypen.all(),
                 selectielijstklasse="",
                 archiefnominatie="",
                 archiefactietermijn=None,

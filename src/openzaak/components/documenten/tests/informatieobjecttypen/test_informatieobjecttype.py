@@ -9,6 +9,7 @@ from openzaak.components.catalogi.tests.test_informatieobjecttype import (
 
 class InformatieObjectTypeAPITests(_InformatieObjectTypeAPITests):
     NAMESPACE = "documenten"
+    BESLUITTYPE_NAMESPACE = "zaken"
 
 
 class InformatieObjectTypeFilterAPITests(_InformatieObjectTypeFilterAPITests):

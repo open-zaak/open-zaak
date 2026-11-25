@@ -69,3 +69,8 @@ if DB_POOL_ENABLED:
     # A specific system check in zgw-consumers causes database issues when running tests
     # in parallel with pooling enabled
     TEST_RUNNER = "openzaak.tests.utils.runners.CITestRunner"
+
+
+DATABASES["default"].update(
+    {"USER": "postgres", "PASSWORD": "postgres", "NAME": "openzaak"}
+)

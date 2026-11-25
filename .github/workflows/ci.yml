@@ -98,7 +98,7 @@ jobs:
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@4a6c5facc65bb1dd510cf06be20871db11a156b3 # v1.4.2
         with:
-          apt-packages: "libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client gdal-bin jq"
+          apt-packages: "libxml2-dev libxmlsec1-dev gettext postgresql-client gdal-bin jq"
           python-version: "3.12"
           optimize-postgres: "yes"
           pg-service: "postgres"
@@ -297,11 +297,12 @@ jobs:
       docker-token: ${{ secrets.DOCKER_TOKEN }}
 
   update-docker-readme:
-    uses: maykinmedia/open-api-workflows/.github/workflows/dockerhub-description.yml@31eaea25acd18bb681fe0d01b2452c3dd8d299b9 # v7.0.0
+    uses: maykinmedia/open-api-workflows/.github/workflows/dockerhub-description.yml@776c60ffef1d34cbdee5a2402322cae6278ec237 # v7.0.1
     needs:
       - open-api-publish
     with:
       image-name: openzaak/open-zaak
+      python-version: '3.12'
       config-file: './docker/ci/config.json'
       output-file: './docker/ci/README.md'
     secrets:

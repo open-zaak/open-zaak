@@ -69,6 +69,18 @@ class InformatieObjectTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializ
         read_only=True,
         help_text=_("De datum van de aller laatste versie van het object."),
     )
+    inclusion_serializers = {
+        "catalogus": "openzaak.components.catalogi.api.serializers.CatalogusSerializer",
+        "zaaktypen": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "besluittypen": "openzaak.components.catalogi.api.serializers.BesluitTypeSerializer",
+    }
+    besluittype_omschrijvingen = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        source="besluittypen",
+        slug_field="omschrijving",
+        help_text=_("Omschrijving van de aard van BESLUITen van het BESLUITTYPE."),
+    )
 
     besluittypen = DeprecatedNamespaceLengthHyperlinkedRelatedField(
         help_text="URL-referenties naar de BESLUITTYPEN",
@@ -109,6 +121,7 @@ class InformatieObjectTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializ
             "einde_geldigheid",
             "concept",
             "besluittypen",
+            "besluittype_omschrijvingen",
             "informatieobjectcategorie",
             "trefwoord",
             "omschrijving_generiek",

@@ -13,6 +13,7 @@ from django.utils.translation import gettext_lazy as _
 
 from privates.fields import PrivateMediaFileField
 from rest_framework.reverse import reverse
+from vng_api_common.caching import batched_invalidation
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from zgw_consumers.models import ServiceUrlField
@@ -30,7 +31,6 @@ from openzaak.utils.mixins import APIMixin, AuditTrailMixin
 from ..besluiten.models import BesluitInformatieObject
 from ..zaken.models import ZaakInformatieObject
 from .api.utils import generate_document_identificatie
-from .caching import DocumentETagMixin
 from .constants import (
     AfzenderTypes,
     ChecksumAlgoritmes,
@@ -50,7 +50,7 @@ from .query.django import (
     InformatieobjectRelatedQuerySet,
 )
 from .storage import documenten_storage
-from .validators import validate_status
+from .validators import validate_inhoud_filename, validate_status
 
 __all__ = [
     "InformatieObject",
@@ -209,6 +209,16 @@ class InformatieObject(models.Model):
             "initiator van de zaak waarin het INFORMATIEOBJECT is opgenomen."
         ),
     )
+    is_gereed_voor_publicatie = models.BooleanField(
+        _("Is gereed voor publicatie"),
+        default=None,
+        blank=True,
+        null=True,
+        help_text=_(
+            "Geeft aan of het INFORMATIEOBJECT gereed is voor publicatie. "
+            "Dit veld mag `null` zijn om aan te geven dat de gereedheid voor publicatie nog niet bekend is."
+        ),
+    )
 
     objects = InformatieobjectQuerySet.as_manager()
 
@@ -291,9 +301,7 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
         self.lock = ""
 
 
-class EnkelvoudigInformatieObject(
-    DocumentETagMixin, AuditTrailMixin, APIMixin, InformatieObject
-):
+class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
     """
     Stores the content of a specific version of an
     EnkelvoudigInformatieObjectCanonical
@@ -346,6 +354,8 @@ class EnkelvoudigInformatieObject(
     inhoud = PrivateMediaFileField(
         upload_to="uploads/%Y/%m/",
         storage=documenten_storage,
+        max_length=276,  # includes the file path
+        validators=[validate_inhoud_filename],
     )
     # inhoud = models.FileField(upload_to='uploads/%Y/%m/')
     link = models.URLField(
@@ -429,11 +439,6 @@ class EnkelvoudigInformatieObject(
     def __init__(self, *args, **kwargs):
         kwargs.pop("_request", None)  # see hacky workaround in EIOSerializer.create
         super().__init__(*args, **kwargs)
-
-    # Since canonicals are not stored in the database for CMIS, the BestandsDelen must
-    # be retrieved by using the UUID
-    def get_bestandsdelen(self):
-        return self.canonical.bestandsdelen
 
     @property
     def locked(self) -> bool:
@@ -565,7 +570,7 @@ class BestandsDeel(models.Model):
         return self.inhoud.size == self.omvang
 
 
-class Gebruiksrechten(DocumentETagMixin, APIMixin, models.Model):
+class Gebruiksrechten(APIMixin, models.Model):
     uuid = models.UUIDField(
         unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
@@ -608,7 +613,8 @@ class Gebruiksrechten(DocumentETagMixin, APIMixin, models.Model):
     def __str__(self):
         return str(self.informatieobject.latest_version)
 
-    @transaction.atomic
+    # a batch, as these save the document too
+    @batched_invalidation()
     def save(self, *args, **kwargs):
         informatieobject_versie = self.informatieobject.latest_version
         # ensure the indication is set properly on the IO
@@ -617,7 +623,7 @@ class Gebruiksrechten(DocumentETagMixin, APIMixin, models.Model):
             informatieobject_versie.save()
         super().save(*args, **kwargs)
 
-    @transaction.atomic
+    @batched_invalidation()
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
         informatieobject = self.informatieobject
@@ -638,7 +644,7 @@ class Gebruiksrechten(DocumentETagMixin, APIMixin, models.Model):
         return f"({informatieobject.unique_representation()}) - {self.omschrijving_voorwaarden[:50]}"
 
 
-class ObjectInformatieObject(DocumentETagMixin, APIMixin, models.Model):
+class ObjectInformatieObject(APIMixin, models.Model):
     uuid = models.UUIDField(
         unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
@@ -811,7 +817,7 @@ class ObjectInformatieObject(DocumentETagMixin, APIMixin, models.Model):
 
 
 # gebaseerd op https://www.gemmaonline.nl/index.php/Rgbz_2.0/doc/relatieklasse/verzending
-class Verzending(DocumentETagMixin, APIMixin, models.Model):
+class Verzending(APIMixin, models.Model):
     uuid = models.UUIDField(
         unique=True,
         default=_uuid.uuid4,

@@ -47,7 +47,7 @@ class ExpandFilter(filters.BaseInFilter, filters.ChoiceFilter):
         )
 
         help_text = _(
-            "Sluit de gespecifieerde gerelateerde resources in in het antwoord. "
+            "Sluit de gespecificeerde gerelateerde resources aan in het antwoord. "
         )
         if experimental_options:
             options = ", ".join(f"`{option}`" for option in experimental_options)
@@ -67,6 +67,19 @@ class ExpandFilter(filters.BaseInFilter, filters.ChoiceFilter):
 
     def filter(self, qs, value):
         return qs
+
+
+class CatalogiExpandFilter(ExpandFilter):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault(
+            "help_text",
+            _(
+                "Sluit de gespecificeerde gerelateerde resources aan in het antwoord. "
+                "Expand naar willekeurige diepte wordt niet ondersteund. Dit wijkt af van de standaard."
+            ),
+        )
+
+        super().__init__(*args, **kwargs)
 
 
 class KeyValueFilter(filters.CharFilter):

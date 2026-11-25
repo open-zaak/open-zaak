@@ -8,7 +8,11 @@ from vng_api_common.serializers import CachedHyperlinkedRelatedField
 from vng_api_common.utils import get_help_text
 
 from ...models import CheckListItem, StatusType
-from ..validators import StartBeforeEndValidator, ZaakTypeConceptValidator
+from ..validators import (
+    ReferentiecodeUniqueValidator,
+    StartBeforeEndValidator,
+    ZaakTypeConceptValidator,
+)
 
 
 class CheckListItemSerializer(serializers.ModelSerializer):
@@ -87,6 +91,11 @@ class StatusTypeSerializer(
         read_only=True,
         help_text=_("De datum van de aller laatste versie van het object."),
     )
+    inclusion_serializers = {
+        "catalogus": "openzaak.components.catalogi.api.serializers.CatalogusSerializer",
+        "zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "eigenschappen": "openzaak.components.catalogi.api.serializers.EigenschapSerializer",
+    }
 
     class Meta:
         model = StatusType
@@ -110,6 +119,7 @@ class StatusTypeSerializer(
             "einde_geldigheid",
             "begin_object",
             "einde_object",
+            "referentiecode",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid", "view_name": "catalogi:statustype-detail"},
@@ -122,5 +132,10 @@ class StatusTypeSerializer(
             },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
+            "referentiecode": {"default": None, "allow_blank": False},
         }
-        validators = [ZaakTypeConceptValidator(), StartBeforeEndValidator()]
+        validators = [
+            ReferentiecodeUniqueValidator(),
+            ZaakTypeConceptValidator(),
+            StartBeforeEndValidator(),
+        ]

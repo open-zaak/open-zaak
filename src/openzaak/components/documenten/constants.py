@@ -8,6 +8,10 @@ from django.utils.translation import gettext_lazy as _
 from vng_api_common import constants
 from vng_api_common.choices import TextChoicesWithDescriptions
 
+MAX_INHOUD_FILENAME_LENGTH = 255
+# Reserve space for the underscore and seven characters added by Django on collision.
+MAX_UPLOAD_INHOUD_FILENAME_LENGTH = MAX_INHOUD_FILENAME_LENGTH - 8
+
 
 class Statussen(TextChoicesWithDescriptions):
     in_bewerking = "in_bewerking", _("In bewerking")

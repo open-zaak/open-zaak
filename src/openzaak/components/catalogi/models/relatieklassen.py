@@ -10,11 +10,12 @@ from vng_api_common.caching import ETagMixin
 from zgw_consumers.models import ServiceUrlField
 
 from openzaak.utils.fields import FkOrServiceUrlField, RelativeURLField, ServiceFkField
+from openzaak.utils.mixins import APIMixin
 
 from ..constants import AardRelatieChoices, RichtingChoices
 
 
-class ZaakTypeInformatieObjectType(ETagMixin, models.Model):
+class ZaakTypeInformatieObjectType(ETagMixin, APIMixin, models.Model):
     """
     ZAAK-INFORMATIEOBJECT-TYPE
 

@@ -48,6 +48,12 @@ class ZaakTypeInformatieObjectTypeSerializer(
         ),
         label="Informatie object type",
     )
+    inclusion_serializers = {
+        "zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "catalogus": "openzaak.components.catalogi.api.serializers.CatalogusSerializer",
+        "informatieobjecttype": "openzaak.components.catalogi.api.serializers.InformatieObjectTypeSerializer",
+        "statustype": "openzaak.components.catalogi.api.serializers.StatusTypeSerializer",
+    }
 
     class Meta:
         model = ZaakTypeInformatieObjectType

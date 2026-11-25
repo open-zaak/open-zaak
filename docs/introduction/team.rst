@@ -14,7 +14,7 @@ standards for "API's voor Zaakgericht werken"`_, on August 1, 2019, by 9 municip
 * Delft
 * Hoorn, Medemblik, Stede Broec, Drechteland, Enkhuizen (SED)
 
-Using `Dimpact`_ as a legal entity, they formed a project to develop a modern,
+Using `Dimpact`_ as coordinator, they formed a project to develop a modern,
 open-source data- and services-layer to enable `zaakgericht werken`_, in line with the
 `Common Ground`_ model.
 

@@ -21,6 +21,7 @@ from django.utils.translation import gettext_lazy as _
 
 import structlog
 from drf_extra_fields.fields import Base64FileField
+from drf_spectacular.utils import extend_schema_field
 from humanize import naturalsize
 from privates.fields import PrivateMediaFileField
 from rest_framework import serializers
@@ -40,6 +41,9 @@ from openzaak.contrib.verzoeken.validators import verzoek_validator
 from openzaak.utils.serializer_fields import (
     DeprecatedNamespaceLengthHyperlinkedRelatedField,
     LengthHyperlinkedRelatedField,
+    NullableBooleanField,
+    ZoekFieldsSerializer,
+    zoek_fields_schema,
 )
 from openzaak.utils.serializers import (
     ConvenienceSerializer,
@@ -346,8 +350,16 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
     )
     bestandsdelen = BestandsDeelSerializer(
         many=True,
-        source="get_bestandsdelen",
+        source="canonical.bestandsdelen",
         read_only=True,
+    )
+
+    inhoud_is_vervallen = NullableBooleanField(
+        label=_("inhoud is vervallen"),
+        required=False,
+        help_text=get_help_text(
+            "documenten.EnkelvoudigInformatieObject", "inhoud_is_vervallen"
+        ),
     )
 
     inclusion_serializers = {
@@ -386,6 +398,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "trefwoorden",
             "inhoud_is_vervallen",
             "tonen_aan_initiator",
+            "is_gereed_voor_publicatie",
         )
         extra_kwargs = {
             "taal": {"min_length": 3},
@@ -568,6 +581,11 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         return eio
 
     def to_representation(self, instance):
+        if isinstance(instance, EnkelvoudigInformatieObjectCanonical):
+            # Expanded document relations expose the latest document version.
+            instance = instance.latest_version
+            self.instance = instance
+
         # instance is used in by AnyBase64File.to_representation
         if not self.instance:
             self.instance = instance
@@ -593,7 +611,9 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         ]
         for field in instance._meta.get_fields():
             # Ignore latest_version_of since it is a reverse relation
-            if field.name == "latest_version_of":
+            # TODO: remove the `field.name.startswith("_")` bit when the django-loose-fk
+            #  library gets removed from the project.
+            if field.name == "latest_version_of" or field.name.startswith("_"):
                 continue
             if field.name not in validated_data_field_names and (
                 self.partial or field.name not in updatable_field_names
@@ -871,7 +891,32 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
         return self.instance
 
 
+@extend_schema_field(
+    zoek_fields_schema(
+        example=[
+            "url",
+            "identificatie",
+            "titel",
+            {"informatieobjecttype": ["omschrijving"]},
+        ]
+    )
+)
+class EIOZoekFieldsSerializer(ZoekFieldsSerializer):
+    parent_serializer_class = EnkelvoudigInformatieObjectSerializer
+
+
 class EIOZoekSerializer(serializers.Serializer):
+    fields = EIOZoekFieldsSerializer(
+        required=False,
+        help_text=_(
+            "De elementen (fields) die worden teruggegeven in de respons"
+            " conform het expand-mechanisme. Het voorbeeld geeft aan hoe het werkt."
+            ' Hierin betekent "*" dat alle elementen van een resource worden teruggegeven.'
+            "\n\nVoor gerelateerde resources uit de Catalogi API is `catalogi.lezen` nodig."
+            '\n\n**Let op:** Het gebruik van het "fields" en "expand" element is'
+            " mutual exclusive. Of je gebruikt de één of de ander maar nooit te gelijk."
+        ),
+    )
     uuid__in = serializers.ListField(
         child=serializers.UUIDField(),
         help_text=_("Array of unieke resource identifiers (UUID4)"),

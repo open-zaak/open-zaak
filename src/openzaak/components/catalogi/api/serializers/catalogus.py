@@ -35,6 +35,14 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
         ),
     )
 
+    besluittype_omschrijvingen = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        source="besluittype_set",
+        slug_field="omschrijving",
+        help_text=_("Omschrijving van de aard van BESLUITen van het BESLUITTYPE."),
+    )
+
     informatieobjecttypen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
@@ -45,6 +53,21 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
             "URL-referenties naar INFORMATIEOBJECTTYPEn die in deze CATALOGUS worden ontsloten."
         ),
     )
+    informatieobjecttype_omschrijvingen = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        source="informatieobjecttype_set",
+        slug_field="omschrijving",
+        help_text=_(
+            "Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE."
+        ),
+    )
+
+    inclusion_serializers = {
+        "zaaktypen": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "besluittypen": "openzaak.components.catalogi.api.serializers.BesluitTypeSerializer",
+        "informatieobjecttypen": "openzaak.components.catalogi.api.serializers.InformatieObjectTypeSerializer",
+    }
 
     class Meta:
         model = Catalogus
@@ -57,7 +80,9 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
             "contactpersoon_beheer_emailadres",
             "zaaktypen",
             "besluittypen",
+            "besluittype_omschrijvingen",
             "informatieobjecttypen",
+            "informatieobjecttype_omschrijvingen",
             "naam",
             "versie",
             "begindatum_versie",
