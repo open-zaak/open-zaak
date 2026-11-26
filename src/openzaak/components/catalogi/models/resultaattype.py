@@ -19,7 +19,7 @@ from vng_api_common.constants import (
 from vng_api_common.descriptors import GegevensGroepType
 
 from openzaak.utils.fields import DurationField
-from openzaak.utils.help_text import mark_experimental
+from openzaak.utils.help_text import mark_deprecated, mark_experimental
 from openzaak.utils.mixins import APIMixin
 
 from .mixins import OptionalGeldigheidMixin
@@ -246,9 +246,11 @@ class ResultaatType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
         _("indicatie specifiek"),
         null=True,
         blank=True,
-        help_text=_(
-            "Aanduiding of het, vanuit archiveringsoptiek, een resultaattype"
-            " betreft dat specifiek is voor een bepaalde procesobjectaard."
+        help_text=mark_deprecated(
+            _(
+                "Aanduiding of het, vanuit archiveringsoptiek, een resultaattype"
+                " betreft dat specifiek is voor een bepaalde procesobjectaard."
+            ),
         ),
     )
     procestermijn = DurationField(

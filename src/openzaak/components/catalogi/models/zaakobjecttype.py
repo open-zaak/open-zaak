@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from vng_api_common.caching import ETagMixin
 
+from openzaak.utils.help_text import mark_deprecated
 from openzaak.utils.mixins import APIMixin
 
 from .mixins import OptionalGeldigheidMixin
@@ -50,7 +51,7 @@ class ZaakObjectType(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model)
         null=True,
         on_delete=models.CASCADE,
         related_name="zaakobjecttypen",
-        help_text=_("URL-referentie naar het STATUSTYPE"),
+        help_text=mark_deprecated(_("URL-referentie naar het STATUSTYPE")),
     )
 
     @property
