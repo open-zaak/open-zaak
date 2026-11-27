@@ -138,6 +138,48 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         }
         self.assertEqual(response_data, expected)
 
+    def test_type_urls_use_host_of_current_request(self):
+        """
+        The related type URLs are cached by the (namespace) fields, URLs of the
+        previous request should not be reused.
+        """
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
+        zaaktype.besluittypen.add(besluittype)
+        iotype = InformatieObjectTypeFactory.create(catalogus=self.catalogus)
+        ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype, informatieobjecttype=iotype
+        )
+        url = reverse(zaaktype, namespace=self.NAMESPACE)
+
+        for host in ("openzaak.nl", "testserver"):
+            with self.subTest(host=host):
+                response = self.client.get(url, headers={"host": host})
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                data = response.json()
+                self.assertEqual(data["url"], f"http://{host}{url}")
+                self.assertEqual(
+                    data["catalogus"],
+                    f"http://{host}{reverse(self.catalogus, namespace=self.NAMESPACE)}",
+                )
+                self.assertEqual(
+                    data["statustypen"],
+                    [f"http://{host}{reverse(statustype, namespace=self.NAMESPACE)}"],
+                )
+                self.assertEqual(
+                    data["besluittypen"],
+                    [f"http://{host}{reverse(besluittype, namespace=self.NAMESPACE)}"],
+                )
+                self.assertEqual(
+                    data["informatieobjecttypen"],
+                    [
+                        f"http://{host}"
+                        f"{reverse(iotype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE)}"
+                    ],
+                )
+
     def test_get_detail_deelzaaktype_identificaties(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
         deelzaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)

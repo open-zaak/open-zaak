@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+import copy
+
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 
@@ -113,6 +115,14 @@ class AutorisatieBaseSerializer(PolymorphicSerializer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # The ``discriminator.mapping`` serializers are instantiated once, at import
+        # time, and would be shared by every request (and thread): the discriminator
+        # updates their context and the ``CacheMixin`` of their fields caches URLs
+        # including the host of the first request. ``Field.__deepcopy__``
+        # re-instantiates them, so every instance (= request) gets its own, like DRF
+        # does for declared fields.
+        self.discriminator = copy.deepcopy(self.discriminator)
 
         value_display_mapping = add_choice_values_help_text(ComponentTypes)
         current_help = self.fields["component"].help_text or ""

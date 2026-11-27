@@ -515,6 +515,56 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
             f"http://testserver{reverse(app)}",
         )
 
+    @override_settings(ALLOWED_HOSTS=["testserver", "otherserver"])
+    def test_type_urls_use_host_of_current_request(self):
+        """
+        The autorisatie serializers in the polymorphic discriminator mapping are
+        shared between requests, URLs of the previous request should not be reused.
+        """
+        zaaktype = ZaakTypeFactory.create()
+        iotype = InformatieObjectTypeFactory.create()
+        besluittype = BesluitTypeFactory.create()
+        applicatie = ApplicatieFactory.create(client_ids=["multi-host"])
+        AutorisatieFactory.create(
+            applicatie=applicatie,
+            component=ComponentTypes.zrc,
+            zaaktype=zaaktype,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        AutorisatieFactory.create(
+            applicatie=applicatie,
+            component=ComponentTypes.drc,
+            informatieobjecttype=iotype,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        AutorisatieFactory.create(
+            applicatie=applicatie,
+            component=ComponentTypes.brc,
+            besluittype=besluittype,
+        )
+        url = reverse(applicatie, namespace="autorisaties")
+
+        for host in ("otherserver", "testserver"):
+            with self.subTest(host=host):
+                response = self.client.get(url, headers={"host": host})
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                autorisaties = {
+                    a["component"]: a for a in response.json()["autorisaties"]
+                }
+                self.assertEqual(
+                    autorisaties[ComponentTypes.zrc]["zaaktype"],
+                    f"http://{host}{reverse(zaaktype, namespace='zaken')}",
+                )
+                self.assertEqual(
+                    autorisaties[ComponentTypes.drc]["informatieobjecttype"],
+                    f"http://{host}{reverse(iotype, namespace='documenten')}",
+                )
+                self.assertEqual(
+                    autorisaties[ComponentTypes.brc]["besluittype"],
+                    f"http://{host}{reverse(besluittype, namespace='zaken')}",
+                )
+
     def test_validate_unknown_query_params(self):
         ApplicatieFactory.create_batch(2)
         url = reverse(Applicatie, namespace="autorisaties")
