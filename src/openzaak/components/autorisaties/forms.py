@@ -494,8 +494,12 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
             self.applicatie, request=self.request
         ).data
 
-        if not versions_equivalent(old_version, new_version):
+        # Show sucess message only when there are actual change in the data
+        is_same_version = versions_equivalent(old_version, new_version)
+        if not is_same_version:
             send_applicatie_changed_notification(self.applicatie, new_version)
+            return True
+        return False
 
     def clean(self):
         self._validate_authorizations_have_scopes()
