@@ -400,7 +400,7 @@ class RolTypeFilterAPITests(APITestCase):
         zaaktype1 = roltype1.zaaktype
         roltype_list_url = reverse(RolType, namespace=self.NAMESPACE)
         roltype1_url = reverse(roltype1, namespace=self.NAMESPACE)
-        zaaktype1_url = reverse(zaaktype1)
+        zaaktype1_url = reverse(zaaktype1, namespace=self.NAMESPACE)
 
         response = self.client.get(
             roltype_list_url,

@@ -17,3 +17,4 @@ class PublishedTypesForcedDeletionTests(_PublishedTypesForcedDeletionTests):
 
 class PublishedTypesForcedWriteTests(_PublishedTypesForcedWriteTests):
     NAMESPACE = "zaken"
+    INFORMATIEOBJECTTYPE_NAMESPACE = "documenten"

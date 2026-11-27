@@ -24,7 +24,7 @@ class ServiceNormDurationTests(JWTAuthMixin, APITestCase):
         super().setUp()
 
         catalogus = CatalogusFactory.create()
-        self.catalogus_detail_url = reverse(catalogus)
+        self.catalogus_detail_url = reverse(catalogus, namespace=self.NAMESPACE)
 
         self.data = {
             "doel": "some test",

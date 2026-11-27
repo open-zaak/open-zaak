@@ -21,3 +21,4 @@ class BesluitTypePublishedTypesForcedWriteTests(
     _BesluitTypePublishedTypesForcedWriteTests
 ):
     NAMESPACE = "zaken"
+    INFORMATIEOBJECTTYPE_NAMESPACE = "documenten"

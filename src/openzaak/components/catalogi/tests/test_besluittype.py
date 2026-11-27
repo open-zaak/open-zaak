@@ -460,7 +460,7 @@ class BesluitTypeAPITests(APITestCase):
         )
         besluittype_url = reverse(besluittype, namespace=self.NAMESPACE)
         data = {
-            "catalogus": reverse(catalogus),
+            "catalogus": reverse(catalogus, namespace=self.NAMESPACE),
             "omschrijving": "test",
             "omschrijvingGeneriek": "",
             "besluitcategorie": "",
@@ -493,7 +493,7 @@ class BesluitTypeAPITests(APITestCase):
         )
         besluittype_url = reverse(besluittype, namespace=self.NAMESPACE)
         data = {
-            "catalogus": reverse(catalogus),
+            "catalogus": reverse(catalogus, namespace=self.NAMESPACE),
             "omschrijving": "test",
             "omschrijvingGeneriek": "",
             "besluitcategorie": "",
@@ -526,7 +526,7 @@ class BesluitTypeAPITests(APITestCase):
         besluittype = BesluitTypeFactory.create(catalogus=catalogus)
         besluittype_url = reverse(besluittype, namespace=self.NAMESPACE)
         data = {
-            "catalogus": reverse(catalogus),
+            "catalogus": reverse(catalogus, namespace=self.NAMESPACE),
             "omschrijving": "test",
             "omschrijvingGeneriek": "",
             "besluitcategorie": "",
@@ -788,6 +788,7 @@ class BesluitTypeAPITests(APITestCase):
 class BesluitTypeFilterAPITests(ClearCachesMixin, APITestCase):
     maxDiff = None
     NAMESPACE = "catalogi"
+    INFORMATIEOBJECTTYPE_NAMESPACE = "catalogi"
 
     @property
     def url(self):
@@ -834,7 +835,9 @@ class BesluitTypeFilterAPITests(ClearCachesMixin, APITestCase):
         besluittype1 = BesluitTypeFactory.create(concept=False)
         BesluitTypeFactory.create(concept=False)
         zaaktype1 = besluittype1.zaaktypen.get()
-        zaaktype1_url = f"http://openzaak.nl{reverse(zaaktype1)}"
+        zaaktype1_url = (
+            f"http://openzaak.nl{reverse(zaaktype1, namespace=self.NAMESPACE)}"
+        )
         besluittype1_url = reverse(besluittype1, namespace=self.NAMESPACE)
 
         response = self.client.get(self.url, {"zaaktypen": zaaktype1_url})
@@ -852,7 +855,7 @@ class BesluitTypeFilterAPITests(ClearCachesMixin, APITestCase):
         iot1 = InformatieObjectTypeFactory.create(catalogus=self.catalogus)
         besluittype1.informatieobjecttypen.add(iot1)
         besluittype1_url = reverse(besluittype1, namespace=self.NAMESPACE)
-        iot1_url = f"http://openzaak.nl{reverse(iot1)}"
+        iot1_url = f"http://openzaak.nl{reverse(iot1, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE)}"
 
         response = self.client.get(
             self.url, {"informatieobjecttypen": iot1_url}, HTTP_HOST="openzaak.nl"

@@ -143,9 +143,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         deelzaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
         zaaktype.deelzaaktypen.add(deelzaaktype)
 
-        response = self.client.get(
-            get_operation_url("zaaktype_read", uuid=zaaktype.uuid)
-        )
+        response = self.client.get(reverse(zaaktype, namespace=self.NAMESPACE))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -157,16 +155,16 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         local = ZaakTypeFactory.create(catalogus=self.catalogus)
         ZaakTypenRelatieFactory.create(
             zaaktype=zaaktype,
-            gerelateerd_zaaktype=f"http://testserver{reverse(local)}",
+            gerelateerd_zaaktype=(
+                f"http://testserver{reverse(local, namespace=self.NAMESPACE)}"
+            ),
         )
         ZaakTypenRelatieFactory.create(
             zaaktype=zaaktype,
             gerelateerd_zaaktype="https://external.example.com/catalogi/api/v1/zaaktypen/b6cbb4e3-0a6a-4bd0-95a0-bb2ab77a1c0e",
         )
 
-        response = self.client.get(
-            get_operation_url("zaaktype_read", uuid=zaaktype.uuid)
-        )
+        response = self.client.get(reverse(zaaktype, namespace=self.NAMESPACE))
 
         self.assertEqual(response.status_code, 200)
         identificaties = {
@@ -195,7 +193,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
                 zaaktype=zaaktype, informatieobjecttype=iotype
             )
 
-        response = self.client.get(reverse(zaaktype))
+        response = self.client.get(reverse(zaaktype, namespace=self.NAMESPACE))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
@@ -214,7 +212,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype.besluittypen.add(besluittype)
 
         response = self.client.patch(
-            reverse(zaaktype),
+            reverse(zaaktype, namespace=self.NAMESPACE),
             {
                 "besluittypeOmschrijvingen": ["other"],
                 "informatieobjecttypeOmschrijvingen": ["other"],
@@ -227,7 +225,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(data["informatieobjecttypeOmschrijvingen"], [])
 
     def test_get_list_omschrijving_does_not_add_queries_per_zaaktype(self):
-        url = get_operation_url("zaaktype_list")
+        url = reverse(ZaakType, namespace=self.NAMESPACE)
 
         def count_list_queries() -> int:
             with CaptureQueriesContext(connection) as ctx:
@@ -1080,7 +1078,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
                 }
             ],
             "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
-            "catalogus": reverse(catalogus),
+            "catalogus": reverse(catalogus, namespace=self.NAMESPACE),
             # 'informatieobjecttypen': [f'http://testserver{informatieobjecttype_url}'],
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
@@ -1130,7 +1128,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
                 }
             ],
             "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
-            "catalogus": reverse(catalogus),
+            "catalogus": reverse(catalogus, namespace=self.NAMESPACE),
             # 'informatieobjecttypen': [f'http://testserver{informatieobjecttype_url}'],
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
@@ -1180,7 +1178,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
                 }
             ],
             "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
-            "catalogus": reverse(catalogus),
+            "catalogus": reverse(catalogus, namespace=self.NAMESPACE),
             # 'informatieobjecttypen': [f'http://testserver{informatieobjecttype_url}'],
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
@@ -1229,7 +1227,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
                 }
             ],
             "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
-            "catalogus": reverse(catalogus),
+            "catalogus": reverse(catalogus, namespace=self.NAMESPACE),
             # 'informatieobjecttypen': [f'http://testserver{informatieobjecttype_url}'],
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
@@ -1285,7 +1283,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
                 }
             ],
             "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
-            "catalogus": reverse(catalogus),
+            "catalogus": reverse(catalogus, namespace=self.NAMESPACE),
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
@@ -1327,7 +1325,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
                 }
             ],
             "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
-            "catalogus": reverse(catalogus),
+            "catalogus": reverse(catalogus, namespace=self.NAMESPACE),
             # 'informatieobjecttypen': [f'http://testserver{informatieobjecttype_url}'],
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
@@ -1568,7 +1566,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             catalogus=catalog2,
             broncatalogus_domein=catalog1.domein,
             broncatalogus_rsin=catalog1.rsin,
-            broncatalogus_url=f"http://testserver{reverse(catalog1)}",
+            broncatalogus_url=f"http://testserver{reverse(catalog1, namespace=self.NAMESPACE)}",
             bronzaaktype_identificatie=bron_zaaktype.identificatie,
             bronzaaktype_omschrijving=bron_zaaktype.zaaktype_omschrijving,
             bronzaaktype_url=f"http://testserver{reverse(bron_zaaktype, namespace=self.NAMESPACE)}",
@@ -1581,7 +1579,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         result = response.json()
 
         expected_broncatalogus = {
-            "url": f"http://testserver{reverse(catalog1)}",
+            "url": f"http://testserver{reverse(catalog1, namespace=self.NAMESPACE)}",
             "domein": catalog1.domein,
             "rsin": catalog1.rsin,
         }
@@ -1621,13 +1619,13 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "omschrijving": "PUT bron test",
             "gerelateerdeZaaktypen": [],
             "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
-            "catalogus": reverse(catalog2),
+            "catalogus": reverse(catalog2, namespace=self.NAMESPACE),
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
             "verantwoordelijke": "063308836",
             "broncatalogus": {
-                "url": f"http://example.com{reverse(catalog1)}",
+                "url": f"http://example.com{reverse(catalog1, namespace=self.NAMESPACE)}",
                 "domein": catalog1.domein,
                 "rsin": catalog1.rsin,
             },
@@ -1647,7 +1645,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(zaaktype.broncatalogus_rsin, catalog1.rsin)
         self.assertEqual(
             zaaktype.broncatalogus_url,
-            f"http://example.com{reverse(catalog1)}",
+            f"http://example.com{reverse(catalog1, namespace=self.NAMESPACE)}",
         )
 
         self.assertEqual(
@@ -1674,7 +1672,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "broncatalogus": {
                 "domein": catalog1.domein,
                 "rsin": catalog1.rsin,
-                "url": f"http://example.com{reverse(catalog1)}",
+                "url": f"http://example.com{reverse(catalog1, namespace=self.NAMESPACE)}",
             },
             "bronzaaktype": {
                 "identificatie": bron_zaaktype.identificatie,
@@ -1692,7 +1690,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(zaaktype.broncatalogus_rsin, catalog1.rsin)
         self.assertEqual(
             zaaktype.broncatalogus_url,
-            f"http://example.com{reverse(catalog1)}",
+            f"http://example.com{reverse(catalog1, namespace=self.NAMESPACE)}",
         )
 
         self.assertEqual(
@@ -2300,7 +2298,7 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
         data = {
             "omschrijving": "zaaktype",
             "identificatie": 1,
-            "catalogus": f"http://testserver{reverse(self.catalogus)}",
+            "catalogus": f"http://testserver{reverse(self.catalogus, namespace=self.NAMESPACE)}",
             "beginGeldigheid": "2019-02-01",
             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             "doel": "doel",
@@ -2340,7 +2338,7 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
         data = {
             "omschrijving": "zaaktype",
             "identificatie": 1,
-            "catalogus": f"http://testserver{reverse(self.catalogus)}",
+            "catalogus": f"http://testserver{reverse(self.catalogus, namespace=self.NAMESPACE)}",
             "beginGeldigheid": "2019-02-01",
             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             "doel": "doel",
@@ -2376,7 +2374,7 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
         data = {
             "omschrijving": "zaaktype",
             "identificatie": 1,
-            "catalogus": f"http://testserver{reverse(self.catalogus)}",
+            "catalogus": f"http://testserver{reverse(self.catalogus, namespace=self.NAMESPACE)}",
             "beginGeldigheid": "2020-02-01",
             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             "doel": "doel",

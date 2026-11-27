@@ -322,6 +322,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
     scopes = [SCOPE_CATALOGI_FORCED_WRITE]
     component = ComponentTypes.ztc
     NAMESPACE = "catalogi"
+    INFORMATIEOBJECTTYPE_NAMESPACE = "catalogi"
 
     def test_create_eigenschap_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
@@ -387,7 +388,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
         )
         data = {
             "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
-            "informatieobjecttype": f"http://testserver{reverse(informatieobjecttype, namespace='catalogi')}",
+            "informatieobjecttype": f"http://testserver{reverse(informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE)}",
             "volgnummer": 13,
             "richting": RichtingChoices.inkomend,
         }
@@ -410,7 +411,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
 
         data = {
             "zaaktype": f"http://testserver{reverse(zaaktype, namespace=self.NAMESPACE)}",
-            "informatieobjecttype": f"http://testserver{reverse(informatieobjecttype, namespace='catalogi')}",
+            "informatieobjecttype": f"http://testserver{reverse(informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE)}",
             "volgnummer": 13,
             "richting": RichtingChoices.inkomend,
         }
@@ -751,6 +752,7 @@ class BesluitTypePublishedTypesForcedWriteTests(APITestCase):
     scopes = [SCOPE_CATALOGI_FORCED_WRITE]
     component = ComponentTypes.ztc
     NAMESPACE = "catalogi"
+    INFORMATIEOBJECTTYPE_NAMESPACE = "catalogi"
 
     def test_update_besluittype_not_concept(self):
         besluittype = BesluitTypeFactory.create(concept=False)
@@ -811,7 +813,7 @@ class BesluitTypePublishedTypesForcedWriteTests(APITestCase):
             "publicatietermijn": None,
             "toelichting": "aangepast",
             "informatieobjecttypen": [
-                f"http://testserver{reverse(informatieobjecttype, namespace='catalogi')}"
+                f"http://testserver{reverse(informatieobjecttype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE)}"
             ],
             "beginGeldigheid": "2019-01-01",
         }

@@ -69,7 +69,7 @@ class CatalogusAPITests(APITestCase):
         BesluitTypeFactory.create()
         InformatieObjectTypeFactory.create()
 
-        response = self.client.get(reverse(catalogus))
+        response = self.client.get(reverse(catalogus, namespace=self.NAMESPACE))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
@@ -89,7 +89,7 @@ class CatalogusAPITests(APITestCase):
         BesluitTypeFactory.create(catalogus=catalogus, omschrijving="besluittype")
 
         response = self.client.patch(
-            reverse(catalogus),
+            reverse(catalogus, namespace=self.NAMESPACE),
             {
                 "besluittypeOmschrijvingen": ["other"],
                 "informatieobjecttypeOmschrijvingen": ["other"],
@@ -334,7 +334,7 @@ class CatalogusFilterAPITests(APITestCase):
 
     def test_validate_unknown_query_params(self):
         CatalogusFactory.create_batch(2)
-        url = reverse(Catalogus)
+        url = reverse(Catalogus, namespace=self.NAMESPACE)
 
         response = self.client.get(url, {"someparam": "somevalue"})
 

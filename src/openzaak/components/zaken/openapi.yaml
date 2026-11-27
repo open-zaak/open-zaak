@@ -6131,6 +6131,13 @@ paths:
         schema:
           type: integer
       - in: query
+        name: referentiecode
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Code waarmee dit resultaattype in een extern
+          systeem wordt geïdentificeerd. Moet uniek zijn indien gespecificeerd, behalve
+          tussen de versies van hetzelfde resultaattype.'
+      - in: query
         name: status
         schema:
           type: string
@@ -10867,6 +10874,13 @@ paths:
           maximum: 500).'
         schema:
           type: integer
+      - in: query
+        name: referentiecode
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Code waarmee dit statustype in een extern
+          systeem wordt geïdentificeerd. Moet uniek zijn indien gespecificeerd, behalve
+          tussen de versies van hetzelfde statustype.'
       - in: query
         name: status
         schema:
@@ -31511,6 +31525,14 @@ components:
           format: date
           nullable: true
           description: De datum waarop het is opgeheven.
+        referentiecode:
+          type: string
+          nullable: true
+          minLength: 1
+          description: '**EXPERIMENTEEL** Code waarmee dit resultaattype in een extern
+            systeem wordt geïdentificeerd. Moet uniek zijn indien gespecificeerd,
+            behalve tussen de versies van hetzelfde resultaattype.'
+          maxLength: 20
     PatchedRolTypeRequest:
       type: object
       description: Adds nested create feature
@@ -31619,6 +31641,14 @@ components:
           format: date
           nullable: true
           description: De datum waarop het is opgeheven.
+        referentiecode:
+          type: string
+          nullable: true
+          minLength: 1
+          description: '**EXPERIMENTEEL** Code waarmee dit statustype in een extern
+            systeem wordt geïdentificeerd. Moet uniek zijn indien gespecificeerd,
+            behalve tussen de versies van hetzelfde statustype.'
+          maxLength: 20
     PatchedZaakEigenschapRequest:
       type: object
       description: |-
@@ -33233,6 +33263,14 @@ components:
           format: date
           nullable: true
           description: De datum waarop het is opgeheven.
+        referentiecode:
+          type: string
+          nullable: true
+          minLength: 1
+          description: '**EXPERIMENTEEL** Code waarmee dit resultaattype in een extern
+            systeem wordt geïdentificeerd. Moet uniek zijn indien gespecificeerd,
+            behalve tussen de versies van hetzelfde resultaattype.'
+          maxLength: 20
       required:
       - omschrijving
       - resultaattypeomschrijving
@@ -33976,6 +34014,14 @@ components:
           format: date
           nullable: true
           description: De datum waarop het is opgeheven.
+        referentiecode:
+          type: string
+          nullable: true
+          minLength: 1
+          description: '**EXPERIMENTEEL** Code waarmee dit statustype in een extern
+            systeem wordt geïdentificeerd. Moet uniek zijn indien gespecificeerd,
+            behalve tussen de versies van hetzelfde statustype.'
+          maxLength: 20
       required:
       - omschrijving
       - volgnummer

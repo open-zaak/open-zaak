@@ -2,6 +2,8 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.utils.translation import gettext_lazy as _
 
+from rest_framework import serializers
+
 from openzaak.utils.serializer_fields import (
     DeprecatedNamespaceCachedHyperlinkedRelatedField,
 )

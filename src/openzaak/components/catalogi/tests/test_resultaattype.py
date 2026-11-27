@@ -53,6 +53,7 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
     scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
     NAMESPACE = "catalogi"
+    INFORMATIEOBJECTTYPE_NAMESPACE = "catalogi"
 
     @property
     def url(self):
@@ -233,7 +234,7 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
         )
 
     def _post_resultaattype(self, m, zaaktype, **extra):
-        zaaktype_url = reverse(zaaktype)
+        zaaktype_url = reverse(zaaktype, namespace=self.NAMESPACE)
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -262,7 +263,7 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
         )
         m.get(RESULTAATTYPEOMSCHRIJVING_URL, json={"omschrijving": "test"})
 
-        return self.client.post(self.list_url, data)
+        return self.client.post(self.url, data)
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch_resource_validator
@@ -895,7 +896,7 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
                 "registratie": "",
             },
             "informatieobjecttypen": [
-                f"http://testserver{reverse(iotype, namespace='catalogi')}"
+                f"http://testserver{reverse(iotype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE)}"
             ],
         }
         mock_selectielijst_oas_get(m)
@@ -948,7 +949,7 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
                 "registratie": "",
             },
             "informatieobjecttypen": [
-                f"http://testserver{reverse(iotype, namespace='catalogi')}"
+                f"http://testserver{reverse(iotype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE)}"
             ],
         }
         mock_selectielijst_oas_get(m)
@@ -993,7 +994,7 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
                 resultaattype_url,
                 {
                     "informatieobjecttypen": [
-                        f"http://testserver{reverse(iotype, namespace='catalogi')}"
+                        f"http://testserver{reverse(iotype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE)}"
                     ]
                 },
             )
@@ -1025,7 +1026,7 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
                 resultaattype_url,
                 {
                     "informatieobjecttypen": [
-                        f"http://testserver{reverse(iotype, namespace='catalogi')}"
+                        f"http://testserver{reverse(iotype, namespace=self.INFORMATIEOBJECTTYPE_NAMESPACE)}"
                     ]
                 },
             )
@@ -1212,7 +1213,7 @@ class ResultaatTypeFilterAPITests(APITestCase):
         ResultaatTypeFactory.create(zaaktype__concept=False, referentiecode="B2")
 
         response = self.client.get(
-            reverse("catalogi:resultaattype-list"),
+            self.url,
             {"referentiecode": "A1"},
             headers={"host": "openzaak.nl"},
         )
@@ -1220,7 +1221,10 @@ class ResultaatTypeFilterAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = response.json()["results"]
         self.assertEqual(len(results), 1)
-        self.assertEqual(results[0]["url"], f"http://openzaak.nl{reverse(rt)}")
+        self.assertEqual(
+            results[0]["url"],
+            f"http://openzaak.nl{reverse(rt, namespace=self.NAMESPACE)}",
+        )
         self.assertEqual(results[0]["referentiecode"], "A1")
 
     def test_list_returns_all_published_versions_not_only_latest(self):
