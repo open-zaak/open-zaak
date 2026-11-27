@@ -15,6 +15,7 @@ class BesluitTypeAPITests(_BesluitTypeAPITests):
 
 class BesluitTypeFilterAPITests(_BesluitTypeFilterAPITests):
     NAMESPACE = "zaken"
+    INFORMATIEOBJECTTYPE_NAMESPACE = "documenten"
 
 
 class BesluitTypePaginationTestCase(_BesluitTypePaginationTestCase):

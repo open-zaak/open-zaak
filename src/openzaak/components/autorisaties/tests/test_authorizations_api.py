@@ -399,6 +399,70 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
         self.assertTrue(application.alleen_is_gereed_voor_publicatie)
         self.assertFalse(application.autorisaties.exists())
 
+    def test_create_with_deprecated_catalogi_urls(self):
+        """
+        Zaaktypen & besluittypen moved to the Zaken API and informatieobjecttypen
+        to the Documenten API. URLs from the deprecated Catalogi API are still
+        accepted, the response contains the URLs of the new location.
+        """
+        url = get_operation_url("applicatie_create")
+        zaaktype = ZaakTypeFactory.create()
+        iotype = InformatieObjectTypeFactory.create()
+        besluittype = BesluitTypeFactory.create()
+
+        data = {
+            "client_ids": ["id1"],
+            "label": "some-app",
+            "autorisaties": [
+                {
+                    "component": ComponentTypes.zrc,
+                    "scopes": [str(SCOPE_ZAKEN_CREATE)],
+                    "zaaktype": f"http://testserver{reverse(zaaktype, namespace='catalogi')}",
+                    "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                },
+                {
+                    "component": ComponentTypes.drc,
+                    "scopes": [str(SCOPE_DOCUMENTEN_AANMAKEN)],
+                    "informatieobjecttype": f"http://testserver{reverse(iotype, namespace='catalogi')}",
+                    "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                },
+                {
+                    "component": ComponentTypes.brc,
+                    "scopes": [str(SCOPE_BESLUITEN_AANMAKEN)],
+                    "besluittype": f"http://testserver{reverse(besluittype, namespace='catalogi')}",
+                },
+            ],
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        applicatie = Applicatie.objects.get(client_ids=["id1"])
+        self.assertEqual(
+            applicatie.autorisaties.get(component="zrc").zaaktype, zaaktype
+        )
+        self.assertEqual(
+            applicatie.autorisaties.get(component="drc").informatieobjecttype, iotype
+        )
+        self.assertEqual(
+            applicatie.autorisaties.get(component="brc").besluittype, besluittype
+        )
+
+        autorisaties = {a["component"]: a for a in response.json()["autorisaties"]}
+        self.assertEqual(
+            autorisaties[ComponentTypes.zrc]["zaaktype"],
+            f"http://testserver{reverse(zaaktype, namespace='zaken')}",
+        )
+        self.assertEqual(
+            autorisaties[ComponentTypes.drc]["informatieobjecttype"],
+            f"http://testserver{reverse(iotype, namespace='documenten')}",
+        )
+        self.assertEqual(
+            autorisaties[ComponentTypes.brc]["besluittype"],
+            f"http://testserver{reverse(besluittype, namespace='zaken')}",
+        )
+
 
 @override_settings(ALLOWED_HOSTS=["testserver"])
 class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
@@ -450,6 +514,56 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
             response.data["url"],
             f"http://testserver{reverse(app)}",
         )
+
+    @override_settings(ALLOWED_HOSTS=["testserver", "otherserver"])
+    def test_type_urls_use_host_of_current_request(self):
+        """
+        The autorisatie serializers in the polymorphic discriminator mapping are
+        shared between requests, URLs of the previous request should not be reused.
+        """
+        zaaktype = ZaakTypeFactory.create()
+        iotype = InformatieObjectTypeFactory.create()
+        besluittype = BesluitTypeFactory.create()
+        applicatie = ApplicatieFactory.create(client_ids=["multi-host"])
+        AutorisatieFactory.create(
+            applicatie=applicatie,
+            component=ComponentTypes.zrc,
+            zaaktype=zaaktype,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        AutorisatieFactory.create(
+            applicatie=applicatie,
+            component=ComponentTypes.drc,
+            informatieobjecttype=iotype,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        AutorisatieFactory.create(
+            applicatie=applicatie,
+            component=ComponentTypes.brc,
+            besluittype=besluittype,
+        )
+        url = reverse(applicatie, namespace="autorisaties")
+
+        for host in ("otherserver", "testserver"):
+            with self.subTest(host=host):
+                response = self.client.get(url, headers={"host": host})
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                autorisaties = {
+                    a["component"]: a for a in response.json()["autorisaties"]
+                }
+                self.assertEqual(
+                    autorisaties[ComponentTypes.zrc]["zaaktype"],
+                    f"http://{host}{reverse(zaaktype, namespace='zaken')}",
+                )
+                self.assertEqual(
+                    autorisaties[ComponentTypes.drc]["informatieobjecttype"],
+                    f"http://{host}{reverse(iotype, namespace='documenten')}",
+                )
+                self.assertEqual(
+                    autorisaties[ComponentTypes.brc]["besluittype"],
+                    f"http://{host}{reverse(besluittype, namespace='zaken')}",
+                )
 
     def test_validate_unknown_query_params(self):
         ApplicatieFactory.create_batch(2)
@@ -586,7 +700,7 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
                 "component": ComponentTypes.zrc,
                 "component_weergave": "Zaken API",
                 "scopes": [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_BIJWERKEN)],
-                "zaaktype": f"http://testserver{reverse(zaaktype_regular_autorisatie)}",
+                "zaaktype": f"http://testserver{reverse(zaaktype_regular_autorisatie, namespace='zaken')}",
                 "max_vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             },
             {
@@ -596,7 +710,7 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
                     str(SCOPE_BESLUITEN_AANMAKEN),
                     str(SCOPE_BESLUITEN_BIJWERKEN),
                 ],
-                "besluittype": f"http://testserver{reverse(besluittype4)}",
+                "besluittype": f"http://testserver{reverse(besluittype4, namespace='zaken')}",
             },
             {
                 "component": ComponentTypes.brc,
@@ -605,7 +719,7 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
                     str(SCOPE_BESLUITEN_AANMAKEN),
                     str(SCOPE_BESLUITEN_BIJWERKEN),
                 ],
-                "besluittype": f"http://testserver{reverse(besluittype3)}",
+                "besluittype": f"http://testserver{reverse(besluittype3, namespace='zaken')}",
             },
             {
                 "component": ComponentTypes.drc,
@@ -614,7 +728,7 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
                     str(SCOPE_DOCUMENTEN_AANMAKEN),
                     str(SCOPE_DOCUMENTEN_BIJWERKEN),
                 ],
-                "informatieobjecttype": f"http://testserver{reverse(iotype2)}",
+                "informatieobjecttype": f"http://testserver{reverse(iotype2, namespace='documenten')}",
                 "max_vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             },
             {
@@ -624,21 +738,21 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
                     str(SCOPE_DOCUMENTEN_AANMAKEN),
                     str(SCOPE_DOCUMENTEN_BIJWERKEN),
                 ],
-                "informatieobjecttype": f"http://testserver{reverse(iotype1)}",
+                "informatieobjecttype": f"http://testserver{reverse(iotype1, namespace='documenten')}",
                 "max_vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             },
             {
                 "component": ComponentTypes.zrc,
                 "component_weergave": "Zaken API",
                 "scopes": [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_BIJWERKEN)],
-                "zaaktype": f"http://testserver{reverse(zaaktype2)}",
+                "zaaktype": f"http://testserver{reverse(zaaktype2, namespace='zaken')}",
                 "max_vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.confidentieel,
             },
             {
                 "component": ComponentTypes.zrc,
                 "component_weergave": "Zaken API",
                 "scopes": [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_BIJWERKEN)],
-                "zaaktype": f"http://testserver{reverse(zaaktype1)}",
+                "zaaktype": f"http://testserver{reverse(zaaktype1, namespace='zaken')}",
                 "max_vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.confidentieel,
             },
         ]
@@ -681,7 +795,7 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
                 "component": ComponentTypes.zrc,
                 "component_weergave": "Zaken API",
                 "scopes": [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_BIJWERKEN)],
-                "zaaktype": f"http://testserver{reverse(zaaktype)}",
+                "zaaktype": f"http://testserver{reverse(zaaktype, namespace='zaken')}",
                 "max_vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.confidentieel,
             },
         ]

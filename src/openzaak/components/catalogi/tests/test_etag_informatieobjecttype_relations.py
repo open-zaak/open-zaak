@@ -23,6 +23,7 @@ EXTERNAL_IOTYPE = (
 
 class InformatieObjectTypeRelationETagTests(JWTAuthMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def setUp(self):
         super().setUp()
@@ -44,14 +45,16 @@ class InformatieObjectTypeRelationETagTests(JWTAuthMixin, APITransactionTestCase
         iotype = InformatieObjectTypeFactory.create(
             zaaktypen=[], catalogus=besluittype.catalogus
         )
-        besluittype_etag = self.get_etag(besluittype, "zaken")
+        besluittype_etag = self.get_etag(besluittype, self.NAMESPACE)
         iotype_etag = self.get_etag(iotype, "documenten")
 
         BesluitTypeInformatieObjectType.objects.create(
             besluittype=besluittype, informatieobjecttype=iotype
         )
 
-        self.assertNotEqual(self.get_etag(besluittype, "zaken"), besluittype_etag)
+        self.assertNotEqual(
+            self.get_etag(besluittype, self.NAMESPACE), besluittype_etag
+        )
         self.assertNotEqual(self.get_etag(iotype, "documenten"), iotype_etag)
 
     def test_besluittype_relation_deleted(self):
@@ -62,23 +65,27 @@ class InformatieObjectTypeRelationETagTests(JWTAuthMixin, APITransactionTestCase
         relation = BesluitTypeInformatieObjectType.objects.create(
             besluittype=besluittype, informatieobjecttype=iotype
         )
-        besluittype_etag = self.get_etag(besluittype, "zaken")
+        besluittype_etag = self.get_etag(besluittype, self.NAMESPACE)
         iotype_etag = self.get_etag(iotype, "documenten")
 
         relation.delete()
 
-        self.assertNotEqual(self.get_etag(besluittype, "zaken"), besluittype_etag)
+        self.assertNotEqual(
+            self.get_etag(besluittype, self.NAMESPACE), besluittype_etag
+        )
         self.assertNotEqual(self.get_etag(iotype, "documenten"), iotype_etag)
 
     def test_besluittype_external_relation_created(self):
         besluittype = BesluitTypeFactory.create(informatieobjecttypen=[])
-        besluittype_etag = self.get_etag(besluittype, "zaken")
+        besluittype_etag = self.get_etag(besluittype, self.NAMESPACE)
 
         BesluitTypeInformatieObjectType.objects.create(
             besluittype=besluittype, informatieobjecttype=EXTERNAL_IOTYPE
         )
 
-        self.assertNotEqual(self.get_etag(besluittype, "zaken"), besluittype_etag)
+        self.assertNotEqual(
+            self.get_etag(besluittype, self.NAMESPACE), besluittype_etag
+        )
 
     def test_besluittype_relation_replaced_via_api(self):
         besluittype = BesluitTypeFactory.create(informatieobjecttypen=[])
@@ -86,13 +93,13 @@ class InformatieObjectTypeRelationETagTests(JWTAuthMixin, APITransactionTestCase
             zaaktypen=[], catalogus=besluittype.catalogus
         )
         iotype_etag = self.get_etag(iotype, "documenten")
-        response = self.client.get(reverse(besluittype, namespace="zaken"))
+        response = self.client.get(reverse(besluittype, namespace=self.NAMESPACE))
         data = response.json()
         data["informatieobjecttypen"] = [
             f"http://testserver{reverse(iotype, namespace='documenten')}"
         ]
 
-        response = self.client.put(reverse(besluittype, namespace="zaken"), data)
+        response = self.client.put(reverse(besluittype, namespace=self.NAMESPACE), data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
         self.assertNotEqual(self.get_etag(iotype, "documenten"), iotype_etag)

@@ -8,14 +8,13 @@ from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.components.zaken.tests.factories import ZaakEigenschapFactory
-
-from ...models import Eigenschap, EigenschapSpecificatie
-from ..factories import (
+from openzaak.components.catalogi.models import Eigenschap, EigenschapSpecificatie
+from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,
     EigenschapSpecificatieFactory,
     ZaakTypeFactory,
 )
+from openzaak.components.zaken.tests.factories import ZaakEigenschapFactory
 
 
 @disable_admin_mfa()

@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+import copy
+
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 
@@ -12,7 +14,6 @@ from vng_api_common.constants import ComponentTypes
 from vng_api_common.models import JWTSecret
 from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
 from vng_api_common.serializers import (
-    LengthHyperlinkedRelatedField,
     add_choice_values_help_text,
 )
 
@@ -23,16 +24,19 @@ from openzaak.components.catalogi.models import (
     InformatieObjectType,
     ZaakType,
 )
+from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceLengthHyperlinkedRelatedField,
+)
 
 logger = structlog.stdlib.get_logger(__name__)
 
 
 class ZaakTypeAutorisatieSerializer(serializers.HyperlinkedModelSerializer):
-    zaaktype = LengthHyperlinkedRelatedField(
+    zaaktype = DeprecatedNamespaceLengthHyperlinkedRelatedField(
         help_text="het zaaktype waarop de autorisatie van toepassing is.",
         lookup_field="uuid",
         queryset=ZaakType.objects.all(),
-        view_name="catalogi:zaaktype-detail",
+        view_name="zaken:zaaktype-detail",
         required=False,
         min_length=0,
         allow_null=False,
@@ -41,20 +45,14 @@ class ZaakTypeAutorisatieSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Autorisatie
         fields = ("zaaktype", "max_vertrouwelijkheidaanduiding")
-        extra_kwargs = {
-            "zaaktype": {
-                "lookup_field": "uuid",
-                "view_name": "catalogi:zaaktype-detail",
-            },
-        }
 
 
 class InformatieObjectTypeAutorisatieSerializer(serializers.HyperlinkedModelSerializer):
-    informatieobjecttype = LengthHyperlinkedRelatedField(
+    informatieobjecttype = DeprecatedNamespaceLengthHyperlinkedRelatedField(
         help_text="het informatieobjecttype waarop de autorisatie van toepassing is.",
         lookup_field="uuid",
         queryset=InformatieObjectType.objects.all(),
-        view_name="catalogi:informatieobjecttype-detail",
+        view_name="documenten:informatieobjecttype-detail",
         required=False,
         min_length=0,
         allow_null=False,
@@ -63,20 +61,14 @@ class InformatieObjectTypeAutorisatieSerializer(serializers.HyperlinkedModelSeri
     class Meta:
         model = Autorisatie
         fields = ("informatieobjecttype", "max_vertrouwelijkheidaanduiding")
-        extra_kwargs = {
-            "informatieobjecttype": {
-                "lookup_field": "uuid",
-                "view_name": "catalogi:informatieobjecttype-detail",
-            },
-        }
 
 
 class BesluitTypeAutorisatieSerializer(serializers.HyperlinkedModelSerializer):
-    besluittype = LengthHyperlinkedRelatedField(
+    besluittype = DeprecatedNamespaceLengthHyperlinkedRelatedField(
         help_text="het besluittype waarop de autorisatie van toepassing is.",
         lookup_field="uuid",
         queryset=BesluitType.objects.all(),
-        view_name="catalogi:besluittype-detail",
+        view_name="zaken:besluittype-detail",
         required=False,
         min_length=0,
         allow_null=False,
@@ -85,12 +77,6 @@ class BesluitTypeAutorisatieSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Autorisatie
         fields = ("besluittype",)
-        extra_kwargs = {
-            "besluittype": {
-                "lookup_field": "uuid",
-                "view_name": "catalogi:besluittype-detail",
-            },
-        }
 
 
 class AutorisatieBaseSerializer(PolymorphicSerializer):
@@ -129,6 +115,14 @@ class AutorisatieBaseSerializer(PolymorphicSerializer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # The ``discriminator.mapping`` serializers are instantiated once, at import
+        # time, and would be shared by every request (and thread): the discriminator
+        # updates their context and the ``CacheMixin`` of their fields caches URLs
+        # including the host of the first request. ``Field.__deepcopy__``
+        # re-instantiates them, so every instance (= request) gets its own, like DRF
+        # does for declared fields.
+        self.discriminator = copy.deepcopy(self.discriminator)
 
         value_display_mapping = add_choice_values_help_text(ComponentTypes)
         current_help = self.fields["component"].help_text or ""
