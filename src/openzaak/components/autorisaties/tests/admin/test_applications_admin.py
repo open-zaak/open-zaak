@@ -103,6 +103,41 @@ class ApplicationsTests(WebTest):
                     filtered.context["cl"].result_list, [application]
                 )
 
+    @tag("gh-2647")
+    def test_manage_authorizations_only_reports_actual_changes(self):
+        # Only show success message when there are actual change
+        application = Applicatie.objects.create(label="test", client_ids=["foo"])
+        JWTSecret.objects.create(identifier="foo", secret="bar")
+        url = reverse("admin:authorizations_applicatie_change", args=(application.pk,))
+        authorizations_url = reverse(
+            "admin:authorizations_applicatie_autorisaties", args=(application.pk,)
+        )
+
+        for field, value in (
+            (None, None),  # no change
+            ("label", "updated label"),
+            ("credentials-0-secret", "updated secret"),
+        ):
+            with self.subTest(field=field):
+                form = self.app.get(url).forms["applicatie_form"]
+                if field:
+                    form[field] = value
+
+                response = form.submit("_autorisaties")
+
+                self.assertEqual(response.location, authorizations_url)
+                response = response.follow()
+                messages = list(response.context["messages"])
+                self.assertEqual(len(messages), 1 if field else 0)
+                if field:
+                    self.assertEqual(messages[0].level_tag, "success")
+
+        application.refresh_from_db()
+        self.assertEqual(application.label, "updated label")
+        self.assertEqual(
+            JWTSecret.objects.get(identifier="foo").secret, "updated secret"
+        )
+
     def test_delete_applicatie_cascade_inline_credentials(self):
         JWTSecret.objects.create(identifier="testid", secret="bla")
         applicatie = ApplicatieFactory.create(client_ids=["testid"])

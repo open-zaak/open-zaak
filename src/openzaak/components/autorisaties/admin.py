@@ -107,6 +107,18 @@ class ApplicatieAdmin(admin.ModelAdmin):
             model_admin=self,
         )
 
+    def save_related(self, request, form, formsets, change):
+        has_form_changed = form.has_changed() or any(
+            formset.has_changed() for formset in formsets
+        )
+        request._applicatie_changed = has_form_changed  # pyright: ignore[reportAttributeAccessIssue]
+        super().save_related(request, form, formsets, change)
+
+    def response_change(self, request, obj):
+        if "_autorisaties" in request.POST and not request._applicatie_changed:  # pyright: ignore[reportAttributeAccessIssue]
+            return self.response_post_save_change(request, obj)
+        return super().response_change(request, obj)
+
     def response_post_save_change(self, request, obj):
         if "_autorisaties" in request.POST:
             return redirect(

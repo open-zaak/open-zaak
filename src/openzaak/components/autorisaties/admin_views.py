@@ -4,6 +4,7 @@ from collections import defaultdict
 from typing import Any, Dict, List, Tuple, Union
 
 from django import forms
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
@@ -277,7 +278,15 @@ class AutorisatiesView(AdminContextMixin, DetailView):
         formset = self.get_formset()
 
         if formset.is_valid():
-            formset.save()
+            if formset.save():
+                # Show success message if form save sucessfully
+                messages.success(
+                    request,
+                    _(
+                        "De autorisaties voor applicatie ‘%(applicatie)s’ zijn met succes gewijzigd."
+                    )
+                    % {"applicatie": applicatie},
+                )
             return redirect(
                 "admin:authorizations_applicatie_change", object_id=applicatie.pk
             )
